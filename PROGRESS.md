@@ -95,7 +95,9 @@ account email; sign out after 7 days idle.
   preview deploy if approved).
 
 ## Next action
-Phase 2 approved and merged to `main`. Owner: run "Deploy database migrations" (dry run should
-list only `20261015120000_auth_profiles_and_mfa.sql`, then apply), then the dashboard settings
-in README. Note: deploy runs #3–#4 (2026-10-14, before the merge) applied nothing ("Remote
+Phase 2 approved and merged to `main`. Deploy run #5 (dry run) listed only
+`20261015120000_auth_profiles_and_mfa.sql`; run #6 applied it without errors and the base-schema
+verification passed. The verify step does not yet check the aal2 policies or the profile trigger
+(owner given a read-only SQL check; automated check planned). Owner next: dashboard settings and
+creating the owner user (README). Note: deploy runs #3–#4 (2026-10-14, before the merge) applied nothing ("Remote
 database is up to date") and re-verified the Phase 1 schema. Phase 3 waits for the owner's go-ahead.

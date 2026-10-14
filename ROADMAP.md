@@ -104,7 +104,7 @@ built-in auth email (Supabase-sent, not an app email feature).
 - ✅ Security headers and per-request CSP nonce; no CSP violations in Chromium — unit, workerd, CI.
 - ✅ Profiles + default rules created for new users — DB + CI API tests.
 - ✅ Full browser journey on an iPhone-sized screen — CI Playwright.
-- ⏳ Phase 2 migration applied to production + dashboard settings — owner, after approval.
+- ✅ Phase 2 migration applied to production 2026-10-14 (deploy run #6; dry run #5 listed only this migration). ⏳ Dashboard settings + owner user — owner.
 - ✅ Owner approved Phase 2 (2026-10-15).
 
 **Acceptance criteria**

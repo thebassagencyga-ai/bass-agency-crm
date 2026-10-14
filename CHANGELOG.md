@@ -3,6 +3,8 @@
 All meaningful changes, grouped by milestone.
 
 ## Phase 2 — Authentication & security foundation (2026-10-15, approved)
+### Deployed
+- Migration `20261015120000_auth_profiles_and_mfa.sql` applied to production (deploy run #6).
 ### Added
 - Sign-in, mandatory two-step login (authenticator app), sign out, forgot/reset password.
 - `middleware.ts`: session refresh, route decisions, per-request CSP nonce, security headers.
