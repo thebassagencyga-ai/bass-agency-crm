@@ -1,9 +1,9 @@
 name: CI
 
+# Runs on every push to any branch (private repo; one owner), so phase branches are
+# verified before review. Pull requests from this repo are covered by the push runs.
 on:
   push:
-    branches: [main]
-  pull_request:
   workflow_dispatch:
 
 permissions:
