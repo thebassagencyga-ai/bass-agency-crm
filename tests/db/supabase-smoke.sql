@@ -5,12 +5,10 @@
 
 begin;
 
+-- Profiles and default rules are created by the on_auth_user_created trigger.
 insert into auth.users (id, email)
 values ('00000000-0000-4000-8000-0000000000a1', 'smoke-a@example.com'),
        ('00000000-0000-4000-8000-0000000000b2', 'smoke-b@example.com');
-insert into public.profiles (id, display_name)
-values ('00000000-0000-4000-8000-0000000000a1', 'Smoke A'),
-       ('00000000-0000-4000-8000-0000000000b2', 'Smoke B');
 
 do $$
 begin
@@ -32,8 +30,8 @@ begin
 end;
 $$;
 
--- As user A (real auth.uid() reads request.jwt.claims).
-select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-0000000000a1","role":"authenticated"}', true);
+-- As user A (real auth.uid()/auth.jwt() read request.jwt.claims), after two-step login.
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-0000000000a1","role":"authenticated","aal":"aal2"}', true);
 set local role authenticated;
 insert into public.contacts (contact_type, first_name) values ('individual', 'Smoke');
 do $$
@@ -45,8 +43,20 @@ end;
 $$;
 reset role;
 
+-- As user A with a password-only session (aal1): must see nothing.
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-0000000000a1","role":"authenticated","aal":"aal1"}', true);
+set local role authenticated;
+do $$
+begin
+  if (select count(*) from public.contacts) <> 0 then
+    raise exception 'A password-only (aal1) session can read contacts';
+  end if;
+end;
+$$;
+reset role;
+
 -- As user B: must not see A's contact.
-select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-0000000000b2","role":"authenticated"}', true);
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-0000000000b2","role":"authenticated","aal":"aal2"}', true);
 set local role authenticated;
 do $$
 begin

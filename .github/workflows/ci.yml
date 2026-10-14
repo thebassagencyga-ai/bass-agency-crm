@@ -27,6 +27,8 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - name: Browser bundle contains no secrets or Supabase config
+        run: node scripts/check-client-bundle.mjs
       - name: Cloudflare Workers build (OpenNext)
         run: npx opennextjs-cloudflare build
       - name: Worker bundle size (dry run, nothing is deployed)
@@ -71,5 +73,69 @@ jobs:
         run: npx supabase db lint --local --fail-on error
       - name: RLS smoke test with Supabase's real auth schema
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f tests/db/supabase-smoke.sql
+      - if: always()
+        run: npx supabase stop --no-backup
+
+  integration:
+    name: Sign-in and security (real Supabase stack, Cloudflare build, browser)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+
+      - name: Start local Supabase (database, auth, data API, email catcher)
+        run: npx supabase start -x realtime,storage-api,imgproxy,studio,edge-runtime,logflare,vector,postgres-meta,supavisor
+
+      - name: Export the local stack's URL and keys (throwaway, local only)
+        run: |
+          npx supabase status -o env > "$RUNNER_TEMP/supabase.env"
+          set -a; . "$RUNNER_TEMP/supabase.env"; set +a
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+          {
+            echo "SUPABASE_URL=$API_URL"
+            echo "SUPABASE_PUBLISHABLE_KEY=$ANON_KEY"
+            echo "SUPABASE_SECRET_KEY=$SERVICE_ROLE_KEY"
+            echo "APP_URL=http://127.0.0.1:8787"
+          } >> "$GITHUB_ENV"
+
+      - name: Build for Cloudflare
+        run: npx opennextjs-cloudflare build
+
+      - name: Browser bundle contains no keys, secrets or Supabase URL
+        run: FORBIDDEN_VALUES="$SUPABASE_SECRET_KEY,$SUPABASE_PUBLISHABLE_KEY,$SUPABASE_URL" node scripts/check-client-bundle.mjs
+
+      - name: Start the app in workerd
+        run: |
+          printf 'SUPABASE_URL=%s\nSUPABASE_PUBLISHABLE_KEY=%s\nSITE_URL=%s\nINSECURE_COOKIES_FOR_LOCAL_TESTS=1\n' \
+            "$SUPABASE_URL" "$SUPABASE_PUBLISHABLE_KEY" "$APP_URL" > .dev.vars
+          nohup npx wrangler dev --port 8787 --ip 127.0.0.1 > "$RUNNER_TEMP/wrangler.log" 2>&1 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null "$APP_URL/login" && exit 0; sleep 2; done
+          tail -50 "$RUNNER_TEMP/wrangler.log"; exit 1
+
+      - name: Auth API and app HTTP tests
+        run: npm run test:integration
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser journey (sign in, two-step setup, sign out, sign in with code)
+        run: npm run test:e2e
+
+      - name: App log on failure
+        if: failure()
+        run: tail -100 "$RUNNER_TEMP/wrangler.log" || true
+
+      - name: Keep Playwright traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7
+
       - if: always()
         run: npx supabase stop --no-backup

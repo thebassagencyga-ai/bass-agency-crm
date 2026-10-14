@@ -1,0 +1,25 @@
+import { NavLinks } from "@/components/nav-links";
+import { requireFullSession } from "@/lib/auth/require";
+import { signOut } from "../(auth)/actions";
+
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const { email } = await requireFullSession();
+  return (
+    <div className="flex min-h-dvh flex-col md:flex-row">
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:m-2 focus:rounded focus:bg-white focus:p-2">Skip to content</a>
+      <header className="border-b border-slate-200 p-3 md:w-60 md:shrink-0 md:border-b-0 md:border-r dark:border-slate-800">
+        <div className="mb-2 flex items-center justify-between gap-2 md:mb-4 md:flex-col md:items-start">
+          <p className="font-semibold">The Bass Agency CRM</p>
+          <form action={signOut}>
+            <button type="submit" className="min-h-11 rounded-md px-3 text-sm underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600">Sign out</button>
+          </form>
+        </div>
+        <nav aria-label="Main">
+          <NavLinks />
+        </nav>
+        <p className="mt-4 hidden truncate text-xs text-slate-500 md:block" title={email}>{email}</p>
+      </header>
+      <main id="main" className="flex-1 p-4 md:p-8">{children}</main>
+    </div>
+  );
+}

@@ -13,15 +13,22 @@ export async function connect(): Promise<Db> {
   return client;
 }
 
-/** Fictional test user: inserts auth.users + profile (as the database owner). */
+/**
+ * Fictional test user: inserts into auth.users (as Supabase Auth would); the
+ * on_auth_user_created trigger then creates the profile and default rules.
+ */
 export async function createUser(db: Db, label = "agent"): Promise<string> {
   const id = randomUUID();
-  await db.query("insert into auth.users (id, email) values ($1, $2)", [id, `${label}-${id.slice(0, 8)}@example.com`]);
-  await db.query("insert into public.profiles (id, display_name) values ($1, $2)", [id, `Test ${label}`]);
+  await db.query("insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3)", [
+    id,
+    `${label}-${id.slice(0, 8)}@example.com`,
+    JSON.stringify({ display_name: `Test ${label}` }),
+  ]);
   return id;
 }
 
-type Caller = { role: "anon" } | { role: "authenticated"; userId: string };
+/** aal2 = signed in with password + authenticator code (required by RLS); aal1 = password only. */
+type Caller = { role: "anon" } | { role: "authenticated"; userId: string; aal?: "aal1" | "aal2" };
 
 /**
  * Runs `fn` as the given API caller inside a transaction, then commits.
@@ -31,7 +38,9 @@ export async function as<T>(db: Db, caller: Caller, fn: (db: Db) => Promise<T>):
   await db.query("begin");
   try {
     const claims =
-      caller.role === "authenticated" ? { sub: caller.userId, role: "authenticated" } : { role: "anon" };
+      caller.role === "authenticated"
+        ? { sub: caller.userId, role: "authenticated", aal: caller.aal ?? "aal2" }
+        : { role: "anon" };
     await db.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify(claims)]);
     await db.query(`set local role ${caller.role}`);
     const result = await fn(db);
@@ -45,6 +54,10 @@ export async function as<T>(db: Db, caller: Caller, fn: (db: Db) => Promise<T>):
 
 export const asUser = <T>(db: Db, userId: string, fn: (db: Db) => Promise<T>) =>
   as(db, { role: "authenticated", userId }, fn);
+
+/** A session that has passed the password but not the authenticator step. */
+export const asPasswordOnlyUser = <T>(db: Db, userId: string, fn: (db: Db) => Promise<T>) =>
+  as(db, { role: "authenticated", userId, aal: "aal1" }, fn);
 
 export const asAnon = <T>(db: Db, fn: (db: Db) => Promise<T>) => as(db, { role: "anon" }, fn);
 

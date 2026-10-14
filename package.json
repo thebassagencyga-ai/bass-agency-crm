@@ -13,12 +13,15 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --project unit",
     "test:db": "vitest run --project db",
-    "test:all": "vitest run",
+    "test:all": "vitest run --project unit --project db",
     "db:local:start": "bash scripts/local-db.sh start",
     "db:local:stop": "bash scripts/local-db.sh stop",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
+    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "test:integration": "vitest run --project integration",
+    "test:e2e": "playwright test",
+    "check:bundle": "node scripts/check-client-bundle.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
@@ -31,6 +34,7 @@
   },
   "devDependencies": {
     "@opennextjs/cloudflare": "1.20.11",
+    "@playwright/test": "1.64.1",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "22.20.5",
     "@types/pg": "8.23.1",

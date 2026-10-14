@@ -22,6 +22,18 @@ export default defineConfig({
           hookTimeout: 60_000,
         },
       },
+      {
+        extends: true,
+        test: {
+          // Real Supabase Auth + Data API + the app in workerd (CI; see .github/workflows/ci.yml).
+          name: "integration",
+          include: ["tests/integration/**/*.test.ts"],
+          environment: "node",
+          fileParallelism: false,
+          testTimeout: 60_000,
+          hookTimeout: 60_000,
+        },
+      },
     ],
   },
 });
