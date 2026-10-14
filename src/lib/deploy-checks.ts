@@ -56,7 +56,12 @@ export interface VerificationRow {
 }
 
 /** Database functions callable through the Data API (all SECURITY INVOKER). Update per phase. */
-export const PUBLIC_FUNCTIONS = ["contact_lead_sources", "find_possible_duplicates", "search_contacts"] as const;
+export const PUBLIC_FUNCTIONS = [
+  "contact_lead_sources",
+  "find_possible_duplicates",
+  "search_contacts",
+  "search_opportunities",
+] as const;
 
 /**
  * Trigger-only functions Supabase itself adds to `public` on hosted projects. They return

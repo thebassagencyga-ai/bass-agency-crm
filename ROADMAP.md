@@ -11,7 +11,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 1 | Architecture & database foundation | 0 | APPROVED (2026-10-14) |
 | 2 | Authentication & security foundation | 1 | APPROVED (2026-10-15) |
 | 3 | Contact management | 2 | APPROVED (2026-10-14) |
-| 4 | Opportunities & pipelines | 3 | NOT STARTED |
+| 4 | Opportunities & pipelines | 3 | IN PROGRESS |
 | 5 | Task management & activity history | 4 | NOT STARTED |
 | 6 | Automation engine | 5 | NOT STARTED |
 | 7 | Dashboard & daily workflow | 6 | NOT STARTED |
