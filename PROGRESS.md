@@ -1,8 +1,8 @@
 # Progress
 
-**Current phase:** 1 — Architecture & database foundation — **READY FOR REVIEW**
+**Current phase:** 1 — Architecture & database foundation — **APPROVED by owner 2026-10-14**
 **Last updated:** 2026-10-14
-**Branch:** `phase-1-database-foundation` (not merged to `main`)
+**Branch:** `phase-1-database-foundation`, merged to `main` on approval
 
 ## Phase 0 — APPROVED 2026-10-14
 Governance files created. ProducerIQ untouched (owner reconfirmed: it must not be modified).
@@ -50,7 +50,7 @@ PostgreSQL 16), so CI is the evidence for them.
    Owner to confirm with Alfa/compliance whether any referral thank-you of value is allowed.
 3. After approval: apply migrations to the CRM project (README → Database migrations), or
    ask Claude to walk through it.
-4. Approve Phase 1 → merge branch to `main`.
+4. ~~Approve Phase 1~~ — approved 2026-10-14; merged to `main`.
 
 ## Next action
-Await owner review of Phase 1. Phase 2 (authentication) does not start without approval.
+Owner applies migrations to the CRM Supabase project. Phase 2 (authentication) does not start without the owner's go-ahead.

@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 1 — Architecture & database foundation (2026-10-14, awaiting approval)
+## Phase 1 — Architecture & database foundation (2026-10-14, approved)
 ### Added
 - Next.js 16.3.8 + TypeScript strict + Tailwind 4 + ESLint 9 + Vitest 5 scaffold with a placeholder page.
 - Cloudflare Workers build via `@opennextjs/cloudflare` (`wrangler.jsonc`, `open-next.config.ts`).

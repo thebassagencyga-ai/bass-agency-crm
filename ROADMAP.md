@@ -8,7 +8,7 @@ inherits the standard exit criteria at the bottom of this file.
 | # | Phase | Depends on | Status |
 |---|-------|-----------|--------|
 | 0 | Repository inspection & governance | — | APPROVED (2026-10-14) |
-| 1 | Architecture & database foundation | 0 | READY FOR REVIEW |
+| 1 | Architecture & database foundation | 0 | APPROVED (2026-10-14) |
 | 2 | Authentication & security foundation | 1 | NOT STARTED |
 | 3 | Contact management | 2 | NOT STARTED |
 | 4 | Opportunities & pipelines | 3 | NOT STARTED |
@@ -65,7 +65,7 @@ Supabase project (after confirming cost). Hosting spike needs a free Cloudflare 
 - ✅ Hosting spike (local workerd). Deploy to workers.dev not done — needs a Cloudflare account and approval.
 - ✅ All tables, enums, constraints, indexes, triggers, audit and seed data in 4 migrations; `docs/data-model.md`.
 - ✅ Referral and Google review data model added at owner request (ADR-013), with tests.
-- ⏳ Migrations applied to the production Supabase project — owner action after review.
+- ⏳ Migrations applied to the production Supabase project — owner action (approved; pending).
 
 Original criteria:
 - Migrations apply cleanly to an empty local database, and re-running the suite from scratch is reproducible.
