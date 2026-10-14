@@ -52,10 +52,21 @@ export interface VerificationRow {
   profile_trigger: unknown;
   public_functions: unknown;
   definer_or_anon_functions: unknown;
+  unexpected_trigger_functions: unknown;
 }
 
 /** Database functions callable through the Data API (all SECURITY INVOKER). Update per phase. */
 export const PUBLIC_FUNCTIONS = ["contact_lead_sources", "find_possible_duplicates", "search_contacts"] as const;
+
+/**
+ * Trigger-only functions Supabase itself adds to `public` on hosted projects. They return
+ * `trigger`/`event_trigger`, so Postgres refuses to call them directly and the Data API never
+ * exposes them. `rls_auto_enable`: the dashboard's "Enable automatic RLS" setting (ADR-002).
+ * Any other trigger function in `public` fails verification.
+ */
+export const PLATFORM_TRIGGER_FUNCTIONS = ["rls_auto_enable"] as const;
+
+const CALLABLE = "p.prorettype not in ('trigger'::regtype, 'event_trigger'::regtype)";
 
 /** SQL whose single result row is checked by checkVerification. */
 export const VERIFICATION_SQL = `
@@ -72,9 +83,12 @@ select
      where schemaname = 'public' and permissive = 'RESTRICTIVE' and qual like '%aal2%') as mfa_policies,
   (select count(*) from pg_trigger
      where tgname = 'on_auth_user_created' and not tgisinternal) as profile_trigger,
-  (select count(*) from pg_proc where pronamespace = 'public'::regnamespace) as public_functions,
   (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace
-     and (p.prosecdef or has_function_privilege('anon', p.oid, 'execute'))) as definer_or_anon_functions
+     and ${CALLABLE}) as public_functions,
+  (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace and ${CALLABLE}
+     and (p.prosecdef or has_function_privilege('anon', p.oid, 'execute'))) as definer_or_anon_functions,
+  (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace and not (${CALLABLE})
+     and p.proname not in (${PLATFORM_TRIGGER_FUNCTIONS.map((n) => `'${n}'`).join(", ")})) as unexpected_trigger_functions
 `;
 
 /** Every function in the public schema, printed by the verify step so a failure names it. */
@@ -115,6 +129,7 @@ export function checkVerification(row: VerificationRow): string[] {
     ["profile_trigger", 1, "sign-up profile trigger"],
     ["public_functions", PUBLIC_FUNCTIONS.length, "Data API functions"],
     ["definer_or_anon_functions", 0, "functions that bypass RLS or allow anonymous use"],
+    ["unexpected_trigger_functions", 0, "unknown trigger functions in public"],
   ];
   const problems: string[] = [];
   for (const [key, expected, label] of expectations) {

@@ -144,6 +144,16 @@ Started 2026-10-14 after the owner signed in on the preview ("Signed in, start P
   Supabase's image; 26 integration tests (12 app HTTP, 9 auth API, 5 contacts API) and 2 browser
   journeys (sign-in; full contacts journey) on an iPhone 13-sized screen.
 
+**Production deploy (2026-10-14)**
+- Run #7 (dry run): would push only `20261016120000_contact_search.sql`.
+- Run #8 (apply): migration applied without errors; all earlier checks passed. The new function
+  check failed: 4 `public` functions, 1 SECURITY DEFINER/anon. Owner's read-only query showed it
+  is Supabase's `rls_auto_enable()` event trigger (automatic RLS setting) — not callable,
+  harmless. Fix on branch `phase-3-verify-detail`: verify counts callable functions only, allows
+  that one platform trigger function by name, prints every `public` function; tests and
+  mutation checks added. Pending owner approval to merge, then re-run apply (nothing to apply)
+  to re-verify.
+
 **Owner actions after approval**
 1. Merge to `main`.
 2. Run "Deploy database migrations" as a dry run — it should list only

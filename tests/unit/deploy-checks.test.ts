@@ -44,6 +44,7 @@ describe("checkVerification", () => {
   const good = {
     stages: 30, product_lines: 4, tables_without_rls: 0, anon_grants: 0, crm_tables: 9,
     mfa_policies: 9, profile_trigger: 1, public_functions: 3, definer_or_anon_functions: 0,
+    unexpected_trigger_functions: 0,
   };
 
   it("passes the expected post-migration state", () => {
@@ -55,6 +56,7 @@ describe("checkVerification", () => {
       checkVerification({
         stages: "30", product_lines: "4", tables_without_rls: "0", anon_grants: "0", crm_tables: "9",
         mfa_policies: "9", profile_trigger: "1", public_functions: "3", definer_or_anon_functions: "0",
+        unexpected_trigger_functions: "0",
       }),
     ).toEqual([]);
   });
@@ -69,6 +71,7 @@ describe("checkVerification", () => {
     [{ profile_trigger: 0 }, "sign-up profile trigger"],
     [{ public_functions: 2 }, "Data API functions"],
     [{ definer_or_anon_functions: 1 }, "bypass RLS"],
+    [{ unexpected_trigger_functions: 1 }, "unknown trigger functions"],
   ])("reports %j", (override, message) => {
     const problems = checkVerification({ ...good, ...override });
     expect(problems).toHaveLength(1);

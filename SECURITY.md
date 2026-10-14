@@ -68,6 +68,11 @@ check. The Phase 2 migration and dashboard settings are applied only after owner
   `contact_lead_sources`) are SECURITY INVOKER, so RLS applies; EXECUTE is revoked from
   `public`/`anon`. The deploy verification fails if any `public` function is SECURITY DEFINER
   or executable by `anon`, or if the function list changes unexpectedly.
+- Platform exception: hosted projects with "Enable automatic RLS" contain Supabase's own
+  `public.rls_auto_enable()` (returns `event_trigger`, SECURITY DEFINER, EXECUTE granted to
+  anon by Supabase). Event-trigger functions cannot be called directly and are not exposed by
+  the Data API; it only switches RLS on for new tables. The verify step allows trigger
+  functions in `public` only if named in `PLATFORM_TRIGGER_FUNCTIONS`; we do not modify it.
 - No DELETE privilege for `authenticated` on any table (ADR-010).
 - Composite foreign keys including `owner_id` stop a user linking their rows to another
   user's contact, opportunity, task or rule, even though FK checks bypass RLS.

@@ -364,6 +364,9 @@ capped at 100. EXECUTE is granted to `authenticated` only. The deploy verificati
 `public` function is SECURITY DEFINER, executable by `anon`, or the function count changes.
 
 **Consequences.** Search logic is tested directly in SQL (24 DB tests, mutation-checked).
+Verification counts only callable functions; trigger-only functions
+Supabase adds (today `rls_auto_enable`, found on the first production verify, deploy run #8)
+are allowed by name and any other one fails.
 Matching uses `ILIKE` without an index: fine for one agent's few thousand contacts; a trigram
 index can be added later if the list grows (no decision needed now).
 
