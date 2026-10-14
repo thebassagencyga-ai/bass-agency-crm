@@ -53,6 +53,12 @@ PostgreSQL 16), so CI is the evidence for them.
 4. ~~Approve Phase 1~~ — approved 2026-10-14; merged to `main`.
 
 ## Next action
-Owner applies migrations with the new manual GitHub workflow (ADR-014): add three secrets,
-run a dry run, then run with "apply". Phase 2 (authentication) does not start without the
-owner's go-ahead.
+## Production database (2026-10-14)
+Owner added the three repository secrets and ran "Deploy database migrations":
+- Run #1 (dry run): guard confirmed an empty project; would push exactly the 4 migrations.
+- Run #2 (apply): all 4 applied; verification on production returned
+  `{"stages":30,"product_lines":4,"tables_without_rls":0,"anon_grants":0,"crm_tables":9}`.
+No users or business data exist yet (profiles and default rules are created at first sign-in, Phase 2).
+
+## Next action
+Await the owner's go-ahead for Phase 2 (authentication & security foundation).

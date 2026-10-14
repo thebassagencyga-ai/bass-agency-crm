@@ -80,7 +80,7 @@ underwriting answers, detailed health information, policy documents. No file upl
 ## 8. Verification checklist
 | Check | Phase | Status |
 |-------|-------|--------|
-| RLS enabled on every table (catalog test) | 1 | Verified: local PG16, CI PG17.11, and Supabase's real image (CI run #1) |
+| RLS enabled on every table (catalog test) | 1 | Verified: local PG16, CI PG17.11, Supabase's real image (CI), and the **production** project after deploy (2026-10-14) |
 | anon cannot read/write any table | 1–2 | SQL level verified locally; API level in Phase 2 |
 | User A cannot read/modify user B's rows (SQL + API) | 1–2 | SQL level verified locally; API level in Phase 2 |
 | No DELETE privilege for app users; no cross-owner FK links | 1 | Verified locally |
@@ -107,5 +107,5 @@ underwriting answers, detailed health information, policy documents. No file upl
   only the smaller smoke test runs (RLS on, anon blocked, cross-user isolation). API-level
   tests through the real Data API arrive in Phase 2.
 - Dev-only dependency advisories (ADR-011) accepted until Phase 11 review.
-- Migrations have not been applied to the production project; the owner applies them after
-  review.
+- Migrations applied to production 2026-10-14 (ADR-014). The Supabase access token in GitHub
+  secrets is account-wide; keep its expiry short and revoke it when not deploying.

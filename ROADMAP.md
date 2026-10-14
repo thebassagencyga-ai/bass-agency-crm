@@ -65,7 +65,7 @@ Supabase project (after confirming cost). Hosting spike needs a free Cloudflare 
 - ✅ Hosting spike (local workerd). Deploy to workers.dev not done — needs a Cloudflare account and approval.
 - ✅ All tables, enums, constraints, indexes, triggers, audit and seed data in 4 migrations; `docs/data-model.md`.
 - ✅ Referral and Google review data model added at owner request (ADR-013), with tests.
-- ⏳ Migrations applied to the production Supabase project — owner action (approved; pending).
+- ✅ Migrations applied to the production CRM Supabase project 2026-10-14 via the deploy workflow (run #2); verified: 30 stages, 4 product lines, 9 tables, RLS on all, no anon grants.
 
 Original criteria:
 - Migrations apply cleanly to an empty local database, and re-running the suite from scratch is reproducible.

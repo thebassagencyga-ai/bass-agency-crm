@@ -3,6 +3,8 @@
 All meaningful changes, grouped by milestone.
 
 ## Post-Phase 1 — migration deployment (2026-10-14)
+### Deployed
+- Phase 1 migrations applied to the production CRM Supabase project and verified.
 ### Added
 - Manual "Deploy database migrations" GitHub workflow: dry run by default, wrong-project
   guard, verification after apply (ADR-014). 17 unit tests for the safety checks.
