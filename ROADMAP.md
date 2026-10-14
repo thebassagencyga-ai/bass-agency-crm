@@ -9,7 +9,7 @@ inherits the standard exit criteria at the bottom of this file.
 |---|-------|-----------|--------|
 | 0 | Repository inspection & governance | — | APPROVED (2026-10-14) |
 | 1 | Architecture & database foundation | 0 | APPROVED (2026-10-14) |
-| 2 | Authentication & security foundation | 1 | NOT STARTED |
+| 2 | Authentication & security foundation | 1 | READY FOR REVIEW |
 | 3 | Contact management | 2 | NOT STARTED |
 | 4 | Opportunities & pipelines | 3 | NOT STARTED |
 | 5 | Task management & activity history | 4 | NOT STARTED |
@@ -92,6 +92,20 @@ Original criteria:
 profile auto-creation; app shell with the seven nav items as empty placeholders;
 security headers (CSP, frame-ancestors, referrer policy); password reset flow via Supabase's
 built-in auth email (Supabase-sent, not an app email feature).
+
+**Status 2026-10-15** (✅ verified by automated check; ⏳ owner action):
+- ✅ Signed-out page requests redirect to login (query string kept); server actions return 401 — unit, workerd, CI HTTP tests.
+- ✅ Public sign-up refused — CI against Supabase Auth with the project's config. ⏳ Hosted dashboard setting (owner).
+- ✅ Logout clears the session; refresh token unusable afterwards — CI API + browser tests.
+- ✅ Expired session refreshes automatically with a new HttpOnly cookie — CI HTTP test.
+- ✅ Anonymous and cross-account access denied through the real Data API — CI API tests (9).
+- ✅ **Mandatory two-step login** (owner decision): aal1 sessions get no data — DB tests, CI API tests, mutation-checked.
+- ✅ No secret or Supabase config in browser code — bundle scan (CI uses real key values).
+- ✅ Security headers and per-request CSP nonce; no CSP violations in Chromium — unit, workerd, CI.
+- ✅ Profiles + default rules created for new users — DB + CI API tests.
+- ✅ Full browser journey on an iPhone-sized screen — CI Playwright.
+- ⏳ Phase 2 migration applied to production + dashboard settings — owner, after approval.
+- ⏳ Owner security review sign-off before Phase 3.
 
 **Acceptance criteria**
 - Unauthenticated requests to any protected page redirect to login; protected server actions/route handlers return 401.

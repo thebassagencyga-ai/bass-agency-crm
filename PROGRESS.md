@@ -1,7 +1,7 @@
 # Progress
 
-**Current phase:** 1 — Architecture & database foundation — **APPROVED by owner 2026-10-14**
-**Last updated:** 2026-10-14
+**Current phase:** 2 — Authentication & security foundation — **READY FOR REVIEW**
+**Last updated:** 2026-10-15
 **Branch:** `phase-1-database-foundation`, merged to `main` on approval
 
 ## Phase 0 — APPROVED 2026-10-14
@@ -60,5 +60,40 @@ Owner added the three repository secrets and ran "Deploy database migrations":
   `{"stages":30,"product_lines":4,"tables_without_rls":0,"anon_grants":0,"crm_tables":9}`.
 No users or business data exist yet (profiles and default rules are created at first sign-in, Phase 2).
 
+## Phase 2 — Authentication & security foundation (branch `phase-2-auth`)
+Owner decisions: mandatory two-step login (TOTP); sign-in email differs from the Supabase
+account email; sign out after 7 days idle.
+
+### Tests run (2026-10-15)
+| Where | Command / job | Result |
+|---|---|---|
+| Local | `npm run lint`, `npm run typecheck` | pass |
+| Local | `npm test` (unit) | 83 passed |
+| Local | `npm run test:db` (PostgreSQL 16) | 110 passed |
+| Local | Cloudflare build + `wrangler dev`: redirects, 401, headers, nonce on all 11 scripts, open-redirect, forged cookie | pass |
+| Local | Chromium (iPhone size): no CSP violations or page errors, 44 px button, email kept after a failed attempt | pass |
+| Local | Mutation: dropped one aal2 policy | 3 tests failed as expected |
+| CI run #17 | checks, PG17 DB tests, Supabase-image migrations + smoke | pass |
+| CI run #17 | Integration on real Supabase stack: `test:integration` | 21 passed |
+| CI run #17 | Playwright browser journey | 1 passed |
+
+### Issues found and fixed during the phase
+- `proxy.ts` is experimental on OpenNext Cloudflare → use `middleware.ts` (ADR-015).
+- `[auth.email] enable_signup = false` disables password sign-in entirely → only the global
+  sign-up switch is off (dashboard steps updated).
+- React 19 form reset wiped the email after a wrong password → actions echo non-secret values.
+- Query string dropped on sign-in redirect; `/auth/confirm` used the Host header → fixed.
+
+### Not run / limitations
+- Password-reset **email delivery** not tested end to end (needs the hosted mailer and the
+  login address in the Supabase organization, or custom SMTP). The link-handling route is
+  covered by code review and unit-tested redirect logic only.
+- Supabase prints an informational warning about `getSession()` from the MFA level check; the
+  app does not use that data for authorization (identity comes from `getClaims()`, and the
+  database enforces aal2).
+- Nothing deployed: the owner cannot click through the app yet (Phase 12, or an earlier
+  preview deploy if approved).
+
 ## Next action
-Await the owner's go-ahead for Phase 2 (authentication & security foundation).
+Owner review of Phase 2. On approval: merge to `main`, run "Deploy database migrations"
+(dry run, then apply) for the Phase 2 migration, then apply the dashboard settings in README.

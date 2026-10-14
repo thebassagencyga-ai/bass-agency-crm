@@ -2,6 +2,19 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 2 — Authentication & security foundation (2026-10-15, awaiting approval)
+### Added
+- Sign-in, mandatory two-step login (authenticator app), sign out, forgot/reset password.
+- `middleware.ts`: session refresh, route decisions, per-request CSP nonce, security headers.
+- Protected app shell with the seven menu items (placeholders) and a Settings page.
+- Migration `20261015120000_auth_profiles_and_mfa.sql`: profiles created on sign-up; every
+  table requires a two-step (aal2) session.
+- Tests: 47 unit, 7 database, 21 integration (real Supabase), 1 browser journey; browser
+  bundle secret scan in CI.
+### Fixed
+- Email kept after a failed sign-in; sign-in redirect keeps the query string; email links use
+  `SITE_URL`.
+
 ## Post-Phase 1 — migration deployment (2026-10-14)
 ### Deployed
 - Phase 1 migrations applied to the production CRM Supabase project and verified.
