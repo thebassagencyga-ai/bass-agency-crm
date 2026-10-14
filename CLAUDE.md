@@ -68,13 +68,18 @@ Next phase proposed
   edit an applied migration; add a new one.
 - Every business table has `id uuid`, `owner_id uuid` (references the profile/auth user),
   `created_at`, `updated_at`. Closed records are preserved, not deleted. Prefer archiving.
+- Every new table needs, in its migration: RLS enabled, explicit grants to `authenticated`
+  only, owner-scoped policies, and coverage in `tests/db/rls.test.ts`. The catalog tests fail
+  if a table lacks RLS or grants anything to `anon`.
 - Pipeline stage ≠ outcome. Stages are configurable data; outcome is `open | won | lost | nurture`.
 - Time zone: `America/New_York` for everything user-facing. Store instants as `timestamptz`;
   store calendar dates (due dates, effective/renewal dates) as `date`. Compute "today" in
   America/New_York, never from server UTC.
 - No scheduler in the MVP: tasks appear based on their dates when the app is opened.
 - Hosting target: Cloudflare Workers via `@opennextjs/cloudflare` (ADR-004). Do not use
-  features the adapter does not support without recording a decision.
+  features the adapter does not support without recording a decision. Do not upgrade
+  Next.js or the adapter without re-running `npm run cf:preview` and checking pages load
+  (Next 16.4.0 broke the adapter at runtime while still building successfully).
 
 ## Out of scope for the MVP (do not add)
 

@@ -8,7 +8,7 @@ inherits the standard exit criteria at the bottom of this file.
 | # | Phase | Depends on | Status |
 |---|-------|-----------|--------|
 | 0 | Repository inspection & governance | — | APPROVED (2026-10-14) |
-| 1 | Architecture & database foundation | 0 | NOT STARTED |
+| 1 | Architecture & database foundation | 0 | READY FOR REVIEW |
 | 2 | Authentication & security foundation | 1 | NOT STARTED |
 | 3 | Contact management | 2 | NOT STARTED |
 | 4 | Opportunities & pipelines | 3 | NOT STARTED |
@@ -59,7 +59,14 @@ Supabase project (after confirming cost). Hosting spike needs a free Cloudflare 
 - RLS enabled on every table with owner-scoped policies.
 - ER diagram + data dictionary in `docs/data-model.md`.
 
-**Acceptance criteria**
+**Acceptance criteria** (status 2026-10-14; ✅ = verified by automated check, ⏳ = pending)
+- ✅ Scaffold passes lint, typecheck, build; placeholder runs in workerd (Next pinned 16.3.8, see ADR-004).
+- ⏳ CI workflow green on GitHub (first run happens on push).
+- ✅ Hosting spike (local workerd). Deploy to workers.dev not done — needs a Cloudflare account and approval.
+- ✅ All tables, enums, constraints, indexes, triggers, audit and seed data in 4 migrations; `docs/data-model.md`.
+- ⏳ Migrations applied to the production Supabase project — owner action after review.
+
+Original criteria:
 - Migrations apply cleanly to an empty local database, and re-running the suite from scratch is reproducible.
 - Constraints proven by tests: opportunity stage must belong to its product line; outcome/stage
   consistency; contact type rules (individual needs a name, business needs a business name);

@@ -34,3 +34,8 @@ backups/
 *.log
 .vscode/
 .idea/
+
+# TypeScript / Next generated
+*.tsbuildinfo
+next-env.d.ts
+cloudflare-env.d.ts

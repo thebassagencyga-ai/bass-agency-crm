@@ -4,18 +4,18 @@ Private sales and relationship CRM for The Bass Agency (Carrollton, GA): contact
 home/auto/commercial/life opportunity pipelines, follow-up tasks, renewals, cross-sell
 prompts and basic reports.
 
-> **Status: Phase 0 (governance only).** There is no application code yet. Sections marked
-> *(planned)* describe the intended setup and will be completed in the phase noted.
-> See `ROADMAP.md` and `PROGRESS.md`.
+> **Status: Phase 1 (database foundation).** The app is a placeholder page; the database
+> schema, security policies and their tests exist. Sections marked *(planned)* arrive in the
+> phase noted. See `ROADMAP.md` and `PROGRESS.md`.
 
-## Architecture (planned)
+## Architecture
 | Layer | Choice | Notes |
 |-------|--------|-------|
-| App | Next.js App Router, TypeScript strict, Tailwind CSS | Version pinned in Phase 1 to one the hosting adapter supports |
+| App | Next.js 16.3.8 App Router, TypeScript 5.9 strict, Tailwind CSS 4 | Next pinned to a version verified with the Cloudflare adapter (ADR-004) |
 | Data | Supabase PostgreSQL (dedicated project in existing Pro org) | RLS on every table |
 | Auth | Supabase Auth (email + password, invite only) | `@supabase/ssr` cookie sessions |
 | Validation | zod on the server | |
-| Tests | Vitest (unit), SQL/pgTAP (schema + RLS), Playwright (E2E, Phase 11) | |
+| Tests | Vitest (unit + database), Playwright (E2E, Phase 11) | Database tests run SQL as Supabase's API roles |
 | Hosting | Cloudflare Workers via `@opennextjs/cloudflare` | Free plan; Vercel Pro fallback needs approval |
 | CI | GitHub Actions | lint, typecheck, tests, build |
 
@@ -29,10 +29,11 @@ prompts and basic reports.
 | Domain | $0 (`*.workers.dev`) — purchase only with approval | |
 | **Total added** | **≈ $10/month** (guardrail: < $25) | |
 
-## Prerequisites (planned, Phase 1)
-- Node.js 22 LTS and npm
-- Supabase CLI (`npx supabase`) and Docker for the local stack — or local PostgreSQL 16 for SQL tests
-- A free Cloudflare account (for the Workers runtime/deploy)
+## Prerequisites
+- Node.js 22 LTS (≥ 22.12) and npm
+- PostgreSQL 16+ server binaries for the database tests (or Docker for the full Supabase stack)
+- Supabase CLI — installed as a dev dependency (`npx supabase`)
+- A free Cloudflare account — only for deploying (Phase 12); local preview needs none
 
 ## Environment variables (planned, Phase 1–2)
 Copy `.env.example` to `.env.local`. Never commit real values.
@@ -43,29 +44,43 @@ Copy `.env.example` to `.env.local`. Never commit real values.
 | `SUPABASE_SECRET_KEY` | **server only** | Admin tasks (user invites); never per-request |
 | `APP_TIME_ZONE` | server | Defaults to `America/New_York` |
 
-## Local development (planned, Phase 1)
+## Local development
 ```bash
 npm install
-npx supabase start          # local Postgres + Auth (Docker)
-npx supabase db reset       # apply supabase/migrations + seed
-npm run dev
+npm run dev                 # http://localhost:3000 (placeholder page in Phase 1)
+npm run cf:preview          # build for Cloudflare and serve locally in workerd (:8787)
 ```
+With Docker available, `npx supabase start` runs the full local Supabase stack (Postgres,
+Auth, Data API) and applies `supabase/migrations/` — used from Phase 2 onward.
 
-## Database migrations (planned, Phase 1)
-- Migrations live in `supabase/migrations/` and are applied in filename order.
-- Create: `npx supabase migration new <name>`; never edit a migration that has been applied
+## Database migrations
+- Migrations live in `supabase/migrations/` and are applied in filename order. Data model:
+  `docs/data-model.md`.
+- Create: `npx supabase migration new <name>`. Never edit a migration that has been applied
   to production — add a new one.
-- Apply to production only after review: `npx supabase db push` (linked to the CRM project,
-  never ProducerIQ's).
+- **Applying to the production project (owner, after review):**
+  ```bash
+  npx supabase login                          # opens a browser; token stays on your machine
+  npx supabase link --project-ref <CRM project ref>   # Dashboard → Project Settings → General
+  npx supabase db push --dry-run              # lists the migrations it would apply
+  npx supabase db push                        # applies them
+  ```
+  Double-check the project ref is the **CRM** project, never ProducerIQ's.
 
-## Testing (planned, Phase 1+)
+## Testing
 ```bash
 npm run lint
 npm run typecheck
-npm test              # unit
-npm run test:db       # schema + RLS against a local database
-npm run test:e2e      # Phase 11
+npm test                    # unit tests
+npm run db:local:start      # disposable local PostgreSQL on 127.0.0.1:54329
+export TEST_DATABASE_URL=postgres://postgres@127.0.0.1:54329/postgres
+npm run test:db             # schema, constraint, RLS and audit tests
+npm run test:all            # everything
+npm run db:local:stop
 ```
+`test:db` creates a throwaway database from the migrations for every run, drops it
+afterwards, and refuses to run against any non-local host. CI (`.github/workflows/ci.yml`)
+also applies the migrations to Supabase's real Postgres image and runs an RLS smoke test.
 
 ## Deployment (planned, Phase 12)
 Build with `@opennextjs/cloudflare`, deploy with Wrangler, set secrets with

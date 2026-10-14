@@ -1,7 +1,8 @@
 # Security — The Bass Agency CRM
 
-Status: **design only (Phase 0).** Nothing below has been implemented or verified yet.
-Items move to "Verified" only with test evidence or a recorded manual check.
+Status: **Phase 1 — database authorization implemented and tested locally; not yet applied
+to the production project.** Items move to "Verified" only with test evidence or a recorded
+manual check. Authentication (Phase 2) is not implemented.
 
 ## 1. Assets
 - Contact records (names, phones, emails, addresses, business details) of prospects and clients.
@@ -43,7 +44,15 @@ Items move to "Verified" only with test evidence or a recorded manual check.
   no update/delete grants to application roles.
 - `anon` role: no table privileges.
 - Functions: `security invoker` by default; any `security definer` function must set
-  `search_path` and be listed here with justification.
+  `search_path` and be listed here with justification. Current list (all in the unexposed
+  `crm_private` schema, `search_path = ''`, EXECUTE revoked from API roles):
+  - `crm_private.write_audit_log()` — trigger; must append to `audit_log`, which users cannot write.
+  - `crm_private.create_default_automation_rules()` — trigger on profile insert; inserts the
+    new profile's own default rules only.
+- No DELETE privilege for `authenticated` on any table (ADR-010).
+- Composite foreign keys including `owner_id` stop a user linking their rows to another
+  user's contact, opportunity, task or rule, even though FK checks bypass RLS.
+- `owner_id`, `id` and `created_at` cannot be changed after insert (triggers).
 - Future multi-agent: a later migration can add team membership policies; `owner_id` stays.
 
 ## 5. Secret handling
@@ -66,14 +75,18 @@ underwriting answers, detailed health information, policy documents. No file upl
 ## 8. Verification checklist
 | Check | Phase | Status |
 |-------|-------|--------|
-| RLS enabled on every table (catalog test) | 1 | Not started |
-| anon cannot read/write any table | 1–2 | Not started |
-| User A cannot read/modify user B's rows (SQL + API) | 1–2 | Not started |
+| RLS enabled on every table (catalog test) | 1 | Verified locally (`tests/db/rls.test.ts`); CI on PG17 + Supabase image pending first run |
+| anon cannot read/write any table | 1–2 | SQL level verified locally; API level in Phase 2 |
+| User A cannot read/modify user B's rows (SQL + API) | 1–2 | SQL level verified locally; API level in Phase 2 |
+| No DELETE privilege for app users; no cross-owner FK links | 1 | Verified locally |
+| SECURITY DEFINER functions pin search_path; private schema not usable by API roles | 1 | Verified locally |
+| No forbidden sensitive-data columns (SSN, DOB, card, bank, health…) | 1 | Verified locally (column-name scan) |
+| Tests deliberately fail when RLS is broken (mutation check) | 1 | Done manually 2026-10-14: 4 mutations, all caught |
 | Protected routes redirect; actions return 401 | 2 | Not started |
 | No secret key in client bundle | 2 | Not started |
 | Security headers / CSP present | 2 | Not started |
 | Input validation on every mutation | 3+ | Not started |
-| Audit log written and immutable to app roles | 1, 3+ | Not started |
+| Audit log written and immutable to app roles | 1, 3+ | Verified locally at SQL level (`tests/db/audit.test.ts`) |
 | Service worker caches no record data | 10 | Not started |
 | `npm audit` / secret scan clean or triaged | 11 | Not started |
 | Backup restore rehearsed | 11–12 | Not started |
@@ -83,4 +96,11 @@ underwriting answers, detailed health information, policy documents. No file upl
 - Single owner account with no second admin: losing access to the email and Supabase org
   login could lock the owner out. Mitigation: MFA + recovery codes stored offline.
 - Business-day math ignores US holidays (ADR-007).
-- Hosting adapter compatibility not yet proven (ADR-004).
+- Hosting adapter verified only locally in workerd, not deployed (ADR-004). Next.js 16.4.0
+  breaks the adapter at runtime; Next is pinned to 16.3.8.
+- Database tests use a stand-in for Supabase's `auth` schema locally; the real-image CI job
+  is the check that it matches. Until CI has passed, treat RLS as verified on plain
+  PostgreSQL only.
+- Dev-only dependency advisories (ADR-011) accepted until Phase 11 review.
+- Migrations have not been applied to the production project; the owner applies them after
+  review.

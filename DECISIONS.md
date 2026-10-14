@@ -35,22 +35,20 @@ the build sandbox) report that Pro includes a $10/month compute credit covering 
 instance and each additional project adds roughly $10/month for Micro compute. **Owner must
 confirm the exact amount on the Supabase billing page before the project is created (Phase 1).**
 
-**Alternatives.** Separate schema in ProducerIQ's project ($0 extra; rejected due to shared
-service-role blast radius and Clerk-wired auth); a second paid organization (rejected:
-unnecessary cost); Supabase Free (rejected by spec).
-
----
-
 **Project settings (owner, 2026-10-14):** Data API **on** (required by supabase-js /
 `@supabase/ssr`); "Automatically expose new tables" **off** — every migration must
 explicitly `grant` table privileges to `authenticated` only (never `anon`); "Automatic RLS"
 **on** as a safety net in addition to explicit `enable row level security` in each migration.
 Region East US. Database password held only in the owner's password manager.
 
+**Alternatives.** Separate schema in ProducerIQ's project ($0 extra; rejected due to shared
+service-role blast radius and Clerk-wired auth); a second paid organization (rejected:
+unnecessary cost); Supabase Free (rejected by spec).
+
 ---
 
 ## ADR-003 — Development and test databases are local
-**Status:** Proposed
+**Status:** Proposed — implemented in Phase 1 (pending owner review)
 
 **Decision.** Development and automated integration/RLS tests run against a local Supabase
 stack (`supabase start`, requires Docker) or, where Docker is unavailable (e.g. cloud agent
@@ -64,10 +62,17 @@ paying for a second hosted project.
 **Alternative.** A hosted staging project (~$10/month extra). Available later if the owner
 approves.
 
+**Phase 1 implementation.** `tests/db/global-setup.ts` builds a throwaway database from the
+migrations for every run and refuses non-local hosts. `tests/db/supabase-shim.sql` stands in
+for Supabase's `auth` schema and API roles (tests only). Local runs use PostgreSQL 16; CI uses
+PostgreSQL 17 (the hosted project's major version) and additionally applies the migrations
+to Supabase's real Postgres image (`supabase db start`) and runs an RLS smoke test against
+the real `auth.uid()`.
+
 ---
 
 ## ADR-004 — Hosting: Cloudflare Workers via OpenNext
-**Status:** Proposed (compatibility spike in Phase 1, final verification in Phase 12)
+**Status:** Proposed — local spike passed in Phase 1; deploy and final verification in Phase 12
 
 **Context.** The owner has Vercel **Hobby**, which Vercel's fair-use guidelines restrict to
 non-commercial personal use; an agency's sales CRM is commercial use. Cloudflare Pages does
@@ -82,6 +87,15 @@ decides on a custom domain.
 **Risks to verify.** Worker bundle size limit on the free plan; middleware/proxy support for
 Supabase session refresh; Server Actions; cold start.
 
+**Phase 1 spike result (2026-10-14).** `@opennextjs/cloudflare` 1.20.11 declares support
+for Next `>=15.5.27 <16 || >=16.3.8`. With Next **16.4.0** the worker built but every request
+failed at runtime in workerd (`Unexpected loadManifest(/.next/server/preview-props.json)`):
+16.4.0 is newer than the adapter handles. With Next **16.3.8** the placeholder served
+200 / 404 correctly in workerd (`wrangler dev`). Dry-run bundle: 3.9 MiB raw, **821 KiB gzip**
+(free-plan limit 3 MiB gzip). Nothing was deployed: no Cloudflare account was used.
+**Rule:** do not upgrade Next.js past a version the adapter has been verified with; re-run
+`npm run cf:preview` after any Next or adapter upgrade.
+
 **Fallback.** Vercel Pro ($20/month) — requires owner approval; total added cost would then be
 about $30/month including ADR-002, exceeding the $25 guardrail.
 
@@ -91,7 +105,7 @@ Fly.io (not yet evaluated; considered only if the Workers spike fails).
 ---
 
 ## ADR-005 — Data access: Supabase client + Postgres functions, no ORM
-**Status:** Proposed
+**Status:** Proposed — schema side implemented in Phase 1 (pending owner review)
 
 **Decision.** Use `@supabase/ssr` with the signed-in user's session for all reads/writes so
 RLS is always enforced. Multi-step operations (stage change + task generation, win/loss
@@ -104,18 +118,24 @@ configured; adds a second data layer) — rejected per spec.
 ---
 
 ## ADR-006 — Pipeline stages as configurable data; outcome as a separate column
-**Status:** Proposed
+**Status:** Proposed — implemented in Phase 1 (pending owner review)
 
 **Decision.** `pipeline_stages` table keyed by product line (auto, home, commercial, life)
-seeded with the spec's stages, each flagged with a `stage_kind` (`active`, `won`, `lost`).
+seeded with the spec's stages, each flagged with a `kind` (`active`, `won`, `lost`).
 `opportunities.outcome` (`open | won | lost | nurture`) is separate from `stage_id`.
-A constraint/trigger keeps them consistent (e.g. outcome `won` requires a won-kind stage) and
-prevents an opportunity from using another product line's stage.
+
+**Implementation.** A trigger copies the stage's kind into `opportunities.stage_kind`; a
+composite FK `(stage_id, product_line, stage_kind) → pipeline_stages (id, product_line, kind)`
+guarantees the stage exists, belongs to the opportunity's product line, and has that kind; a
+CHECK constraint then allows `open`/`nurture` only on active stages, `won` only on the won
+stage and `lost` only on Lost. All declarative, no application code involved. Stages are
+global (shared by all agents) and changed by migration; per-agent stage customization is not
+in scope.
 
 ---
 
 ## ADR-007 — Dates and time zone
-**Status:** Proposed
+**Status:** Proposed — column types implemented in Phase 1; date logic arrives in Phases 5–6
 
 **Decision.** User-facing zone `America/New_York` (stored on the profile for future agents).
 Instants → `timestamptz` (UTC). Calendar values (task due date, quote date, effective date,
@@ -126,10 +146,13 @@ request a holiday list).
 ---
 
 ## ADR-008 — Duplicate-safe task automation
-**Status:** Proposed
+**Status:** Proposed — constraint implemented in Phase 1 (pending owner review)
 
 **Decision.** Automation-created tasks carry a deterministic `dedupe_key`
-(e.g. `opp:<id>:rule:<rule_id>:seq:<n>`) with a partial unique index over open tasks.
+(e.g. `opp:<id>:rule:<rule_key>:cycle:<n>`) with a unique index on `(owner_id, dedupe_key)`
+across **all** statuses — not only open tasks, so retrying an event after the task was
+completed cannot recreate it. Reopening an opportunity increments `opportunities.cycle`, which
+produces new keys for the new sequence.
 Generation uses `insert … on conflict do update` so retries and repeated events update the
 existing task rather than creating a duplicate. Owner-edited dates are preserved
 (`due_date_overridden` flag).
@@ -137,7 +160,7 @@ existing task rather than creating a duplicate. Owner-edited dates are preserved
 ---
 
 ## ADR-009 — Audit trail
-**Status:** Proposed
+**Status:** Proposed — implemented in Phase 1 (pending owner review)
 
 **Decision.** An `audit_log` table populated by Postgres triggers on contacts, opportunities,
 tasks and automation rules (actor, table, record id, action, changed fields as JSONB
@@ -146,8 +169,55 @@ application users.
 
 ---
 
+## ADR-010 — No deletes through the application
+**Status:** Proposed — implemented in Phase 1 (pending owner review)
+
+**Decision.** The `authenticated` role has no DELETE privilege on any table. Contacts are
+archived, opportunities closed, tasks completed or cancelled, activities kept. Foreign keys
+never cascade. A user who owns records cannot be removed from `auth.users` until their data
+is dealt with.
+
+**Why.** Spec: preserve history, completed tasks and activities; prefer archiving. Mistakes
+are corrected by editing; every change is in the audit log.
+
+**Trade-off.** A record entered by mistake cannot be removed from the app. If the owner wants
+hard delete for, e.g., a duplicate contact with no history, a later phase can add a narrowly
+scoped, audited delete function.
+
+---
+
+## ADR-011 — Toolchain versions (Phase 1)
+**Status:** Proposed (pending owner review)
+
+Pinned exact versions (`--save-exact`): Next.js **16.3.8** (see ADR-004), React 19.3,
+TypeScript **5.9.3** (TypeScript 7.0 is the new native compiler; typescript-eslint supports
+`<6.1`, so 5.9 is the newest fully supported), Tailwind CSS 4.3, ESLint 9.39 with
+`eslint-config-next`, Vitest 5, `@supabase/ssr` 0.12 / `@supabase/supabase-js` 2.117, zod 4.6,
+`@opennextjs/cloudflare` 1.20.11, wrangler 4.151, Supabase CLI 2.120. Node.js 22 LTS.
+
+`npm audit --omit=dev` (production dependencies): 0 vulnerabilities. `npm audit` (all) reports
+9 high findings, all in build/lint tooling (`glob` CLI command injection — the CLI is never
+invoked; `braces` ReDoS — processes only our own build patterns). The only offered fix
+downgrades the Cloudflare adapter to an older release, so they are accepted for now and
+re-reviewed in Phase 11.
+
+---
+
+## ADR-012 — Every task belongs to a contact
+**Status:** Proposed — owner input welcome
+
+**Decision.** Follows spec §8 literally: `tasks.contact_id` is required. Personal or
+administrative to-dos with no contact are not supported.
+
+**Alternative.** Make `contact_id` optional for general agency tasks. Small change if wanted;
+must be decided before Phase 5.
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 1. US holidays in business-day calculations? (Default: weekends only.)
 2. Custom domain later? (Default: free `workers.dev` URL; no purchase.)
 3. Error monitoring (e.g. Sentry free tier)? (Default: none in MVP; Cloudflare logs only.)
+4. Should tasks without a contact be allowed (ADR-012)? (Default: no, as specified.)
+5. Is "no deleting from the app" acceptable (ADR-010)? (Default: yes.)
