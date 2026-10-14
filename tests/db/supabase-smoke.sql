@@ -26,7 +26,7 @@ begin
   ) then
     raise exception 'anon holds privileges on a public table';
   end if;
-  if (select count(*) from public.automation_rules where owner_id = '00000000-0000-4000-8000-0000000000a1') <> 10 then
+  if (select count(*) from public.automation_rules where owner_id = '00000000-0000-4000-8000-0000000000a1') <> 12 then
     raise exception 'Default automation rules were not created';
   end if;
 end;

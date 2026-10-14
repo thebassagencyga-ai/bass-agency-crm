@@ -64,6 +64,7 @@ Supabase project (after confirming cost). Hosting spike needs a free Cloudflare 
 - ✅ CI workflow green on GitHub (run #1: checks, PG17 tests, Supabase-image migrations + RLS smoke).
 - ✅ Hosting spike (local workerd). Deploy to workers.dev not done — needs a Cloudflare account and approval.
 - ✅ All tables, enums, constraints, indexes, triggers, audit and seed data in 4 migrations; `docs/data-model.md`.
+- ✅ Referral and Google review data model added at owner request (ADR-013), with tests.
 - ⏳ Migrations applied to the production Supabase project — owner action after review.
 
 Original criteria:
@@ -112,6 +113,7 @@ built-in auth email (Supabase-sent, not an app email feature).
 - Detail page shows contact info and placeholder sections for opportunities, activities, tasks.
 - Search by name, business name, phone, email; filters (type, status, lead source, archived); sort.
 - Archive/unarchive (no hard delete from the UI); archived contacts hidden by default.
+- "Referred by" picker (own contacts only) and "Google review left on" date (ADR-013).
 - Possible-duplicate warning on matching email/phone (warning, not a block).
 - Audit log rows written for create/update/archive.
 - Tests: validation (valid/invalid), create/edit, search/filter, archive, ownership, IDOR attempt by URL id.
@@ -140,7 +142,11 @@ built-in auth email (Supabase-sent, not an app email feature).
 
 **Acceptance criteria**
 - Create/edit/complete/reopen tasks; priority; optional opportunity link; completion timestamp.
-- Views: overdue, due today, upcoming, completed; filters by product line and priority.
+- Views: overdue, due today, upcoming, completed; filters by product line, priority and category.
+- Tasks with a future `start_date` are hidden from today's work until that date, then shown
+  with their due date (e.g. review/referral requests: visible day after win, due 30 days later).
+- Review/referral tasks show the rendered message, a Copy button, and a "Text it" button that
+  opens the device's Messages app (`sms:` link). The app itself sends nothing.
 - "Today" computed in America/New_York (boundary tests at 23:59/00:00 ET and DST changes).
 - Log activities (call, meeting, note, email-logged, text-logged, follow-up outcome) with date and outcome.
 - Completed tasks and activities remain visible on the contact timeline.
@@ -157,7 +163,8 @@ built-in auth email (Supabase-sent, not an app email feature).
 - Quote sent → follow-up in 3 calendar days.
 - Prospect-requested date → task on that date.
 - No response after follow-up → another task 5 days later (owner confirms when appropriate).
-- Won → open prospecting tasks closed (status `cancelled_by_automation`), onboarding checklist created where configured.
+- Won → open **prospecting-category** tasks closed (status `cancelled`), onboarding checklist created where configured; onboarding, renewal, review and referral tasks untouched.
+- Won → one review-request task and one referral-request task **per contact**, starting the day after the win, due 30 days later; skipped if one was created for that contact in the last 365 days; review request skipped if a Google review is already recorded (ADR-013).
 - Lost → prospecting tasks closed; loss reason required.
 - Known renewal date → renewal review task 60 days prior.
 - Reopen → new sequence; history kept.
@@ -186,7 +193,9 @@ shown as "review" prompts with the reason, dismissible; tests per rule.
 **Acceptance criteria.** Reports: open opportunities by product/stage; new leads by source;
 quotes sent and outcomes; conversion rate = won ÷ (won + lost) for closed opportunities
 in the period (open excluded; denominator shown); tasks completed vs overdue; upcoming
-renewal reviews; cross-sell opportunities. Every metric has a written definition on the page
+renewal reviews; cross-sell opportunities; referral sources (contacts who referred others,
+and referred leads' outcomes); review and referral requests made vs reviews recorded /
+referrals received. Every metric has a written definition on the page
 and a fixture-based test. Premiums shown only where recorded; no commission figures.
 
 ---

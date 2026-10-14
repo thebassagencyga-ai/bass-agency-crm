@@ -30,11 +30,18 @@ create type public.task_status as enum ('open', 'completed', 'cancelled');
 create type public.task_priority as enum ('low', 'normal', 'high');
 create type public.task_origin as enum ('manual', 'automation');
 create type public.activity_type as enum (
-  'call', 'meeting', 'note', 'email', 'text_message', 'follow_up', 'quote', 'other'
+  'call', 'meeting', 'note', 'email', 'text_message', 'follow_up', 'quote',
+  'review_request', 'referral_request', 'other'
 );
 create type public.activity_outcome as enum (
   'connected', 'left_message', 'no_answer', 'no_response', 'requested_follow_up',
-  'quote_requested', 'quote_sent', 'not_interested', 'other'
+  'quote_requested', 'quote_sent', 'not_interested',
+  'review_left', 'referral_received', 'declined', 'other'
+);
+-- What a task is for. Lets automation close only prospecting tasks on win/loss while
+-- leaving onboarding, renewal, review and referral tasks alone.
+create type public.task_category as enum (
+  'prospecting', 'onboarding', 'renewal', 'review_request', 'referral_request', 'other'
 );
 create type public.automation_trigger as enum (
   'opportunity_created', 'initial_contact_no_quote', 'quote_sent', 'follow_up_requested',
@@ -88,6 +95,9 @@ create table public.profiles (
       'America/New_York', 'America/Chicago', 'America/Denver', 'America/Phoenix',
       'America/Los_Angeles', 'America/Anchorage', 'Pacific/Honolulu'
     )),
+  -- Link inserted into review-request messages (ADR-013). https only.
+  google_review_url text
+    check (char_length(google_review_url) <= 500 and google_review_url ~ '^https://[^\s]+$'),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -143,6 +153,10 @@ create table public.contacts (
   preferred_contact_method public.contact_method,
   lead_source text check (char_length(lead_source) <= 100),
   relationship_status public.relationship_status not null default 'prospect',
+  -- The client (or other contact) who referred this person (ADR-013).
+  referred_by_contact_id uuid,
+  -- Date the contact left a Google review, as recorded by the agent. Review requests stop once set.
+  google_review_left_on date,
   notes text check (char_length(notes) <= 5000),
   archived_at timestamptz,
   created_at timestamptz not null default now(),
@@ -154,7 +168,10 @@ create table public.contacts (
       when 'business' then coalesce(btrim(business_name), '') <> ''
     end
   ),
-  constraint contacts_id_owner_key unique (id, owner_id)
+  constraint contacts_id_owner_key unique (id, owner_id),
+  constraint contacts_referred_by_fk foreign key (referred_by_contact_id, owner_id)
+    references public.contacts (id, owner_id) on delete restrict,
+  constraint contacts_not_self_referred_check check (referred_by_contact_id <> id)
 );
 comment on table public.contacts is
   'Prospects and clients. Archive (archived_at) instead of deleting. No SSNs, payment or health data.';
@@ -164,6 +181,8 @@ create index contacts_owner_last_name_idx on public.contacts (owner_id, lower(la
 create index contacts_owner_business_idx on public.contacts (owner_id, lower(business_name));
 create index contacts_owner_email_idx on public.contacts (owner_id, lower(email));
 create index contacts_owner_phone_idx on public.contacts (owner_id, phone);
+create index contacts_referred_by_idx on public.contacts (referred_by_contact_id)
+  where referred_by_contact_id is not null;
 
 create trigger contacts_touch before update on public.contacts
   for each row execute function crm_private.touch_row();
@@ -281,6 +300,11 @@ create table public.automation_rules (
   day_count public.day_count not null default 'calendar',
   task_title_template text check (char_length(task_title_template) <= 200),
   task_priority public.task_priority not null default 'normal',
+  task_category public.task_category not null default 'other',
+  -- Created tasks start on anchor + offset and are due completion_window_days later.
+  completion_window_days integer not null default 0 check (completion_window_days between 0 and 365),
+  -- Skip if a task from this rule was created for the same contact within this many days.
+  cooldown_days integer check (cooldown_days between 1 and 1095),
   enabled boolean not null default true,
   config jsonb not null default '{}'::jsonb check (jsonb_typeof(config) = 'object'),
   created_at timestamptz not null default now(),
@@ -311,6 +335,9 @@ create table public.tasks (
   description text check (char_length(description) <= 2000),
   due_date date not null,
   priority public.task_priority not null default 'normal',
+  category public.task_category not null default 'other',
+  -- Optional: the task is not shown as current work before this date.
+  start_date date,
   status public.task_status not null default 'open',
   completed_at timestamptz,
   cancelled_at timestamptz,
@@ -329,6 +356,7 @@ create table public.tasks (
     references public.opportunities (id, contact_id) on delete restrict,
   constraint tasks_rule_fk foreign key (automation_rule_id, owner_id)
     references public.automation_rules (id, owner_id) on delete restrict,
+  constraint tasks_start_before_due_check check (start_date is null or start_date <= due_date),
   constraint tasks_completed_check check ((status = 'completed') = (completed_at is not null)),
   constraint tasks_cancelled_check check ((status = 'cancelled') = (cancelled_at is not null)),
   constraint tasks_origin_check check (

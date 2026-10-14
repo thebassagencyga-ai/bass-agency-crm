@@ -214,6 +214,40 @@ must be decided before Phase 5.
 
 ---
 
+## ADR-013 — Referral and Google review requests
+**Status:** Accepted (owner, 2026-10-14) — data model in Phase 1; automation in Phase 6;
+UI in Phases 3/5; reporting in Phase 9
+
+**Request.** Automate asking clients for referrals and Google reviews.
+
+**Decisions (owner answers 2026-10-14).**
+- **Delivery:** the CRM sends nothing (MVP rule). It creates a reminder task with a
+  ready-to-copy message containing the agent's Google review link, plus a "Text it" button
+  that opens the phone's own Messages app pre-filled (`sms:` link); the agent presses send.
+- **Timing:** on a won opportunity, a review task and a referral task each **start 1 day
+  after the win and are due 30 days later** (overdue only after the window). Implemented with
+  `tasks.start_date` and `automation_rules.completion_window_days`.
+- **Tracking:** `contacts.referred_by_contact_id` (who referred whom; must be the same agent's
+  contact, never itself); `contacts.google_review_left_on` (recorded by the agent — there is no
+  Google integration); activity types `review_request` / `referral_request` with outcomes
+  `review_left`, `referral_received`, `declined`.
+- **Frequency:** one request per contact (not per opportunity), not repeated within 365 days
+  (`cooldown_days`); review requests stop once a review is recorded.
+
+**Compliance guardrails built in.** Google's review policy prohibits incentives and
+selectively soliciting positive reviews ("review gating"), so every newly won client gets the
+same request regardless of satisfaction, and templates offer nothing in return (a test fails
+if a template mentions gifts, discounts, rewards, etc.). The CRM tracks referrals but does not
+suggest referral rewards: insurance inducement/rebating rules (Georgia, and possibly Alfa
+policy) may restrict them — **owner to confirm with Alfa/compliance before offering any
+referral thank-you of value.**
+
+**Also added.** `tasks.category` (prospecting, onboarding, renewal, review_request,
+referral_request, other) so win/loss automation closes only prospecting tasks. "Ask for
+referrals" was removed from the onboarding checklist because the referral rule replaces it.
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 1. US holidays in business-day calculations? (Default: weekends only.)
@@ -221,5 +255,5 @@ must be decided before Phase 5.
 3. Error monitoring (e.g. Sentry free tier)? (Default: none in MVP; Cloudflare logs only.)
 4. ~~Tasks without a contact (ADR-012)?~~ Answered: no.
 5. ~~No deleting from the app (ADR-010)?~~ Answered: acceptable.
-6. Referral and Google review request automation — requested by owner 2026-10-14; design
-   questions pending (see PROGRESS.md).
+6. ~~Referral and Google review automation design~~ — answered, see ADR-013.
+7. Confirm with Alfa/compliance whether any referral thank-you of value is permitted (ADR-013).

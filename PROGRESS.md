@@ -24,11 +24,11 @@ Governance files created. ProducerIQ untouched (owner reconfirmed: it must not b
 | `npm run lint` | pass, 0 warnings |
 | `npm run typecheck` | pass |
 | `npm test` (unit) | 19 passed |
-| `npm run test:db` (PostgreSQL 16.15) | 91 passed |
+| `npm run test:db` (PostgreSQL 16.15) | 103 passed (91 + 12 referral/review) |
 | `npm run build` | pass |
 | `npx opennextjs-cloudflare build` + `wrangler dev` | pass: `/` 200, unknown route 404, no runtime errors |
 | `wrangler deploy --dry-run` | 3947 KiB raw / 821 KiB gzip |
-| RLS mutation check (4 deliberate breaks) | all 4 detected by tests |
+| RLS mutation check (4 deliberate breaks) + referrer-FK removal | all 5 detected by tests |
 | `tests/db/supabase-smoke.sql` on local shim DB | pass |
 | `npm audit --omit=dev` | 0 vulnerabilities |
 
@@ -45,8 +45,9 @@ PostgreSQL 16), so CI is the evidence for them.
 ## Owner actions needed
 1. Review the migrations (`supabase/migrations/`) and `docs/data-model.md`.
 2. ~~Answer ADR-010 / ADR-012~~ — answered 2026-10-14 (both accepted as designed).
-   New request 2026-10-14: automation for referral and Google review requests — design
-   questions sent to owner; not yet built.
+   New request 2026-10-14: referral and Google review requests — design agreed (ADR-013);
+   data model added to Phase 1; automation in Phase 6.
+   Owner to confirm with Alfa/compliance whether any referral thank-you of value is allowed.
 3. After approval: apply migrations to the CRM project (README → Database migrations), or
    ask Claude to walk through it.
 4. Approve Phase 1 → merge branch to `main`.

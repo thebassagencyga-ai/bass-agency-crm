@@ -24,6 +24,7 @@ manual check. Authentication (Phase 2) is not implemented.
 | Over-collection | SSNs/health info in notes | Data-minimization rules; UI guidance on note fields |
 | Offline leakage | Cached records on a lost phone | Service worker never caches API/record responses |
 | Supply chain | Compromised npm package | Minimal deps, lockfile, `npm audit`, Dependabot |
+| Malicious link in messages | `javascript:` URL saved as review link | `google_review_url` must be `https://` (DB check); `sms:` links built server-side with encoded text |
 | Mixing with ProducerIQ | Shared keys or DB | Separate repo, Supabase project, hosting (ADR-001/002) |
 
 ## 3. Authentication design (Phase 2)

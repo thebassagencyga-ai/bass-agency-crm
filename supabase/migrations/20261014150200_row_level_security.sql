@@ -30,7 +30,7 @@ revoke all on schema crm_private from anon, authenticated;
 
 grant select on public.product_lines, public.pipeline_stages to authenticated;
 grant select on public.profiles to authenticated;
-grant update (display_name, time_zone) on public.profiles to authenticated;
+grant update (display_name, time_zone, google_review_url) on public.profiles to authenticated;
 grant select, insert, update on
   public.contacts, public.opportunities, public.automation_rules, public.tasks, public.activities
   to authenticated;

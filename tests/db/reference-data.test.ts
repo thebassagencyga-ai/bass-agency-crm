@@ -39,7 +39,7 @@ describe("default automation rules", () => {
       return Object.fromEntries(rows.map((r) => [r.rule_key, r]));
     });
 
-    expect(Object.keys(rules)).toHaveLength(10);
+    expect(Object.keys(rules)).toHaveLength(12);
     expect(Object.values(rules).every((r) => r.enabled)).toBe(true);
     expect(rules.new_lead_initial_contact).toMatchObject({ trigger_event: "opportunity_created", offset_days: 0 });
     expect(rules.contacted_no_quote_follow_up).toMatchObject({ offset_days: 2, day_count: "business" });

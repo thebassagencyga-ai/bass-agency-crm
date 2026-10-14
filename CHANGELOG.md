@@ -11,6 +11,9 @@ All meaningful changes, grouped by milestone.
 - `src/lib/pipelines.ts` canonical pipeline definitions.
 - 19 unit tests and 91 database tests (constraints, RLS, audit, reference data).
 - GitHub Actions CI; `scripts/local-db.sh`; `docs/data-model.md`; Supabase CLI config.
+- Referral and Google review request support (owner request): referred-by link, review-left
+  date, review link on profile, task category and start date, rule completion window and
+  cooldown, two new default rules (12 total), 12 new database tests.
 ### Decided
 - Next.js pinned to 16.3.8 (16.4.0 fails at runtime on the Cloudflare adapter).
 - No deletes through the app; dedupe keys unique across all task statuses; tasks require a contact.

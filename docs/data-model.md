@@ -20,6 +20,7 @@ erDiagram
     OPPORTUNITIES ||--o{ ACTIVITIES : "optional"
     AUTOMATION_RULES ||--o{ TASKS : "created by (automation only)"
     TASKS ||--o{ ACTIVITIES : "optional"
+    CONTACTS ||--o{ CONTACTS : "referred"
 ```
 
 Every business table carries `owner_id`. Foreign keys between business tables include
@@ -30,7 +31,8 @@ or at an opportunity that belongs to a different contact.
 
 ### profiles
 One per authorized user (`id` = `auth.users.id`). `display_name`, `time_zone` (US zones,
-default `America/New_York`). Users may edit only those two columns of their own row.
+default `America/New_York`), `google_review_url` (https only; used in review requests).
+Users may edit only those three columns of their own row.
 Creating a profile inserts the 10 default automation rules for that user.
 
 ### product_lines / pipeline_stages (reference data)
@@ -42,7 +44,9 @@ Four product lines: auto, home, commercial, life. Stages per line with `position
 Individuals and businesses. Name rule: an individual needs a first or last name; a business
 needs a business name. Email, phone, address (2-letter state, US ZIP), preferred contact
 method, lead source (free text), `relationship_status` (prospect | client | former_client),
-notes (≤ 5,000 chars), `archived_at` (archive instead of delete).
+`referred_by_contact_id` (another of the same agent's contacts; never itself),
+`google_review_left_on` (recorded by the agent), notes (≤ 5,000 chars), `archived_at`
+(archive instead of delete).
 
 ### opportunities
 Many per contact, in any mix of product lines.
@@ -61,7 +65,9 @@ A life application in "Application Process" or "Decision Pending" can never be m
 
 ### tasks
 Contact required; opportunity optional (must belong to the same contact). `due_date` is a
-calendar date. `priority` low/normal/high. `status` open/completed/cancelled, with
+calendar date; optional `start_date` (≤ due date) hides the task from current work until then.
+`category` prospecting/onboarding/renewal/review_request/referral_request/other.
+`priority` low/normal/high. `status` open/completed/cancelled, with
 `completed_at` / `cancelled_at` maintained by trigger. `origin` manual/automation:
 automation tasks must carry `automation_rule_id` and `dedupe_key`; manual tasks carry
 neither. `(owner_id, dedupe_key)` is unique, so a retried automation event updates the
@@ -69,14 +75,17 @@ existing task instead of creating another (ADR-008). `due_date_overridden` marks
 owner changed, so automation leaves it alone.
 
 ### activities
-Contact history: type (call, meeting, note, email, text_message, follow_up, quote, other),
+Contact history: type (call, meeting, note, email, text_message, follow_up, quote,
+review_request, referral_request, other); outcomes include review_left, referral_received, declined;
 `occurred_at`, optional outcome, optional link to an opportunity and/or task, notes.
 `requested_follow_up_on` is allowed only with the outcome `requested_follow_up`.
 
 ### automation_rules
 Per-user rule configuration, executed in Phase 6: trigger event, action (create task, close
 prospecting tasks, create checklist), anchor date (event, requested, renewal), offset in
-calendar or business days, task title, priority, enabled flag, JSON config.
+calendar or business days, task title, priority, task category, completion window (days
+from start to due), cooldown (don't repeat for the same contact within N days), enabled
+flag, JSON config (e.g. message templates).
 
 | Default rule | Trigger | Timing |
 |---|---|---|
@@ -89,6 +98,8 @@ calendar or business days, task title, priority, enabled flag, JSON config.
 | lost_close_prospecting | lost | same day |
 | renewal_review | renewal date known | 60 days before renewal |
 | reopened_restart | reopened | same day |
+| review_request | won (once per contact) | starts +1 day, due 30 days later; not within 365 days; never after a review is recorded |
+| referral_request | won (once per contact) | starts +1 day, due 30 days later; not within 365 days |
 
 ### audit_log
 Append-only, written by trigger on contacts, opportunities, tasks, activities and
