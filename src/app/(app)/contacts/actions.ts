@@ -42,6 +42,14 @@ export async function saveContact(_prev: FormState, formData: FormData): Promise
     return { fieldErrors, values };
   }
   const data = parsed.data;
+  // Text typed in the referrer search but no contact tapped: never drop it silently.
+  const referrerSearch = formData.get("referred_by_search");
+  if (data.referred_by_contact_id === null && typeof referrerSearch === "string" && referrerSearch.trim() !== "") {
+    return {
+      fieldErrors: { referred_by_contact_id: "Tap the referrer in the list under the box, or clear the box." },
+      values,
+    };
+  }
   if (id !== null && data.referred_by_contact_id === id) {
     return { fieldErrors: { referred_by_contact_id: "A contact cannot refer themselves." }, values };
   }

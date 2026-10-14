@@ -35,6 +35,11 @@ export function ReferrerPicker({
       <label htmlFor={`${id}-search`} className="text-sm font-medium">
         Referred by <span className="font-normal text-slate-500">(optional)</span>
       </label>
+      {selected ? null : (
+        <p id={`${id}-hint`} className="text-xs text-slate-500">
+          Pick from your contacts: type 2 or more letters, then tap the person in the list.
+        </p>
+      )}
       {selected ? (
         <div className="flex min-h-11 items-center justify-between gap-2 rounded-md border border-slate-300 px-3 dark:border-slate-600">
           <span>{selected.label}</span>
@@ -47,15 +52,18 @@ export function ReferrerPicker({
           <input
             id={`${id}-search`}
             type="search"
+            name="referred_by_search"
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
-            placeholder="Type a name, phone or email"
+            placeholder="Search contacts by name, phone or email"
             autoComplete="off"
-            aria-describedby={`${id}-status`}
+            aria-describedby={`${id}-hint ${id}-status`}
             className="min-h-11 w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
           />
           <p id={`${id}-status`} aria-live="polite" className="text-xs text-slate-500">
-            {pending ? "Searching…" : query.trim().length >= 2 && results.length === 0 ? "No matching contacts." : ""}
+            {pending ? "Searching…" : query.trim().length >= 2 && results.length === 0
+              ? "No matching contacts. Add the referrer as a contact first, then pick them here."
+              : ""}
           </p>
           {results.length > 0 ? (
             <ul className="divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">

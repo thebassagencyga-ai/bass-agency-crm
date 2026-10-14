@@ -51,7 +51,9 @@ export function Field({
         id={name} name={name} type={type} autoComplete={autoComplete} inputMode={inputMode}
         required={required} defaultValue={defaultValue} list={list} maxLength={maxLength}
         aria-invalid={error ? true : undefined} aria-describedby={describedBy}
-        className={INPUT_CLASS}
+        // iOS Safari gives date inputs a fixed native width that ignores CSS width unless
+        // the native appearance is removed.
+        className={type === "date" ? `${INPUT_CLASS} appearance-none [&::-webkit-date-and-time-value]:text-left` : INPUT_CLASS}
       />
       {error ? <p id={errorId} className="text-sm text-red-700 dark:text-red-400">{error}</p> : null}
     </div>

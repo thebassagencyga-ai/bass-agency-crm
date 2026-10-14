@@ -2,6 +2,14 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 3 follow-up — owner testing on iPhone (2026-10-14)
+### Fixed
+- "Referred by" explains that it picks from your contacts; text typed without tapping a contact
+  now stops the save with a message instead of being silently dropped.
+- "Google review left on" date box no longer overflows the screen in iPhone Safari.
+- Deploy verification allows Supabase's `rls_auto_enable` event-trigger function by name and
+  prints every `public` function.
+
 ## Phase 3 — Contact management (2026-10-14, approved)
 ### Added
 - Contacts list with search (name, business, email, phone), filters (type, status, lead

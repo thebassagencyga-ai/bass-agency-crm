@@ -50,7 +50,11 @@ test("add, validate, de-duplicate, refer, search, edit, archive and restore cont
   await page.getByText("More details").click();
   // The full form fits an iPhone screen: no sideways scrolling (which also zooms the page out).
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await page.getByPlaceholder("Type a name, phone or email").fill("Avery Ex");
+  // Typing a referrer without picking one is refused, not silently dropped.
+  await page.getByPlaceholder("Search contacts by name, phone or email").fill("Avery Ex");
+  await expect(page.getByRole("button", { name: /Avery Example/ })).toBeVisible();
+  await page.getByRole("button", { name: "Save contact" }).click();
+  await expect(page.getByText("Tap the referrer in the list under the box, or clear the box.")).toBeVisible();
   await page.getByRole("button", { name: /Avery Example/ }).click();
   await page.getByRole("button", { name: "Save contact" }).click();
   await expect(page.getByText("Contact saved.")).toBeVisible();
