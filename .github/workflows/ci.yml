@@ -127,7 +127,10 @@ jobs:
 
       - name: App log on failure
         if: failure()
-        run: tail -100 "$RUNNER_TEMP/wrangler.log" || true
+        run: |
+          tail -100 "$RUNNER_TEMP/wrangler.log" || true
+          # Page snapshot at the failing step (fictional test data only).
+          find test-results -name error-context.md -exec cat {} \; 2>/dev/null || true
 
       - name: Keep Playwright traces on failure
         if: failure()

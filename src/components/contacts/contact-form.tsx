@@ -55,7 +55,9 @@ export function ContactForm({
         <div className="flex gap-2">
           {(["individual", "business"] as const).map((t) => (
             <label key={t} className="flex min-h-11 flex-1 cursor-pointer items-center gap-2 rounded-md border border-slate-300 px-3 has-[:checked]:border-slate-900 has-[:checked]:bg-slate-100 dark:border-slate-600 dark:has-[:checked]:border-slate-100 dark:has-[:checked]:bg-slate-800">
-              <input type="radio" name="contact_type" value={t} checked={type === t} onChange={() => setType(t)} />
+              {/* defaultChecked, not checked: React 19 resets the form after each action, and only
+                  the default (kept in step with `type`) survives that reset. */}
+              <input type="radio" name="contact_type" value={t} defaultChecked={type === t} onChange={() => setType(t)} />
               {t === "individual" ? "Individual" : "Business"}
             </label>
           ))}
