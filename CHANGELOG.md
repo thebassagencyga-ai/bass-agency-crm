@@ -18,6 +18,9 @@ All meaningful changes, grouped by milestone.
   ownership), API and browser journeys.
 ### Fixed
 - Integration test helpers reuse an existing authenticator factor when a user signs in again.
+- Contact form no longer overflows an iPhone screen when "More details" is open (the address
+  row could not shrink, so the page zoomed out); the browser test now checks for sideways
+  scrolling.
 
 ## Preview deployment (2026-10-15)
 ### Added

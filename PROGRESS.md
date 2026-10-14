@@ -134,7 +134,11 @@ Started 2026-10-14 after the owner signed in on the preview ("Signed in, start P
 - Run #25 (commit 44cb978): 2 real failures, both fixed in 939e926:
   `contact_lead_sources` spelling depended on collation (reproduced locally with ICU en-US);
   integration helper re-enrolled an authenticator for a user who already had one.
-- Run #26 (commit 939e926): see the Phase 3 report.
+- Run #26 (commit 939e926): DB, migration and integration jobs green; browser journey failed —
+  with "More details" open the address row overflowed the 390px screen (page rendered 511px
+  wide), so "Save contact" was covered. Reproduced locally in Chromium (iPhone 13), fixed, and
+  the journey now asserts no sideways scrolling.
+- Run #27 (docs only) superseded; see the Phase 3 report for the final run.
 
 **Owner actions after approval**
 1. Merge to `main`.

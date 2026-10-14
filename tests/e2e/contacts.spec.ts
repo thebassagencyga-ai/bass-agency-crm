@@ -48,6 +48,8 @@ test("add, validate, de-duplicate, refer, search, edit, archive and restore cont
   await page.getByLabel("Business", { exact: true }).check();
   await page.getByLabel("Business name").fill("Example Hardware LLC");
   await page.getByText("More details").click();
+  // The full form fits an iPhone screen: no sideways scrolling (which also zooms the page out).
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.getByPlaceholder("Type a name, phone or email").fill("Avery Ex");
   await page.getByRole("button", { name: /Avery Example/ }).click();
   await page.getByRole("button", { name: "Save contact" }).click();

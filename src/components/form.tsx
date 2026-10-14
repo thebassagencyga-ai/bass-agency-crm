@@ -28,7 +28,7 @@ export function SubmitButton({ children, pendingText }: { children: React.ReactN
 }
 
 const INPUT_CLASS =
-  "min-h-11 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 aria-[invalid=true]:border-red-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100";
+  "min-h-11 w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 aria-[invalid=true]:border-red-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100";
 
 export function Field({
   label, name, type = "text", autoComplete, error, inputMode, required = true, defaultValue, list, hint, maxLength,

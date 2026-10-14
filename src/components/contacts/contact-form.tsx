@@ -88,7 +88,7 @@ export function ContactForm({
           <Field label="Other phone" name="alt_phone" type="tel" inputMode="tel" required={false} defaultValue={v("alt_phone")} error={err.alt_phone} />
           <Field label="Street address" name="address_line1" required={false} defaultValue={v("address_line1")} error={err.address_line1} autoComplete="address-line1" maxLength={200} />
           <Field label="Address line 2" name="address_line2" required={false} defaultValue={v("address_line2")} error={err.address_line2} autoComplete="address-line2" maxLength={200} />
-          <div className="grid grid-cols-[1fr_5rem_7rem] gap-2">
+          <div className="grid grid-cols-[minmax(0,1fr)_4rem_6rem] gap-2">
             <Field label="City" name="city" required={false} defaultValue={v("city")} error={err.city} autoComplete="address-level2" maxLength={100} />
             <Field label="State" name="state" required={false} defaultValue={v("state") ?? (isEdit ? undefined : "GA")} error={err.state} autoComplete="address-level1" maxLength={2} />
             <Field label="ZIP" name="postal_code" inputMode="numeric" required={false} defaultValue={v("postal_code")} error={err.postal_code} autoComplete="postal-code" maxLength={10} />

@@ -52,7 +52,7 @@ export function ReferrerPicker({
             placeholder="Type a name, phone or email"
             autoComplete="off"
             aria-describedby={`${id}-status`}
-            className="min-h-11 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+            className="min-h-11 w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
           />
           <p id={`${id}-status`} aria-live="polite" className="text-xs text-slate-500">
             {pending ? "Searching…" : query.trim().length >= 2 && results.length === 0 ? "No matching contacts." : ""}
