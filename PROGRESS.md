@@ -138,7 +138,11 @@ Started 2026-10-14 after the owner signed in on the preview ("Signed in, start P
   with "More details" open the address row overflowed the 390px screen (page rendered 511px
   wide), so "Save contact" was covered. Reproduced locally in Chromium (iPhone 13), fixed, and
   the journey now asserts no sideways scrolling.
-- Run #27 (docs only) superseded; see the Phase 3 report for the final run.
+- Run #27 (docs only) superseded.
+- **Run #28 (commit 1c0dcb5): all 4 jobs passed** — lint, typecheck, unit, Next + OpenNext
+  builds, bundle scans; DB tests on PostgreSQL 17; migrations + `supabase db lint` + RLS smoke on
+  Supabase's image; 26 integration tests (12 app HTTP, 9 auth API, 5 contacts API) and 2 browser
+  journeys (sign-in; full contacts journey) on an iPhone 13-sized screen.
 
 **Owner actions after approval**
 1. Merge to `main`.
