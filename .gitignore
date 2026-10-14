@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+out/
+.open-next/
+.wrangler/
+dist/
+coverage/
+playwright-report/
+test-results/
+
+# Environment & secrets — NEVER commit
+.env
+.env.*
+!.env.example
+.dev.vars
+*.pem
+*.key
+
+# Supabase local state
+supabase/.branches/
+supabase/.temp/
+
+# Backups / exports may contain client data — NEVER commit
+*.dump
+*.backup
+backup*.sql
+backups/
+
+# OS / editor
+.DS_Store
+*.log
+.vscode/
+.idea/
