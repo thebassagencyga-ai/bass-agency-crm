@@ -8,7 +8,9 @@
 // Management API over HTTPS. Only SELECT statements are sent. Never prints secrets.
 import {
   PUBLIC_TABLES_SQL,
+  PUBLIC_FUNCTIONS_SQL,
   VERIFICATION_SQL,
+  type PublicFunctionRow,
   checkProjectRef,
   checkTargetProject,
   checkVerification,
@@ -54,6 +56,13 @@ if (command === "guard") {
   const [row] = await query<VerificationRow>(VERIFICATION_SQL);
   if (!row) fail("Verification query returned no rows.");
   console.log("Deployed schema:", JSON.stringify(row));
+  // Names only (no data): which functions exist in public, and whether they bypass RLS.
+  for (const f of await query<PublicFunctionRow>(PUBLIC_FUNCTIONS_SQL)) {
+    console.log(
+      `  function public.${f.name}(${f.args}) returns ${f.returns}` +
+        `${f.security_definer ? " SECURITY DEFINER" : ""}${f.anon_execute ? " [anon can execute]" : ""}`,
+    );
+  }
   const problems = checkVerification(row);
   if (problems.length > 0) fail(problems.join(" "));
   console.log(

@@ -77,6 +77,26 @@ select
      and (p.prosecdef or has_function_privilege('anon', p.oid, 'execute'))) as definer_or_anon_functions
 `;
 
+/** Every function in the public schema, printed by the verify step so a failure names it. */
+export const PUBLIC_FUNCTIONS_SQL = `
+select p.proname as name,
+  pg_get_function_identity_arguments(p.oid) as args,
+  pg_get_function_result(p.oid) as returns,
+  p.prosecdef as security_definer,
+  has_function_privilege('anon', p.oid, 'execute') as anon_execute
+from pg_proc p
+where p.pronamespace = 'public'::regnamespace
+order by p.proname, args
+`;
+
+export interface PublicFunctionRow {
+  name: string;
+  args: string;
+  returns: string;
+  security_definer: boolean;
+  anon_execute: boolean;
+}
+
 export const PUBLIC_TABLES_SQL = `
 select table_name from information_schema.tables
 where table_schema = 'public' and table_type = 'BASE TABLE'
