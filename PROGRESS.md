@@ -1,8 +1,8 @@
 # Progress
 
-**Current phase:** 3 — Contact management — **READY FOR REVIEW** (owner approval pending)
+**Current phase:** 3 — Contact management — **APPROVED by owner 2026-10-14**
 **Last updated:** 2026-10-14
-**Branch:** `phase-3-contacts` (merge to `main` on approval)
+**Branch:** `phase-3-contacts`, merged to `main` on approval
 
 ## Phase 0 — APPROVED 2026-10-14
 Governance files created. ProducerIQ untouched (owner reconfirmed: it must not be modified).

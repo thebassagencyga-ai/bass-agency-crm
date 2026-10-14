@@ -10,7 +10,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 0 | Repository inspection & governance | — | APPROVED (2026-10-14) |
 | 1 | Architecture & database foundation | 0 | APPROVED (2026-10-14) |
 | 2 | Authentication & security foundation | 1 | APPROVED (2026-10-15) |
-| 3 | Contact management | 2 | READY FOR REVIEW |
+| 3 | Contact management | 2 | APPROVED (2026-10-14) |
 | 4 | Opportunities & pipelines | 3 | NOT STARTED |
 | 5 | Task management & activity history | 4 | NOT STARTED |
 | 6 | Automation engine | 5 | NOT STARTED |
@@ -143,7 +143,8 @@ built-in auth email (Supabase-sent, not an app email feature).
 - ✅ Audit log rows for create, update and archive with the acting user — DB + API tests.
 - ✅ Ownership and IDOR: another account sees no results and "Contact not found" when visiting the contact's URL — DB, API and browser tests; search function mutation-checked (SECURITY DEFINER → 7 failures).
 - ✅ Loading, empty, error and success states; browser journey on an iPhone 13-sized screen (390px) — CI Playwright.
-- ⏳ Owner: merge, deploy migration `20261016120000_contact_search.sql`, redeploy preview, click through on iPhone.
+- ✅ Owner approved Phase 3 (2026-10-14); merged to `main`.
+- ⏳ Owner: deploy migration `20261016120000_contact_search.sql`, redeploy preview, click through on iPhone.
 
 ---
 

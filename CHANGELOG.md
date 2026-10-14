@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 3 — Contact management (2026-10-14, ready for review)
+## Phase 3 — Contact management (2026-10-14, approved)
 ### Added
 - Contacts list with search (name, business, email, phone), filters (type, status, lead
   source, archived), sorting and pagination; empty and loading states.

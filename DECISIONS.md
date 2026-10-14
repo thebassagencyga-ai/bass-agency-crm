@@ -349,7 +349,7 @@ custom domain decision, backups/restore drill, monitoring).
 ---
 
 ## ADR-018 — Contact search as SECURITY INVOKER database functions
-**Status:** Proposed — implemented in Phase 3 (pending owner review)
+**Status:** Accepted — implemented in Phase 3 (approved with the phase, 2026-10-14)
 
 **Context.** The contact list needs a single search box over names (either order), business
 name, email and phone digits, plus filters, sorting and pagination. Building this with
