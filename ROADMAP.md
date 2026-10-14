@@ -61,7 +61,7 @@ Supabase project (after confirming cost). Hosting spike needs a free Cloudflare 
 
 **Acceptance criteria** (status 2026-10-14; ✅ = verified by automated check, ⏳ = pending)
 - ✅ Scaffold passes lint, typecheck, build; placeholder runs in workerd (Next pinned 16.3.8, see ADR-004).
-- ⏳ CI workflow green on GitHub (first run happens on push).
+- ✅ CI workflow green on GitHub (run #1: checks, PG17 tests, Supabase-image migrations + RLS smoke).
 - ✅ Hosting spike (local workerd). Deploy to workers.dev not done — needs a Cloudflare account and approval.
 - ✅ All tables, enums, constraints, indexes, triggers, audit and seed data in 4 migrations; `docs/data-model.md`.
 - ⏳ Migrations applied to the production Supabase project — owner action after review.

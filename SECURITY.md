@@ -75,7 +75,7 @@ underwriting answers, detailed health information, policy documents. No file upl
 ## 8. Verification checklist
 | Check | Phase | Status |
 |-------|-------|--------|
-| RLS enabled on every table (catalog test) | 1 | Verified locally (`tests/db/rls.test.ts`); CI on PG17 + Supabase image pending first run |
+| RLS enabled on every table (catalog test) | 1 | Verified: local PG16, CI PG17.11, and Supabase's real image (CI run #1) |
 | anon cannot read/write any table | 1–2 | SQL level verified locally; API level in Phase 2 |
 | User A cannot read/modify user B's rows (SQL + API) | 1–2 | SQL level verified locally; API level in Phase 2 |
 | No DELETE privilege for app users; no cross-owner FK links | 1 | Verified locally |
@@ -98,9 +98,9 @@ underwriting answers, detailed health information, policy documents. No file upl
 - Business-day math ignores US holidays (ADR-007).
 - Hosting adapter verified only locally in workerd, not deployed (ADR-004). Next.js 16.4.0
   breaks the adapter at runtime; Next is pinned to 16.3.8.
-- Database tests use a stand-in for Supabase's `auth` schema locally; the real-image CI job
-  is the check that it matches. Until CI has passed, treat RLS as verified on plain
-  PostgreSQL only.
+- The full test suite uses a stand-in for Supabase's `auth` schema; on Supabase's real image
+  only the smaller smoke test runs (RLS on, anon blocked, cross-user isolation). API-level
+  tests through the real Data API arrive in Phase 2.
 - Dev-only dependency advisories (ADR-011) accepted until Phase 11 review.
 - Migrations have not been applied to the production project; the owner applies them after
   review.

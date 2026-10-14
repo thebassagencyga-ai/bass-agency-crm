@@ -32,10 +32,15 @@ Governance files created. ProducerIQ untouched (owner reconfirmed: it must not b
 | `tests/db/supabase-smoke.sql` on local shim DB | pass |
 | `npm audit --omit=dev` | 0 vulnerabilities |
 
-## Not run locally
-- Migrations on Supabase's real Postgres image: Docker images are blocked by the sandbox
-  network proxy. Covered by the CI `supabase` job.
-- Tests on PostgreSQL 17 (production version): local server is 16. Covered by the CI `database` job.
+## CI (GitHub Actions run #1, commit 4631066, 2026-10-14) — all 3 jobs passed
+| Job | Result |
+|---|---|
+| Lint, typecheck, unit tests, builds (incl. OpenNext build + dry-run) | pass |
+| Schema and RLS tests on PostgreSQL 17.11 | pass |
+| Migrations on Supabase's real Postgres image (`supabase db start`), `supabase db lint`, RLS smoke test with the real `auth.uid()` | pass |
+
+These two could not run locally (sandbox network blocks Docker images; local server is
+PostgreSQL 16), so CI is the evidence for them.
 
 ## Owner actions needed
 1. Review the migrations (`supabase/migrations/`) and `docs/data-model.md`.
