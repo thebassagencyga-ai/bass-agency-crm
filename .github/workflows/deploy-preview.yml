@@ -1,0 +1,99 @@
+name: Deploy app preview (Cloudflare)
+
+# Deploys the app to Cloudflare Workers (free plan) at
+# https://bass-agency-crm.<your-subdomain>.workers.dev (ADR-017).
+# Runs ONLY when started by hand from the Actions tab, and ONLY from main.
+# Uses the production CRM Supabase project: NO REAL CLIENT DATA until Phases 11–12 are done.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN          Cloudflare token from the "Edit Cloudflare Workers" template
+#   CLOUDFLARE_ACCOUNT_ID         Cloudflare account ID
+#   CRM_SUPABASE_PUBLISHABLE_KEY  CRM project's publishable key (Project Settings → API Keys)
+#   SUPABASE_PROJECT_REF          already set for the migration workflow (the CRM project)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-app
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy preview
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.CRM_SUPABASE_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+
+      - name: Check the secrets are set
+        run: |
+          missing=0
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID SUPABASE_PROJECT_REF SUPABASE_PUBLISHABLE_KEY; do
+            if [ -z "${!name}" ]; then echo "✗ Secret for $name is not set"; missing=1; fi
+          done
+          exit $missing
+
+      - name: Point the app at the CRM Supabase project only
+        run: |
+          # The Supabase URL is derived from the same project ref the migration workflow
+          # verifies, so the app can never be pointed at another project by mistake.
+          if ! [[ "$SUPABASE_PROJECT_REF" =~ ^[a-z]{20}$ ]]; then
+            echo "✗ SUPABASE_PROJECT_REF is not a 20-letter project ID"; exit 1
+          fi
+          echo "SUPABASE_URL=https://${SUPABASE_PROJECT_REF}.supabase.co" >> "$GITHUB_ENV"
+
+      - name: Find the workers.dev address
+        run: |
+          sub=$(curl -sf -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" \
+            | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);process.stdout.write(j?.result?.subdomain??"")})') || true
+          if [ -z "$sub" ]; then
+            echo "✗ No workers.dev subdomain found. Open Cloudflare → Workers & Pages once to choose one,"
+            echo "  and check the API token and account ID."
+            exit 1
+          fi
+          echo "SITE_URL=https://bass-agency-crm.${sub}.workers.dev" >> "$GITHUB_ENV"
+          echo "App address: https://bass-agency-crm.${sub}.workers.dev"
+
+      - name: Build for Cloudflare
+        run: npx opennextjs-cloudflare build
+
+      - name: Browser bundle contains no keys, secrets or Supabase URL
+        run: FORBIDDEN_VALUES="$SUPABASE_PUBLISHABLE_KEY,$SUPABASE_URL" node scripts/check-client-bundle.mjs
+
+      - name: Deploy to Cloudflare Workers
+        run: |
+          npx wrangler deploy \
+            --var "SUPABASE_URL:$SUPABASE_URL" \
+            --var "SUPABASE_PUBLISHABLE_KEY:$SUPABASE_PUBLISHABLE_KEY" \
+            --var "SITE_URL:$SITE_URL"
+
+      - name: Smoke test the live site
+        run: |
+          for i in $(seq 1 20); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE_URL/login") && [ "$code" = "200" ] && break
+            sleep 3
+          done
+          [ "$code" = "200" ] || { echo "✗ /login returned $code"; exit 1; }
+          loc=$(curl -s -o /dev/null -w '%{redirect_url}' "$SITE_URL/dashboard")
+          [[ "$loc" == "$SITE_URL/login?next=%2Fdashboard" ]] || { echo "✗ /dashboard did not redirect to sign-in ($loc)"; exit 1; }
+          headers=$(curl -sI "$SITE_URL/login")
+          for h in "content-security-policy" "strict-transport-security" "x-frame-options: DENY"; do
+            echo "$headers" | grep -qi "$h" || { echo "✗ Missing header: $h"; exit 1; }
+          done
+          echo "✓ Live: $SITE_URL — sign-in page up, protected pages redirect, security headers present."

@@ -101,3 +101,8 @@ verification passed. The verify step does not yet check the aal2 policies or the
 (owner given a read-only SQL check; automated check planned). Owner next: dashboard settings and
 creating the owner user (README). Note: deploy runs #3–#4 (2026-10-14, before the merge) applied nothing ("Remote
 database is up to date") and re-verified the Phase 1 schema. Phase 3 waits for the owner's go-ahead.
+
+## Preview deployment (owner request 2026-10-15)
+Workflow "Deploy app preview (Cloudflare)" added (ADR-017). Owner steps: Cloudflare account,
+workers.dev subdomain, API token, three GitHub secrets, run the workflow, set Supabase Site URL.
+Fictional data only until Phases 11–12.

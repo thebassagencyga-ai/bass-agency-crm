@@ -323,6 +323,31 @@ once Supabase support matures).
 
 ---
 
+## ADR-017 — Early preview deployment on Cloudflare Workers (free plan)
+**Status:** Accepted (owner requested, 2026-10-15)
+
+**Decision.** Ahead of Phase 12, a manually started workflow
+(`.github/workflows/deploy-preview.yml`, main only) builds the app with OpenNext and deploys it
+to `https://bass-agency-crm.<subdomain>.workers.dev` so the owner can test each phase on an
+iPhone. It derives `SUPABASE_URL` from the same `SUPABASE_PROJECT_REF` the migration workflow
+guards (so the app cannot be pointed at another project), scans the browser bundle with the
+real publishable key and URL, deploys with `wrangler deploy --var …`, then smoke-tests the
+live site (sign-in page 200, protected page redirects, security headers present).
+
+**Constraints.**
+- Uses the production CRM Supabase project. **No real client data** until the Phase 11
+  security review and Phase 12 checks are complete (spec §6.16, §15).
+- Workers **Free** plan: 100,000 requests/day and a 10 ms CPU limit per request. If pages
+  exceed the CPU limit (error 1102), the fix is Workers Paid ($5/month) — owner approval
+  required. Bundle at Phase 2: 9.5 MiB raw / **1.83 MiB gzip** of the 3 MiB free limit.
+- Cloudflare API token from the "Edit Cloudflare Workers" template, stored only as a GitHub
+  secret; owner can revoke it any time.
+
+Phase 12 remains responsible for the full production checklist (commercial terms re-check,
+custom domain decision, backups/restore drill, monitoring).
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 1. US holidays in business-day calculations? (Default: weekends only.)

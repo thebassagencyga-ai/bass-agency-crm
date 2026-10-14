@@ -116,6 +116,9 @@ underwriting answers, detailed health information, policy documents. No file upl
 | Owner security review before real client data | 12 | Not started |
 
 ## 9. Known risks (open)
+- **Preview on the public internet (ADR-017):** the app is reachable at a workers.dev address
+  from Phase 2 onward. Protection: invite-only sign-in, mandatory two-step login, RLS. Rule:
+  fictional data only until the Phase 11 review and Phase 12 sign-off.
 - Single owner account with no second admin: losing access to the email and Supabase org
   login could lock the owner out. Mitigation: MFA + recovery codes stored offline.
 - Business-day math ignores US holidays (ADR-007).

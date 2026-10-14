@@ -117,6 +117,14 @@ is approved (they mirror `supabase/config.toml`):
 7. **Lost authenticator:** Authentication → Users → your user → remove the MFA factor; sign in
    again and set up a new one.
 
+## Preview deployment (ADR-017)
+GitHub → Actions → **Deploy app preview (Cloudflare)** → Run workflow (branch `main`). Needs
+repository secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
+`CRM_SUPABASE_PUBLISHABLE_KEY` (plus the existing `SUPABASE_PROJECT_REF`). The run prints the
+app address and smoke-tests it. After the first deploy, set Supabase → Authentication → URL
+Configuration → Site URL to that address and add `<address>/**` to Redirect URLs.
+**Do not enter real client data until Phases 11–12 are complete.**
+
 ## Deployment (planned, Phase 12)
 Build with `@opennextjs/cloudflare`, deploy with Wrangler, set secrets with
 `wrangler secret put`. Full runbook written in Phase 12.

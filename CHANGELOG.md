@@ -2,6 +2,11 @@
 
 All meaningful changes, grouped by milestone.
 
+## Preview deployment (2026-10-15)
+### Added
+- Manual "Deploy app preview (Cloudflare)" workflow: CRM-only Supabase target, bundle scan with
+  real values, deploy, live smoke test (ADR-017).
+
 ## Phase 2 — Authentication & security foundation (2026-10-15, approved)
 ### Deployed
 - Migration `20261015120000_auth_profiles_and_mfa.sql` applied to production (deploy run #6).
