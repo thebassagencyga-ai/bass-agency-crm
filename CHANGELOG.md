@@ -6,6 +6,8 @@ All meaningful changes, grouped by milestone.
 ### Added
 - Manual "Deploy app preview (Cloudflare)" workflow: CRM-only Supabase target, bundle scan with
   real values, deploy, live smoke test (ADR-017).
+### Deployed
+- Preview live at https://bass-agency-crm.thebassagencyga.workers.dev (deploy run #2).
 
 ## Phase 2 — Authentication & security foundation (2026-10-15, approved)
 ### Deployed

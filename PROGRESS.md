@@ -103,6 +103,10 @@ creating the owner user (README). Note: deploy runs #3–#4 (2026-10-14, before 
 database is up to date") and re-verified the Phase 1 schema. Phase 3 waits for the owner's go-ahead.
 
 ## Preview deployment (owner request 2026-10-15)
-Workflow "Deploy app preview (Cloudflare)" added (ADR-017). Owner steps: Cloudflare account,
-workers.dev subdomain, API token, three GitHub secrets, run the workflow, set Supabase Site URL.
-Fictional data only until Phases 11–12.
+Workflow "Deploy app preview (Cloudflare)" added (ADR-017), using the owner's existing
+Cloudflare account with a narrow custom token (Workers Scripts edit, Account Settings read, no zone
+access). Run #1 failed safely at the secrets check (secret names misspelled "CLOUDFARE"); run #2
+(2026-10-14) deployed: **https://bass-agency-crm.thebassagencyga.workers.dev**. Live smoke test
+passed (sign-in 200, protected page redirects, security headers). Bundle 1.83 MiB gzip; worker
+startup 22 ms. Owner next: Supabase Site URL + redirect URL, then first sign-in and authenticator
+setup on iPhone. Fictional data only until Phases 11–12.
