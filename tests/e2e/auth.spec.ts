@@ -31,7 +31,7 @@ test("sign in, set up two-step sign-in, use the app, sign out, sign back in with
   await expect(page.getByRole("heading", { name: "Contacts" })).toBeVisible();
 
   await page.getByRole("link", { name: "Settings" }).click();
-  await expect(page.getByText(user.email)).toBeVisible();
+  await expect(page.locator("#main").getByText(user.email)).toBeVisible();
 
   const cookies = await page.context().cookies();
   const authCookies = cookies.filter((c) => c.name.includes("auth-token"));
