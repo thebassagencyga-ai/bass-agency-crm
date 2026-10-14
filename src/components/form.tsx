@@ -2,7 +2,14 @@
 
 import { useFormStatus } from "react-dom";
 
-export type FormState = { error?: string; fieldErrors?: Record<string, string>; message?: string };
+// `values` echoes back non-secret inputs (never passwords or codes): React resets a form after
+// its action runs, and the fields are restored from these defaults.
+export type FormState = {
+  error?: string;
+  fieldErrors?: Record<string, string>;
+  message?: string;
+  values?: Record<string, string>;
+};
 
 export function SubmitButton({ children, pendingText }: { children: React.ReactNode; pendingText: string }) {
   const { pending } = useFormStatus();

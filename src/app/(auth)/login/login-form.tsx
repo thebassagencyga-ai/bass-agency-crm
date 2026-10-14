@@ -12,7 +12,7 @@ export function LoginForm({ next, notice }: { next: string; notice?: string }) {
       <h1 className="text-2xl font-semibold">Sign in</h1>
       <FormAlert state={state} />
       <input type="hidden" name="next" value={next} />
-      <Field label="Email" name="email" type="email" inputMode="email" autoComplete="username" error={state.fieldErrors?.email} />
+      <Field label="Email" name="email" type="email" inputMode="email" autoComplete="username" error={state.fieldErrors?.email} defaultValue={state.values?.email} />
       <Field label="Password" name="password" type="password" autoComplete="current-password" error={state.fieldErrors?.password} />
       <SubmitButton pendingText="Signing in…">Sign in</SubmitButton>
       <Link href="/forgot-password" className="min-h-11 py-2 text-center text-sm underline">Forgot your password?</Link>

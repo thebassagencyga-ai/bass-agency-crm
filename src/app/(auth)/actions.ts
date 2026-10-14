@@ -21,15 +21,16 @@ function fieldErrors(error: z.ZodError): Record<string, string> {
 }
 
 export async function signIn(_prev: FormState, formData: FormData): Promise<FormState> {
+  const values = { email: String(formData.get("email") ?? "").slice(0, 254) };
   const parsed = signInSchema.safeParse({ email: formData.get("email"), password: formData.get("password") });
-  if (!parsed.success) return { fieldErrors: fieldErrors(parsed.error) };
+  if (!parsed.success) return { fieldErrors: fieldErrors(parsed.error), values };
   const next = safeNextPath(String(formData.get("next") ?? ""));
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) {
     // One message for wrong email or wrong password, so the form cannot be used to discover accounts.
-    return { error: error.status === 429 ? TOO_MANY : "Email or password is incorrect." };
+    return { error: error.status === 429 ? TOO_MANY : "Email or password is incorrect.", values };
   }
   const { data: level } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
   const step = level?.nextLevel === "aal2" ? "/mfa" : "/mfa/setup";
@@ -60,13 +61,14 @@ export async function confirmEnrollment(_prev: FormState, formData: FormData): P
 }
 
 export async function requestPasswordReset(_prev: FormState, formData: FormData): Promise<FormState> {
+  const values = { email: String(formData.get("email") ?? "").slice(0, 254) };
   const parsed = emailSchema.safeParse({ email: formData.get("email") });
-  if (!parsed.success) return { fieldErrors: fieldErrors(parsed.error) };
+  if (!parsed.success) return { fieldErrors: fieldErrors(parsed.error), values };
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
     redirectTo: `${siteUrl()}/auth/confirm?next=/reset-password`,
   });
-  if (error?.status === 429) return { error: TOO_MANY };
+  if (error?.status === 429) return { error: TOO_MANY, values };
   // Same answer whether or not the account exists.
   return { message: "If an account exists for that email, a reset link is on its way. It expires in one hour." };
 }
