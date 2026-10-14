@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** 2 — Authentication & security foundation — **READY FOR REVIEW**
+**Current phase:** 2 — Authentication & security foundation — **APPROVED by owner 2026-10-15**
 **Last updated:** 2026-10-15
 **Branch:** `phase-1-database-foundation`, merged to `main` on approval
 
@@ -95,5 +95,7 @@ account email; sign out after 7 days idle.
   preview deploy if approved).
 
 ## Next action
-Owner review of Phase 2. On approval: merge to `main`, run "Deploy database migrations"
-(dry run, then apply) for the Phase 2 migration, then apply the dashboard settings in README.
+Phase 2 approved and merged to `main`. Owner: run "Deploy database migrations" (dry run should
+list only `20261015120000_auth_profiles_and_mfa.sql`, then apply), then the dashboard settings
+in README. Note: deploy runs #3–#4 (2026-10-14, before the merge) applied nothing ("Remote
+database is up to date") and re-verified the Phase 1 schema. Phase 3 waits for the owner's go-ahead.

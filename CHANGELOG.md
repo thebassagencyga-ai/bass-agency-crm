@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 2 — Authentication & security foundation (2026-10-15, awaiting approval)
+## Phase 2 — Authentication & security foundation (2026-10-15, approved)
 ### Added
 - Sign-in, mandatory two-step login (authenticator app), sign out, forgot/reset password.
 - `middleware.ts`: session refresh, route decisions, per-request CSP nonce, security headers.

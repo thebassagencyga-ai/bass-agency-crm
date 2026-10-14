@@ -9,7 +9,7 @@ inherits the standard exit criteria at the bottom of this file.
 |---|-------|-----------|--------|
 | 0 | Repository inspection & governance | — | APPROVED (2026-10-14) |
 | 1 | Architecture & database foundation | 0 | APPROVED (2026-10-14) |
-| 2 | Authentication & security foundation | 1 | READY FOR REVIEW |
+| 2 | Authentication & security foundation | 1 | APPROVED (2026-10-15) |
 | 3 | Contact management | 2 | NOT STARTED |
 | 4 | Opportunities & pipelines | 3 | NOT STARTED |
 | 5 | Task management & activity history | 4 | NOT STARTED |
@@ -105,7 +105,7 @@ built-in auth email (Supabase-sent, not an app email feature).
 - ✅ Profiles + default rules created for new users — DB + CI API tests.
 - ✅ Full browser journey on an iPhone-sized screen — CI Playwright.
 - ⏳ Phase 2 migration applied to production + dashboard settings — owner, after approval.
-- ⏳ Owner security review sign-off before Phase 3.
+- ✅ Owner approved Phase 2 (2026-10-15).
 
 **Acceptance criteria**
 - Unauthenticated requests to any protected page redirect to login; protected server actions/route handlers return 401.
