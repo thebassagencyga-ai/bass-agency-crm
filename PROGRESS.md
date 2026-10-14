@@ -154,6 +154,16 @@ Started 2026-10-14 after the owner signed in on the preview ("Signed in, start P
   mutation checks added. Pending owner approval to merge, then re-run apply (nothing to apply)
   to re-verify.
 
+**Owner testing on iPhone (2026-10-14)**
+- "Referred by" seemed not to save: with one contact there was nobody to pick, and typed text
+  was silently dropped. Fixed: the picker explains itself and refuses unpicked text. Owner
+  decided referrers stay contacts-only (ADR-019).
+- Found while testing that fix: a business contact flipped to Individual after any form error
+  (React 19 form reset). Fixed; the browser journey covers it.
+- Date box overflowed in iPhone Safari; fixed (`appearance-none`). Not covered by CI (Chromium
+  only) — owner to confirm on the phone.
+- CI run #36 (commit 902a2a6): all 4 jobs passed.
+
 **Owner actions after approval**
 1. Merge to `main`.
 2. Run "Deploy database migrations" as a dry run — it should list only

@@ -7,6 +7,8 @@ All meaningful changes, grouped by milestone.
 - "Referred by" explains that it picks from your contacts; text typed without tapping a contact
   now stops the save with a message instead of being silently dropped.
 - "Google review left on" date box no longer overflows the screen in iPhone Safari.
+- A business contact no longer flips to Individual after a form error (React 19 resets the
+  form after each action; the type radios now keep their choice).
 - Deploy verification allows Supabase's `rls_auto_enable` event-trigger function by name and
   prints every `public` function.
 

@@ -372,6 +372,16 @@ index can be added later if the list grows (no decision needed now).
 
 ---
 
+## ADR-019 — Referrers are always contacts
+**Status:** Accepted — owner decision 2026-10-14
+
+"Referred by" links only to another of the agent's contacts; there is no free-text referrer.
+A referrer is a relationship worth keeping in the CRM, and only a linked contact shows their
+referrals and can drive referral thank-you follow-ups (ADR-013, Phase 6). The form explains
+this, and text typed without choosing a contact stops the save with a message.
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 1. US holidays in business-day calculations? (Default: weekends only.)
