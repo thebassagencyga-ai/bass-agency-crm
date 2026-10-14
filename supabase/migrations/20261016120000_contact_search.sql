@@ -104,17 +104,18 @@ comment on function public.find_possible_duplicates is
   'Duplicate warning (Phase 3): same email or same 10-digit phone. SECURITY INVOKER.';
 
 -- Distinct lead sources already used (case-insensitive), for the lead-source suggestions.
+-- Each group returns the spelling used first, so the result does not depend on collation.
 create function public.contact_lead_sources()
 returns setof text
 language sql
 stable
 set search_path = ''
 as $$
-  select min(c.lead_source)
+  select (array_agg(btrim(c.lead_source) order by c.created_at, c.id))[1]
   from public.contacts c
   where c.lead_source is not null and btrim(c.lead_source) <> ''
   group by lower(btrim(c.lead_source))
-  order by lower(btrim(min(c.lead_source)));
+  order by lower(btrim(c.lead_source)) collate "C";
 $$;
 
 revoke all on function public.search_contacts(text, public.contact_type, public.relationship_status, text, text, text, integer, integer) from public, anon;

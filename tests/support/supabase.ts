@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { totp } from "./totp";
+import { totp, waitForNextTotpWindow } from "./totp";
 
 // Helpers for tests against a LOCAL Supabase stack (`supabase start` in CI). The secret key
 // belongs to that throwaway local stack only; never point these tests at production.
@@ -73,13 +73,44 @@ export function cookieJarClient() {
   return { client, jar, header };
 }
 
-/** A Data API client with a full two-step (aal2) session for the given test user. */
-export async function fullSessionClient(email: string): Promise<SupabaseClient> {
-  const client = anonClient();
-  const { error } = await client.auth.signInWithPassword({ email, password: PASSWORD });
-  if (error) throw error;
-  await enrollTotp(client);
-  return client;
+// TOTP secrets of factors enrolled by these helpers, so a second sign-in by the same user
+// verifies the existing factor (Supabase refuses a new enrollment without an aal2 session).
+const totpSecrets = new Map<string, string>();
+const fullSessionClients = new Map<string, Promise<SupabaseClient>>();
+
+/** Raises a password-signed-in client to aal2: enrolls on first use, verifies afterwards. */
+async function upgradeToAal2(client: SupabaseClient, email: string): Promise<void> {
+  const secret = totpSecrets.get(email);
+  if (!secret) {
+    totpSecrets.set(email, await enrollTotp(client));
+    return;
+  }
+  const { data, error } = await client.auth.mfa.listFactors();
+  const factor = data?.totp.find((f) => f.status === "verified");
+  if (error || !factor) throw new Error(`no verified factor: ${error?.message}`);
+  // A TOTP code is accepted once; wait for a fresh one rather than reuse the last.
+  await waitForNextTotpWindow();
+  const verify = await client.auth.mfa.challengeAndVerify({ factorId: factor.id, code: totp(secret) });
+  if (verify.error) throw new Error(`verify failed: ${verify.error.message}`);
+}
+
+/**
+ * A Data API client with a full two-step (aal2) session for the given test user. One client
+ * per user is shared within a test file.
+ */
+export function fullSessionClient(email: string): Promise<SupabaseClient> {
+  let pending = fullSessionClients.get(email);
+  if (!pending) {
+    pending = (async () => {
+      const client = anonClient();
+      const { error } = await client.auth.signInWithPassword({ email, password: PASSWORD });
+      if (error) throw error;
+      await upgradeToAal2(client, email);
+      return client;
+    })();
+    fullSessionClients.set(email, pending);
+  }
+  return pending;
 }
 
 /**
@@ -90,7 +121,7 @@ export async function fullSessionCookies(email: string, appUrl: string) {
   const session = cookieJarClient();
   const { error } = await session.client.auth.signInWithPassword({ email, password: PASSWORD });
   if (error) throw error;
-  await enrollTotp(session.client);
+  await upgradeToAal2(session.client, email);
   const { hostname } = new URL(appUrl);
   return [...session.jar].map(([name, value]) => ({
     name, value, domain: hostname, path: "/", httpOnly: true, secure: false, sameSite: "Lax" as const,
