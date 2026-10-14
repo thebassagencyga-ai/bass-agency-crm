@@ -56,7 +56,10 @@ if (command === "guard") {
   console.log("Deployed schema:", JSON.stringify(row));
   const problems = checkVerification(row);
   if (problems.length > 0) fail(problems.join(" "));
-  console.log("✓ Verification passed: 30 stages, 4 product lines, RLS on every table, no anon access.");
+  console.log(
+    "✓ Verification passed: 30 stages, 4 product lines, RLS and two-step policies on every table, " +
+      "sign-up trigger present, Data API functions as expected, no anonymous access.",
+  );
 } else {
   fail("Usage: node scripts/supabase-remote.mts guard|verify");
 }

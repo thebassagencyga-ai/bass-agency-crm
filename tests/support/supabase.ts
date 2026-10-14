@@ -72,3 +72,27 @@ export function cookieJarClient() {
   const header = () => [...jar].map(([name, value]) => `${name}=${value}`).join("; ");
   return { client, jar, header };
 }
+
+/** A Data API client with a full two-step (aal2) session for the given test user. */
+export async function fullSessionClient(email: string): Promise<SupabaseClient> {
+  const client = anonClient();
+  const { error } = await client.auth.signInWithPassword({ email, password: PASSWORD });
+  if (error) throw error;
+  await enrollTotp(client);
+  return client;
+}
+
+/**
+ * Cookies for a full two-step session, as the app itself would set them, ready to add to a
+ * Playwright browser context. Avoids the 30-second authenticator wait in browser tests.
+ */
+export async function fullSessionCookies(email: string, appUrl: string) {
+  const session = cookieJarClient();
+  const { error } = await session.client.auth.signInWithPassword({ email, password: PASSWORD });
+  if (error) throw error;
+  await enrollTotp(session.client);
+  const { hostname } = new URL(appUrl);
+  return [...session.jar].map(([name, value]) => ({
+    name, value, domain: hostname, path: "/", httpOnly: true, secure: false, sameSite: "Lax" as const,
+  }));
+}

@@ -48,7 +48,14 @@ export interface VerificationRow {
   tables_without_rls: unknown;
   anon_grants: unknown;
   crm_tables: unknown;
+  mfa_policies: unknown;
+  profile_trigger: unknown;
+  public_functions: unknown;
+  definer_or_anon_functions: unknown;
 }
+
+/** Database functions callable through the Data API (all SECURITY INVOKER). Update per phase. */
+export const PUBLIC_FUNCTIONS = ["contact_lead_sources", "find_possible_duplicates", "search_contacts"] as const;
 
 /** SQL whose single result row is checked by checkVerification. */
 export const VERIFICATION_SQL = `
@@ -60,7 +67,14 @@ select
   (select count(*) from information_schema.role_table_grants
      where table_schema = 'public' and grantee = 'anon') as anon_grants,
   (select count(*) from information_schema.tables
-     where table_schema = 'public' and table_type = 'BASE TABLE') as crm_tables
+     where table_schema = 'public' and table_type = 'BASE TABLE') as crm_tables,
+  (select count(*) from pg_policies
+     where schemaname = 'public' and permissive = 'RESTRICTIVE' and qual like '%aal2%') as mfa_policies,
+  (select count(*) from pg_trigger
+     where tgname = 'on_auth_user_created' and not tgisinternal) as profile_trigger,
+  (select count(*) from pg_proc where pronamespace = 'public'::regnamespace) as public_functions,
+  (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace
+     and (p.prosecdef or has_function_privilege('anon', p.oid, 'execute'))) as definer_or_anon_functions
 `;
 
 export const PUBLIC_TABLES_SQL = `
@@ -77,6 +91,10 @@ export function checkVerification(row: VerificationRow): string[] {
     ["tables_without_rls", 0, "tables without row level security"],
     ["anon_grants", 0, "privileges granted to anon"],
     ["crm_tables", CRM_TABLES.length, "CRM tables"],
+    ["mfa_policies", CRM_TABLES.length, "two-step (aal2) policies"],
+    ["profile_trigger", 1, "sign-up profile trigger"],
+    ["public_functions", PUBLIC_FUNCTIONS.length, "Data API functions"],
+    ["definer_or_anon_functions", 0, "functions that bypass RLS or allow anonymous use"],
   ];
   const problems: string[] = [];
   for (const [key, expected, label] of expectations) {

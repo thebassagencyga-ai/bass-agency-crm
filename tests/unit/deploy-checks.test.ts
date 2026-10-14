@@ -41,7 +41,10 @@ describe("checkTargetProject", () => {
 });
 
 describe("checkVerification", () => {
-  const good = { stages: 30, product_lines: 4, tables_without_rls: 0, anon_grants: 0, crm_tables: 9 };
+  const good = {
+    stages: 30, product_lines: 4, tables_without_rls: 0, anon_grants: 0, crm_tables: 9,
+    mfa_policies: 9, profile_trigger: 1, public_functions: 3, definer_or_anon_functions: 0,
+  };
 
   it("passes the expected post-migration state", () => {
     expect(checkVerification(good)).toEqual([]);
@@ -49,7 +52,10 @@ describe("checkVerification", () => {
 
   it("accepts numbers returned as strings by the API", () => {
     expect(
-      checkVerification({ stages: "30", product_lines: "4", tables_without_rls: "0", anon_grants: "0", crm_tables: "9" }),
+      checkVerification({
+        stages: "30", product_lines: "4", tables_without_rls: "0", anon_grants: "0", crm_tables: "9",
+        mfa_policies: "9", profile_trigger: "1", public_functions: "3", definer_or_anon_functions: "0",
+      }),
     ).toEqual([]);
   });
 
@@ -59,6 +65,10 @@ describe("checkVerification", () => {
     [{ tables_without_rls: 1 }, "row level security"],
     [{ anon_grants: 2 }, "anon"],
     [{ crm_tables: 8 }, "CRM tables"],
+    [{ mfa_policies: 8 }, "two-step"],
+    [{ profile_trigger: 0 }, "sign-up profile trigger"],
+    [{ public_functions: 2 }, "Data API functions"],
+    [{ definer_or_anon_functions: 1 }, "bypass RLS"],
   ])("reports %j", (override, message) => {
     const problems = checkVerification({ ...good, ...override });
     expect(problems).toHaveLength(1);
