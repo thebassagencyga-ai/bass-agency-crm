@@ -274,6 +274,55 @@ from GitHub after each deploy and re-added when the next phase has migrations.
 
 ---
 
+## ADR-015 — Request gate: `middleware.ts` (Edge) plus server-side checks
+**Status:** Proposed — implemented in Phase 2 (pending owner review)
+
+**Context.** Next.js 16 renamed `middleware.ts` to `proxy.ts`. A Phase 2 spike showed that
+`@opennextjs/cloudflare` 1.20.11 builds `proxy.ts` as Node.js middleware and warns it is
+"experimental … not officially maintained … use at your own risk"; `middleware.ts` (Edge
+runtime) is the officially supported path and was verified in workerd (redirects, headers).
+
+**Decision.** Use `src/middleware.ts` and accept Next's deprecation warning. Route decisions
+live in `src/lib/auth/routing.ts` (pure, unit tested). Protected layouts, pages and Server
+Actions **also** check the session on the server (`requireFullSession()`), so security does
+not depend on the middleware alone. Revisit when OpenNext officially supports `proxy.ts`.
+
+---
+
+## ADR-016 — Authentication design
+**Status:** Proposed — implemented in Phase 2 (owner decisions 2026-10-15; pending review)
+
+- **Invite-only:** public sign-up disabled (Supabase setting); the owner creates users in the
+  dashboard. Profiles (and default rules) are created by a trigger on `auth.users`.
+- **Mandatory two-step login (owner decision):** TOTP authenticator app. Enforced in three
+  places: middleware routing, server-side page/action checks, and **restrictive RLS policies on
+  every table requiring `auth.jwt()->>'aal' = 'aal2'`**, so a stolen password alone reads
+  nothing even through the raw Data API.
+- **Sessions:** `@supabase/ssr` cookies set **HttpOnly**, Secure (production), SameSite=Lax;
+  no browser Supabase client (CSP `connect-src 'self'`). Identity comes from `getClaims()`
+  (verified JWT), never from unverified cookie contents. Auth responses carry no-store cache
+  headers. Owner decision: **sign out after 7 days of inactivity** (Supabase Pro setting).
+- **Passwords:** ≥ 12 characters with lower, upper case and a digit (Supabase setting and app
+  validation); "secure password change" on. Generic sign-in error (no account discovery).
+- **Password reset:** Supabase's built-in email with a `token_hash` link to `/auth/confirm`;
+  after the link, the user must still pass the authenticator step before choosing a password.
+  Supabase's built-in mailer only delivers to members of the owner's Supabase organization;
+  the owner signs in with a different address, so either add that address to the
+  organization or approve a custom SMTP provider later. If neither, password resets are done
+  from the Supabase dashboard.
+- **Security headers:** per-request nonce CSP (`script-src 'self' 'nonce-…' 'strict-dynamic'`),
+  `frame-ancestors 'none'`, HSTS, nosniff, no-referrer, Permissions-Policy, COOP; pages are
+  `private, no-store`.
+- **Lost authenticator:** recovery path is the owner's Supabase dashboard (Authentication →
+  Users → remove the MFA factor), protected by the owner's own Supabase login. Documented in
+  README.
+
+**Alternatives considered.** Magic links (depend on email delivery; rejected); browser
+Supabase client (exposes session to scripts; rejected); passkeys/WebAuthn (good future option
+once Supabase support matures).
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 1. US holidays in business-day calculations? (Default: weekends only.)
