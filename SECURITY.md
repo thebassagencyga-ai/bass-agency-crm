@@ -61,6 +61,10 @@ manual check. Authentication (Phase 2) is not implemented.
 - Publishable/anon key may reach the browser (protected by RLS). Secret/service-role key:
   server-only, used solely for reviewed admin tasks (e.g. inviting a user), never per request.
 - Production secrets stored in Cloudflare's encrypted secrets and the owner's password manager.
+- GitHub repository secrets for the manual migration workflow (ADR-014): CRM project ref,
+  database password, and a Supabase access token. The token is account-wide (it could also
+  manage ProducerIQ's project): give it an expiry, revoke it when not needed, and never use it
+  outside that workflow. The workflow refuses any project containing non-CRM tables.
 - Never paste secrets into issues, PRs, chat, or logs.
 
 ## 6. Data minimization

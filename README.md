@@ -58,7 +58,12 @@ Auth, Data API) and applies `supabase/migrations/` — used from Phase 2 onward.
   `docs/data-model.md`.
 - Create: `npx supabase migration new <name>`. Never edit a migration that has been applied
   to production — add a new one.
-- **Applying to the production project (owner, after review):**
+- **Applying to the production project — from a phone (recommended, ADR-014):**
+  GitHub → Actions → **Deploy database migrations** → Run workflow (branch `main`).
+  Leave **apply** unticked first: it checks the project is the CRM and lists what would be
+  applied. Run again with **apply** ticked to apply and verify. Needs the three repository
+  secrets listed at the top of `.github/workflows/deploy-migrations.yml`.
+- **Applying to the production project — from a computer (alternative):**
   ```bash
   npx supabase login                          # opens a browser; token stays on your machine
   npx supabase link --project-ref <CRM project ref>   # Dashboard → Project Settings → General

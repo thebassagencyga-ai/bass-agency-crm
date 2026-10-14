@@ -1,0 +1,67 @@
+name: Deploy database migrations
+
+# Applies supabase/migrations to the hosted CRM Supabase project (ADR-014).
+# Runs ONLY when started by hand from the Actions tab, ONLY from main, and by default is a
+# dry run that changes nothing. Tick "apply" to make changes.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_PROJECT_REF   20-letter ID of the CRM project (never ProducerIQ's)
+#   SUPABASE_ACCESS_TOKEN  Supabase personal access token (set an expiry)
+#   SUPABASE_DB_PASSWORD   the CRM project's database password
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Apply the migrations. Leave unticked for a dry run that changes nothing."
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-migrations
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    name: ${{ inputs.apply && 'Apply' || 'Dry run' }} migrations
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+
+      - name: Check the three secrets are set
+        run: |
+          missing=0
+          for name in SUPABASE_PROJECT_REF SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD; do
+            if [ -z "${!name}" ]; then echo "✗ Secret $name is not set"; missing=1; fi
+          done
+          exit $missing
+
+      - name: Confirm the target is the CRM project (read-only)
+        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/supabase-remote.mts guard
+
+      - name: Link the project
+        run: npx supabase link --project-ref "$SUPABASE_PROJECT_REF"
+
+      - name: List migrations that would be applied (changes nothing)
+        run: npx supabase db push --linked --dry-run
+
+      - name: Apply migrations
+        if: inputs.apply
+        run: npx supabase db push --linked --yes
+
+      - name: Verify the deployed schema (read-only)
+        if: inputs.apply
+        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/supabase-remote.mts verify

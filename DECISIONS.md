@@ -248,6 +248,32 @@ referrals" was removed from the onboarding checklist because the referral rule r
 
 ---
 
+## ADR-014 — Applying migrations with a manual GitHub workflow
+**Status:** Accepted (owner chose this option, 2026-10-14)
+
+**Context.** The owner works mainly from an iPhone, so running the Supabase CLI locally is
+impractical, and pasting SQL into the dashboard skips Supabase's migration history.
+
+**Decision.** `.github/workflows/deploy-migrations.yml`, started only by hand from the Actions
+tab, only from `main`. Default is a **dry run** that lists pending migrations and changes
+nothing; ticking **apply** runs `supabase db push`. Before anything else, a read-only guard
+(`scripts/supabase-remote.mts guard`, logic in `src/lib/deploy-checks.ts`) lists the target
+project's public tables via the Supabase Management API and **refuses if any table is not a
+CRM table** (e.g. ProducerIQ's). After applying, `verify` checks 30 stages, 4 product lines,
+RLS on every table and no anon privileges.
+
+**Secrets** (GitHub repository secrets, encrypted, never in Git): `SUPABASE_PROJECT_REF`,
+`SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`.
+
+**Risk.** A Supabase personal access token can manage **every project in the owner's account,
+including ProducerIQ's**. Mitigations: it is used only in this manually started workflow,
+which only runs on `main` of a private, single-owner repository; the guard refuses non-CRM
+projects; the owner sets an expiry on the token and can revoke it at any time
+(supabase.com → Account → Access Tokens). If the owner prefers, the token can be deleted
+from GitHub after each deploy and re-added when the next phase has migrations.
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 1. US holidays in business-day calculations? (Default: weekends only.)

@@ -2,6 +2,11 @@
 
 All meaningful changes, grouped by milestone.
 
+## Post-Phase 1 — migration deployment (2026-10-14)
+### Added
+- Manual "Deploy database migrations" GitHub workflow: dry run by default, wrong-project
+  guard, verification after apply (ADR-014). 17 unit tests for the safety checks.
+
 ## Phase 1 — Architecture & database foundation (2026-10-14, approved)
 ### Added
 - Next.js 16.3.8 + TypeScript strict + Tailwind 4 + ESLint 9 + Vitest 5 scaffold with a placeholder page.
