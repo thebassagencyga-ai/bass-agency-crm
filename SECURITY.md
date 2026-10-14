@@ -1,8 +1,8 @@
 # Security — The Bass Agency CRM
 
-Status: **Phase 1 — database authorization implemented and tested locally; not yet applied
-to the production project.** Items move to "Verified" only with test evidence or a recorded
-manual check. Authentication (Phase 2) is not implemented.
+Status: **Phase 2 — authentication implemented; database authorization live in production
+(Phase 1 schema).** Items move to "Verified" only with test evidence or a recorded manual
+check. The Phase 2 migration and dashboard settings are applied only after owner approval.
 
 ## 1. Assets
 - Contact records (names, phones, emails, addresses, business details) of prospects and clients.
@@ -27,13 +27,27 @@ manual check. Authentication (Phase 2) is not implemented.
 | Malicious link in messages | `javascript:` URL saved as review link | `google_review_url` must be `https://` (DB check); `sms:` links built server-side with encoded text |
 | Mixing with ProducerIQ | Shared keys or DB | Separate repo, Supabase project, hosting (ADR-001/002) |
 
-## 3. Authentication design (Phase 2)
-- Supabase Auth, email + password; public signups disabled; users created by invite.
-- Sessions via `@supabase/ssr` HTTP-only, Secure, SameSite=Lax cookies; refreshed in middleware.
-- Server code authorizes with `supabase.auth.getUser()` (validated with the auth server), never
-  trusting an unverified session object for authorization decisions.
-- Account recovery via Supabase's password-reset email; owner keeps the Supabase org login
-  (with MFA) as the break-glass path.
+## 3. Authentication design (Phase 2, ADR-015 / ADR-016)
+- Supabase Auth, email + password; **public sign-up disabled**; users created by the owner in
+  the dashboard. A trigger creates each user's profile and default rules.
+- **Two-step login is mandatory** (TOTP authenticator app). Enforced by (1) middleware routing,
+  (2) server-side checks in protected layouts/pages/actions, and (3) **restrictive RLS policies
+  on every table requiring `aal2`** — a password-only session reads and writes nothing.
+- Sessions via `@supabase/ssr` cookies set **HttpOnly**, Secure (production), SameSite=Lax;
+  refreshed in middleware; auth responses are `no-store`. No browser Supabase client.
+- Identity and assurance level come from `getClaims()` (verified JWT signature), never from
+  unverified cookie contents. Any auth error is treated as signed out (fail closed).
+- Generic sign-in error ("Email or password is incorrect") — no account discovery. Supabase
+  Auth rate-limits sign-in and code attempts; the app shows a "too many attempts" message.
+- Redirect targets after sign-in are validated (`safeNextPath`): same-site paths only, never
+  back into the sign-in screens. Email-link redirects are built from `SITE_URL`, not the Host
+  header.
+- Sessions end after **7 days of inactivity** (Supabase Pro setting, owner decision).
+- **Break-glass recovery:** if the authenticator is lost, the owner removes the factor in the
+  Supabase dashboard (Authentication → Users → user → MFA factors), protected by the owner's
+  own Supabase login (which should itself use two-step login). Password reset by email
+  requires the login address to be a member of the Supabase organization or a custom SMTP
+  provider (ADR-016); otherwise reset the password from the dashboard.
 
 ## 4. Database authorization
 - RLS enabled (and tested) on every table in exposed schemas.
@@ -87,9 +101,13 @@ underwriting answers, detailed health information, policy documents. No file upl
 | SECURITY DEFINER functions pin search_path; private schema not usable by API roles | 1 | Verified locally |
 | No forbidden sensitive-data columns (SSN, DOB, card, bank, health…) | 1 | Verified locally (column-name scan) |
 | Tests deliberately fail when RLS is broken (mutation check) | 1 | Done manually 2026-10-14: 4 mutations, all caught |
-| Protected routes redirect; actions return 401 | 2 | Not started |
-| No secret key in client bundle | 2 | Not started |
-| Security headers / CSP present | 2 | Not started |
+| Protected routes redirect; actions return 401 | 2 | Verified locally in workerd; CI HTTP tests against a real Supabase stack |
+| Password-only (aal1) session gets no data (SQL + API) | 2 | Verified: DB tests, CI API tests |
+| Public sign-up refused | 2 | Verified in CI against Supabase Auth (local config); hosted setting is an owner step |
+| Session cookies HttpOnly; expired session refreshes | 2 | CI HTTP + browser tests |
+| No secret key in client bundle | 2 | Verified: `check-client-bundle.mjs` (patterns locally; real key values in CI) |
+| Security headers / CSP present, nonce on every script, no CSP violations | 2 | Verified locally in workerd + Chromium; CI HTTP tests |
+| Open redirect via `next` blocked | 2 | Unit tests + verified in workerd |
 | Input validation on every mutation | 3+ | Not started |
 | Audit log written and immutable to app roles | 1, 3+ | Verified locally at SQL level (`tests/db/audit.test.ts`) |
 | Service worker caches no record data | 10 | Not started |

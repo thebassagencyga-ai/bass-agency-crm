@@ -33,7 +33,10 @@ or at an opportunity that belongs to a different contact.
 One per authorized user (`id` = `auth.users.id`). `display_name`, `time_zone` (US zones,
 default `America/New_York`), `google_review_url` (https only; used in review requests).
 Users may edit only those three columns of their own row.
-Creating a profile inserts the 10 default automation rules for that user.
+Profiles are created automatically by a trigger when Supabase Auth adds a user (display name
+from user metadata, else the part of the email before @), which in turn inserts the 12 default
+automation rules. Every table also has a restrictive policy requiring a two-step (aal2)
+session (ADR-016).
 
 ### product_lines / pipeline_stages (reference data)
 Four product lines: auto, home, commercial, life. Stages per line with `position` and

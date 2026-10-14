@@ -35,14 +35,17 @@ prompts and basic reports.
 - Supabase CLI — installed as a dev dependency (`npx supabase`)
 - A free Cloudflare account — only for deploying (Phase 12); local preview needs none
 
-## Environment variables (planned, Phase 1–2)
-Copy `.env.example` to `.env.local`. Never commit real values.
-| Name | Exposure | Purpose |
-|------|----------|---------|
-| `NEXT_PUBLIC_SUPABASE_URL` | browser | Project URL |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | browser | Publishable (anon) key; safe only because RLS is enforced |
-| `SUPABASE_SECRET_KEY` | **server only** | Admin tasks (user invites); never per-request |
-| `APP_TIME_ZONE` | server | Defaults to `America/New_York` |
+## Environment variables
+Copy `.env.example` to `.env.local` (`next dev`) or `.dev.vars` (`cf:preview`). Never commit
+real values. **None are `NEXT_PUBLIC_`**: the browser never talks to Supabase directly.
+| Name | Purpose |
+|------|---------|
+| `SUPABASE_URL` | CRM project URL |
+| `SUPABASE_PUBLISHABLE_KEY` | Publishable (anon) key. Not secret — RLS protects the data — but kept server-side |
+| `SITE_URL` | Public URL of the app, used in password-reset links |
+| `INSECURE_COOKIES_FOR_LOCAL_TESTS` | Local http testing only; never in production |
+
+No secret/service-role key is used by the app (Phase 2).
 
 ## Local development
 ```bash
@@ -73,6 +76,8 @@ Auth, Data API) and applies `supabase/migrations/` — used from Phase 2 onward.
   Double-check the project ref is the **CRM** project, never ProducerIQ's.
 
 ## Testing
+Unit and database tests run anywhere; integration and browser tests need the local Supabase
+stack (Docker) and run in CI (`.github/workflows/ci.yml`, job "Sign-in and security").
 ```bash
 npm run lint
 npm run typecheck
@@ -80,12 +85,37 @@ npm test                    # unit tests
 npm run db:local:start      # disposable local PostgreSQL on 127.0.0.1:54329
 export TEST_DATABASE_URL=postgres://postgres@127.0.0.1:54329/postgres
 npm run test:db             # schema, constraint, RLS and audit tests
-npm run test:all            # everything
+npm run test:all            # unit + database
 npm run db:local:stop
+npm run check:bundle        # after a build: no secrets/Supabase config in browser code
+# With `npx supabase start` running and the app in `npm run cf:preview`:
+npm run test:integration    # Auth API + app HTTP tests (real Supabase)
+npm run test:e2e            # Playwright: sign in, two-step setup, sign out
 ```
 `test:db` creates a throwaway database from the migrations for every run, drops it
 afterwards, and refuses to run against any non-local host. CI (`.github/workflows/ci.yml`)
 also applies the migrations to Supabase's real Postgres image and runs an RLS smoke test.
+
+## Supabase dashboard settings (owner, CRM project only)
+Authentication settings live in the dashboard, not in migrations. Apply these after Phase 2
+is approved (they mirror `supabase/config.toml`):
+
+1. **Authentication → Sign In / Providers**
+   - "Allow new users to sign up": **OFF** (invite-only).
+   - **Email** provider: **ON** (turning it off disables password sign-in entirely).
+   - Password requirements: minimum **12** characters, "lowercase, uppercase letters and digits".
+   - Secure password change: **ON**.
+2. **Authentication → Multi-Factor**: TOTP (authenticator app) **enabled**.
+3. **Authentication → Sessions**: inactivity timeout **7 days** (168 hours).
+4. **Authentication → Emails → Reset password**: replace the link with
+   `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password`
+   (template text in `supabase/templates/recovery.html`).
+5. **Authentication → URL Configuration**: Site URL = the app's address (set in Phase 12).
+6. **Create your user:** Authentication → Users → Add user → *Create new user* → your email
+   and a strong password, tick **Auto Confirm User**. Your profile and the 12 default rules are
+   created automatically. On first sign-in the app asks you to set up your authenticator.
+7. **Lost authenticator:** Authentication → Users → your user → remove the MFA factor; sign in
+   again and set up a new one.
 
 ## Deployment (planned, Phase 12)
 Build with `@opennextjs/cloudflare`, deploy with Wrangler, set secrets with
