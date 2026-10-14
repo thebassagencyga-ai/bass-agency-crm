@@ -170,7 +170,7 @@ application users.
 ---
 
 ## ADR-010 — No deletes through the application
-**Status:** Proposed — implemented in Phase 1 (pending owner review)
+**Status:** Accepted (owner, 2026-10-14) — implemented in Phase 1
 
 **Decision.** The `authenticated` role has no DELETE privilege on any table. Contacts are
 archived, opportunities closed, tasks completed or cancelled, activities kept. Foreign keys
@@ -204,7 +204,7 @@ re-reviewed in Phase 11.
 ---
 
 ## ADR-012 — Every task belongs to a contact
-**Status:** Proposed — owner input welcome
+**Status:** Accepted (owner, 2026-10-14: "I can't think of any general to-dos")
 
 **Decision.** Follows spec §8 literally: `tasks.contact_id` is required. Personal or
 administrative to-dos with no contact are not supported.
@@ -219,5 +219,7 @@ must be decided before Phase 5.
 1. US holidays in business-day calculations? (Default: weekends only.)
 2. Custom domain later? (Default: free `workers.dev` URL; no purchase.)
 3. Error monitoring (e.g. Sentry free tier)? (Default: none in MVP; Cloudflare logs only.)
-4. Should tasks without a contact be allowed (ADR-012)? (Default: no, as specified.)
-5. Is "no deleting from the app" acceptable (ADR-010)? (Default: yes.)
+4. ~~Tasks without a contact (ADR-012)?~~ Answered: no.
+5. ~~No deleting from the app (ADR-010)?~~ Answered: acceptable.
+6. Referral and Google review request automation — requested by owner 2026-10-14; design
+   questions pending (see PROGRESS.md).

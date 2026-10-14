@@ -44,7 +44,9 @@ PostgreSQL 16), so CI is the evidence for them.
 
 ## Owner actions needed
 1. Review the migrations (`supabase/migrations/`) and `docs/data-model.md`.
-2. Answer open questions in DECISIONS.md (ADR-010 no deletes, ADR-012 tasks need a contact).
+2. ~~Answer ADR-010 / ADR-012~~ — answered 2026-10-14 (both accepted as designed).
+   New request 2026-10-14: automation for referral and Google review requests — design
+   questions sent to owner; not yet built.
 3. After approval: apply migrations to the CRM project (README → Database migrations), or
    ask Claude to walk through it.
 4. Approve Phase 1 → merge branch to `main`.
