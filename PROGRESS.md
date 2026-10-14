@@ -32,7 +32,7 @@ Governance files created. ProducerIQ untouched (owner reconfirmed: it must not b
 | `tests/db/supabase-smoke.sql` on local shim DB | pass |
 | `npm audit --omit=dev` | 0 vulnerabilities |
 
-## CI (GitHub Actions run #1, commit 4631066, 2026-10-14) — all 3 jobs passed
+## CI (GitHub Actions run #4, commit 4277277, 2026-10-14, includes ADR-013 schema) — all 3 jobs passed
 | Job | Result |
 |---|---|
 | Lint, typecheck, unit tests, builds (incl. OpenNext build + dry-run) | pass |
