@@ -41,6 +41,14 @@ unnecessary cost); Supabase Free (rejected by spec).
 
 ---
 
+**Project settings (owner, 2026-10-14):** Data API **on** (required by supabase-js /
+`@supabase/ssr`); "Automatically expose new tables" **off** — every migration must
+explicitly `grant` table privileges to `authenticated` only (never `anon`); "Automatic RLS"
+**on** as a safety net in addition to explicit `enable row level security` in each migration.
+Region East US. Database password held only in the owner's password manager.
+
+---
+
 ## ADR-003 — Development and test databases are local
 **Status:** Proposed
 

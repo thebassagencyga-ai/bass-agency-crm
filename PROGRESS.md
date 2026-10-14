@@ -20,7 +20,7 @@ None.
 ## Blockers / owner actions needed before Phase 1
 1. ~~Approve Phase 0.~~ Done 2026-10-14. Owner reconfirmed: ProducerIQ must not be modified in any way.
 2. Create the private GitHub repo `thebassagencyga-ai/bass-agency-crm` (or authorize Claude to create it) so this work can be pushed.
-3. Confirm the additional Supabase project cost on the Supabase billing page, then create the project
+3. Supabase project settings decided (see ADR-002): Data API on, auto-expose off, automatic RLS on, East US. Confirm the additional Supabase project cost on the Supabase billing page, then create the project
    (region: East US recommended) — or authorize waiting until Phase 1 needs it (it is only needed
    to link/push migrations; local testing does not require it).
 4. Create a free Cloudflare account (needed for the Phase 1 hosting spike deploy; local workerd test does not need it).
