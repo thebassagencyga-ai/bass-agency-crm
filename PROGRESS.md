@@ -1,8 +1,8 @@
 # Progress
 
-**Current phase:** 2 — Authentication & security foundation — **APPROVED by owner 2026-10-15**
-**Last updated:** 2026-10-15
-**Branch:** `phase-1-database-foundation`, merged to `main` on approval
+**Current phase:** 3 — Contact management — **READY FOR REVIEW** (owner approval pending)
+**Last updated:** 2026-10-14
+**Branch:** `phase-3-contacts` (merge to `main` on approval)
 
 ## Phase 0 — APPROVED 2026-10-14
 Governance files created. ProducerIQ untouched (owner reconfirmed: it must not be modified).
@@ -110,3 +110,35 @@ access). Run #1 failed safely at the secrets check (secret names misspelled "CLO
 passed (sign-in 200, protected page redirects, security headers). Bundle 1.83 MiB gzip; worker
 startup 22 ms. Owner next: Supabase Site URL + redirect URL, then first sign-in and authenticator
 setup on iPhone. Fictional data only until Phases 11–12.
+
+## Phase 3 — Contact management (branch `phase-3-contacts`)
+Started 2026-10-14 after the owner signed in on the preview ("Signed in, start Phase 3").
+
+**Completed**
+- Contacts list (`/contacts`): search, filters, sort, pagination, empty/loading/error states.
+- Add (`/contacts/new`), detail (`/contacts/[id]`), edit, archive/restore; duplicate warning;
+  referred-by picker; Google review date; referrals list on the referrer's page.
+- Migration `20261016120000_contact_search.sql` (three SECURITY INVOKER functions, ADR-018).
+- Deploy verification extended: aal2 policies (9), sign-up trigger (1), `public` functions
+  (3), none SECURITY DEFINER or executable by `anon`; tied to the migrations by a DB test.
+
+**Tests run (2026-10-14, local, PostgreSQL 16)**
+| Command | Result |
+|---|---|
+| `npm run lint` / `npm run typecheck` | pass |
+| unit + database (`vitest --project unit --project db`) | 261 passed (126 unit, 135 DB) |
+| Mutation check: `search_contacts` made SECURITY DEFINER | 7 DB tests failed (caught), reverted |
+| Cloudflare build | 1889 KiB gzip of the 3 MiB free limit |
+
+**CI**
+- Run #25 (commit 44cb978): 2 real failures, both fixed in 939e926:
+  `contact_lead_sources` spelling depended on collation (reproduced locally with ICU en-US);
+  integration helper re-enrolled an authenticator for a user who already had one.
+- Run #26 (commit 939e926): see the Phase 3 report.
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. Run "Deploy database migrations" as a dry run — it should list only
+   `20261016120000_contact_search.sql` — then apply. The verify step now also checks the new
+   items above.
+3. Run "Deploy app preview (Cloudflare)", then try contacts on the iPhone (fictional data only).

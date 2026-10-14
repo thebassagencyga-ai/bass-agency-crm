@@ -64,6 +64,10 @@ check. The Phase 2 migration and dashboard settings are applied only after owner
   - `crm_private.write_audit_log()` — trigger; must append to `audit_log`, which users cannot write.
   - `crm_private.create_default_automation_rules()` — trigger on profile insert; inserts the
     new profile's own default rules only.
+- Data API functions in `public` (`search_contacts`, `find_possible_duplicates`,
+  `contact_lead_sources`) are SECURITY INVOKER, so RLS applies; EXECUTE is revoked from
+  `public`/`anon`. The deploy verification fails if any `public` function is SECURITY DEFINER
+  or executable by `anon`, or if the function list changes unexpectedly.
 - No DELETE privilege for `authenticated` on any table (ADR-010).
 - Composite foreign keys including `owner_id` stop a user linking their rows to another
   user's contact, opportunity, task or rule, even though FK checks bypass RLS.
@@ -108,7 +112,8 @@ underwriting answers, detailed health information, policy documents. No file upl
 | No secret key in client bundle | 2 | Verified: `check-client-bundle.mjs` (patterns locally; real key values in CI) |
 | Security headers / CSP present, nonce on every script, no CSP violations | 2 | Verified locally in workerd + Chromium; CI HTTP tests |
 | Open redirect via `next` blocked | 2 | Unit tests + verified in workerd |
-| Input validation on every mutation | 3+ | Not started |
+| Input validation on every mutation | 3+ | Contacts (Phase 3): zod on the server + DB constraints; unit and browser tests |
+| Search cannot leak other accounts' contacts; IDOR by URL id | 3 | Verified: DB tests (mutation-checked), CI API and browser tests |
 | Audit log written and immutable to app roles | 1, 3+ | Verified locally at SQL level (`tests/db/audit.test.ts`) |
 | Service worker caches no record data | 10 | Not started |
 | `npm audit` / secret scan clean or triaged | 11 | Not started |

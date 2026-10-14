@@ -348,6 +348,27 @@ custom domain decision, backups/restore drill, monitoring).
 
 ---
 
+## ADR-018 — Contact search as SECURITY INVOKER database functions
+**Status:** Proposed — implemented in Phase 3 (pending owner review)
+
+**Context.** The contact list needs a single search box over names (either order), business
+name, email and phone digits, plus filters, sorting and pagination. Building this with
+PostgREST filter strings in the app would mean string-building `or=(…)` filters from user
+input, with awkward escaping of `,`, `.`, `%` and `_`.
+
+**Decision.** `search_contacts`, `find_possible_duplicates` and `contact_lead_sources` are SQL
+functions in `public`, called through RPC with the user's session. They are **SECURITY
+INVOKER** with `search_path = ''`, so RLS (owner + aal2) filters every row exactly as for a
+direct table read; the query text is a parameter and LIKE wildcards are escaped; page size is
+capped at 100. EXECUTE is granted to `authenticated` only. The deploy verification fails if a
+`public` function is SECURITY DEFINER, executable by `anon`, or the function count changes.
+
+**Consequences.** Search logic is tested directly in SQL (24 DB tests, mutation-checked).
+Matching uses `ILIKE` without an index: fine for one agent's few thousand contacts; a trigram
+index can be added later if the list grows (no decision needed now).
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 1. US holidays in business-day calculations? (Default: weekends only.)

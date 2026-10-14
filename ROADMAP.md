@@ -10,7 +10,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 0 | Repository inspection & governance | — | APPROVED (2026-10-14) |
 | 1 | Architecture & database foundation | 0 | APPROVED (2026-10-14) |
 | 2 | Authentication & security foundation | 1 | APPROVED (2026-10-15) |
-| 3 | Contact management | 2 | NOT STARTED |
+| 3 | Contact management | 2 | READY FOR REVIEW |
 | 4 | Opportunities & pipelines | 3 | NOT STARTED |
 | 5 | Task management & activity history | 4 | NOT STARTED |
 | 6 | Automation engine | 5 | NOT STARTED |
@@ -132,6 +132,18 @@ built-in auth email (Supabase-sent, not an app email feature).
 - Audit log rows written for create/update/archive.
 - Tests: validation (valid/invalid), create/edit, search/filter, archive, ownership, IDOR attempt by URL id.
 - Loading, empty, error and success states present; usable at 375px width.
+
+**Status 2026-10-14** (✅ verified by automated check; ⏳ owner action):
+- ✅ Quick add (essentials first, "More details" collapsed) and full edit form; zod validation on the server mirrors the DB constraints, with field errors — unit + browser tests.
+- ✅ Detail page with contact info, referrals, and placeholder sections for opportunities, tasks and activity (Phases 4–5).
+- ✅ Search by name (either order), business, email or phone digits; filters for type, status, lead source, archived; sort by name/newest/recently updated; pagination — DB tests (24) + browser test.
+- ✅ Archive and restore; archived contacts hidden by default; nothing is deleted — DB + browser tests.
+- ✅ Referred-by picker (own contacts only, never itself) and Google review date (not in the future) — DB tests (same-owner FK, not itself), unit tests (review date), browser test (referred by).
+- ✅ Possible-duplicate warning on matching email or 10-digit phone, with "Save anyway" — DB + browser tests.
+- ✅ Audit log rows for create, update and archive with the acting user — DB + API tests.
+- ✅ Ownership and IDOR: another account sees no results and "Contact not found" when visiting the contact's URL — DB, API and browser tests; search function mutation-checked (SECURITY DEFINER → 7 failures).
+- ✅ Loading, empty, error and success states; browser journey on an iPhone 13-sized screen (390px) — CI Playwright.
+- ⏳ Owner: merge, deploy migration `20261016120000_contact_search.sql`, redeploy preview, click through on iPhone.
 
 ---
 

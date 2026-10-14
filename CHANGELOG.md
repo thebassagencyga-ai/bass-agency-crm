@@ -2,6 +2,23 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 3 — Contact management (2026-10-14, ready for review)
+### Added
+- Contacts list with search (name, business, email, phone), filters (type, status, lead
+  source, archived), sorting and pagination; empty and loading states.
+- Quick add / full form with server-side validation and field errors; contact detail page;
+  edit; archive and restore (nothing is deleted).
+- Possible-duplicate warning (same email or phone) with "Save anyway"; referred-by picker;
+  Google review date; referrals shown on the referrer's page.
+- Migration `20261016120000_contact_search.sql`: `search_contacts`,
+  `find_possible_duplicates`, `contact_lead_sources` (SECURITY INVOKER, ADR-018).
+- Deploy verification also checks the two-step policies, the sign-up trigger and the Data
+  API functions.
+- Tests: unit (validation, formatting, list parameters, dates), database (search, duplicates,
+  ownership), API and browser journeys.
+### Fixed
+- Integration test helpers reuse an existing authenticator factor when a user signs in again.
+
 ## Preview deployment (2026-10-15)
 ### Added
 - Manual "Deploy app preview (Cloudflare)" workflow: CRM-only Supabase target, bundle scan with

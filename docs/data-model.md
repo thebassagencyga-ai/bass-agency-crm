@@ -109,6 +109,18 @@ Append-only, written by trigger on contacts, opportunities, tasks, activities an
 automation_rules: actor, table, record, action, and for updates only the changed columns.
 Readable by the record's owner; nobody can write to it through the API.
 
+## Database functions (Data API)
+
+Called by signed-in users through RPC. All are SECURITY INVOKER with an empty `search_path`,
+so row level security (including the two-step requirement) filters every row; EXECUTE is
+granted to `authenticated` only.
+
+| Function | Purpose |
+|---|---|
+| `search_contacts(query, type, status, lead_source, archived, sort, limit, offset)` | Contact list: name (either order), business, email (escaped ILIKE) or phone digits (≥ 3); filters; sort `name` / `recent` / `updated`; limit capped at 100. |
+| `find_possible_duplicates(email, phone, exclude_id)` | Up to 5 contacts with the same email (case-insensitive) or the same last 10 phone digits (phone or alt phone), archived included. |
+| `contact_lead_sources()` | Lead sources already used, one per case-insensitive spelling (the first one used). |
+
 ## Deletion and history
 
 No foreign key cascades. The API roles have no DELETE privilege on any table: contacts are
