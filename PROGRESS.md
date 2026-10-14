@@ -163,6 +163,8 @@ Started 2026-10-14 after the owner signed in on the preview ("Signed in, start P
 - Date box overflowed in iPhone Safari; fixed (`appearance-none`). Not covered by CI (Chromium
   only) — owner to confirm on the phone.
 - CI run #36 (commit 902a2a6): all 4 jobs passed.
+- Preview redeployed: deploy-preview run #4 (commit c29f122) — build, bundle scan, deploy and
+  live smoke test passed. Owner to confirm the referrer flow and date box on iPhone.
 
 **Owner actions after approval**
 1. Merge to `main`.
