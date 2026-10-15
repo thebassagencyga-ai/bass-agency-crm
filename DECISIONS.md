@@ -447,7 +447,7 @@ window, cooldown, checklist items and message text; messages offering an incenti
 refused (ADR-013). Changes apply to new tasks only.
 
 ## ADR-023 — Renewals: policies are won opportunities; outcomes roll the date; cross-sell rules are data
-**Status:** Proposed — implemented in Phase 8 (pending owner review)
+**Status:** Accepted — implemented in Phase 8 (approved with the phase, 2026-10-15)
 
 **Owner decisions (2026-10-15).** Renewed → renewal date rolls forward by the policy term
 (auto 6 or 12 months, other lines 12). Re-marketed = client kept with changed terms; recorded

@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 8 — Renewals & cross selling (2026-10-15, ready for review)
+## Phase 8 — Renewals & cross selling (2026-10-15, approved)
 ### Added
 - Renewals page: next 30 / 60 / 90 days, by product line; past-due policies, client policies
   (with their review task) and prospects' current renewal dates.
