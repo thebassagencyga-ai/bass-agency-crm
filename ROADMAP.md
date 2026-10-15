@@ -16,7 +16,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 6 | Automation engine | 5 | APPROVED (2026-10-15) |
 | 7 | Dashboard & daily workflow | 6 | APPROVED (2026-10-15) |
 | 8 | Renewals & cross selling | 6, 7 | APPROVED (2026-10-15) |
-| 9 | Reporting | 8 | READY FOR REVIEW |
+| 9 | Reporting | 8 | APPROVED (2026-10-15) |
 | 10 | Mobile experience & PWA | 9 | NOT STARTED |
 | 11 | End-to-end testing & security review | 10 | NOT STARTED |
 | 12 | Production deployment & handoff | 11 | NOT STARTED |

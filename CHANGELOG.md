@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 9 — Reporting (2026-10-15, ready for review)
+## Phase 9 — Reporting (2026-10-15, approved)
 ### Added
 - Reports page with periods (this month, last month, this quarter, year to date, last 12
   months): conversion rate with its denominator, new leads by source, quotes sent and

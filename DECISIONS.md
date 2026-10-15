@@ -474,7 +474,7 @@ an "undo"). Changing an auto policy between 6 and 12 months mid-year can leave t
 period's open review task in place (the next one gets the new key).
 
 ## ADR-024 — Reports: one invoker function per page load; definitions on the page
-**Status:** Proposed — implemented in Phase 9 (pending owner review)
+**Status:** Accepted — implemented in Phase 9 (approved with the phase, 2026-10-15)
 
 **Decision.** `report_summary(start, end, today)` returns every report as one JSON object
 (one round trip on a phone), SECURITY INVOKER so RLS (owner + two-step) limits every figure.
