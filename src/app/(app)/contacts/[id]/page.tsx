@@ -11,12 +11,22 @@ import { OutcomeBadge } from "@/components/opportunities/badges";
 import { getStages, listForContact } from "@/lib/opportunities/data";
 import { formatMoney } from "@/lib/opportunities/format";
 import { PRODUCT_LINE_NAMES } from "@/lib/pipelines";
+import { LogActivityForm } from "@/components/tasks/log-activity-form";
+import { TaskStatusButtons } from "@/components/tasks/status-buttons";
+import { activitiesForContact } from "@/lib/activities/data";
+import { ACTIVITY_OUTCOME_LABELS, ACTIVITY_TYPE_LABELS } from "@/lib/activities/types";
+import { formatInstantDateTime, isoToZonedLocal, todayInZone } from "@/lib/dates";
+import { getProfile, tasksForContact } from "@/lib/tasks/data";
+import { notStartedYet, taskView } from "@/lib/tasks/schedule";
 import { setContactArchived } from "../actions";
 
 export const metadata: Metadata = { title: "Contact · The Bass Agency CRM" };
 
 const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   saved: { text: "Contact saved.", tone: "ok" },
+  logged: { text: "Activity logged.", tone: "ok" },
+  completed: { text: "Task completed.", tone: "ok" },
+  reopened: { text: "Task reopened.", tone: "ok" },
   archived: { text: "Contact archived. It is hidden from the contact list but nothing was deleted.", tone: "ok" },
   restored: { text: "Contact restored.", tone: "ok" },
   error: { text: "That didn't work. Please try again.", tone: "error" },
@@ -27,16 +37,40 @@ export default async function ContactPage({
 }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
   const { id } = await params;
   const query = await searchParams;
-  const { supabase } = await requireFullSession();
+  const { supabase, userId } = await requireFullSession();
   const contact = await getContact(supabase, id);
   if (!contact) notFound();
 
-  const [referrer, referrals, opportunities, stages] = await Promise.all([
+  const [referrer, referrals, opportunities, stages, tasks, activities, profile] = await Promise.all([
     contact.referred_by_contact_id ? getContact(supabase, contact.referred_by_contact_id) : Promise.resolve(null),
     getReferrals(supabase, contact.id),
     listForContact(supabase, contact.id),
     getStages(supabase),
+    tasksForContact(supabase, contact.id),
+    activitiesForContact(supabase, contact.id),
+    getProfile(supabase, userId),
   ]);
+  const today = todayInZone(profile.time_zone);
+  const openTasks = tasks.filter((t) => t.status === "open");
+  const oppLabel = (id: string | null) => {
+    const o = id ? opportunities.find((x) => x.id === id) : undefined;
+    return o ? PRODUCT_LINE_NAMES[o.product_line] : null;
+  };
+  // History: activities plus finished tasks, newest first. Nothing here is ever deleted.
+  const history = [
+    ...activities.map((a) => ({
+      key: `a-${a.id}`, at: a.occurred_at,
+      title: ACTIVITY_TYPE_LABELS[a.activity_type] + (a.outcome ? ` — ${ACTIVITY_OUTCOME_LABELS[a.outcome]}` : ""),
+      detail: [a.requested_follow_up_on ? `Follow up on ${formatDateOnly(a.requested_follow_up_on)}` : null, oppLabel(a.opportunity_id), a.notes].filter(Boolean).join(" · "),
+      href: null as string | null,
+    })),
+    ...tasks.filter((t) => t.status !== "open").map((t) => ({
+      key: `t-${t.id}`, at: (t.completed_at ?? t.cancelled_at)!,
+      title: `Task ${t.status === "completed" ? "completed" : "cancelled"}: ${t.title}`,
+      detail: oppLabel(t.opportunity_id) ?? "",
+      href: `/tasks/${t.id}`,
+    })),
+  ].sort((a, b) => b.at.localeCompare(a.at));
   const stageName = new Map(stages.map((s) => [s.id, s.name]));
   const noticeKey = Object.keys(NOTICES).find((k) => query[k]);
   const notice = noticeKey ? NOTICES[noticeKey] : undefined;
@@ -154,15 +188,59 @@ export default async function ContactPage({
         )}
       </section>
 
-      {[
-        ["Tasks", 5, "Open and completed follow-up tasks."],
-        ["Activity", 5, "Calls, meetings, notes and follow-up outcomes."],
-      ].map(([title, phase, text]) => (
-        <section key={String(title)} className="flex flex-col gap-1 rounded-md border border-dashed border-slate-300 p-3 dark:border-slate-600">
-          <h2 className="text-lg font-semibold">{title}</h2>
-          <p className="text-sm text-slate-600 dark:text-slate-400">{text} Coming in Phase {phase}.</p>
-        </section>
-      ))}
+      <section aria-labelledby="tasks-heading" className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="tasks-heading" className="text-lg font-semibold">Open tasks</h2>
+          <Link href={`/tasks/new?contact=${contact.id}`} className="flex min-h-11 items-center rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">Add task</Link>
+        </div>
+        {openTasks.length === 0 ? (
+          <p className="text-sm text-slate-600 dark:text-slate-400">No open tasks.</p>
+        ) : (
+          <ul aria-label="Open tasks for this contact" className="flex flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+            {openTasks.map((t) => {
+              const view = taskView(t, today);
+              return (
+                <li key={t.id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 flex-col">
+                    <Link href={`/tasks/${t.id}`} className="font-medium break-words underline-offset-2 hover:underline">{t.title}</Link>
+                    <span className={`text-sm ${view === "overdue" ? "text-red-700 dark:text-red-400" : "text-slate-600 dark:text-slate-400"}`}>
+                      {notStartedYet(t, today) ? `Starts ${formatDateOnly(t.start_date)} · ` : ""}{view === "overdue" ? "Overdue · " : view === "today" ? "Today · " : ""}Due {formatDateOnly(t.due_date)}
+                    </span>
+                  </div>
+                  <TaskStatusButtons id={t.id} status={t.status} back={`/contacts/${contact.id}`} compact />
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+
+      <details id="log-activity" className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+        <summary className="min-h-11 cursor-pointer py-2 text-lg font-semibold">Log activity…</summary>
+        <LogActivityForm
+          contactId={contact.id}
+          now={isoToZonedLocal(new Date().toISOString(), profile.time_zone)}
+          opportunities={opportunities.map((o) => ({ id: o.id, label: [PRODUCT_LINE_NAMES[o.product_line], o.description].filter(Boolean).join(" · ") }))}
+          openTasks={openTasks.map((t) => ({ id: t.id, label: t.title }))}
+        />
+      </details>
+
+      <section aria-labelledby="history-heading" className="flex flex-col gap-2">
+        <h2 id="history-heading" className="text-lg font-semibold">History</h2>
+        {history.length === 0 ? (
+          <p className="text-sm text-slate-600 dark:text-slate-400">Nothing logged yet.</p>
+        ) : (
+          <ol aria-label="History for this contact" className="flex flex-col gap-3 border-l-2 border-slate-200 pl-4 dark:border-slate-700">
+            {history.map((h) => (
+              <li key={h.key} className="flex flex-col">
+                <span className="text-xs text-slate-500">{formatInstantDateTime(h.at, profile.time_zone)}</span>
+                {h.href ? <Link href={h.href} className="font-medium break-words underline">{h.title}</Link> : <span className="font-medium break-words">{h.title}</span>}
+                {h.detail ? <span className="text-sm whitespace-pre-wrap break-words text-slate-700 dark:text-slate-300">{h.detail}</span> : null}
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
     </section>
   );
 }

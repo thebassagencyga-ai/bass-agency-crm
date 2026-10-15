@@ -5,10 +5,18 @@ import { searchReferrers } from "@/app/(app)/contacts/actions";
 
 type Option = { id: string; label: string; detail: string };
 
-/** Picks the contact who referred this one. Stores the id in a hidden input. */
+/**
+ * Picks one of the user's contacts (by default: the contact who referred this one).
+ * Stores the id in a hidden input; the search text is submitted as `searchName` so the
+ * server can refuse text that was typed but never picked.
+ */
 export function ReferrerPicker({
-  initial, excludeId, error,
-}: { initial: Option | null; excludeId: string | null; error?: string }) {
+  initial, excludeId, error, name = "referred_by_contact_id", searchName = "referred_by_search", label = "Referred by", optional = true,
+  hint = "Pick from your contacts: type 2 or more letters, then tap the person in the list.",
+}: {
+  initial: Option | null; excludeId: string | null; error?: string;
+  name?: string; searchName?: string; label?: string; optional?: boolean; hint?: string;
+}) {
   const [selected, setSelected] = useState<Option | null>(initial);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Option[]>([]);
@@ -31,13 +39,13 @@ export function ReferrerPicker({
 
   return (
     <div className="flex flex-col gap-1">
-      <input type="hidden" name="referred_by_contact_id" value={selected?.id ?? ""} />
+      <input type="hidden" name={name} value={selected?.id ?? ""} />
       <label htmlFor={`${id}-search`} className="text-sm font-medium">
-        Referred by <span className="font-normal text-slate-500">(optional)</span>
+        {label} {optional ? <span className="font-normal text-slate-500">(optional)</span> : null}
       </label>
       {selected ? null : (
         <p id={`${id}-hint`} className="text-xs text-slate-500">
-          Pick from your contacts: type 2 or more letters, then tap the person in the list.
+          {hint}
         </p>
       )}
       {selected ? (
@@ -52,7 +60,7 @@ export function ReferrerPicker({
           <input
             id={`${id}-search`}
             type="search"
-            name="referred_by_search"
+            name={searchName}
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             placeholder="Search contacts by name, phone or email"
@@ -62,7 +70,7 @@ export function ReferrerPicker({
           />
           <p id={`${id}-status`} aria-live="polite" className="text-xs text-slate-500">
             {pending ? "Searching…" : query.trim().length >= 2 && results.length === 0
-              ? "No matching contacts. Add the referrer as a contact first, then pick them here."
+              ? "No matching contacts. Add the person as a contact first, then pick them here."
               : ""}
           </p>
           {results.length > 0 ? (
