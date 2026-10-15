@@ -5,7 +5,10 @@ import {
 
 // Row level security and privilege tests (SECURITY.md §4 and §8).
 
-const BUSINESS_TABLES = ["contacts", "opportunities", "tasks", "activities", "automation_rules"] as const;
+const BUSINESS_TABLES = [
+  "contacts", "opportunities", "tasks", "activities", "automation_rules",
+  "renewal_outcomes", "cross_sell_rules", "cross_sell_dismissals",
+] as const;
 
 let db: Db;
 let alice: string;

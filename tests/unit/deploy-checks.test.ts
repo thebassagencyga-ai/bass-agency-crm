@@ -42,8 +42,8 @@ describe("checkTargetProject", () => {
 
 describe("checkVerification", () => {
   const good = {
-    stages: 30, product_lines: 4, tables_without_rls: 0, anon_grants: 0, crm_tables: 9,
-    mfa_policies: 9, profile_trigger: 1, public_functions: 8, definer_or_anon_functions: 0,
+    stages: 30, product_lines: 4, tables_without_rls: 0, anon_grants: 0, crm_tables: 12,
+    mfa_policies: 12, profile_trigger: 1, public_functions: 12, definer_or_anon_functions: 0,
     unexpected_trigger_functions: 0, engine_unsafe: 0,
   };
 
@@ -54,8 +54,8 @@ describe("checkVerification", () => {
   it("accepts numbers returned as strings by the API", () => {
     expect(
       checkVerification({
-        stages: "30", product_lines: "4", tables_without_rls: "0", anon_grants: "0", crm_tables: "9",
-        mfa_policies: "9", profile_trigger: "1", public_functions: "8", definer_or_anon_functions: "0",
+        stages: "30", product_lines: "4", tables_without_rls: "0", anon_grants: "0", crm_tables: "12",
+        mfa_policies: "12", profile_trigger: "1", public_functions: "12", definer_or_anon_functions: "0",
         unexpected_trigger_functions: "0", engine_unsafe: "0",
       }),
     ).toEqual([]);
@@ -66,8 +66,8 @@ describe("checkVerification", () => {
     [{ product_lines: 3 }, "product lines"],
     [{ tables_without_rls: 1 }, "row level security"],
     [{ anon_grants: 2 }, "anon"],
-    [{ crm_tables: 8 }, "CRM tables"],
-    [{ mfa_policies: 8 }, "two-step"],
+    [{ crm_tables: 11 }, "CRM tables"],
+    [{ mfa_policies: 11 }, "two-step"],
     [{ profile_trigger: 0 }, "sign-up profile trigger"],
     [{ public_functions: 2 }, "Data API functions"],
     [{ definer_or_anon_functions: 1 }, "bypass RLS"],

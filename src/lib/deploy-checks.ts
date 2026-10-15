@@ -7,10 +7,13 @@ export const CRM_TABLES = [
   "audit_log",
   "automation_rules",
   "contacts",
+  "cross_sell_dismissals",
+  "cross_sell_rules",
   "opportunities",
   "pipeline_stages",
   "product_lines",
   "profiles",
+  "renewal_outcomes",
   "tasks",
 ] as const;
 
@@ -60,10 +63,14 @@ export interface VerificationRow {
 export const PUBLIC_FUNCTIONS = [
   "confirm_no_response_follow_up",
   "contact_lead_sources",
+  "cross_sell_prompts",
   "dashboard_summary",
+  "dismiss_cross_sell",
   "find_possible_duplicates",
+  "record_renewal_outcome",
   "search_contacts",
   "search_opportunities",
+  "search_renewals",
   "search_tasks",
   "task_counts",
 ] as const;
