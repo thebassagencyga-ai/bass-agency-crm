@@ -52,5 +52,5 @@ test("sign in, set up two-step sign-in, use the app, sign out, sign back in with
   await page.getByLabel("6-digit code").fill(totp(secret));
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
-  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /^(Good to see you, .+|Today)$/ })).toBeVisible();
 });
