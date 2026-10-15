@@ -52,24 +52,27 @@ const INPUT_CLASS =
   "min-h-11 w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 aria-[invalid=true]:border-red-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100";
 
 export function Field({
-  label, name, type = "text", autoComplete, error, inputMode, required = true, defaultValue, list, hint, maxLength,
+  label, name, id, type = "text", autoComplete, error, inputMode, required = true, defaultValue, list, hint, maxLength,
 }: {
+  /** Unique element id when the same form appears more than once on a page (defaults to name). */
+  id?: string;
   label: string; name: string; type?: string; autoComplete?: string; error?: string;
   inputMode?: "numeric" | "decimal" | "email" | "text" | "tel"; required?: boolean; defaultValue?: string;
   list?: string; hint?: string; maxLength?: number;
 }) {
-  const errorId = `${name}-error`;
-  const hintId = `${name}-hint`;
+  const inputId = id ?? name;
+  const errorId = `${inputId}-error`;
+  const hintId = `${inputId}-hint`;
   const describedBy = [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(" ") || undefined;
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={name} className="text-sm font-medium">
+      <label htmlFor={inputId} className="text-sm font-medium">
         {label}
         {required ? null : <span className="font-normal text-slate-500"> (optional)</span>}
       </label>
       {hint ? <p id={hintId} className="text-xs text-slate-500">{hint}</p> : null}
       <input
-        id={name} name={name} type={type} autoComplete={autoComplete} inputMode={inputMode}
+        id={inputId} name={name} type={type} autoComplete={autoComplete} inputMode={inputMode}
         required={required} defaultValue={defaultValue} list={list} maxLength={maxLength}
         aria-invalid={error ? true : undefined} aria-describedby={describedBy}
         // iOS Safari gives date inputs a fixed native width that ignores CSS width unless
@@ -82,20 +85,22 @@ export function Field({
 }
 
 export function SelectField({
-  label, name, options, defaultValue, error, required = false, placeholder,
+  label, name, id, options, defaultValue, error, required = false, placeholder,
 }: {
+  id?: string;
   label: string; name: string; options: readonly { value: string; label: string }[];
   defaultValue?: string; error?: string; required?: boolean; placeholder?: string;
 }) {
-  const errorId = `${name}-error`;
+  const inputId = id ?? name;
+  const errorId = `${inputId}-error`;
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={name} className="text-sm font-medium">
+      <label htmlFor={inputId} className="text-sm font-medium">
         {label}
         {required ? null : <span className="font-normal text-slate-500"> (optional)</span>}
       </label>
       <select
-        id={name} name={name} defaultValue={defaultValue ?? ""} required={required}
+        id={inputId} name={name} defaultValue={defaultValue ?? ""} required={required}
         aria-invalid={error ? true : undefined} aria-describedby={error ? errorId : undefined}
         className={INPUT_CLASS}
       >
@@ -108,19 +113,21 @@ export function SelectField({
 }
 
 export function TextAreaField({
-  label, name, defaultValue, error, maxLength, hint,
-}: { label: string; name: string; defaultValue?: string; error?: string; maxLength?: number; hint?: string }) {
-  const errorId = `${name}-error`;
-  const hintId = `${name}-hint`;
+  label, name, id, defaultValue, error, maxLength, hint,
+}: {
+  id?: string; label: string; name: string; defaultValue?: string; error?: string; maxLength?: number; hint?: string }) {
+  const inputId = id ?? name;
+  const errorId = `${inputId}-error`;
+  const hintId = `${inputId}-hint`;
   const describedBy = [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(" ") || undefined;
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={name} className="text-sm font-medium">
+      <label htmlFor={inputId} className="text-sm font-medium">
         {label} <span className="font-normal text-slate-500">(optional)</span>
       </label>
       {hint ? <p id={hintId} className="text-xs text-slate-500">{hint}</p> : null}
       <textarea
-        id={name} name={name} rows={4} defaultValue={defaultValue} maxLength={maxLength}
+        id={inputId} name={name} rows={4} defaultValue={defaultValue} maxLength={maxLength}
         aria-invalid={error ? true : undefined} aria-describedby={describedBy}
         className={`${INPUT_CLASS} min-h-24`}
       />

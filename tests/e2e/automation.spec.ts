@@ -49,6 +49,11 @@ test("automatic tasks: new lead, quote, win; rule settings; no-response follow-u
   const rules = page.getByRole("list", { name: "Automation rules" });
   await expect(rules.getByRole("listitem")).toHaveCount(12);
   expect(await noSidewaysScroll(page)).toBe(true);
+  // Every field id is unique, so each label points at its own field (screen readers, taps).
+  expect(await page.evaluate(() => {
+    const ids = [...document.querySelectorAll("[id]")].map((e) => e.id);
+    return ids.filter((id, i) => ids.indexOf(id) !== i);
+  })).toEqual([]);
   const quoteRule = rules.getByRole("listitem").filter({ hasText: "Quote sent" });
   await quoteRule.locator("summary").click();
   await quoteRule.getByLabel("Days later").fill("5");
