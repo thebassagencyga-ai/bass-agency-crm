@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { logActivity } from "@/app/(app)/tasks/actions";
+import { ReferrerPicker } from "@/components/contacts/referrer-picker";
 import { Field, FormAlert, SelectField, SubmitButton, TextAreaField, useActionForm } from "@/components/form";
 import { ACTIVITY_OUTCOMES, ACTIVITY_OUTCOME_LABELS, ACTIVITY_TYPES, ACTIVITY_TYPE_LABELS } from "@/lib/activities/types";
 
 type Option = { id: string; label: string };
 
-export function LogActivityForm({ contactId, now, opportunities, openTasks }: { contactId: string; now: string; opportunities: Option[]; openTasks: Option[] }) {
+/** contactId null: the form starts with a contact picker (dashboard quick action). */
+export function LogActivityForm({ contactId, now, opportunities, openTasks }: { contactId: string | null; now: string; opportunities: Option[]; openTasks: Option[] }) {
   const { state, formAction, pending, onSubmit } = useActionForm(logActivity);
   const err = state.fieldErrors ?? {};
   const v = (name: string) => state.values?.[name];
@@ -15,7 +17,15 @@ export function LogActivityForm({ contactId, now, opportunities, openTasks }: { 
   return (
     <form action={formAction} onSubmit={onSubmit} className="flex flex-col gap-3" noValidate>
       <FormAlert state={state} />
-      <input type="hidden" name="contact_id" value={contactId} />
+      {contactId ? (
+        <input type="hidden" name="contact_id" value={contactId} />
+      ) : (
+        <ReferrerPicker
+          initial={null} excludeId={null} error={err.contact_id}
+          name="contact_id" searchName="contact_search" label="Contact" optional={false}
+          hint="Type 2 or more letters of the contact's name, then tap them in the list."
+        />
+      )}
       <div className="grid gap-2 sm:grid-cols-2">
         <SelectField label="What happened" name="activity_type" required options={ACTIVITY_TYPES.map((t) => ({ value: t, label: ACTIVITY_TYPE_LABELS[t] }))} defaultValue={v("activity_type") ?? "call"} error={err.activity_type} />
         <Field label="When" name="occurred_at" type="datetime-local" defaultValue={v("occurred_at") ?? now} error={err.occurred_at} />

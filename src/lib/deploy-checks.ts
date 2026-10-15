@@ -60,6 +60,7 @@ export interface VerificationRow {
 export const PUBLIC_FUNCTIONS = [
   "confirm_no_response_follow_up",
   "contact_lead_sources",
+  "dashboard_summary",
   "find_possible_duplicates",
   "search_contacts",
   "search_opportunities",

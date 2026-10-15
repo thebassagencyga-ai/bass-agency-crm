@@ -95,7 +95,7 @@ export async function logActivity(_prev: FormState, formData: FormData): Promise
   const { supabase, userId } = await requireFullSession();
   const values = echo(formData, ACTIVITY_FORM_FIELDS);
   const contactId = String(formData.get("contact_id") ?? "");
-  if (!isUuid(contactId)) return { error: "This contact could not be found.", values };
+  if (!isUuid(contactId)) return { fieldErrors: { contact_id: "Choose the contact from the list." }, values };
   const profile = await getProfile(supabase, userId);
   const parsed = activitySchema(profile.time_zone).safeParse(Object.fromEntries(ACTIVITY_FORM_FIELDS.map((f) => [f, formData.get(f)])));
   if (!parsed.success) return { fieldErrors: fieldErrorsOf(parsed.error.issues), values };

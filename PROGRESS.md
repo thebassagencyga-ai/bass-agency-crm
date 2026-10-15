@@ -267,3 +267,7 @@ Started 2026-10-15 on the owner's go-ahead ("start Phase 6").
    apply (verify expects 7 Data API functions, the automation engine safe, plus `rls_auto_enable`).
 3. Deploy app preview. Note: automation applies from now on; existing opportunities get tasks
    only when something changes (e.g. a quote date or stage).
+
+**Production deploy (2026-10-15):** migrations dry run #16; apply run #17 applied
+`20261019120000_automation_engine.sql` and verification passed (engine schema safe); preview
+run #7 deployed commit d92a7ee. Owner completed the iPhone checks ("All complete").
