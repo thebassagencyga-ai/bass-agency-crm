@@ -13,7 +13,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 3 | Contact management | 2 | APPROVED (2026-10-14) |
 | 4 | Opportunities & pipelines | 3 | APPROVED (2026-10-15) |
 | 5 | Task management & activity history | 4 | APPROVED (2026-10-15) |
-| 6 | Automation engine | 5 | IN PROGRESS |
+| 6 | Automation engine | 5 | READY FOR REVIEW |
 | 7 | Dashboard & daily workflow | 6 | NOT STARTED |
 | 8 | Renewals & cross selling | 6, 7 | NOT STARTED |
 | 9 | Reporting | 8 | NOT STARTED |
@@ -223,6 +223,23 @@ built-in auth email (Supabase-sent, not an app email feature).
 - Retried/repeated events never duplicate tasks; changing a date updates the existing task.
 - Owner can override dates and disable rules in Settings; overridden dates are not clobbered.
 - No prospecting reminders after win/loss unless manually created.
+
+**Status 2026-10-15** (✅ verified by automated check; ⏳ owner action). Every line below has a
+database test in `tests/db/automation.test.ts`; API and browser tests cover the main flow.
+- ✅ New lead → "Make initial contact" due today (when the opportunity starts at its first stage).
+- ✅ First contact done without a quote → follow-up in 2 business days (Mon–Fri).
+- ✅ Quote sent → follow-up 3 days later; a corrected quote date moves the same task.
+- ✅ Prospect-requested date → task on that date.
+- ✅ No response → asks first by default ("Add follow-up task"), then a task 5 days later; can be set to automatic.
+- ✅ Won → open prospecting tasks cancelled (manual ones too); onboarding checklist; renewal/other tasks untouched.
+- ✅ Won → one review and one referral request per contact, start next day, due 30 days later; not repeated within 365 days; no review request once a review is recorded.
+- ✅ Lost → prospecting tasks closed; loss reason still required.
+- ✅ Renewal date → review 60 days before (today if closer); date change moves the task; a new year adds a new one.
+- ✅ Reopen → new "Re-engage" task in a new cycle; history kept.
+- ✅ Repeated events never duplicate; owner-changed dates are never overwritten.
+- ✅ Settings: turn rules off; edit timing/title/priority/windows/checklist/messages (incentives refused).
+- ✅ No prospecting tasks for won/lost opportunities (quote date or requested follow-up afterwards creates nothing).
+- ⏳ Owner: merge, deploy migration `20261019120000_automation_engine.sql`, redeploy preview, try on iPhone.
 
 ---
 

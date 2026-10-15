@@ -1,8 +1,8 @@
 # Progress
 
-**Current phase:** 5 — Task management & activity history — **APPROVED by owner 2026-10-15** ("Merge")
+**Current phase:** 6 — Automation engine — **READY FOR REVIEW** (owner approval pending)
 **Last updated:** 2026-10-15
-**Branch:** `phase-5-tasks-activities`, merged to `main` on approval
+**Branch:** `phase-6-automation` (merge to `main` on approval)
 
 ## Phase 0 — APPROVED 2026-10-14
 Governance files created. ProducerIQ untouched (owner reconfirmed: it must not be modified).
@@ -239,3 +239,31 @@ Started 2026-10-15 on the owner's go-ahead ("All verified move to phase 5").
 **Production deploy (2026-10-15):** migrations dry run #14; apply run #15 applied
 `20261018120000_task_views.sql` and verification passed; preview run #6 deployed commit
 0e854e3. Owner completed the iPhone checks ("All complete").
+
+## Phase 6 — Automation engine (branch `phase-6-automation`)
+Started 2026-10-15 on the owner's go-ahead ("start Phase 6").
+
+**Completed**
+- Migration `20261019120000_automation_engine.sql`: `crm_engine` schema (invoker-only), event
+  triggers on opportunities / tasks / activities, `confirm_no_response_follow_up`. Deploy
+  verification now expects 7 Data API functions and checks the engine schema is safe.
+- Settings: the 12 rules with plain-English descriptions, on/off and editable details.
+- Contact page offers the "no response" follow-up; opportunity page lists its tasks.
+- Found and fixed while testing: Settings rule forms shared field ids (labels pointed at the
+  wrong field); browser test now fails on duplicate ids.
+
+**Tests (2026-10-15)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build | pass |
+| Local: unit | 206 passed |
+| Local: database (PostgreSQL 16) | 198 passed (26 automation) |
+| Mutation checks (prospecting guard, cooldown, overridden dates, close only prospecting, recorded review, SECURITY DEFINER in engine) | all 6 caught, reverted |
+| CI runs #56–#57 (commits fdcede5, 1086753): all 4 jobs | pass — PostgreSQL 17, Supabase image + db lint, API tests (incl. 4 new), 5 browser journeys |
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. Deploy database migrations: dry run should list only `20261019120000_automation_engine.sql`; then
+   apply (verify expects 7 Data API functions, the automation engine safe, plus `rls_auto_enable`).
+3. Deploy app preview. Note: automation applies from now on; existing opportunities get tasks
+   only when something changes (e.g. a quote date or stage).
