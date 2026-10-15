@@ -33,7 +33,7 @@ test("dashboard: today's work, pipeline, renewals, recent activity and quick act
 
   await page.goto("/dashboard");
   await expect(page.getByRole("list", { name: "Due today tasks" })).toContainText("Make initial contact");
-  await expect(page.getByLabel("1 due today")).toBeVisible();
+  await expect(page.getByRole("link", { name: "1 Due today" })).toBeVisible();
   await expect(page.getByRole("list", { name: "Open opportunities by product line" }).getByRole("link", { name: /Auto/ })).toContainText("$1,200/yr est.");
   await expect(page.getByText("1 in the next 60 days.")).toBeVisible();
   await expect(page.getByRole("list", { name: "Soonest renewals" })).toContainText("Dana Example · Auto");
@@ -42,7 +42,7 @@ test("dashboard: today's work, pipeline, renewals, recent activity and quick act
   await page.getByRole("list", { name: "Due today tasks" }).getByRole("button", { name: "Mark complete" }).click();
   await expect(page.getByText("Task completed.")).toBeVisible();
   await expect(page.getByText("Nothing due today.")).toBeVisible();
-  await expect(page.getByLabel("1 next 7 days")).toBeVisible();
+  await expect(page.getByRole("link", { name: "1 Next 7 days" })).toBeVisible();
 
   // Quick action: log activity needs a contact, then shows in recent activity.
   await page.getByRole("link", { name: "Log activity" }).click();

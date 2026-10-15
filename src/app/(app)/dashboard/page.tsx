@@ -55,7 +55,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           ].map((s) => (
             <li key={s.label}>
               <Link href={s.href} className={`flex min-h-20 flex-col justify-center rounded-md border p-3 ${s.alert ? "border-red-300 bg-red-50 text-red-900 dark:border-red-800 dark:bg-red-950 dark:text-red-100" : "border-slate-200 dark:border-slate-700"}`}>
-                <span className="text-2xl font-semibold" aria-label={`${s.value} ${s.label.toLowerCase()}`}>{s.value}</span>
+                <span className="text-2xl font-semibold">{s.value}</span>
                 <span className="text-sm">{s.label}</span>
               </Link>
             </li>
