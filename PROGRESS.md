@@ -1,8 +1,8 @@
 # Progress
 
-**Current phase:** 6 — Automation engine — **APPROVED by owner 2026-10-15**
+**Current phase:** 7 — Dashboard & daily workflow — **APPROVED by owner 2026-10-15**
 **Last updated:** 2026-10-15
-**Branch:** `phase-6-automation`, merged to `main` on approval
+**Branch:** `phase-7-dashboard`, merged to `main` on approval
 
 ## Phase 0 — APPROVED 2026-10-14
 Governance files created. ProducerIQ untouched (owner reconfirmed: it must not be modified).

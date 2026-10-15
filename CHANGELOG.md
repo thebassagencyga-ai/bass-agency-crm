@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 7 — Dashboard & daily workflow (2026-10-15, ready for review)
+## Phase 7 — Dashboard & daily workflow (2026-10-15, approved)
 ### Added
 - Dashboard (first screen after sign-in): overdue, due today and next-7-days counts;
   overdue and due-today tasks with Done buttons; open opportunities and estimated annual
