@@ -31,17 +31,21 @@ test("dashboard: today's work, pipeline, renewals, recent activity and quick act
   await page.getByRole("button", { name: "Add opportunity" }).click();
   await expect(page.getByText("Opportunity saved.")).toBeVisible();
 
+  // The renewal is 30 days out, so its automatic renewal review (60 days before) is due today too.
   await page.goto("/dashboard");
-  await expect(page.getByRole("list", { name: "Due today tasks" })).toContainText("Make initial contact");
-  await expect(page.getByRole("link", { name: "1 Due today" })).toBeVisible();
+  const dueToday = page.getByRole("list", { name: "Due today tasks" });
+  await expect(dueToday).toContainText("Make initial contact");
+  await expect(dueToday).toContainText("Renewal review");
+  await expect(page.getByRole("link", { name: "2 Due today" })).toBeVisible();
   await expect(page.getByRole("list", { name: "Open opportunities by product line" }).getByRole("link", { name: /Auto/ })).toContainText("$1,200/yr est.");
   await expect(page.getByText("1 in the next 60 days.")).toBeVisible();
   await expect(page.getByRole("list", { name: "Soonest renewals" })).toContainText("Dana Example · Auto");
 
   // Done from the dashboard; the no-quote follow-up then appears in the next 7 days.
-  await page.getByRole("list", { name: "Due today tasks" }).getByRole("button", { name: "Mark complete" }).click();
+  await dueToday.getByRole("listitem").filter({ hasText: "Make initial contact" }).getByRole("button", { name: "Mark complete" }).click();
   await expect(page.getByText("Task completed.")).toBeVisible();
-  await expect(page.getByText("Nothing due today.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "1 Due today" })).toBeVisible();
+  await expect(dueToday).not.toContainText("Make initial contact");
   await expect(page.getByRole("link", { name: "1 Next 7 days" })).toBeVisible();
 
   // Quick action: log activity needs a contact, then shows in recent activity.
