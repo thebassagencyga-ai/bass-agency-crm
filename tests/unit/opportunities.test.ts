@@ -44,7 +44,7 @@ describe("opportunity details validation", () => {
     const r = opportunityDetailsSchema.safeParse(ok);
     expect(r.success && r.data).toEqual({
       description: null, quoted_carrier: null, quote_sent_on: null, estimated_annual_premium: null,
-      next_action: null, effective_date: null, renewal_date: null,
+      next_action: null, effective_date: null, renewal_date: null, policy_term_months: 12,
     });
   });
 
