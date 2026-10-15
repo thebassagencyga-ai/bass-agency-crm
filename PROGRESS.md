@@ -235,3 +235,7 @@ Started 2026-10-15 on the owner's go-ahead ("All verified move to phase 5").
    (verify expects 6 Data API functions plus Supabase's `rls_auto_enable`).
 3. Deploy app preview. In Settings, add your name and Google review link. Try tasks and
    activity logging on the iPhone, including "Text it" (fictional contact, your own number).
+
+**Production deploy (2026-10-15):** migrations dry run #14; apply run #15 applied
+`20261018120000_task_views.sql` and verification passed; preview run #6 deployed commit
+0e854e3. Owner completed the iPhone checks ("All complete").
