@@ -38,6 +38,16 @@ export function addDays(iso: string, days: number): string {
   return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
 }
 
+/**
+ * Calendar months added to a YYYY-MM-DD date, clamped to the end of a shorter month
+ * (Jan 31 + 1 month = Feb 28/29), the same as Postgres `date + interval 'n months'`.
+ */
+export function addMonths(iso: string, months: number): string {
+  const [y, m, d] = iso.split("-").map(Number) as [number, number, number];
+  const lastDay = new Date(Date.UTC(y, m - 1 + months + 1, 0)).getUTCDate();
+  return new Date(Date.UTC(y, m - 1 + months, Math.min(d, lastDay))).toISOString().slice(0, 10);
+}
+
 /** Milliseconds the zone is ahead of UTC at the given instant (negative in the US). */
 function zoneOffsetMs(utcMs: number, timeZone: string): number {
   const parts = new Intl.DateTimeFormat("en-US", {

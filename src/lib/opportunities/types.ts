@@ -49,6 +49,10 @@ export interface Opportunity {
   next_action: string | null;
   effective_date: string | null;
   renewal_date: string | null;
+  /** 12, or 6 for auto (Phase 8). */
+  policy_term_months: number;
+  /** Set when a renewal was recorded as lost: the policy is no longer active (Phase 8). */
+  policy_ended_on: string | null;
   loss_reason: LossReason | null;
   loss_reason_detail: string | null;
   closed_at: string | null;
@@ -58,7 +62,7 @@ export interface Opportunity {
 }
 
 /** Row returned by search_opportunities: the opportunity plus stage and contact names. */
-export interface OpportunityListRow extends Omit<Opportunity, "loss_reason" | "loss_reason_detail"> {
+export interface OpportunityListRow extends Omit<Opportunity, "loss_reason" | "loss_reason_detail" | "policy_term_months" | "policy_ended_on"> {
   stage_name: string;
   stage_position: number;
   contact_type: ContactType;

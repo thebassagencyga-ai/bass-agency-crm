@@ -20,6 +20,8 @@ import { formatInstantDateTime, isoToZonedLocal, todayInZone } from "@/lib/dates
 import { getProfile, tasksForContact } from "@/lib/tasks/data";
 import { notStartedYet, taskView } from "@/lib/tasks/schedule";
 import { setContactArchived } from "../actions";
+import { CrossSellPromptList } from "@/components/cross-sell/prompt-list";
+import { crossSellPrompts } from "@/lib/cross-sell/data";
 
 export const metadata: Metadata = { title: "Contact · The Bass Agency CRM" };
 
@@ -54,6 +56,7 @@ export default async function ContactPage({
     getProfile(supabase, userId),
   ]);
   const today = todayInZone(profile.time_zone);
+  const prompts = await crossSellPrompts(supabase, today, { contactId: contact.id });
   const openTasks = tasks.filter((t) => t.status === "open");
   const oppLabel = (id: string | null) => {
     const o = id ? opportunities.find((x) => x.id === id) : undefined;
@@ -182,6 +185,7 @@ export default async function ContactPage({
                   <span className="font-medium">{PRODUCT_LINE_NAMES[o.product_line]}</span>
                   <span className="text-sm">{stageName.get(o.stage_id)}</span>
                   <OutcomeBadge outcome={o.outcome} />
+                  {o.policy_ended_on ? <span className="text-sm text-slate-600 dark:text-slate-400">Policy ended {formatDateOnly(o.policy_ended_on)}</span> : null}
                   {o.estimated_annual_premium !== null ? <span className="text-sm">{formatMoney(o.estimated_annual_premium, { whole: true })}/yr</span> : null}
                   {o.description ? <span className="w-full text-sm break-words text-slate-600 dark:text-slate-400">{o.description}</span> : null}
                 </Link>
@@ -190,6 +194,13 @@ export default async function ContactPage({
           </ul>
         )}
       </section>
+
+      {prompts.length > 0 || query.dismissed || query.dismisserror ? (
+        <CrossSellPromptList
+          prompts={prompts} back={`/contacts/${contact.id}`} showContact={false}
+          notice={query.dismissed ? "dismissed" : query.dismisserror ? "dismisserror" : undefined}
+        />
+      ) : null}
 
       {query.noresponse && /^[0-9a-f-]{36}$/i.test(query.noresponse) ? (
         <section id="follow-up-offer" aria-labelledby="offer-heading" className="flex flex-col gap-2 rounded-md border border-amber-400 bg-amber-50 p-3 text-amber-900 dark:bg-amber-950 dark:text-amber-100">

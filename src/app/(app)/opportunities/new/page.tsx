@@ -5,11 +5,12 @@ import { requireFullSession } from "@/lib/auth/require";
 import { getContact } from "@/lib/contacts/data";
 import { contactDisplayName } from "@/lib/contacts/format";
 import { getStages } from "@/lib/opportunities/data";
+import { PRODUCT_LINES, type ProductLine } from "@/lib/pipelines";
 
 export const metadata: Metadata = { title: "Add opportunity · The Bass Agency CRM" };
 
 export default async function NewOpportunityPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  const { contact: contactId } = await searchParams;
+  const { contact: contactId, line } = await searchParams;
   const { supabase } = await requireFullSession();
   const contact = contactId ? await getContact(supabase, contactId) : null;
   if (!contact) {
@@ -25,7 +26,10 @@ export default async function NewOpportunityPage({ searchParams }: { searchParam
   return (
     <section className="flex flex-col gap-4">
       <h1 className="text-2xl font-semibold">Add opportunity</h1>
-      <OpportunityForm mode="create" contactId={contact.id} contactName={contactDisplayName(contact)} stages={stages} />
+      <OpportunityForm
+        mode="create" contactId={contact.id} contactName={contactDisplayName(contact)} stages={stages}
+        defaultLine={(PRODUCT_LINES as readonly string[]).includes(line ?? "") ? (line as ProductLine) : undefined}
+      />
     </section>
   );
 }

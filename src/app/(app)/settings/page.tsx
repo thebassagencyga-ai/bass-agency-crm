@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RuleForm } from "@/components/automation/rule-form";
+import { CrossSellRuleForm } from "@/components/cross-sell/rule-form";
+import { describeCrossSellRule } from "@/lib/cross-sell";
+import { getCrossSellRules } from "@/lib/cross-sell/data";
 import { ProfileForm } from "@/components/tasks/profile-form";
 import { describeRule } from "@/lib/automation";
 import { getRules } from "@/lib/automation/data";
@@ -11,7 +14,7 @@ export const metadata: Metadata = { title: "Settings · The Bass Agency CRM" };
 
 export default async function SettingsPage() {
   const { supabase, userId, email } = await requireFullSession();
-  const [profile, rules] = await Promise.all([getProfile(supabase, userId), getRules(supabase)]);
+  const [profile, rules, crossSell] = await Promise.all([getProfile(supabase, userId), getRules(supabase), getCrossSellRules(supabase)]);
   return (
     <section className="flex max-w-xl flex-col gap-6">
       <h1 className="text-2xl font-semibold">Settings</h1>
@@ -54,6 +57,39 @@ export default async function SettingsPage() {
             </li>
           ))}
         </ul>
+      </section>
+      <section aria-labelledby="cross-sell-rules-heading" className="flex flex-col gap-2">
+        <h2 id="cross-sell-rules-heading" className="text-lg font-semibold">Cross-sell reviews</h2>
+        <p className="text-sm text-slate-600 dark:text-slate-400">
+          Suggest reviewing another line when a client has a policy in one line but nothing in the other. Only recorded
+          policies count; a line with an open opportunity, or one lost in the last 12 months, is not suggested.
+        </p>
+        <ul aria-label="Cross-sell rules" className="flex flex-col gap-2">
+          {crossSell.map((rule) => (
+            <li key={rule.id}>
+              <details className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+                <summary className="flex min-h-11 cursor-pointer flex-col justify-center gap-1 py-1">
+                  <span className="flex flex-wrap items-center gap-2 font-medium">
+                    {rule.name}
+                    <span className={`rounded px-2 py-0.5 text-xs font-medium ${rule.enabled ? "bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"}`}>
+                      {rule.enabled ? "On" : "Off"}
+                    </span>
+                  </span>
+                  <span className="text-sm text-slate-600 dark:text-slate-400">{describeCrossSellRule(rule)}</span>
+                </summary>
+                <div className="mt-3">
+                  <CrossSellRuleForm rule={rule} />
+                </div>
+              </details>
+            </li>
+          ))}
+        </ul>
+        <details className="rounded-md border border-dashed border-slate-300 p-3 dark:border-slate-600">
+          <summary className="flex min-h-11 cursor-pointer items-center font-medium">Add a cross-sell rule</summary>
+          <div className="mt-3">
+            <CrossSellRuleForm />
+          </div>
+        </details>
       </section>
       <Link href="/reset-password" className="min-h-11 py-2 underline">Change password</Link>
     </section>

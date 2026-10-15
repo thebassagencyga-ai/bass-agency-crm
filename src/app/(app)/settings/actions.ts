@@ -5,6 +5,7 @@ import type { FormState } from "@/components/form";
 import { ruleFormSchema, type Rule } from "@/lib/automation";
 import { requireFullSession } from "@/lib/auth/require";
 import { isUuid } from "@/lib/contacts/data";
+import { crossSellRuleSchema, ruleKeyFromName } from "@/lib/cross-sell";
 
 const FIELDS = [
   "enabled", "days", "day_count", "task_title_template", "task_priority", "completion_window_days", "cooldown_days",
@@ -57,4 +58,47 @@ export async function updateRule(_prev: FormState, formData: FormData): Promise<
   if (error) return { error: "Could not save this rule. Please check the values and try again.", values };
   revalidatePath("/settings");
   return { message: f.enabled ? "Rule saved." : "Rule saved — it is turned off.", values };
+}
+
+/** Adds or edits a cross-sell rule (Phase 8). The rule key of a new rule comes from its name. */
+export async function saveCrossSellRule(_prev: FormState, formData: FormData): Promise<FormState> {
+  const { supabase } = await requireFullSession();
+  const values: Record<string, string> = {};
+  for (const f of ["name", "reason", "lacks_line", "contact_type", "enabled"]) {
+    const v = formData.get(f);
+    if (typeof v === "string") values[f] = v.slice(0, 500);
+  }
+  const lines = formData.getAll("has_any_lines").filter((v): v is string => typeof v === "string");
+  values.has_any_lines = lines.join(",");
+  const parsed = crossSellRuleSchema.safeParse({
+    name: formData.get("name") ?? "",
+    reason: formData.get("reason") ?? "",
+    has_any_lines: lines,
+    lacks_line: formData.get("lacks_line"),
+    contact_type: formData.get("contact_type"),
+    enabled: formData.get("enabled"),
+  });
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) fieldErrors[String(issue.path[0] ?? "form")] ??= issue.message;
+    return { fieldErrors, values };
+  }
+
+  const id = String(formData.get("id") ?? "");
+  if (id) {
+    if (!isUuid(id)) return { error: "This rule could not be found.", values };
+    const { data, error } = await supabase.from("cross_sell_rules").update(parsed.data).eq("id", id).select("id");
+    if (error) return { error: "Could not save this rule. Please check the values and try again.", values };
+    if (!data || data.length === 0) return { error: "This rule could not be found.", values };
+    revalidatePath("/settings");
+    revalidatePath("/renewals");
+    return { message: parsed.data.enabled ? "Rule saved." : "Rule saved — it is turned off.", values };
+  }
+
+  const ruleKey = `${ruleKeyFromName(parsed.data.name)}_${Date.now().toString(36)}`;
+  const { error } = await supabase.from("cross_sell_rules").insert({ ...parsed.data, rule_key: ruleKey });
+  if (error) return { error: "Could not add this rule. Please check the values and try again.", values };
+  revalidatePath("/settings");
+  revalidatePath("/renewals");
+  return { message: "Rule added." };
 }

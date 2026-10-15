@@ -12,6 +12,9 @@ import { formatMoney } from "@/lib/opportunities/format";
 import { canToggleNurture } from "@/lib/opportunities/transitions";
 import { LOSS_REASON_LABELS } from "@/lib/opportunities/types";
 import { PRODUCT_LINE_NAMES } from "@/lib/pipelines";
+import { RenewalHistory } from "@/components/renewals/history";
+import { termLabel } from "@/lib/renewals";
+import { outcomesFor } from "@/lib/renewals/data";
 import { tasksForOpportunity } from "@/lib/tasks/data";
 import { CATEGORY_LABELS } from "@/lib/tasks/types";
 import { setNurture } from "../actions";
@@ -37,7 +40,10 @@ export default async function OpportunityPage({
   const { supabase } = await requireFullSession();
   const opp = await getOpportunity(supabase, id);
   if (!opp) notFound();
-  const [contact, allStages, tasks] = await Promise.all([getContact(supabase, opp.contact_id), getStages(supabase), tasksForOpportunity(supabase, opp.id)]);
+  const [contact, allStages, tasks, renewals] = await Promise.all([
+    getContact(supabase, opp.contact_id), getStages(supabase), tasksForOpportunity(supabase, opp.id), outcomesFor(supabase, opp.id),
+  ]);
+  const activePolicy = opp.outcome === "won" && opp.policy_ended_on === null;
   const stages = stagesFor(allStages, opp.product_line);
   const stage = stages.find((s) => s.id === opp.stage_id);
   const lostStage = stages.find((s) => s.kind === "lost");
@@ -56,6 +62,8 @@ export default async function OpportunityPage({
     ["Est. annual premium", formatMoney(opp.estimated_annual_premium) || "—"],
     ["Effective date", formatDateOnly(opp.effective_date) || "—"],
     ["Renewal date", formatDateOnly(opp.renewal_date) || "—"],
+    ...(opp.product_line === "auto" ? [["Policy term", termLabel(opp.policy_term_months)] as [string, React.ReactNode]] : []),
+    ...(opp.policy_ended_on ? [["Policy ended", formatDateOnly(opp.policy_ended_on)] as [string, React.ReactNode]] : []),
     ...(opp.outcome === "lost" && opp.loss_reason
       ? [["Loss reason", [LOSS_REASON_LABELS[opp.loss_reason], opp.loss_reason_detail].filter(Boolean).join(" — ")] as [string, React.ReactNode]]
       : []),
@@ -102,6 +110,13 @@ export default async function OpportunityPage({
           </div>
         ))}
       </dl>
+
+      {activePolicy && opp.renewal_date ? (
+        <Link href={`/renewals/${opp.id}`} className="flex min-h-11 w-fit items-center rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">
+          Record renewal outcome
+        </Link>
+      ) : null}
+      {opp.outcome === "won" ? <RenewalHistory outcomes={renewals} /> : null}
 
       <section aria-labelledby="opp-tasks-heading" className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">

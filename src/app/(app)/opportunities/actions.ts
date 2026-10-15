@@ -14,6 +14,7 @@ import {
   opportunityDetailsSchema,
   planStageChange,
   stageChangeSchema,
+  termForLine,
   type Opportunity,
   type Stage,
 } from "@/lib/opportunities";
@@ -73,7 +74,7 @@ export async function createOpportunity(_prev: FormState, formData: FormData): P
     return { fieldErrors: { stage_id: "Choose a starting stage from this product line." }, values };
   }
 
-  const { data: row, error } = await supabase.from("opportunities").insert(data).select("id").single();
+  const { data: row, error } = await supabase.from("opportunities").insert(termForLine(data, data.product_line)).select("id").single();
   if (error || !row) return { ...friendlyDbError(error?.code), values };
   revalidate(data.contact_id);
   redirect(`/opportunities/${row.id as string}?saved=1`);
@@ -87,8 +88,14 @@ export async function updateOpportunity(_prev: FormState, formData: FormData): P
   const raw = Object.fromEntries(OPPORTUNITY_DETAIL_FIELDS.map((f) => [f, formData.get(f)]));
   const parsed = opportunityDetailsSchema.safeParse(raw);
   if (!parsed.success) return { fieldErrors: fieldErrorsOf(parsed.error.issues), values };
+  const existing = await loadOpportunity(supabase, id);
+  if (!existing) return { error: "This opportunity could not be found.", values };
 
-  const { data: rows, error } = await supabase.from("opportunities").update(parsed.data).eq("id", id).select("id, contact_id");
+  const { data: rows, error } = await supabase
+    .from("opportunities")
+    .update(termForLine(parsed.data, existing.product_line))
+    .eq("id", id)
+    .select("id, contact_id");
   if (error) return { ...friendlyDbError(error.code), values };
   const updated = rows?.[0] as { id: string; contact_id: string } | undefined;
   if (!updated) return { error: "This opportunity could not be found.", values };

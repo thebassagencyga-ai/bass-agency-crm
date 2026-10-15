@@ -38,6 +38,11 @@ const detailFields = {
   next_action: optionalText(500, "Next action"),
   effective_date: optionalDate,
   renewal_date: optionalDate,
+  // Auto policies renew every 6 or 12 months; every other line yearly (checked per line below).
+  policy_term_months: z.preprocess(
+    (v) => (v === undefined || v === null || v === "" ? 12 : Number(v)),
+    z.union([z.literal(6), z.literal(12)], { message: "Choose 6 or 12 months." }),
+  ),
 };
 
 const renewalAfterEffective = (v: { effective_date: string | null; renewal_date: string | null }, ctx: z.RefinementCtx) => {
@@ -47,6 +52,11 @@ const renewalAfterEffective = (v: { effective_date: string | null; renewal_date:
 };
 
 export const opportunityDetailsSchema = z.object(detailFields).superRefine(renewalAfterEffective);
+
+/** 6-month terms exist for auto only; other lines are always yearly. */
+export function termForLine<T extends { policy_term_months: 6 | 12 }>(data: T, line: string): T {
+  return line === "auto" ? data : { ...data, policy_term_months: 12 };
+}
 
 export const newOpportunitySchema = z
   .object({
@@ -69,5 +79,6 @@ export type NewOpportunity = z.infer<typeof newOpportunitySchema>;
 
 export const OPPORTUNITY_DETAIL_FIELDS = [
   "description", "quoted_carrier", "quote_sent_on", "estimated_annual_premium", "next_action", "effective_date", "renewal_date",
+  "policy_term_months",
 ] as const;
 export const NEW_OPPORTUNITY_FIELDS = ["contact_id", "product_line", "stage_id", ...OPPORTUNITY_DETAIL_FIELDS] as const;

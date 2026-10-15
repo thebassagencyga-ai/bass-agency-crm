@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { createOpportunity, updateOpportunity } from "@/app/(app)/opportunities/actions";
-import { Field, FormAlert, SubmitButton, useActionForm } from "@/components/form";
+import { Field, FormAlert, SelectField, SubmitButton, useActionForm } from "@/components/form";
 import type { Opportunity, Stage } from "@/lib/opportunities/types";
 import { PRODUCT_LINES, PRODUCT_LINE_NAMES, type ProductLine } from "@/lib/pipelines";
 
 type Props =
-  | { mode: "create"; contactId: string; contactName: string; stages: Stage[]; opportunity?: undefined }
-  | { mode: "edit"; opportunity: Opportunity; contactId?: undefined; contactName?: undefined; stages?: undefined };
+  | { mode: "create"; contactId: string; contactName: string; stages: Stage[]; defaultLine?: ProductLine; opportunity?: undefined }
+  | { mode: "edit"; opportunity: Opportunity; contactId?: undefined; contactName?: undefined; stages?: undefined; defaultLine?: undefined };
 
 const PREMIUM_HINT = "Estimated yearly premium in dollars, e.g. 1,250.";
 
@@ -22,8 +22,9 @@ export function OpportunityForm(props: Props) {
     const value = existing ? (existing as unknown as Record<string, unknown>)[name] : undefined;
     return value === null || value === undefined ? undefined : String(value);
   };
-  const [line, setLine] = useState<ProductLine>((v("product_line") as ProductLine | undefined) ?? "auto");
+  const [line, setLine] = useState<ProductLine>((v("product_line") as ProductLine | undefined) ?? props.defaultLine ?? "auto");
   const err = state.fieldErrors ?? {};
+  const isAuto = (props.mode === "create" ? line : existing!.product_line) === "auto";
   const startStages = props.mode === "create" ? props.stages.filter((s) => s.product_line === line && s.kind === "active") : [];
 
   return (
@@ -65,7 +66,7 @@ export function OpportunityForm(props: Props) {
 
       <Field label="Description" name="description" required={false} defaultValue={v("description")} error={err.description} maxLength={500} hint="e.g. 2 vehicles, bundle with home" />
       <Field label="Next action" name="next_action" required={false} defaultValue={v("next_action")} error={err.next_action} maxLength={500} />
-      <details open={props.mode === "edit" || ["quoted_carrier", "quote_sent_on", "estimated_annual_premium", "effective_date", "renewal_date"].some((f) => err[f])} className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+      <details open={props.mode === "edit" || ["quoted_carrier", "quote_sent_on", "estimated_annual_premium", "effective_date", "renewal_date", "policy_term_months"].some((f) => err[f])} className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
         <summary className="min-h-11 cursor-pointer py-2 font-medium">Quote and policy dates</summary>
         <div className="mt-3 flex flex-col gap-4">
           <Field label="Quoted carrier" name="quoted_carrier" required={false} defaultValue={v("quoted_carrier")} error={err.quoted_carrier} maxLength={100} />
@@ -73,6 +74,13 @@ export function OpportunityForm(props: Props) {
           <Field label="Estimated annual premium" name="estimated_annual_premium" inputMode="decimal" required={false} defaultValue={v("estimated_annual_premium")} error={err.estimated_annual_premium} hint={PREMIUM_HINT} maxLength={20} />
           <Field label="Effective date" name="effective_date" type="date" required={false} defaultValue={v("effective_date")} error={err.effective_date} />
           <Field label="Renewal date" name="renewal_date" type="date" required={false} defaultValue={v("renewal_date")} error={err.renewal_date} />
+          {isAuto ? (
+            <SelectField
+              label="Policy term" name="policy_term_months" required
+              options={[{ value: "12", label: "12 months" }, { value: "6", label: "6 months" }]}
+              defaultValue={v("policy_term_months") ?? "12"} error={err.policy_term_months}
+            />
+          ) : null}
         </div>
       </details>
 
