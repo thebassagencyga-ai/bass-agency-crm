@@ -34,7 +34,7 @@ export function Field({
   label, name, type = "text", autoComplete, error, inputMode, required = true, defaultValue, list, hint, maxLength,
 }: {
   label: string; name: string; type?: string; autoComplete?: string; error?: string;
-  inputMode?: "numeric" | "email" | "text" | "tel"; required?: boolean; defaultValue?: string;
+  inputMode?: "numeric" | "decimal" | "email" | "text" | "tel"; required?: boolean; defaultValue?: string;
   list?: string; hint?: string; maxLength?: number;
 }) {
   const errorId = `${name}-error`;

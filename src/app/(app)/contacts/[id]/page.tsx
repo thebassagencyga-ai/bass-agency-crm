@@ -7,6 +7,10 @@ import { getContact, getReferrals } from "@/lib/contacts/data";
 import { contactDisplayName, contactPersonName } from "@/lib/contacts/format";
 import { CONTACT_METHOD_LABELS } from "@/lib/contacts/types";
 import { formatDateOnly, formatInstantDate } from "@/lib/dates";
+import { OutcomeBadge } from "@/components/opportunities/badges";
+import { getStages, listForContact } from "@/lib/opportunities/data";
+import { formatMoney } from "@/lib/opportunities/format";
+import { PRODUCT_LINE_NAMES } from "@/lib/pipelines";
 import { setContactArchived } from "../actions";
 
 export const metadata: Metadata = { title: "Contact · The Bass Agency CRM" };
@@ -27,10 +31,13 @@ export default async function ContactPage({
   const contact = await getContact(supabase, id);
   if (!contact) notFound();
 
-  const [referrer, referrals] = await Promise.all([
+  const [referrer, referrals, opportunities, stages] = await Promise.all([
     contact.referred_by_contact_id ? getContact(supabase, contact.referred_by_contact_id) : Promise.resolve(null),
     getReferrals(supabase, contact.id),
+    listForContact(supabase, contact.id),
+    getStages(supabase),
   ]);
+  const stageName = new Map(stages.map((s) => [s.id, s.name]));
   const noticeKey = Object.keys(NOTICES).find((k) => query[k]);
   const notice = noticeKey ? NOTICES[noticeKey] : undefined;
   const person = contactPersonName(contact);
@@ -119,8 +126,35 @@ export default async function ContactPage({
         )}
       </section>
 
+      <section aria-labelledby="opps-heading" className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="opps-heading" className="text-lg font-semibold">Opportunities</h2>
+          {contact.archived_at ? null : (
+            <Link href={`/opportunities/new?contact=${contact.id}`} className="flex min-h-11 items-center rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">
+              Add opportunity
+            </Link>
+          )}
+        </div>
+        {opportunities.length === 0 ? (
+          <p className="text-sm text-slate-600 dark:text-slate-400">None yet.</p>
+        ) : (
+          <ul aria-label="Opportunities for this contact" className="flex flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+            {opportunities.map((o) => (
+              <li key={o.id}>
+                <Link href={`/opportunities/${o.id}`} className="flex min-h-11 flex-wrap items-center gap-2 p-3 hover:bg-slate-50 dark:hover:bg-slate-900">
+                  <span className="font-medium">{PRODUCT_LINE_NAMES[o.product_line]}</span>
+                  <span className="text-sm">{stageName.get(o.stage_id)}</span>
+                  <OutcomeBadge outcome={o.outcome} />
+                  {o.estimated_annual_premium !== null ? <span className="text-sm">{formatMoney(o.estimated_annual_premium, { whole: true })}/yr</span> : null}
+                  {o.description ? <span className="w-full text-sm break-words text-slate-600 dark:text-slate-400">{o.description}</span> : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       {[
-        ["Opportunities", 4, "Home, auto, commercial and life opportunities for this contact."],
         ["Tasks", 5, "Open and completed follow-up tasks."],
         ["Activity", 5, "Calls, meetings, notes and follow-up outcomes."],
       ].map(([title, phase, text]) => (
