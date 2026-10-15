@@ -68,6 +68,7 @@ export const PUBLIC_FUNCTIONS = [
   "dismiss_cross_sell",
   "find_possible_duplicates",
   "record_renewal_outcome",
+  "report_summary",
   "search_contacts",
   "search_opportunities",
   "search_renewals",
