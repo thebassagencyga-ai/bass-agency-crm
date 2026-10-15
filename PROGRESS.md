@@ -337,3 +337,8 @@ Started 2026-10-15 on the owner's go-ahead ("Move to 8"). Owner decisions record
    then apply (verify expects 12 tables, 12 Data API functions).
 3. Deploy app preview, then on the iPhone: mark a test policy won with a renewal date, record
    an outcome on Renewals, and try "Not now" on a cross-sell prompt.
+
+**Production deploy (2026-10-15):** migrations dry run #20; apply run #21 applied
+`20261021120000_renewals_cross_sell.sql` and verification passed (12 tables, 12 Data API
+functions, engine safe, no anonymous access); preview run #9 deployed commit a42123a. Owner
+reported it working ("Deployed, working").
