@@ -305,3 +305,35 @@ Started 2026-10-15 on the owner's go-ahead ("Start phase 7").
 `20261020120000_dashboard.sql` and verification passed (8 Data API functions, engine safe, no
 anonymous access); preview run #8 deployed commit 43230b2. iPhone dashboard checks: not yet
 confirmed by the owner.
+
+## Phase 8 — Renewals & cross selling (branch `phase-8-renewals`)
+Started 2026-10-15 on the owner's go-ahead ("Move to 8"). Owner decisions recorded in ADR-023.
+
+**Completed**
+- Migration `20261021120000_renewals_cross_sell.sql`: policy term (auto 6/12 months) and end
+  date on opportunities; `renewal_outcomes`, `cross_sell_rules` (4 defaults per agent,
+  backfilled), `cross_sell_dismissals`; `search_renewals`, `record_renewal_outcome`,
+  `cross_sell_prompts`, `dismiss_cross_sell`; renewal review keys per half year for 6-month
+  policies; dashboard excludes ended policies. Deploy verification now expects 12 tables and
+  12 Data API functions.
+- Renewals page (30/60/90 days, by line), renewal page with outcome form, cross-sell prompts,
+  renewal history; cross-sell on the contact page; cross-sell rules in Settings; policy term
+  on the opportunity form; "Start … opportunity" preselects the suggested line.
+- Found while testing: browser tests picked product lines by label text, which the new
+  "Not now: Home…" buttons also match; they now select the radio button.
+
+**Tests (2026-10-15)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build | pass |
+| Local: unit | 247 passed (41 new) |
+| Local: database (PostgreSQL 16) | 244 passed (15 renewals, 16 cross-sell) |
+| Mutation checks (recent-loss exclusion, review task not completed, former client regardless, ended policies listed, SECURITY DEFINER, dismissal boundary, half-year key) | all 7 caught, reverted |
+| CI run #75 (commit 2caa58b): all 4 jobs | pass — PostgreSQL 17, Supabase image + db lint, API tests (incl. renewals/cross-sell), 7 browser journeys |
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. Deploy database migrations: dry run should list only `20261021120000_renewals_cross_sell.sql`;
+   then apply (verify expects 12 tables, 12 Data API functions).
+3. Deploy app preview, then on the iPhone: mark a test policy won with a renewal date, record
+   an outcome on Renewals, and try "Not now" on a cross-sell prompt.
