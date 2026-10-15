@@ -15,9 +15,12 @@ test("add, validate, de-duplicate, refer, search, edit, archive and restore cont
   // Validation: no name → field error, typed values kept.
   await page.getByRole("link", { name: "Add contact" }).click();
   await page.getByLabel("Phone", { exact: false }).first().fill("(770) 555-0101");
+  await page.getByLabel("Status").selectOption({ label: "Client" });
   await page.getByRole("button", { name: "Save contact" }).click();
   await expect(page.getByText("Enter a first or last name.")).toBeVisible();
   await expect(page.getByLabel("Phone", { exact: false }).first()).toHaveValue("(770) 555-0101");
+  // Choices survive the error (React would otherwise reset the form to its first defaults).
+  await expect(page.getByLabel("Status")).toHaveValue("client");
 
   // Quick add.
   await page.getByLabel("First name").fill("Avery");

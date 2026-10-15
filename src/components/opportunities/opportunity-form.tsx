@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { createOpportunity, updateOpportunity } from "@/app/(app)/opportunities/actions";
-import { Field, FormAlert, SubmitButton, type FormState } from "@/components/form";
+import { Field, FormAlert, SubmitButton, useActionForm } from "@/components/form";
 import type { Opportunity, Stage } from "@/lib/opportunities/types";
 import { PRODUCT_LINES, PRODUCT_LINE_NAMES, type ProductLine } from "@/lib/pipelines";
 
@@ -15,7 +15,7 @@ const PREMIUM_HINT = "Estimated yearly premium in dollars, e.g. 1,250.";
 
 export function OpportunityForm(props: Props) {
   const action = props.mode === "create" ? createOpportunity : updateOpportunity;
-  const [state, formAction] = useActionState<FormState, FormData>(action, {});
+  const { state, formAction, pending, onSubmit } = useActionForm(action);
   const existing = props.opportunity;
   const v = (name: string): string | undefined => {
     if (state.values && name in state.values) return state.values[name];
@@ -27,7 +27,7 @@ export function OpportunityForm(props: Props) {
   const startStages = props.mode === "create" ? props.stages.filter((s) => s.product_line === line && s.kind === "active") : [];
 
   return (
-    <form action={formAction} className="flex max-w-xl flex-col gap-4" noValidate>
+    <form action={formAction} onSubmit={onSubmit} className="flex max-w-xl flex-col gap-4" noValidate>
       <FormAlert state={state} />
       {props.mode === "create" ? (
         <>
@@ -79,7 +79,7 @@ export function OpportunityForm(props: Props) {
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
         <Link href={existing ? `/opportunities/${existing.id}` : `/contacts/${props.contactId}`} className="min-h-11 px-3 py-2 text-center underline">Cancel</Link>
         <div className="sm:ml-auto sm:w-48">
-          <SubmitButton pendingText="Saving…">{existing ? "Save changes" : "Add opportunity"}</SubmitButton>
+          <SubmitButton pendingText="Saving…" pending={pending}>{existing ? "Save changes" : "Add opportunity"}</SubmitButton>
         </div>
       </div>
     </form>

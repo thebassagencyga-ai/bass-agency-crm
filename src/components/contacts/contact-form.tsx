@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { saveContact } from "@/app/(app)/contacts/actions";
-import { Field, FormAlert, SelectField, SubmitButton, TextAreaField, type FormState } from "@/components/form";
+import { Field, FormAlert, SelectField, SubmitButton, TextAreaField, useActionForm } from "@/components/form";
 import { CONTACT_METHOD_LABELS, CONTACT_METHODS, RELATIONSHIP_LABELS, RELATIONSHIP_STATUSES, type Contact } from "@/lib/contacts/types";
 import { ReferrerPicker } from "./referrer-picker";
 
@@ -17,7 +17,7 @@ export function ContactForm({
   referrer: { id: string; label: string; detail: string } | null;
   leadSources: string[];
 }) {
-  const [state, action] = useActionState<FormState, FormData>(saveContact, {});
+  const { state, formAction, pending, onSubmit } = useActionForm(saveContact);
   const v = (name: keyof Contact): string | undefined => {
     if (state.values && name in state.values) return state.values[name];
     const value = contact?.[name];
@@ -30,7 +30,7 @@ export function ContactForm({
   const detailsOpen = isEdit || detailFields.some((f) => err[f]);
 
   return (
-    <form action={action} className="flex max-w-xl flex-col gap-4" noValidate>
+    <form action={formAction} onSubmit={onSubmit} className="flex max-w-xl flex-col gap-4" noValidate>
       {isEdit ? <input type="hidden" name="id" value={contact.id} /> : null}
       <FormAlert state={state} />
 
@@ -105,7 +105,7 @@ export function ContactForm({
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
         <Link href={isEdit ? `/contacts/${contact.id}` : "/contacts"} className="min-h-11 px-3 py-2 text-center underline">Cancel</Link>
         <div className="sm:ml-auto sm:w-48">
-          <SubmitButton pendingText="Saving…">{state.duplicates?.length ? "Save anyway" : isEdit ? "Save changes" : "Save contact"}</SubmitButton>
+          <SubmitButton pendingText="Saving…" pending={pending}>{state.duplicates?.length ? "Save anyway" : isEdit ? "Save changes" : "Save contact"}</SubmitButton>
         </div>
       </div>
     </form>

@@ -1,5 +1,6 @@
 "use client";
 
+import { startTransition, useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 // `values` echoes back non-secret inputs (never passwords or codes): React resets a form after
@@ -13,8 +14,28 @@ export type FormState = {
   duplicates?: { id: string; label: string; detail: string }[];
 };
 
-export function SubmitButton({ children, pendingText }: { children: React.ReactNode; pendingText: string }) {
-  const { pending } = useFormStatus();
+/**
+ * A form wired to a server action that is NOT reset after the action returns.
+ *
+ * React 19 resets a form after its `action` runs, restoring every field to the value it had
+ * when the page first loaded — so after a validation message, selects and radios silently
+ * revert and the next save stores the wrong choice. `onSubmit` dispatches the action itself
+ * (no automatic reset); `action` stays on the form so it still works before JavaScript loads.
+ */
+export function useActionForm(action: (state: FormState, data: FormData) => Promise<FormState>) {
+  const [state, formAction, pending] = useActionState<FormState, FormData>(action, {});
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const submitter = (event.nativeEvent as SubmitEvent).submitter;
+    const data = new FormData(event.currentTarget, submitter instanceof HTMLElement ? submitter : null);
+    startTransition(() => formAction(data));
+  };
+  return { state, formAction, pending, onSubmit };
+}
+
+export function SubmitButton({ children, pendingText, pending: pendingProp }: { children: React.ReactNode; pendingText: string; pending?: boolean }) {
+  const status = useFormStatus();
+  const pending = pendingProp ?? status.pending;
   return (
     <button
       type="submit"

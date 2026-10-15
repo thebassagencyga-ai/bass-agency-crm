@@ -1,8 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
 import { changeStage } from "@/app/(app)/opportunities/actions";
-import { FormAlert, SubmitButton, type FormState } from "@/components/form";
+import { FormAlert, SubmitButton, useActionForm } from "@/components/form";
 import { LOSS_REASONS, LOSS_REASON_LABELS, type Stage } from "@/lib/opportunities/types";
 import type { OpportunityOutcome } from "@/lib/pipelines";
 
@@ -11,13 +10,13 @@ const SELECT =
 
 /** Move to another stage of the same pipeline; for a won or lost opportunity this reopens it. */
 export function MoveStageForm({ id, stages, currentStageId, outcome }: { id: string; stages: Stage[]; currentStageId: string; outcome: OpportunityOutcome }) {
-  const [state, action] = useActionState<FormState, FormData>(changeStage, {});
+  const { state, formAction, pending, onSubmit } = useActionForm(changeStage);
   const closed = outcome === "won" || outcome === "lost";
   // Closed: reopen at any active stage. Open: any other active stage, or the won stage.
   const choices = stages.filter((s) => s.kind !== "lost" && s.id !== currentStageId && (!closed || s.kind === "active"));
   const err = state.fieldErrors ?? {};
   return (
-    <form action={action} className="flex flex-col gap-2">
+    <form action={formAction} onSubmit={onSubmit} className="flex flex-col gap-2">
       <FormAlert state={state} />
       <input type="hidden" name="id" value={id} />
       <label htmlFor="move-stage" className="text-sm font-medium">{closed ? "Reopen at stage" : "Move to stage"}</label>
@@ -26,7 +25,7 @@ export function MoveStageForm({ id, stages, currentStageId, outcome }: { id: str
       </select>
       {err.stage_id ? <p className="text-sm text-red-700 dark:text-red-400">{err.stage_id}</p> : null}
       <div className="sm:w-48">
-        <SubmitButton pendingText="Saving…">{closed ? "Reopen" : "Move"}</SubmitButton>
+        <SubmitButton pendingText="Saving…" pending={pending}>{closed ? "Reopen" : "Move"}</SubmitButton>
       </div>
       {closed ? <p className="text-xs text-slate-500">Reopening keeps the history and starts a new follow-up round.</p> : null}
     </form>
@@ -35,10 +34,10 @@ export function MoveStageForm({ id, stages, currentStageId, outcome }: { id: str
 
 /** Mark as lost: always asks for a reason. */
 export function MarkLostForm({ id, lostStageId }: { id: string; lostStageId: string }) {
-  const [state, action] = useActionState<FormState, FormData>(changeStage, {});
+  const { state, formAction, pending, onSubmit } = useActionForm(changeStage);
   const err = state.fieldErrors ?? {};
   return (
-    <form action={action} className="flex flex-col gap-3">
+    <form action={formAction} onSubmit={onSubmit} className="flex flex-col gap-3">
       <FormAlert state={state} />
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="stage_id" value={lostStageId} />
@@ -56,7 +55,7 @@ export function MarkLostForm({ id, lostStageId }: { id: string; lostStageId: str
         {err.loss_reason_detail ? <p className="text-sm text-red-700 dark:text-red-400">{err.loss_reason_detail}</p> : null}
       </div>
       <div className="sm:w-48">
-        <SubmitButton pendingText="Saving…">Mark as lost</SubmitButton>
+        <SubmitButton pendingText="Saving…" pending={pending}>Mark as lost</SubmitButton>
       </div>
     </form>
   );
