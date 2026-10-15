@@ -1,8 +1,8 @@
 # Progress
 
-**Current phase:** 3 — Contact management — **APPROVED by owner 2026-10-14**
-**Last updated:** 2026-10-14
-**Branch:** `phase-3-contacts`, merged to `main` on approval
+**Current phase:** 4 — Opportunities & pipelines — **READY FOR REVIEW** (owner approval pending)
+**Last updated:** 2026-10-15
+**Branch:** `phase-4-opportunities` (merge to `main` on approval)
 
 ## Phase 0 — APPROVED 2026-10-14
 Governance files created. ProducerIQ untouched (owner reconfirmed: it must not be modified).
@@ -172,3 +172,33 @@ Started 2026-10-14 after the owner signed in on the preview ("Signed in, start P
    `20261016120000_contact_search.sql` — then apply. The verify step now also checks the new
    items above.
 3. Run "Deploy app preview (Cloudflare)", then try contacts on the iPhone (fictional data only).
+
+## Phase 4 — Opportunities & pipelines (branch `phase-4-opportunities`)
+Started 2026-10-15 on the owner's go-ahead ("Referred by works now, start Phase 4").
+
+**Completed**
+- Migration `20261017120000_opportunity_lifecycle.sql`: `quoted_carrier`; lifecycle trigger
+  (product line fixed, `cycle` database-owned, loss reason cleared on reopen);
+  `search_opportunities` (SECURITY INVOKER). Deploy verification now expects 4 functions.
+- `/opportunities` board (per line) and table; `/opportunities/new` (from a contact);
+  `/opportunities/[id]` (move stage, won, lost with reason, reopen, nurture); edit page;
+  contact page lists opportunities.
+- Found and fixed while testing: React 19 reset forms after a server response, so a chosen
+  dropdown value (starting stage, contact status, preferred contact method) silently reverted
+  after any validation message. Contact, opportunity and stage forms no longer reset; browser
+  tests check choices survive an error.
+
+**Tests (2026-10-15)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build | pass |
+| Local: unit | 158 passed |
+| Local: database (PostgreSQL 16) | 157 passed |
+| Mutation checks (lifecycle trigger ×3, search made SECURITY DEFINER) | all caught (1, 1, 1, 7 failures), reverted |
+| CI run #43 (commit 6e8220e): all 4 jobs | pass — incl. PostgreSQL 17, Supabase image + db lint, 31 API tests, 3 browser journeys |
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. Deploy database migrations: dry run should list only `20261017120000_opportunity_lifecycle.sql`;
+   then apply (verify expects 4 Data API functions plus Supabase's `rls_auto_enable`).
+3. Deploy app preview; try opportunities on the iPhone (fictional data only).

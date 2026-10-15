@@ -15,6 +15,9 @@ All meaningful changes, grouped by milestone.
   `search_opportunities` (ADR-020).
 - Tests: unit (validation, stage rules, money, parameters), database (lifecycle, search,
   ownership; 4 mutations caught), API and browser journeys.
+### Fixed
+- Forms no longer lose a chosen dropdown value (contact status, preferred contact method,
+  starting stage) after a validation message (React 19 form reset).
 
 ## Phase 3 follow-up — owner testing on iPhone (2026-10-14)
 ### Fixed

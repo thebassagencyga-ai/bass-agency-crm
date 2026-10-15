@@ -11,7 +11,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 1 | Architecture & database foundation | 0 | APPROVED (2026-10-14) |
 | 2 | Authentication & security foundation | 1 | APPROVED (2026-10-15) |
 | 3 | Contact management | 2 | APPROVED (2026-10-14) |
-| 4 | Opportunities & pipelines | 3 | IN PROGRESS |
+| 4 | Opportunities & pipelines | 3 | READY FOR REVIEW |
 | 5 | Task management & activity history | 4 | NOT STARTED |
 | 6 | Automation engine | 5 | NOT STARTED |
 | 7 | Dashboard & daily workflow | 6 | NOT STARTED |
@@ -161,6 +161,18 @@ built-in auth email (Supabase-sent, not an app email feature).
 - Reopen an opportunity without deleting history.
 - Board usable on mobile (list fallback / horizontal scroll with accessible controls).
 - Tests for stage validation, outcome rules, reopen, multiple-per-contact, audit entries.
+
+**Status 2026-10-15** (✅ verified by automated check; ⏳ owner action):
+- ✅ Add from the contact page; several opportunities per contact across lines — DB + browser tests.
+- ✅ Board per product line and a searchable, filterable table — DB tests (search), browser test.
+- ✅ Stage stays within the product line: composite FK + product line locked by trigger + server check — DB, API, unit tests.
+- ✅ Outcome separate from stage; Lost requires a reason; closed records kept — DB, unit, browser tests.
+- ✅ Quote date, estimated premium, quoted carrier, effective and renewal dates (renewal after effective) — unit + browser tests.
+- ✅ Life: Application Process / Decision Pending can never be won; Placed = won — DB test.
+- ✅ Reopen keeps history: new cycle, loss reason cleared, old value in audit log — DB, API, browser tests.
+- ✅ Board on mobile: stages stacked, labelled "Move to…" control, no sideways scrolling — browser test (iPhone 13 size).
+- ✅ Ownership: other accounts see nothing and cannot open by URL — DB (mutation-checked), API, browser tests.
+- ⏳ Owner: merge, deploy migration `20261017120000_opportunity_lifecycle.sql`, redeploy preview, try on iPhone.
 
 ---
 
