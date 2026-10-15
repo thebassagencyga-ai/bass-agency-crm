@@ -58,7 +58,8 @@ test("renewals: 6-month auto policy renewed, cross-sell reviewed, policy lost; c
   await page.getByLabel("New annual premium", { exact: false }).fill("1,100");
   await page.getByRole("button", { name: "Record outcome" }).click();
   await expect(page.getByText("Renewal recorded.", { exact: false })).toBeVisible();
-  await expect(page.getByText("No client policies renew in the next 30 days.")).toBeVisible();
+  // Back on Renewals (default window, 60 days): the next renewal is about 6 months away.
+  await expect(page.getByText("No client policies renew in the next 60 days.")).toBeVisible();
 
   // Cross-sell: "Not now" hides Home for 12 months; Life stays and starts an opportunity.
   await crossSell.getByRole("button", { name: /^Not now: Home for Rowan Example/ }).click();

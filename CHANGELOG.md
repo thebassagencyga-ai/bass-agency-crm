@@ -2,6 +2,22 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 8 — Renewals & cross selling (2026-10-15, ready for review)
+### Added
+- Renewals page: next 30 / 60 / 90 days, by product line; past-due policies, client policies
+  (with their review task) and prospects' current renewal dates.
+- Retention workflow: record Renewed, Re-marketed or Lost (reason required) for a policy.
+  Kept policies roll their renewal date forward by the term and get the next review task;
+  lost ones leave renewals and a client with no other active policy becomes a former client.
+  Renewal history on the policy.
+- Auto policies can renew every 6 or 12 months.
+- Cross-sell reviews on Renewals, the renewal page and the contact page, with the reason,
+  "Start … opportunity" and "Not now" (hidden 12 months). Rules editable in Settings (4
+  defaults; add your own).
+- Migration `20261021120000_renewals_cross_sell.sql` (ADR-023): 3 tables, 4 functions; deploy
+  verification expects 12 tables and 12 functions.
+- Tests: database (31 new, 7 mutations caught), API, browser journey, unit.
+
 ## Phase 7 — Dashboard & daily workflow (2026-10-15, approved)
 ### Added
 - Dashboard (first screen after sign-in): overdue, due today and next-7-days counts;

@@ -77,7 +77,7 @@ test("automatic tasks: new lead, quote, win; rule settings; no-response follow-u
   // With the rule off, a new lead gets no automatic task.
   await page.goto(contactUrl);
   await page.getByRole("link", { name: "Add opportunity" }).click();
-  await page.getByLabel("Home").check();
+  await page.getByRole("radio", { name: "Home" }).check();
   await page.getByRole("button", { name: "Add opportunity" }).click();
   await expect(page.getByText("No tasks for this opportunity.")).toBeVisible();
 

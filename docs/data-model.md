@@ -21,6 +21,10 @@ erDiagram
     AUTOMATION_RULES ||--o{ TASKS : "created by (automation only)"
     TASKS ||--o{ ACTIVITIES : "optional"
     CONTACTS ||--o{ CONTACTS : "referred"
+    OPPORTUNITIES ||--o{ RENEWAL_OUTCOMES : "retention history"
+    PROFILES ||--o{ CROSS_SELL_RULES : owns
+    CONTACTS ||--o{ CROSS_SELL_DISMISSALS : "prompt hidden"
+    CROSS_SELL_RULES ||--o{ CROSS_SELL_DISMISSALS : "for rule"
 ```
 
 Every business table carries `owner_id`. Foreign keys between business tables include
@@ -70,6 +74,11 @@ opportunity is reopened, otherwise unchanged); reopening a lost opportunity clea
 reason and detail (the audit log keeps them).
 
 A life application in "Application Process" or "Decision Pending" can never be marked won.
+
+Policies (Phase 8, ADR-023): a won opportunity is a client policy. `policy_term_months` is 12,
+or 6 for auto only; it sets how far "renewed" moves the renewal date. `policy_ended_on` is set
+when a renewal is recorded as lost (allowed only while won; cleared if the opportunity is
+reopened). A won opportunity with no end date is an **active policy**.
 
 ### tasks
 Contact required; opportunity optional (must belong to the same contact). `due_date` is a
@@ -121,6 +130,24 @@ or `act:<id>:rule:requested_follow_up`; a repeat of the same event updates that 
 (only while it is open and its date was not changed by the owner). Prospecting rules never
 create tasks for a won or lost opportunity. Dates are never scheduled before today.
 
+### renewal_outcomes (Phase 8)
+Retention history, one row per policy per renewal date (unique), written by
+`record_renewal_outcome`. `outcome` renewed / remarketed / lost; `loss_reason` (price,
+coverage, other carrier, no longer needed, moved away, carrier did not renew, other) exactly
+when lost; `premium` and `next_renewal_date` only when kept; `notes` (≤ 1,000);
+`recorded_on` (the user's today). Insert and read only: never edited or deleted.
+
+### cross_sell_rules (Phase 8)
+Per-agent rules: the client holds an active policy in **any** of `has_any_lines` and nothing
+in `lacks_line` (which may not be one of them); optional `contact_type`; `reason` shown with
+the prompt (≤ 300); `enabled`. Four defaults are created for every profile (and were added
+for existing ones): auto → home, home → auto, auto or home → life (individuals), commercial
+→ life (businesses).
+
+### cross_sell_dismissals (Phase 8)
+One row per contact and rule: `dismissed_on` and `hidden_until` (12 months later). Dismissing
+again after it reappears restarts the 12 months (same row).
+
 ### audit_log
 Append-only, written by trigger on contacts, opportunities, tasks, activities and
 automation_rules: actor, table, record, action, and for updates only the changed columns.
@@ -139,8 +166,18 @@ granted to `authenticated` only.
 | `contact_lead_sources()` | Lead sources already used, one per case-insensitive spelling (the first one used). |
 | `search_tasks(view, today, product_line, priority, category, contact_id, limit, offset)` | Task tabs: `overdue` / `today` / `upcoming` (open tasks by due date vs. the `today` the app passes, computed in the user's zone) and `done` (completed or cancelled, newest first); with contact name/phone and the linked opportunity's product line; limit capped at 200. |
 | `task_counts(today)` | Open task counts for overdue, due today and upcoming. |
-| `dashboard_summary(today)` | One JSON object for the dashboard: open task counts (overdue, due today, next 7 days), open/nurture opportunities and estimated premium by product line, renewals in the next 60 days (count + soonest 5, lost excluded), 8 most recent activities. |
+| `dashboard_summary(today)` | One JSON object for the dashboard: open task counts (overdue, due today, next 7 days), open/nurture opportunities and estimated premium by product line, renewals in the next 60 days (count + soonest 5, lost and ended policies excluded), 8 most recent activities. |
 | `confirm_no_response_follow_up(activity_id)` | Creates the "no response" follow-up for one of the caller's activities after the owner confirms; returns 1 if a task was created, else 0. |
+
+| `search_renewals(today, days, product_line)` | Renewals view: active policies renewing within `days` (1–366) plus any whose renewal date passed with no outcome; open/nurture opportunities (prospects' current policies) renewing from today; with contact name/phone and the open renewal task; soonest first; up to 200. |
+| `record_renewal_outcome(opportunity_id, outcome, loss_reason, premium, notes)` | One transaction: outcome row; completes the policy's open automatic renewal review; renewed/re-marketed rolls the renewal date forward by the term (next review created by automation) and updates the premium if given; lost ends the policy and makes the contact a former client if they hold no other active policy. Returns `next_renewal_date` and `contact_now_former_client`. |
+| `cross_sell_prompts(today, contact_id, limit, offset)` | For each enabled rule: contacts (not archived) with an active policy in one of its lines and, in the suggested line, no active policy, no open/nurture opportunity and no loss in the last 365 days; minus prompts dismissed and still hidden. |
+| `dismiss_cross_sell(contact_id, rule_id)` | Hides one prompt for one of the caller's contacts for 12 months; returns 1, or 0 if the contact or rule is not the caller's. |
+
+Renewal reviews (automation, Phase 6, revised Phase 8): the review task's key names the
+renewal period — the year for 12-month policies, the half year for 6-month auto policies — so
+a date correction within the period moves the open task and the next period gets a new one.
+Ended policies get no reviews.
 
 Internal schema `crm_engine` (not exposed by the Data API; usable by signed-in users only
 because triggers run as them): `user_today`, `add_business_days`, `rule_enabled`,

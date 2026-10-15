@@ -446,6 +446,33 @@ asks the owner first by default (`confirm_before_creating`), via
 window, cooldown, checklist items and message text; messages offering an incentive are
 refused (ADR-013). Changes apply to new tasks only.
 
+## ADR-023 — Renewals: policies are won opportunities; outcomes roll the date; cross-sell rules are data
+**Status:** Proposed — implemented in Phase 8 (pending owner review)
+
+**Owner decisions (2026-10-15).** Renewed → renewal date rolls forward by the policy term
+(auto 6 or 12 months, other lines 12). Re-marketed = client kept with changed terms; recorded
+like renewed. Lost → recorded with a reason; the policy leaves renewals; the contact becomes a
+former client if no other active policy. A dismissed cross-sell prompt stays hidden 12 months.
+
+**Decision.** No separate policy table: a won opportunity is the policy, with
+`policy_term_months` and `policy_ended_on`. Outcomes are an append-only table written by one
+SECURITY INVOKER function (`record_renewal_outcome`) so the outcome, task completion, date
+roll and status change commit together. The roll-forward is a normal renewal-date change, so
+the Phase 6 trigger creates the next review; its key now names the half year for 6-month
+policies (two renewals in one calendar year) and is unchanged for yearly ones, so existing
+tasks still match. Prospects' renewal dates (open/nurture opportunities) are listed for quote
+timing but have no outcome.
+
+**Cross-sell.** Rules are rows (`cross_sell_rules`: holds any of these lines, lacks that
+one, optional contact type, reason) evaluated on read by `cross_sell_prompts` from recorded
+opportunities only — no inference, no outside data. A line being worked (open/nurture
+opportunity) or lost within 365 days is not suggested. Dismissals are rows with
+`hidden_until`. Prompts are shown, never acted on automatically (no tasks are created).
+
+**Known limits.** An outcome cannot be undone from the app (append-only; ask before adding
+an "undo"). Changing an auto policy between 6 and 12 months mid-year can leave the old
+period's open review task in place (the next one gets the new key).
+
 ---
 
 ## Open questions for the owner (do not block Phase 1 start)

@@ -64,9 +64,13 @@ check. The Phase 2 migration and dashboard settings are applied only after owner
   - `crm_private.write_audit_log()` — trigger; must append to `audit_log`, which users cannot write.
   - `crm_private.create_default_automation_rules()` — trigger on profile insert; inserts the
     new profile's own default rules only.
+  - `crm_private.create_default_cross_sell_rules()` / `insert_default_cross_sell_rules(owner)`
+    (Phase 8) — trigger on profile insert (and a one-time backfill in the migration); inserts
+    that profile's four default cross-sell rules only.
 - Data API functions in `public` (`search_contacts`, `find_possible_duplicates`,
   `contact_lead_sources`, `search_opportunities`, `search_tasks`, `task_counts`,
-  `confirm_no_response_follow_up`, `dashboard_summary`) are SECURITY INVOKER, so RLS applies; EXECUTE is revoked from
+  `confirm_no_response_follow_up`, `dashboard_summary`, and in Phase 8 `search_renewals`,
+  `record_renewal_outcome`, `cross_sell_prompts`, `dismiss_cross_sell`) are SECURITY INVOKER, so RLS applies; EXECUTE is revoked from
   `public`/`anon`. The deploy verification fails if any `public` function is SECURITY DEFINER
   or executable by `anon`, or if the function list changes unexpectedly.
 - Platform exception: hosted projects with "Enable automatic RLS" contain Supabase's own

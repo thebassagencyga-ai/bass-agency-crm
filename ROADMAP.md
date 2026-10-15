@@ -15,7 +15,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 5 | Task management & activity history | 4 | APPROVED (2026-10-15) |
 | 6 | Automation engine | 5 | APPROVED (2026-10-15) |
 | 7 | Dashboard & daily workflow | 6 | APPROVED (2026-10-15) |
-| 8 | Renewals & cross selling | 6, 7 | IN PROGRESS |
+| 8 | Renewals & cross selling | 6, 7 | READY FOR REVIEW |
 | 9 | Reporting | 8 | NOT STARTED |
 | 10 | Mobile experience & PWA | 9 | NOT STARTED |
 | 11 | End-to-end testing & security review | 10 | NOT STARTED |
@@ -269,6 +269,26 @@ counts validated by tests against fixture data; fast on mobile.
 (review task → outcome: renewed/re-marketed/lost). Cross-sell rules are configurable data
 (e.g. auto-only client → review home/life) evaluated only from recorded opportunities/policies;
 shown as "review" prompts with the reason, dismissible; tests per rule.
+
+**Owner decisions (2026-10-15):** renewed → date rolls forward by the term (auto 6 or 12
+months); re-marketed = kept with changed terms; lost → reason, policy ends, contact becomes a
+former client if no other active policy; dismissed prompts hidden 12 months (ADR-023).
+
+**Status 2026-10-15** (✅ verified by automated check; ⏳ owner action).
+- ✅ Renewals view: next 30 / 60 / 90 days and by line; past-due policies always shown; ended
+  and lost excluded — `tests/db/renewals.test.ts`, browser journey.
+- ✅ Retention workflow: review task → outcome renewed / re-marketed / lost in one transaction
+  (review task completed, date rolled by term with the next review, or policy ended + former
+  client) — DB tests per outcome, API test, browser journey.
+- ✅ 6-month auto terms get both reviews in a year; outcomes are append-only (no edit/delete).
+- ✅ Cross-sell rules are data (4 defaults, editable, add your own) evaluated only from
+  recorded opportunities; each default rule has its own test; open/nurture or recently lost
+  lines not suggested — `tests/db/cross-sell.test.ts`.
+- ✅ Prompts show the reason, "Start … opportunity", and "Not now" (hidden 12 months, then
+  back) on Renewals, the renewal page and the contact page.
+- ✅ New tables have RLS, two-step policies, owner-only grants (no delete); functions are
+  SECURITY INVOKER and refused to anonymous callers — DB + API tests, deploy verification.
+- ⏳ Owner: deploy the migration and preview, then try a renewal and a cross-sell prompt on the iPhone.
 
 ---
 
