@@ -422,6 +422,32 @@ silently reverted dropdowns after a validation message); see `useActionForm`.
 
 ---
 
+## ADR-022 — Automation engine: database triggers, invoker-only engine schema
+**Status:** Proposed — implemented in Phase 6 (pending owner review)
+
+**Decision.** Automation runs in AFTER triggers on opportunities, tasks and activities, so an
+event and the tasks it creates or closes commit together (CLAUDE.md: multi-step business
+operations are transactional). No scheduler is needed (spec: tasks appear by date). Shared
+logic lives in schema `crm_engine`: SECURITY INVOKER only, so RLS (owner + two-step) applies
+to every read and write; USAGE/EXECUTE for `authenticated` only (triggers run as the user);
+not exposed by the Data API. `crm_private` stays closed to API roles.
+
+**Behaviour.** Rule timing is anchor + offset (calendar or Mon–Fri business days), never
+before today, then `completion_window_days` to the due date. Idempotency via `dedupe_key`
+(ADR-008): a repeated event updates the open task's dates unless `due_date_overridden`.
+Cooldown per contact for review/referral (365 days). Prospecting rules skip won/lost
+opportunities. "New lead" fires only when the opportunity starts at its pipeline's first
+stage. "Contact made without a quote" fires when the automatic first-contact (or re-engage)
+task is completed and no quote date is set. "No response" (outcomes no response / no answer)
+asks the owner first by default (`confirm_before_creating`), via
+`confirm_no_response_follow_up`.
+
+**Settings.** The owner can turn any rule off and edit title, timing, priority, completion
+window, cooldown, checklist items and message text; messages offering an incentive are
+refused (ADR-013). Changes apply to new tasks only.
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 1. US holidays in business-day calculations? (Default: weekends only.)

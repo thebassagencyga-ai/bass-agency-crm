@@ -2,6 +2,24 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 6 — Automation engine (2026-10-15, ready for review)
+### Added
+- Automatic tasks from 12 rules: first contact for new leads; follow-up 2 business days after
+  first contact without a quote; quote follow-up after 3 days; prospect-requested date; no
+  response follow-up (asks first); on win close prospecting tasks, onboarding checklist,
+  Google review and referral requests (once per contact per year, review skipped if already
+  left); on loss close prospecting tasks; renewal review 60 days before renewal; re-engage on
+  reopen.
+- Never duplicates; changing a quote or renewal date moves the existing task; dates you
+  change yourself are kept.
+- Settings: turn rules off and edit their title, timing, priority, windows, checklist and
+  messages (incentives refused).
+- "No response" follow-up offer after logging a call; opportunity page lists its tasks.
+- Migration `20261019120000_automation_engine.sql` (ADR-022); deploy verification checks
+  the engine schema.
+### Fixed
+- Settings rule forms each have unique field ids (labels pointed at the wrong field).
+
 ## Phase 5 — Task management & activity history (2026-10-15, approved)
 ### Added
 - Tasks page with Overdue, Today, Upcoming and Completed tabs (with counts) and filters for

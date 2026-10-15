@@ -109,6 +109,18 @@ flag, JSON config (e.g. message templates).
 | review_request | won (once per contact) | starts +1 day, due 30 days later; not within 365 days; never after a review is recorded |
 | referral_request | won (once per contact) | starts +1 day, due 30 days later; not within 365 days |
 
+#### Automation (Phase 6)
+Rules run inside the same transaction as the change that triggers them (database triggers;
+no scheduler). Events: opportunity created at its first stage, first-contact task completed
+with no quote, quote-sent date entered or changed, prospect-requested follow-up date logged,
+no response logged (optionally after the owner confirms), won, lost, reopened, renewal date
+entered or changed. Every automatic task has `origin = automation`, its rule and a
+`dedupe_key` such as `opp:<id>:rule:quote_sent_follow_up:cycle:<n>`,
+`contact:<id>:rule:review_request:opp:<id>:cycle:<n>`, `opp:<id>:rule:renewal_review:renewal:<year>`
+or `act:<id>:rule:requested_follow_up`; a repeat of the same event updates that task's dates
+(only while it is open and its date was not changed by the owner). Prospecting rules never
+create tasks for a won or lost opportunity. Dates are never scheduled before today.
+
 ### audit_log
 Append-only, written by trigger on contacts, opportunities, tasks, activities and
 automation_rules: actor, table, record, action, and for updates only the changed columns.
@@ -127,6 +139,11 @@ granted to `authenticated` only.
 | `contact_lead_sources()` | Lead sources already used, one per case-insensitive spelling (the first one used). |
 | `search_tasks(view, today, product_line, priority, category, contact_id, limit, offset)` | Task tabs: `overdue` / `today` / `upcoming` (open tasks by due date vs. the `today` the app passes, computed in the user's zone) and `done` (completed or cancelled, newest first); with contact name/phone and the linked opportunity's product line; limit capped at 200. |
 | `task_counts(today)` | Open task counts for overdue, due today and upcoming. |
+| `confirm_no_response_follow_up(activity_id)` | Creates the "no response" follow-up for one of the caller's activities after the owner confirms; returns 1 if a task was created, else 0. |
+
+Internal schema `crm_engine` (not exposed by the Data API; usable by signed-in users only
+because triggers run as them): `user_today`, `add_business_days`, `rule_enabled`,
+`apply_rule`, `upsert_task`, `close_prospecting` — all SECURITY INVOKER.
 | `search_opportunities(query, product_line, outcome, stage_id, closed, sort, limit, offset)` | Board and table: opportunities with stage name/position and contact name; search over contact name, business, description, carrier; `closed` = `all` / `none` / `recent` (open + closed in 30 days); sort `updated` / `created` / `name` / `premium` / `renewal`; limit capped at 200. |
 
 ## Deletion and history
