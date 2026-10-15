@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 10 — Mobile experience & PWA (2026-10-15, ready for review)
+## Phase 10 — Mobile experience & PWA (2026-10-15, approved)
 ### Added
 - Add to Home Screen on iPhone: app name "Bass CRM", icon, full-screen (standalone) mode,
   opens on the dashboard.

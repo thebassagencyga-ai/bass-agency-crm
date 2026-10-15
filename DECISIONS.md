@@ -495,7 +495,7 @@ recorded estimates, with how many had one; no commission figures exist.
 shared by the prompt list and the report so their counts cannot disagree.
 
 ## ADR-025 — Installable web app; static-only service worker; Lighthouse in CI
-**Status:** Proposed — implemented in Phase 10 (pending owner review)
+**Status:** Accepted — implemented in Phase 10 (approved with the phase, 2026-10-15)
 
 **Decision.** A static web app manifest (`public/manifest.webmanifest`, start URL
 `/dashboard`, standalone) plus iPhone tags (apple-touch-icon, `apple-mobile-web-app-*`) make

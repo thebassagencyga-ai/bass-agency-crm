@@ -1,8 +1,8 @@
 # Progress
 
-**Current phase:** 9 — Reporting — **APPROVED by owner 2026-10-15**
+**Current phase:** 10 — Mobile experience & PWA — **APPROVED by owner 2026-10-15**
 **Last updated:** 2026-10-15
-**Branch:** `phase-9-reporting`, merged to `main` on approval
+**Branch:** `phase-10-mobile-pwa`, merged to `main` on approval
 
 ## Phase 0 — APPROVED 2026-10-14
 Governance files created. ProducerIQ untouched (owner reconfirmed: it must not be modified).
