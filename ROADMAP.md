@@ -11,7 +11,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 1 | Architecture & database foundation | 0 | APPROVED (2026-10-14) |
 | 2 | Authentication & security foundation | 1 | APPROVED (2026-10-15) |
 | 3 | Contact management | 2 | APPROVED (2026-10-14) |
-| 4 | Opportunities & pipelines | 3 | READY FOR REVIEW |
+| 4 | Opportunities & pipelines | 3 | APPROVED (2026-10-15) |
 | 5 | Task management & activity history | 4 | NOT STARTED |
 | 6 | Automation engine | 5 | NOT STARTED |
 | 7 | Dashboard & daily workflow | 6 | NOT STARTED |
@@ -172,7 +172,8 @@ built-in auth email (Supabase-sent, not an app email feature).
 - ✅ Reopen keeps history: new cycle, loss reason cleared, old value in audit log — DB, API, browser tests.
 - ✅ Board on mobile: stages stacked, labelled "Move to…" control, no sideways scrolling — browser test (iPhone 13 size).
 - ✅ Ownership: other accounts see nothing and cannot open by URL — DB (mutation-checked), API, browser tests.
-- ⏳ Owner: merge, deploy migration `20261017120000_opportunity_lifecycle.sql`, redeploy preview, try on iPhone.
+- ✅ Owner approved Phase 4 (2026-10-15); merged to `main`.
+- ⏳ Owner: deploy migration `20261017120000_opportunity_lifecycle.sql`, redeploy preview, try on iPhone.
 
 ---
 

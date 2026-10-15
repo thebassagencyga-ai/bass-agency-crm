@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 4 — Opportunities & pipelines (2026-10-15, ready for review)
+## Phase 4 — Opportunities & pipelines (2026-10-15, approved)
 ### Added
 - Opportunities board per product line (Auto, Home, Commercial, Life) with a move-to-stage
   control on each card, and a searchable, filterable table across all lines.

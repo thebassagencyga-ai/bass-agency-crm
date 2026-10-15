@@ -383,7 +383,7 @@ this, and text typed without choosing a contact stops the save with a message.
 ---
 
 ## ADR-020 — Opportunity lifecycle in the database; board without drag-and-drop
-**Status:** Proposed — implemented in Phase 4 (pending owner review)
+**Status:** Accepted — implemented in Phase 4 (approved with the phase, 2026-10-15)
 
 **Lifecycle.** A trigger fixes the product line after creation, owns `cycle` (+1 only when a
 won/lost opportunity is reopened) and clears the loss reason on reopen. Stage changes are plain

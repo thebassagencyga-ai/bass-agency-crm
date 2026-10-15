@@ -1,8 +1,8 @@
 # Progress
 
-**Current phase:** 4 — Opportunities & pipelines — **READY FOR REVIEW** (owner approval pending)
+**Current phase:** 4 — Opportunities & pipelines — **APPROVED by owner 2026-10-15**
 **Last updated:** 2026-10-15
-**Branch:** `phase-4-opportunities` (merge to `main` on approval)
+**Branch:** `phase-4-opportunities`, merged to `main` on approval
 
 ## Phase 0 — APPROVED 2026-10-14
 Governance files created. ProducerIQ untouched (owner reconfirmed: it must not be modified).
