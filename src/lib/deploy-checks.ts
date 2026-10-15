@@ -61,6 +61,8 @@ export const PUBLIC_FUNCTIONS = [
   "find_possible_duplicates",
   "search_contacts",
   "search_opportunities",
+  "search_tasks",
+  "task_counts",
 ] as const;
 
 /**

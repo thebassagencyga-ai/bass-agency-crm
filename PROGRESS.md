@@ -202,3 +202,7 @@ Started 2026-10-15 on the owner's go-ahead ("Referred by works now, start Phase 
 2. Deploy database migrations: dry run should list only `20261017120000_opportunity_lifecycle.sql`;
    then apply (verify expects 4 Data API functions plus Supabase's `rls_auto_enable`).
 3. Deploy app preview; try opportunities on the iPhone (fictional data only).
+
+**Production deploy (2026-10-15):** migrations dry run #12 listed only
+`20261017120000_opportunity_lifecycle.sql`; apply run #13 applied it and verification passed;
+preview run #5 deployed commit 37b7a56. Owner verified on iPhone ("All verified").
