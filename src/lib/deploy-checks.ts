@@ -53,10 +53,12 @@ export interface VerificationRow {
   public_functions: unknown;
   definer_or_anon_functions: unknown;
   unexpected_trigger_functions: unknown;
+  engine_unsafe: unknown;
 }
 
 /** Database functions callable through the Data API (all SECURITY INVOKER). Update per phase. */
 export const PUBLIC_FUNCTIONS = [
+  "confirm_no_response_follow_up",
   "contact_lead_sources",
   "find_possible_duplicates",
   "search_contacts",
@@ -95,7 +97,13 @@ select
   (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace and ${CALLABLE}
      and (p.prosecdef or has_function_privilege('anon', p.oid, 'execute'))) as definer_or_anon_functions,
   (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace and not (${CALLABLE})
-     and p.proname not in (${PLATFORM_TRIGGER_FUNCTIONS.map((n) => `'${n}'`).join(", ")})) as unexpected_trigger_functions
+     and p.proname not in (${PLATFORM_TRIGGER_FUNCTIONS.map((n) => `'${n}'`).join(", ")})) as unexpected_trigger_functions,
+  -- Automation engine schema (Phase 6): must exist, run as the caller only, closed to anon.
+  (select case when to_regnamespace('crm_engine') is null then 1 else
+     (select count(*) from pg_proc p where p.pronamespace = 'crm_engine'::regnamespace
+        and (p.prosecdef or has_function_privilege('anon', p.oid, 'execute')))
+     + case when has_schema_privilege('anon', 'crm_engine', 'usage') then 1 else 0 end
+   end) as engine_unsafe
 `;
 
 /** Every function in the public schema, printed by the verify step so a failure names it. */
@@ -137,6 +145,7 @@ export function checkVerification(row: VerificationRow): string[] {
     ["public_functions", PUBLIC_FUNCTIONS.length, "Data API functions"],
     ["definer_or_anon_functions", 0, "functions that bypass RLS or allow anonymous use"],
     ["unexpected_trigger_functions", 0, "unknown trigger functions in public"],
+    ["engine_unsafe", 0, "problems in the automation engine schema (missing, SECURITY DEFINER or anonymous access)"],
   ];
   const problems: string[] = [];
   for (const [key, expected, label] of expectations) {

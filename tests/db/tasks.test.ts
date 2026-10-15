@@ -84,6 +84,8 @@ describe("search_tasks and task_counts", () => {
 
   beforeAll(async () => {
     user = await createUser(db, "task-views");
+    // These tests are about the list views; automatic tasks (Phase 6) are tested elsewhere.
+    await asUser(db, user, (q) => q.query("update public.automation_rules set enabled = false"));
     const c = await insertContact(db, user, { first_name: "Riley", last_name: "Example" });
     const homeOpp = await insertOpportunity(db, user, c, "home");
     t.overdue = await insertTask(user, c, { due_date: "2026-10-10", priority: "normal" });

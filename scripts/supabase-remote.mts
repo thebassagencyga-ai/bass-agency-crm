@@ -67,7 +67,7 @@ if (command === "guard") {
   if (problems.length > 0) fail(problems.join(" "));
   console.log(
     "✓ Verification passed: 30 stages, 4 product lines, RLS and two-step policies on every table, " +
-      "sign-up trigger present, Data API functions as expected, no anonymous access.",
+      "sign-up trigger present, Data API functions as expected, automation engine safe, no anonymous access.",
   );
 } else {
   fail("Usage: node scripts/supabase-remote.mts guard|verify");
