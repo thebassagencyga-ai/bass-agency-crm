@@ -382,6 +382,23 @@ this, and text typed without choosing a contact stops the save with a message.
 
 ---
 
+## ADR-020 — Opportunity lifecycle in the database; board without drag-and-drop
+**Status:** Proposed — implemented in Phase 4 (pending owner review)
+
+**Lifecycle.** A trigger fixes the product line after creation, owns `cycle` (+1 only when a
+won/lost opportunity is reopened) and clears the loss reason on reopen. Stage changes are plain
+updates checked by the existing composite FK and CHECK constraints (ADR-006), so no RPC is
+needed; the app computes the new outcome with a pure, unit-tested function. Phase 6
+automation will hang off these same transitions.
+
+**Board.** Each card has a labelled "Move to…" select and button instead of drag-and-drop:
+works with touch, keyboard and screen readers, and needs no client JavaScript. Phones show
+stages one under another; wider screens show columns that scroll sideways. Moving to Lost
+from the board opens the opportunity to ask for a reason. The board lists open and nurture
+opportunities plus those closed in the last 30 days (max 200; the table shows everything).
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 1. US holidays in business-day calculations? (Default: weekends only.)

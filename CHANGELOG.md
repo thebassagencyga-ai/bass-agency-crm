@@ -2,6 +2,20 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 4 — Opportunities & pipelines (2026-10-15, ready for review)
+### Added
+- Opportunities board per product line (Auto, Home, Commercial, Life) with a move-to-stage
+  control on each card, and a searchable, filterable table across all lines.
+- Add an opportunity from a contact (product line, starting stage, description, next action,
+  quoted carrier, quote date, estimated premium, effective and renewal dates); edit details.
+- Stage changes within the pipeline; won at Bound/Placed; lost with a reason; reopen at an
+  active stage (history kept, new cycle); nurture on/off.
+- Contact page lists the contact's opportunities.
+- Migration `20261017120000_opportunity_lifecycle.sql`: `quoted_carrier`, lifecycle trigger,
+  `search_opportunities` (ADR-020).
+- Tests: unit (validation, stage rules, money, parameters), database (lifecycle, search,
+  ownership; 4 mutations caught), API and browser journeys.
+
 ## Phase 3 follow-up — owner testing on iPhone (2026-10-14)
 ### Fixed
 - "Referred by" explains that it picks from your contacts; text typed without tapping a contact

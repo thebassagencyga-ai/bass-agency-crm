@@ -62,7 +62,12 @@ Many per contact, in any mix of product lines.
 | `loss_reason`, `loss_reason_detail` | Reason required exactly when the outcome is `lost`. |
 | `closed_at` | Set automatically when won or lost; cleared on reopen. |
 | `cycle` | Starts at 1; incremented on reopen so a new follow-up sequence gets new task keys. |
-| `quote_sent_on`, `estimated_annual_premium`, `next_action`, `effective_date`, `renewal_date` | Quote tracking and dates. Renewal must be after effective. |
+| `quote_sent_on`, `estimated_annual_premium`, `quoted_carrier`, `next_action`, `effective_date`, `renewal_date` | Quote tracking and dates. Renewal must be after effective. Carrier is free text (≤ 100). |
+
+Lifecycle rules (trigger `opportunities_b_lifecycle`, Phase 4): the product line cannot change
+after creation; `cycle` is set by the database only (1 on insert, +1 when a won or lost
+opportunity is reopened, otherwise unchanged); reopening a lost opportunity clears its loss
+reason and detail (the audit log keeps them).
 
 A life application in "Application Process" or "Decision Pending" can never be marked won.
 
@@ -120,6 +125,7 @@ granted to `authenticated` only.
 | `search_contacts(query, type, status, lead_source, archived, sort, limit, offset)` | Contact list: name (either order), business, email (escaped ILIKE) or phone digits (≥ 3); filters; sort `name` / `recent` / `updated`; limit capped at 100. |
 | `find_possible_duplicates(email, phone, exclude_id)` | Up to 5 contacts with the same email (case-insensitive) or the same last 10 phone digits (phone or alt phone), archived included. |
 | `contact_lead_sources()` | Lead sources already used, one per case-insensitive spelling (the first one used). |
+| `search_opportunities(query, product_line, outcome, stage_id, closed, sort, limit, offset)` | Board and table: opportunities with stage name/position and contact name; search over contact name, business, description, carrier; `closed` = `all` / `none` / `recent` (open + closed in 30 days); sort `updated` / `created` / `name` / `premium` / `renewal`; limit capped at 200. |
 
 ## Deletion and history
 
