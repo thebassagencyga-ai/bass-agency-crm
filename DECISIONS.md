@@ -399,6 +399,29 @@ opportunities plus those closed in the last 30 days (max 200; the table shows ev
 
 ---
 
+## ADR-021 — Task views, "today", and review/referral messages
+**Status:** Proposed — implemented in Phase 5 (pending owner review)
+
+**Today.** The app computes today's date in the user's time zone (`profiles.time_zone`,
+default America/New_York) and passes it to `search_tasks` / `task_counts`; the database never
+uses the server's UTC date. Unit tests cover 11:59 PM / 12:00 AM and both daylight-saving
+change days. Activity times typed on a phone are converted from New York wall-clock time
+(the repeated 1 AM hour in November uses the first occurrence).
+
+**Views.** Overdue / Today / Upcoming / Completed. A task whose start date is in the future
+can only be upcoming (start ≤ due is a database constraint), so review and referral tasks
+appear on Today only once they start.
+
+**Messages.** Review and referral tasks render the template stored on the user's automation
+rule with the contact's first name, the user's display name and Google review link (set in
+Settings). Copy uses the clipboard; "Text it" is an `sms:` link that opens Messages pre-filled.
+The CRM sends nothing (ADR-013, spec: no SMS sending).
+
+**Forms.** Forms that post to a server action no longer use React 19's automatic reset (it
+silently reverted dropdowns after a validation message); see `useActionForm`.
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 1. US holidays in business-day calculations? (Default: weekends only.)

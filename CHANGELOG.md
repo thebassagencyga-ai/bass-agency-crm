@@ -2,6 +2,23 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 5 — Task management & activity history (2026-10-15, ready for review)
+### Added
+- Tasks page with Overdue, Today, Upcoming and Completed tabs (with counts) and filters for
+  product line, priority and type; "today" in New York time.
+- Add a task from a contact or by picking a contact; edit, complete, reopen and cancel
+  (nothing is deleted); optional opportunity link and "don't show before" date.
+- Google review and referral request tasks show the filled-in message with Copy and Text it
+  (opens Messages; the CRM sends nothing).
+- Log activity from a contact: call, meeting, note, logged email/text, follow-up and more,
+  with time, outcome, requested follow-up date and notes.
+- Contact page: open tasks and a history of activities and finished tasks.
+- Settings: your name and Google review link for messages.
+- Migration `20261018120000_task_views.sql`: `search_tasks`, `task_counts` (ADR-021).
+- Tests: unit (New York midnight and daylight-saving boundaries, task tabs, messages,
+  validation), database (task views, lifecycle, ownership; 2 mutations caught), API and
+  browser journeys.
+
 ## Phase 4 — Opportunities & pipelines (2026-10-15, approved)
 ### Added
 - Opportunities board per product line (Auto, Home, Commercial, Life) with a move-to-stage
