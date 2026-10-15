@@ -15,7 +15,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 5 | Task management & activity history | 4 | APPROVED (2026-10-15) |
 | 6 | Automation engine | 5 | APPROVED (2026-10-15) |
 | 7 | Dashboard & daily workflow | 6 | APPROVED (2026-10-15) |
-| 8 | Renewals & cross selling | 6, 7 | NOT STARTED |
+| 8 | Renewals & cross selling | 6, 7 | IN PROGRESS |
 | 9 | Reporting | 8 | NOT STARTED |
 | 10 | Mobile experience & PWA | 9 | NOT STARTED |
 | 11 | End-to-end testing & security review | 10 | NOT STARTED |

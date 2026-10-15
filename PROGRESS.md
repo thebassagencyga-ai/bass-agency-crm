@@ -300,3 +300,8 @@ Started 2026-10-15 on the owner's go-ahead ("Start phase 7").
 2. Deploy database migrations: dry run should list only `20261020120000_dashboard.sql`; then
    apply (verify expects 8 Data API functions).
 3. Deploy app preview, then open the dashboard on the iPhone.
+
+**Production deploy (2026-10-15):** migrations dry run #18; apply run #19 applied
+`20261020120000_dashboard.sql` and verification passed (8 Data API functions, engine safe, no
+anonymous access); preview run #8 deployed commit 43230b2. iPhone dashboard checks: not yet
+confirmed by the owner.
