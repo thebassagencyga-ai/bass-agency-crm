@@ -494,6 +494,28 @@ recorded estimates, with how many had one; no commission figures exist.
 **Also.** Cross-sell matching moved to `crm_engine.cross_sell_matches` (no row limit),
 shared by the prompt list and the report so their counts cannot disagree.
 
+## ADR-025 — Installable web app; static-only service worker; Lighthouse in CI
+**Status:** Proposed — implemented in Phase 10 (pending owner review)
+
+**Decision.** A static web app manifest (`public/manifest.webmanifest`, start URL
+`/dashboard`, standalone) plus iPhone tags (apple-touch-icon, `apple-mobile-web-app-*`) make
+the app installable from Safari's Share → Add to Home Screen. Icons are PNGs rendered from one
+SVG design by `scripts/generate-icons.mts` (committed output).
+
+The service worker (`public/sw.js`, registered in production only) caches **only** hashed
+build files under `/_next/static/`, the icons and `public/offline.html`. Page navigations are
+network-only and fall back to the offline notice when the network fails; server actions,
+React Server Component data, prefetches, other origins and every other request are not
+touched. So no client record, page or API response is ever stored on the device, and
+signing out leaves nothing personal behind. CSP gains `worker-src 'self'` (needed because
+`'strict-dynamic'` makes `script-src` ignore `'self'`) and `manifest-src 'self'`. The
+middleware skips `sw.js`, `offline.html` and the manifest so they load before sign-in.
+
+**Checks.** Browser tests audit key pages at 375 / 390 / 430 px for sideways scroll and
+44 × 44 px tap targets (links inside a sentence exempt, as WCAG 2.5.8 allows), and Lighthouse
+(dev dependency, runs locally in CI, no external service) requires an accessibility score ≥ 90
+on every key page, signed in.
+
 ---
 
 ## Open questions for the owner (do not block Phase 1 start)

@@ -69,7 +69,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       <section aria-labelledby="pipeline-heading" className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
           <h2 id="pipeline-heading" className="text-lg font-semibold">Open opportunities</h2>
-          <Link href="/opportunities?view=table&closed=none" className="flex min-h-11 items-center text-sm underline">See all</Link>
+          <Link href="/opportunities?view=table&closed=none" className="flex min-h-11 min-w-11 items-center text-sm underline">See all</Link>
         </div>
         <ul aria-label="Open opportunities by product line" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {PRODUCT_LINES.map((line) => {
@@ -135,7 +135,7 @@ function TaskList({ id, title, tasks, more, href, empty, danger = false }: { id:
     <section aria-labelledby={`${id}-heading`} className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
         <h2 id={`${id}-heading`} className={`text-lg font-semibold ${danger && tasks.length > 0 ? "text-red-800 dark:text-red-300" : ""}`}>{title}</h2>
-        <Link href={href} className="flex min-h-11 items-center text-sm underline">{more > 0 ? `See all (${more} more)` : "See all"}</Link>
+        <Link href={href} className="flex min-h-11 min-w-11 items-center text-sm underline">{more > 0 ? `See all (${more} more)` : "See all"}</Link>
       </div>
       {tasks.length === 0 ? (
         <p className="text-sm text-slate-600 dark:text-slate-400">{empty}</p>

@@ -2,6 +2,16 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 10 — Mobile experience & PWA (2026-10-15, ready for review)
+### Added
+- Add to Home Screen on iPhone: app name "Bass CRM", icon, full-screen (standalone) mode,
+  opens on the dashboard.
+- Offline notice when there is no connection. Only the app's own static files are kept on
+  the phone; no client information is ever stored there.
+- Larger tap targets (44 px) for list links, back links, phone and email links.
+- Checks: responsive audit at 375 / 390 / 430 px, PWA/offline browser test, Lighthouse
+  accessibility ≥ 90 on every key page, service-worker unit tests (ADR-025).
+
 ## Phase 9 — Reporting (2026-10-15, approved)
 ### Added
 - Reports page with periods (this month, last month, this quarter, year to date, last 12

@@ -52,7 +52,7 @@ export default async function OpportunityPage({
   const name = contact ? contactDisplayName(contact) : "Contact";
 
   const rows: [string, React.ReactNode][] = [
-    ["Contact", contact ? <Link href={`/contacts/${contact.id}`} className="inline-flex min-h-11 items-center underline">{name}</Link> : "—"],
+    ["Contact", contact ? <Link href={`/contacts/${contact.id}`} className="inline-flex min-h-11 min-w-11 items-center underline">{name}</Link> : "—"],
     ["Product line", PRODUCT_LINE_NAMES[opp.product_line]],
     ["Stage", stage?.name ?? "—"],
     ["Description", opp.description ?? "—"],

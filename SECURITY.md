@@ -22,7 +22,7 @@ check. The Phase 2 migration and dashboard settings are applied only after owner
 | Credential compromise | Phished owner password | Strong password, MFA (TOTP) recommended (Phase 2 decision), signups disabled |
 | Data loss | Accidental delete, bad migration | Archive not delete; Supabase daily backups (Pro); migration review; restore drill |
 | Over-collection | SSNs/health info in notes | Data-minimization rules; UI guidance on note fields |
-| Offline leakage | Cached records on a lost phone | Service worker never caches API/record responses |
+| Offline leakage | Cached records on a lost phone | Service worker caches only hashed static files, icons and the offline notice; pages and data always come from the network (ADR-025) |
 | Supply chain | Compromised npm package | Minimal deps, lockfile, `npm audit`, Dependabot |
 | Malicious link in messages | `javascript:` URL saved as review link | `google_review_url` must be `https://` (DB check); `sms:` links built server-side with encoded text |
 | Mixing with ProducerIQ | Shared keys or DB | Separate repo, Supabase project, hosting (ADR-001/002) |
@@ -135,7 +135,7 @@ underwriting answers, detailed health information, policy documents. No file upl
 | Automation acts only on the caller's rows, never bypasses RLS, never duplicates; no incentive in messages | 6 | DB tests (6 mutations caught), unit, API and browser tests in CI |
 | Dashboard counts only the caller's records; nothing for password-only or anonymous sessions | 7 | DB tests against fixtures (2 mutations caught), API and browser tests in CI |
 | Audit log written and immutable to app roles | 1, 3+ | Verified locally at SQL level (`tests/db/audit.test.ts`) |
-| Service worker caches no record data | 10 | Not started |
+| Service worker caches no record data | 10 | Verified: unit test runs `public/sw.js` against a fake browser (pages, server actions, RSC data, other origins never cached); browser test lists the real cache (only `/_next/static/`, icons, offline page) |
 | `npm audit` / secret scan clean or triaged | 11 | Not started |
 | Backup restore rehearsed | 11–12 | Not started |
 | Owner security review before real client data | 12 | Not started |

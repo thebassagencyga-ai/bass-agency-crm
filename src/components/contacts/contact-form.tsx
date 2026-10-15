@@ -40,7 +40,7 @@ export function ContactForm({
           <ul className="list-disc pl-5">
             {state.duplicates.map((d) => (
               <li key={d.id}>
-                <Link href={`/contacts/${d.id}`} className="inline-flex min-h-11 items-center underline" target="_blank">{d.label}</Link>
+                <Link href={`/contacts/${d.id}`} className="inline-flex min-h-11 min-w-11 items-center underline" target="_blank">{d.label}</Link>
                 {d.detail ? <span className="text-amber-800 dark:text-amber-200"> — {d.detail}</span> : null}
               </li>
             ))}

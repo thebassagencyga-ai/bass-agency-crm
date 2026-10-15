@@ -43,7 +43,7 @@ export default async function RenewalPage({
         <Link href="/renewals" className="flex min-h-11 w-fit items-center text-sm underline">← Renewals</Link>
         <h1 className="text-2xl font-semibold break-words">Renewal · {name}</h1>
         <p>
-          <Link href={`/opportunities/${opp.id}`} className="inline-flex min-h-11 items-center underline">{PRODUCT_LINE_NAMES[opp.product_line]} policy</Link>
+          <Link href={`/opportunities/${opp.id}`} className="inline-flex min-h-11 min-w-11 items-center underline">{PRODUCT_LINE_NAMES[opp.product_line]} policy</Link>
           {opp.quoted_carrier ? ` · ${opp.quoted_carrier}` : ""}
         </p>
       </div>
@@ -64,7 +64,7 @@ export default async function RenewalPage({
         {contact?.phone ? (
           <div className="contents">
             <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">Phone</dt>
-            <dd><a href={`tel:${contact.phone}`} className="inline-flex min-h-11 items-center underline">{contact.phone}</a></dd>
+            <dd><a href={`tel:${contact.phone}`} className="inline-flex min-h-11 min-w-11 items-center underline">{contact.phone}</a></dd>
           </div>
         ) : null}
       </dl>

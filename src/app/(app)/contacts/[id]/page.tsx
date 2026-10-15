@@ -88,13 +88,13 @@ export default async function ContactPage({
   const rows: [string, React.ReactNode][] = [
     ["Type", contact.contact_type === "business" ? "Business" : "Individual"],
     ...(person ? [["Contact person", person] as [string, React.ReactNode]] : []),
-    ["Phone", contact.phone ? <a href={`tel:${contact.phone}`} className="inline-flex min-h-11 items-center underline">{contact.phone}</a> : "—"],
-    ...(contact.alt_phone ? [["Other phone", <a key="alt" href={`tel:${contact.alt_phone}`} className="inline-flex min-h-11 items-center underline">{contact.alt_phone}</a>] as [string, React.ReactNode]] : []),
-    ["Email", contact.email ? <a href={`mailto:${contact.email}`} className="inline-flex min-h-11 items-center break-all underline">{contact.email}</a> : "—"],
+    ["Phone", contact.phone ? <a href={`tel:${contact.phone}`} className="inline-flex min-h-11 min-w-11 items-center underline">{contact.phone}</a> : "—"],
+    ...(contact.alt_phone ? [["Other phone", <a key="alt" href={`tel:${contact.alt_phone}`} className="inline-flex min-h-11 min-w-11 items-center underline">{contact.alt_phone}</a>] as [string, React.ReactNode]] : []),
+    ["Email", contact.email ? <a href={`mailto:${contact.email}`} className="inline-flex min-h-11 min-w-11 items-center break-all underline">{contact.email}</a> : "—"],
     ["Address", address || "—"],
     ["Prefers", contact.preferred_contact_method ? CONTACT_METHOD_LABELS[contact.preferred_contact_method] : "—"],
     ["Lead source", contact.lead_source ?? "—"],
-    ["Referred by", referrer ? <Link href={`/contacts/${referrer.id}`} className="inline-flex min-h-11 items-center underline">{contactDisplayName(referrer)}</Link> : "—"],
+    ["Referred by", referrer ? <Link href={`/contacts/${referrer.id}`} className="inline-flex min-h-11 min-w-11 items-center underline">{contactDisplayName(referrer)}</Link> : "—"],
     ["Google review", contact.google_review_left_on ? `Left on ${formatDateOnly(contact.google_review_left_on)}` : "Not recorded"],
     ["Added", formatInstantDate(contact.created_at)],
     ["Last updated", formatInstantDate(contact.updated_at)],
@@ -160,7 +160,7 @@ export default async function ContactPage({
         ) : (
           <ul className="list-disc pl-5">
             {referrals.map((r) => (
-              <li key={r.id}><Link href={`/contacts/${r.id}`} className="inline-flex min-h-11 items-center underline">{r.label}</Link></li>
+              <li key={r.id}><Link href={`/contacts/${r.id}`} className="inline-flex min-h-11 min-w-11 items-center underline">{r.label}</Link></li>
             ))}
           </ul>
         )}

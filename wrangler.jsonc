@@ -6,7 +6,10 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    // Serve /offline.html at that exact path (no redirect to /offline): the service worker
+    // pre-caches it by name and shows it when a page cannot load offline (ADR-025).
+    "html_handling": "none"
   },
   "services": [
     {

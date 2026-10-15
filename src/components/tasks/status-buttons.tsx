@@ -3,7 +3,10 @@ import type { TaskStatus } from "@/lib/tasks/types";
 
 const BUTTON = "min-h-11 rounded-md px-4 font-medium";
 
-/** Complete / reopen / cancel. Plain forms: they work before JavaScript loads. */
+/**
+ * Complete / reopen / cancel. Plain forms: they work before JavaScript loads. The compact
+ * button's accessible name starts with its visible word, so voice control ("tap Done") works.
+ */
 export function TaskStatusButtons({ id, status, back, compact = false }: { id: string; status: TaskStatus; back?: string; compact?: boolean }) {
   const form = (next: TaskStatus, label: string, style: string, accessibleName?: string) => (
     <form action={setTaskStatus}>
@@ -16,7 +19,7 @@ export function TaskStatusButtons({ id, status, back, compact = false }: { id: s
   if (status === "open") {
     return (
       <div className="flex flex-wrap gap-2">
-        {form("completed", compact ? "Done" : "Mark complete", "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900", compact ? "Mark complete" : undefined)}
+        {form("completed", compact ? "Done" : "Mark complete", "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900", compact ? "Done – mark complete" : undefined)}
         {compact ? null : form("cancelled", "Cancel task", "border border-slate-400")}
       </div>
     );
