@@ -14,7 +14,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 4 | Opportunities & pipelines | 3 | APPROVED (2026-10-15) |
 | 5 | Task management & activity history | 4 | APPROVED (2026-10-15) |
 | 6 | Automation engine | 5 | APPROVED (2026-10-15) |
-| 7 | Dashboard & daily workflow | 6 | IN PROGRESS |
+| 7 | Dashboard & daily workflow | 6 | READY FOR REVIEW |
 | 8 | Renewals & cross selling | 6, 7 | NOT STARTED |
 | 9 | Reporting | 8 | NOT STARTED |
 | 10 | Mobile experience & PWA | 9 | NOT STARTED |
@@ -248,6 +248,19 @@ database test in `tests/db/automation.test.ts`; API and browser tests cover the 
 **Acceptance criteria.** Dashboard shows overdue, due today, open opportunities by line,
 recent activity, upcoming renewals, quick actions (add contact, log activity, add task);
 counts validated by tests against fixture data; fast on mobile.
+
+**Status 2026-10-15** (✅ verified by automated check; ⏳ owner action).
+- ✅ Overdue, due today and next-7-days counts, plus the first 5 overdue / 10 due-today tasks
+  with "Mark complete" in place (`tests/db/dashboard.test.ts`, browser journey).
+- ✅ Open opportunities by product line with nurture count and estimated annual premium.
+- ✅ Recent activity (8 newest) with contact names.
+- ✅ Upcoming renewals: count in the next 60 days (lost excluded) and the 5 soonest.
+- ✅ Quick actions: Add contact, Log activity (with contact picker), Add task.
+- ✅ Counts validated against fixture data; another agent's data never counted; empty for
+  password-only sessions, refused to anonymous callers (DB + API tests).
+- ✅ Mobile: one database call for the summary plus two task lists; no sideways scroll at
+  iPhone 13 width (browser test).
+- ⏳ Owner: open the dashboard on the iPhone after the preview deploy.
 
 ---
 

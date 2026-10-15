@@ -271,3 +271,31 @@ Started 2026-10-15 on the owner's go-ahead ("start Phase 6").
 **Production deploy (2026-10-15):** migrations dry run #16; apply run #17 applied
 `20261019120000_automation_engine.sql` and verification passed (engine schema safe); preview
 run #7 deployed commit d92a7ee. Owner completed the iPhone checks ("All complete").
+
+## Phase 7 — Dashboard & daily workflow (branch `phase-7-dashboard`)
+Started 2026-10-15 on the owner's go-ahead ("Start phase 7").
+
+**Completed**
+- Migration `20261020120000_dashboard.sql`: `public.dashboard_summary(p_today)` (SECURITY
+  INVOKER, empty search_path; anon and public revoked). Deploy verification now expects 8
+  Data API functions.
+- `/dashboard`: greeting, quick actions, task count tiles, overdue and due-today lists with
+  complete-in-place, open opportunities by line, upcoming renewals, recent activity.
+- `/activities/new`: log an activity from anywhere, choosing the contact from a picker.
+- Found while testing: a renewal date within 60 days creates its "Renewal review" task due
+  today (Phase 6 rule), so the browser journey now expects it alongside the first-contact task.
+
+**Tests (2026-10-15)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build | pass |
+| Local: unit | 206 passed |
+| Local: database (PostgreSQL 16) | 204 passed (6 dashboard) |
+| Mutation checks (SECURITY DEFINER on summary, counting lost renewals) | both caught, reverted |
+| CI | see Phase 7 report |
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. Deploy database migrations: dry run should list only `20261020120000_dashboard.sql`; then
+   apply (verify expects 8 Data API functions).
+3. Deploy app preview, then open the dashboard on the iPhone.
