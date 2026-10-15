@@ -53,12 +53,12 @@ export default async function TaskPage({
     : view === "overdue" ? "Overdue" : view === "today" ? "Due today" : "Upcoming";
 
   const rows: [string, React.ReactNode][] = [
-    ["Contact", contact ? <Link href={`/contacts/${contact.id}`} className="underline">{contactDisplayName(contact)}</Link> : "—"],
+    ["Contact", contact ? <Link href={`/contacts/${contact.id}`} className="inline-flex min-h-11 items-center underline">{contactDisplayName(contact)}</Link> : "—"],
     ["Due", formatDateOnly(task.due_date)],
     ...(task.start_date ? [["Don't show before", formatDateOnly(task.start_date)] as [string, React.ReactNode]] : []),
     ["Priority", PRIORITY_LABELS[task.priority]],
     ["Type", CATEGORY_LABELS[task.category]],
-    ...(opportunity ? [["Opportunity", <Link key="o" href={`/opportunities/${opportunity.id}`} className="underline">{PRODUCT_LINE_NAMES[opportunity.product_line]}</Link>] as [string, React.ReactNode]] : []),
+    ...(opportunity ? [["Opportunity", <Link key="o" href={`/opportunities/${opportunity.id}`} className="inline-flex min-h-11 items-center underline">{PRODUCT_LINE_NAMES[opportunity.product_line]}</Link>] as [string, React.ReactNode]] : []),
     ["Created", `${formatInstantDate(task.created_at)}${task.origin === "automation" ? " (automatic)" : ""}`],
   ];
 
@@ -70,7 +70,7 @@ export default async function TaskPage({
         </p>
       ) : null}
       <div className="flex flex-col gap-2">
-        <Link href="/tasks" className="w-fit text-sm underline">← Tasks</Link>
+        <Link href="/tasks" className="flex min-h-11 w-fit items-center text-sm underline">← Tasks</Link>
         <h1 className={`text-2xl font-semibold break-words ${task.status !== "open" ? "text-slate-500 line-through" : ""}`}>{task.title}</h1>
         <p className={`text-sm font-medium ${view === "overdue" ? "text-red-700 dark:text-red-400" : ""}`}>{statusText}</p>
         <div className="flex flex-wrap gap-2">

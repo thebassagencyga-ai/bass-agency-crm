@@ -96,7 +96,7 @@ function RenewalList({
           {rows.map((r) => (
             <li key={r.id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 flex-col">
-                <Link href={`/contacts/${r.contact_id}`} className="font-medium break-words underline-offset-2 hover:underline">
+                <Link href={`/contacts/${r.contact_id}`} className="flex min-h-11 items-center font-medium break-words underline-offset-2 hover:underline">
                   {contactDisplayName(r)} · {PRODUCT_LINE_NAMES[r.product_line]}
                 </Link>
                 <span className="text-sm">Renews {formatDateOnly(r.renewal_date)}</span>

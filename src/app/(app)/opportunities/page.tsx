@@ -117,7 +117,7 @@ function Board({ line, q, supabaseStages, rows }: { line: ProductLine; q: string
                 <ul className="flex flex-col gap-2">
                   {cards.map((r) => (
                     <li key={r.id} id={`opp-${r.id}`} className="flex flex-col gap-2 rounded-md border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-950">
-                      <Link href={`/opportunities/${r.id}`} className="font-medium underline-offset-2 hover:underline">{rowName(r)}</Link>
+                      <Link href={`/opportunities/${r.id}`} className="flex min-h-11 items-center font-medium underline-offset-2 hover:underline">{rowName(r)}</Link>
                       {r.description ? <p className="text-sm break-words text-slate-600 dark:text-slate-400">{r.description}</p> : null}
                       <div className="flex flex-wrap items-center gap-2 text-sm">
                         {r.outcome !== "open" ? <OutcomeBadge outcome={r.outcome} /> : null}

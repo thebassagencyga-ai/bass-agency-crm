@@ -88,13 +88,13 @@ export default async function ContactPage({
   const rows: [string, React.ReactNode][] = [
     ["Type", contact.contact_type === "business" ? "Business" : "Individual"],
     ...(person ? [["Contact person", person] as [string, React.ReactNode]] : []),
-    ["Phone", contact.phone ? <a href={`tel:${contact.phone}`} className="underline">{contact.phone}</a> : "—"],
-    ...(contact.alt_phone ? [["Other phone", <a key="alt" href={`tel:${contact.alt_phone}`} className="underline">{contact.alt_phone}</a>] as [string, React.ReactNode]] : []),
-    ["Email", contact.email ? <a href={`mailto:${contact.email}`} className="break-all underline">{contact.email}</a> : "—"],
+    ["Phone", contact.phone ? <a href={`tel:${contact.phone}`} className="inline-flex min-h-11 items-center underline">{contact.phone}</a> : "—"],
+    ...(contact.alt_phone ? [["Other phone", <a key="alt" href={`tel:${contact.alt_phone}`} className="inline-flex min-h-11 items-center underline">{contact.alt_phone}</a>] as [string, React.ReactNode]] : []),
+    ["Email", contact.email ? <a href={`mailto:${contact.email}`} className="inline-flex min-h-11 items-center break-all underline">{contact.email}</a> : "—"],
     ["Address", address || "—"],
     ["Prefers", contact.preferred_contact_method ? CONTACT_METHOD_LABELS[contact.preferred_contact_method] : "—"],
     ["Lead source", contact.lead_source ?? "—"],
-    ["Referred by", referrer ? <Link href={`/contacts/${referrer.id}`} className="underline">{contactDisplayName(referrer)}</Link> : "—"],
+    ["Referred by", referrer ? <Link href={`/contacts/${referrer.id}`} className="inline-flex min-h-11 items-center underline">{contactDisplayName(referrer)}</Link> : "—"],
     ["Google review", contact.google_review_left_on ? `Left on ${formatDateOnly(contact.google_review_left_on)}` : "Not recorded"],
     ["Added", formatInstantDate(contact.created_at)],
     ["Last updated", formatInstantDate(contact.updated_at)],
@@ -109,7 +109,7 @@ export default async function ContactPage({
       ) : null}
 
       <div className="flex flex-col gap-2">
-        <Link href="/contacts" className="w-fit text-sm underline">← Contacts</Link>
+        <Link href="/contacts" className="flex min-h-11 w-fit items-center text-sm underline">← Contacts</Link>
         <h1 className="text-2xl font-semibold break-words">{contactDisplayName(contact)}</h1>
         <div className="flex gap-1">
           <StatusBadge status={contact.relationship_status} />
@@ -160,7 +160,7 @@ export default async function ContactPage({
         ) : (
           <ul className="list-disc pl-5">
             {referrals.map((r) => (
-              <li key={r.id}><Link href={`/contacts/${r.id}`} className="underline">{r.label}</Link></li>
+              <li key={r.id}><Link href={`/contacts/${r.id}`} className="inline-flex min-h-11 items-center underline">{r.label}</Link></li>
             ))}
           </ul>
         )}
@@ -231,7 +231,7 @@ export default async function ContactPage({
               return (
                 <li key={t.id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex min-w-0 flex-col">
-                    <Link href={`/tasks/${t.id}`} className="font-medium break-words underline-offset-2 hover:underline">{t.title}</Link>
+                    <Link href={`/tasks/${t.id}`} className="flex min-h-11 items-center font-medium break-words underline-offset-2 hover:underline">{t.title}</Link>
                     <span className={`text-sm ${view === "overdue" ? "text-red-700 dark:text-red-400" : "text-slate-600 dark:text-slate-400"}`}>
                       {notStartedYet(t, today) ? `Starts ${formatDateOnly(t.start_date)} · ` : ""}{view === "overdue" ? "Overdue · " : view === "today" ? "Today · " : ""}Due {formatDateOnly(t.due_date)}
                     </span>
@@ -263,7 +263,7 @@ export default async function ContactPage({
             {history.map((h) => (
               <li key={h.key} className="flex flex-col">
                 <span className="text-xs text-slate-500">{formatInstantDateTime(h.at, profile.time_zone)}</span>
-                {h.href ? <Link href={h.href} className="font-medium break-words underline">{h.title}</Link> : <span className="font-medium break-words">{h.title}</span>}
+                {h.href ? <Link href={h.href} className="flex min-h-11 items-center font-medium break-words underline">{h.title}</Link> : <span className="font-medium break-words">{h.title}</span>}
                 {h.detail ? <span className="text-sm whitespace-pre-wrap break-words text-slate-700 dark:text-slate-300">{h.detail}</span> : null}
               </li>
             ))}

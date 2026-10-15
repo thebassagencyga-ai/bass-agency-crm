@@ -11,6 +11,10 @@ export function buildContentSecurityPolicy(nonce: string, { development }: { dev
     // data: is needed for the authenticator QR code image.
     "img-src 'self' data:",
     "font-src 'self'",
+    // The service worker (public/sw.js) and the web app manifest come from this app only.
+    // worker-src is explicit because 'strict-dynamic' makes script-src ignore 'self'.
+    "worker-src 'self'",
+    "manifest-src 'self'",
     // The browser only talks to this app; it never calls Supabase directly.
     "connect-src 'self'",
     "frame-ancestors 'none'",

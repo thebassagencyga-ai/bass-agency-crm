@@ -135,7 +135,7 @@ function TaskRow({ task, today, back }: { task: TaskListRow; today: string; back
   return (
     <li className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 flex-col gap-1">
-        <Link href={`/tasks/${task.id}`} className={`font-medium break-words underline-offset-2 hover:underline ${task.status === "cancelled" ? "line-through" : ""}`}>{task.title}</Link>
+        <Link href={`/tasks/${task.id}`} className={`flex min-h-11 items-center font-medium break-words underline-offset-2 hover:underline ${task.status === "cancelled" ? "line-through" : ""}`}>{task.title}</Link>
         <p className="text-sm text-slate-600 dark:text-slate-400">
           {contactDisplayName(task)} · {when}
           {task.priority === "high" ? <span className="ml-2 rounded bg-red-50 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-950 dark:text-red-200">High</span> : null}

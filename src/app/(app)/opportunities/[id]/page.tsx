@@ -52,7 +52,7 @@ export default async function OpportunityPage({
   const name = contact ? contactDisplayName(contact) : "Contact";
 
   const rows: [string, React.ReactNode][] = [
-    ["Contact", contact ? <Link href={`/contacts/${contact.id}`} className="underline">{name}</Link> : "—"],
+    ["Contact", contact ? <Link href={`/contacts/${contact.id}`} className="inline-flex min-h-11 items-center underline">{name}</Link> : "—"],
     ["Product line", PRODUCT_LINE_NAMES[opp.product_line]],
     ["Stage", stage?.name ?? "—"],
     ["Description", opp.description ?? "—"],
@@ -82,7 +82,7 @@ export default async function OpportunityPage({
       ) : null}
 
       <div className="flex flex-col gap-2">
-        <Link href={`/opportunities?line=${opp.product_line}`} className="w-fit text-sm underline">← {PRODUCT_LINE_NAMES[opp.product_line]} pipeline</Link>
+        <Link href={`/opportunities?line=${opp.product_line}`} className="flex min-h-11 w-fit items-center text-sm underline">← {PRODUCT_LINE_NAMES[opp.product_line]} pipeline</Link>
         <h1 className="text-2xl font-semibold break-words">{PRODUCT_LINE_NAMES[opp.product_line]} · {name}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <OutcomeBadge outcome={opp.outcome} />
@@ -129,7 +129,7 @@ export default async function OpportunityPage({
           <ul aria-label="Tasks for this opportunity" className="flex flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
             {tasks.map((t) => (
               <li key={t.id} className="flex flex-col p-3">
-                <Link href={`/tasks/${t.id}`} className={`font-medium break-words underline-offset-2 hover:underline ${t.status !== "open" ? "text-slate-500 line-through" : ""}`}>{t.title}</Link>
+                <Link href={`/tasks/${t.id}`} className={`flex min-h-11 items-center font-medium break-words underline-offset-2 hover:underline ${t.status !== "open" ? "text-slate-500 line-through" : ""}`}>{t.title}</Link>
                 <span className="text-sm text-slate-600 dark:text-slate-400">
                   {t.status === "open" ? `Due ${formatDateOnly(t.due_date)}` : t.status === "completed" ? "Completed" : "Closed"} · {CATEGORY_LABELS[t.category]}{t.origin === "automation" ? " · automatic" : ""}
                 </span>

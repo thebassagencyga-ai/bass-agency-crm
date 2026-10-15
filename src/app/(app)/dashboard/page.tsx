@@ -117,7 +117,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             {summary.recent_activity.map((a) => (
               <li key={a.id} className="flex flex-col">
                 <span className="text-xs text-slate-500">{formatInstantDateTime(a.occurred_at, profile.time_zone)}</span>
-                <Link href={`/contacts/${a.contact_id}`} className="font-medium underline-offset-2 hover:underline">
+                <Link href={`/contacts/${a.contact_id}`} className="flex min-h-11 items-center font-medium underline-offset-2 hover:underline">
                   {ACTIVITY_TYPE_LABELS[a.activity_type]} · {contactDisplayName(a)}
                 </Link>
                 {a.outcome ? <span className="text-sm text-slate-600 dark:text-slate-400">{ACTIVITY_OUTCOME_LABELS[a.outcome]}</span> : null}
@@ -144,7 +144,7 @@ function TaskList({ id, title, tasks, more, href, empty, danger = false }: { id:
           {tasks.map((t) => (
             <li key={t.id} className="flex items-center justify-between gap-2 p-3">
               <div className="flex min-w-0 flex-col">
-                <Link href={`/tasks/${t.id}`} className="font-medium break-words underline-offset-2 hover:underline">{t.title}</Link>
+                <Link href={`/tasks/${t.id}`} className="flex min-h-11 items-center font-medium break-words underline-offset-2 hover:underline">{t.title}</Link>
                 <span className="text-sm text-slate-600 dark:text-slate-400">
                   {contactDisplayName(t)}{danger ? ` · due ${formatDateOnly(t.due_date)}` : ""}{t.priority === "high" ? " · High" : ""}
                 </span>

@@ -29,7 +29,7 @@ export function CrossSellPromptList({
             <li key={`${p.contact_id}-${p.rule_id}`} className="flex flex-col gap-2 p-3">
               <div className="flex min-w-0 flex-col">
                 {showContact ? (
-                  <Link href={`/contacts/${p.contact_id}`} className="font-medium break-words underline-offset-2 hover:underline">{contactDisplayName(p)}</Link>
+                  <Link href={`/contacts/${p.contact_id}`} className="flex min-h-11 items-center font-medium break-words underline-offset-2 hover:underline">{contactDisplayName(p)}</Link>
                 ) : null}
                 <span className={showContact ? "text-sm" : "font-medium"}>Review {PRODUCT_LINE_NAMES[p.lacks_line]}</span>
                 <span className="text-sm text-slate-600 dark:text-slate-400">{p.reason}</span>

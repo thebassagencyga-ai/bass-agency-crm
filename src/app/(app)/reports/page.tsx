@@ -169,7 +169,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
           <Table caption="Referral sources" head={["Referred by", "Referred", "Won", "Working"]}>
             {r.referrals.map((x) => (
               <tr key={x.referrer_id}>
-                <td className={TD}><Link href={`/contacts/${x.referrer_id}`} className="underline">{contactDisplayName(x)}</Link></td>
+                <td className={TD}><Link href={`/contacts/${x.referrer_id}`} className="inline-flex min-h-11 items-center underline">{contactDisplayName(x)}</Link></td>
                 <td className={TDN}>{num(x.referred)}</td>
                 <td className={TDN}>{num(x.won)}</td>
                 <td className={TDN}>{num(x.working)}</td>
