@@ -284,6 +284,7 @@ Started 2026-10-15 on the owner's go-ahead ("Start phase 7").
 - `/activities/new`: log an activity from anywhere, choosing the contact from a picker.
 - Found while testing: a renewal date within 60 days creates its "Renewal review" task due
   today (Phase 6 rule), so the browser journey now expects it alongside the first-contact task.
+  The sign-in journey now expects the dashboard greeting instead of the old "Dashboard" heading.
 
 **Tests (2026-10-15)**
 | Where | Result |
@@ -292,7 +293,7 @@ Started 2026-10-15 on the owner's go-ahead ("Start phase 7").
 | Local: unit | 206 passed |
 | Local: database (PostgreSQL 16) | 204 passed (6 dashboard) |
 | Mutation checks (SECURITY DEFINER on summary, counting lost renewals) | both caught, reverted |
-| CI | see Phase 7 report |
+| CI run #66 (commit ec95a7e): all 4 jobs | pass — PostgreSQL 17, Supabase image + db lint, API tests, 6 browser journeys |
 
 **Owner actions after approval**
 1. Merge to `main`.
