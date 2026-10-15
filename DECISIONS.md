@@ -400,7 +400,7 @@ opportunities plus those closed in the last 30 days (max 200; the table shows ev
 ---
 
 ## ADR-021 — Task views, "today", and review/referral messages
-**Status:** Proposed — implemented in Phase 5 (pending owner review)
+**Status:** Accepted — implemented in Phase 5 (approved with the phase, 2026-10-15)
 
 **Today.** The app computes today's date in the user's time zone (`profiles.time_zone`,
 default America/New_York) and passes it to `search_tasks` / `task_counts`; the database never

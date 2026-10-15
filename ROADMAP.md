@@ -12,7 +12,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 2 | Authentication & security foundation | 1 | APPROVED (2026-10-15) |
 | 3 | Contact management | 2 | APPROVED (2026-10-14) |
 | 4 | Opportunities & pipelines | 3 | APPROVED (2026-10-15) |
-| 5 | Task management & activity history | 4 | READY FOR REVIEW |
+| 5 | Task management & activity history | 4 | APPROVED (2026-10-15) |
 | 6 | Automation engine | 5 | NOT STARTED |
 | 7 | Dashboard & daily workflow | 6 | NOT STARTED |
 | 8 | Renewals & cross selling | 6, 7 | NOT STARTED |
@@ -201,7 +201,8 @@ built-in auth email (Supabase-sent, not an app email feature).
 - ✅ Log activities (call, meeting, note, logged email/text, follow-up, …) with time, outcome, follow-up date, notes — unit + browser tests.
 - ✅ Completed tasks and activities stay on the contact's history; nothing can be deleted — DB + browser tests.
 - ✅ Ownership: other accounts see and change nothing; task URL shows "not found" — DB (mutation-checked), API, browser tests.
-- ⏳ Owner: merge, deploy migration `20261018120000_task_views.sql`, redeploy preview, set name and review link in Settings, try on iPhone.
+- ✅ Owner approved and merged Phase 5 (2026-10-15).
+- ⏳ Owner: deploy migration `20261018120000_task_views.sql`, redeploy preview, set name and review link in Settings, try on iPhone.
 
 ---
 

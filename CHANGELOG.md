@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 5 — Task management & activity history (2026-10-15, ready for review)
+## Phase 5 — Task management & activity history (2026-10-15, approved)
 ### Added
 - Tasks page with Overdue, Today, Upcoming and Completed tabs (with counts) and filters for
   product line, priority and type; "today" in New York time.
