@@ -366,3 +366,8 @@ Started 2026-10-15 on the owner's go-ahead ("move to 9"). Metric definitions in 
 2. Deploy database migrations: dry run should list only `20261022120000_reports.sql`; then
    apply (verify expects 12 tables, 13 Data API functions).
 3. Deploy app preview, then open Reports on the iPhone.
+
+**Production deploy (2026-10-15):** migrations dry run #22; apply run #23 applied
+`20261022120000_reports.sql` and verification passed (12 tables, 13 Data API functions,
+engine safe, no anonymous access); preview run #10 deployed commit 8c3df82. Owner reported
+it working.
