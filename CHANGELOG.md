@@ -2,6 +2,19 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 9 — Reporting (2026-10-15, ready for review)
+### Added
+- Reports page with periods (this month, last month, this quarter, year to date, last 12
+  months): conversion rate with its denominator, new leads by source, quotes sent and
+  outcomes, open opportunities by line and stage, tasks completed (on time / late) vs
+  overdue, renewal reviews and outcomes, cross-sell reviews by rule, referral sources,
+  review and referral requests vs reviews recorded and referrals received.
+- Every report states how it is counted. Premiums are recorded estimates only; no commission.
+- Migration `20261022120000_reports.sql` (ADR-024): `report_summary`; cross-sell matching
+  shared with the prompt list. Deploy verification expects 13 Data API functions.
+- Tests: fixture-based database test per report (6 of 7 mutations caught; the 7th was
+  equivalent), API and browser journeys, unit tests for periods and conversion.
+
 ## Phase 8 — Renewals & cross selling (2026-10-15, approved)
 ### Added
 - Renewals page: next 30 / 60 / 90 days, by product line; past-due policies, client policies

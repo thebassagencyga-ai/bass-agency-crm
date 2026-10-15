@@ -342,3 +342,27 @@ Started 2026-10-15 on the owner's go-ahead ("Move to 8"). Owner decisions record
 `20261021120000_renewals_cross_sell.sql` and verification passed (12 tables, 12 Data API
 functions, engine safe, no anonymous access); preview run #9 deployed commit a42123a. Owner
 reported it working ("Deployed, working").
+
+## Phase 9 — Reporting (branch `phase-9-reporting`)
+Started 2026-10-15 on the owner's go-ahead ("move to 9"). Metric definitions in ADR-024.
+
+**Completed**
+- Migration `20261022120000_reports.sql`: `report_summary(start, end, today)`; cross-sell
+  matching moved to `crm_engine.cross_sell_matches` (shared, no row limit). Deploy
+  verification now expects 13 Data API functions.
+- Reports page: period picker; nine reports, each with "How it's counted".
+
+**Tests (2026-10-15)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build | pass |
+| Local: unit | 263 passed (16 new) |
+| Local: database (PostgreSQL 16) | 256 passed (12 reports, one per report plus access and input) |
+| Mutation checks (UTC dates for leads, on-time boundary, double-counted asks, premium count, dismissals ignored, SECURITY DEFINER; plus one equivalent mutation that could not change results) | 6 caught, reverted |
+| CI run #81 (commit 2ccbd08): all 4 jobs | pass — PostgreSQL 17, Supabase image + db lint, API tests (incl. reports), 8 browser journeys |
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. Deploy database migrations: dry run should list only `20261022120000_reports.sql`; then
+   apply (verify expects 12 tables, 13 Data API functions).
+3. Deploy app preview, then open Reports on the iPhone.

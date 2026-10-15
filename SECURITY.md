@@ -70,7 +70,8 @@ check. The Phase 2 migration and dashboard settings are applied only after owner
 - Data API functions in `public` (`search_contacts`, `find_possible_duplicates`,
   `contact_lead_sources`, `search_opportunities`, `search_tasks`, `task_counts`,
   `confirm_no_response_follow_up`, `dashboard_summary`, and in Phase 8 `search_renewals`,
-  `record_renewal_outcome`, `cross_sell_prompts`, `dismiss_cross_sell`) are SECURITY INVOKER, so RLS applies; EXECUTE is revoked from
+  `record_renewal_outcome`, `cross_sell_prompts`, `dismiss_cross_sell`, and in Phase 9
+  `report_summary`) are SECURITY INVOKER, so RLS applies; EXECUTE is revoked from
   `public`/`anon`. The deploy verification fails if any `public` function is SECURITY DEFINER
   or executable by `anon`, or if the function list changes unexpectedly.
 - Platform exception: hosted projects with "Enable automatic RLS" contain Supabase's own

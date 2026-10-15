@@ -473,6 +473,27 @@ opportunity) or lost within 365 days is not suggested. Dismissals are rows with
 an "undo"). Changing an auto policy between 6 and 12 months mid-year can leave the old
 period's open review task in place (the next one gets the new key).
 
+## ADR-024 — Reports: one invoker function per page load; definitions on the page
+**Status:** Proposed — implemented in Phase 9 (pending owner review)
+
+**Decision.** `report_summary(start, end, today)` returns every report as one JSON object
+(one round trip on a phone), SECURITY INVOKER so RLS (owner + two-step) limits every figure.
+Period bounds are calendar dates; instants are converted to the user's time-zone date first
+(ADR-007). Periods offered: this month, last month, this quarter, year to date, last 12
+months (a current period ends today); at most two years.
+
+**Definitions chosen (owner may change them; each is written on the page and tested).**
+New leads = contacts added in the period, by lead source (case and spaces ignored).
+Conversion = won ÷ (won + lost) among opportunities closed in the period (latest close if
+reopened); open excluded; denominator shown. Quotes = opportunities with a quote date in the
+period and where they stand now. Tasks on time = completed on or before the due date.
+Requests made = clients asked (completed request task or logged request activity), each
+client once. Referrals received = contacts added with a referrer. Premiums are totals of
+recorded estimates, with how many had one; no commission figures exist.
+
+**Also.** Cross-sell matching moved to `crm_engine.cross_sell_matches` (no row limit),
+shared by the prompt list and the report so their counts cannot disagree.
+
 ---
 
 ## Open questions for the owner (do not block Phase 1 start)

@@ -16,7 +16,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 6 | Automation engine | 5 | APPROVED (2026-10-15) |
 | 7 | Dashboard & daily workflow | 6 | APPROVED (2026-10-15) |
 | 8 | Renewals & cross selling | 6, 7 | APPROVED (2026-10-15) |
-| 9 | Reporting | 8 | IN PROGRESS |
+| 9 | Reporting | 8 | READY FOR REVIEW |
 | 10 | Mobile experience & PWA | 9 | NOT STARTED |
 | 11 | End-to-end testing & security review | 10 | NOT STARTED |
 | 12 | Production deployment & handoff | 11 | NOT STARTED |
@@ -300,6 +300,19 @@ renewal reviews; cross-sell opportunities; referral sources (contacts who referr
 and referred leads' outcomes); review and referral requests made vs reviews recorded /
 referrals received. Every metric has a written definition on the page
 and a fixture-based test. Premiums shown only where recorded; no commission figures.
+
+**Status 2026-10-15** (✅ verified by automated check; ⏳ owner action). Definitions: ADR-024.
+- ✅ Open opportunities by product/stage; new leads by source; quotes sent and outcomes;
+  conversion = won ÷ (won + lost) closed in the period, open excluded, denominator shown;
+  tasks completed (on time / late) vs overdue; upcoming renewal reviews; cross-sell
+  opportunities; referral sources with referred leads' outcomes; review/referral requests vs
+  reviews recorded / referrals received — one fixture test each in `tests/db/reports.test.ts`
+  (time-zone boundaries included).
+- ✅ Every report has its written definition on the page (unit + browser test).
+- ✅ Premiums only where recorded (with "n of m have a premium"); no commission data exists.
+- ✅ Owner-only: another agent, password-only sessions and anonymous callers get nothing
+  (DB + API tests).
+- ⏳ Owner: deploy, then open Reports on the iPhone and check the figures look right.
 
 ---
 

@@ -174,6 +174,8 @@ granted to `authenticated` only.
 | `cross_sell_prompts(today, contact_id, limit, offset)` | For each enabled rule: contacts (not archived) with an active policy in one of its lines and, in the suggested line, no active policy, no open/nurture opportunity and no loss in the last 365 days; minus prompts dismissed and still hidden. |
 | `dismiss_cross_sell(contact_id, rule_id)` | Hides one prompt for one of the caller's contacts for 12 months; returns 1, or 0 if the contact or rule is not the caller's. |
 
+| `report_summary(start, end, today)` | Phase 9 Reports, one JSON object: open pipeline by line/stage (now); new leads by source; quotes sent and their outcomes; conversion (closed in period); tasks completed on time/late and overdue now; renewal reviews, policies renewing in 90 days and outcomes recorded; cross-sell prompts by rule and dismissals; referral sources (top 25); review/referral asks, reviews recorded, referrals received. Period ≤ 2 years; dates in the user's time zone. Definitions: ADR-024 and the Reports page. |
+
 Renewal reviews (automation, Phase 6, revised Phase 8): the review task's key names the
 renewal period — the year for 12-month policies, the half year for 6-month auto policies — so
 a date correction within the period moves the open task and the next period gets a new one.
@@ -181,7 +183,8 @@ Ended policies get no reviews.
 
 Internal schema `crm_engine` (not exposed by the Data API; usable by signed-in users only
 because triggers run as them): `user_today`, `add_business_days`, `rule_enabled`,
-`apply_rule`, `upsert_task`, `close_prospecting` — all SECURITY INVOKER.
+`apply_rule`, `upsert_task`, `close_prospecting`, and (Phase 9) `cross_sell_matches` — the
+cross-sell matching shared by `cross_sell_prompts` and `report_summary` — all SECURITY INVOKER.
 | `search_opportunities(query, product_line, outcome, stage_id, closed, sort, limit, offset)` | Board and table: opportunities with stage name/position and contact name; search over contact name, business, description, carrier; `closed` = `all` / `none` / `recent` (open + closed in 30 days); sort `updated` / `created` / `name` / `premium` / `renewal`; limit capped at 200. |
 
 ## Deletion and history
