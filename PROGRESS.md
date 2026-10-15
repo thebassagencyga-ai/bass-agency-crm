@@ -371,3 +371,35 @@ Started 2026-10-15 on the owner's go-ahead ("move to 9"). Metric definitions in 
 `20261022120000_reports.sql` and verification passed (12 tables, 13 Data API functions,
 engine safe, no anonymous access); preview run #10 deployed commit 8c3df82. Owner reported
 it working.
+
+## Phase 10 — Mobile experience & PWA (branch `phase-10-mobile-pwa`)
+Started 2026-10-15 on the owner's go-ahead ("move to 10"). Design in ADR-025.
+
+**Completed**
+- Manifest, icons (`scripts/generate-icons.mts`), iPhone home-screen tags, theme colour.
+- Service worker (`public/sw.js`, production only): static files, icons and the offline
+  notice only. CSP adds `worker-src 'self'` and `manifest-src 'self'`; the middleware skips
+  `sw.js`, `offline.html` and the manifest; Cloudflare serves `offline.html` at that exact
+  path (`html_handling: "none"`).
+- 44 px tap targets for list title links, back links, phone/email links and links in detail
+  rows and tables; "Done" buttons' accessible names start with "Done" (voice control).
+- New dev dependencies (exact versions, ≥ 2 weeks old, no external service): `lighthouse`
+  13.5.0, `chrome-launcher` 1.2.2. `npm audit` still reports 9 high findings in existing
+  build/lint tooling (`eslint-config-next`, `@opennextjs/*` via `glob`/`braces`), none in
+  production dependencies — for the Phase 11 security review.
+
+**Tests (2026-10-15)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build | pass |
+| Local: unit | 282 passed (19 service worker) |
+| Local: production build + Chromium (signed-out pages) | Lighthouse 100; tap targets and widths OK; service worker caches only static files; offline notice shown |
+| Mutation checks on the service worker (pages, POST, RSC data, other origins, error responses, any path cached) | 6 caught (3 needed new test cases, added) |
+| CI run #86 | failed: `offline.html` redirected on Cloudflare; "See all" and a "Home" link 43 px wide — fixed |
+| CI run #87 (commit da17cd6): all 4 jobs | pass — 12 browser journeys incl. responsive audit, PWA/offline, Lighthouse (all 16 pages 100) |
+
+**Owner actions after approval**
+1. Merge to `main`; no database migration this phase.
+2. Deploy app preview. On the iPhone in Safari: Share → Add to Home Screen; open "Bass CRM"
+   from the home screen (full screen, opens on the dashboard); turn on Airplane Mode and
+   open a page to see the offline notice.

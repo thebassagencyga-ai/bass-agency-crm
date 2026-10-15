@@ -137,6 +137,11 @@ describe("everything else is left to the network and never cached", () => {
     ["the manifest", get("/manifest.webmanifest")],
     ["an icon with a query", get("/icons/icon-192.png?v=2")],
     ["a non-page GET of a page URL", get("/contacts")],
+    // Each guard on its own, even for a static-looking path:
+    ["a POST to a static path", get("/_next/static/chunks/a.js", { method: "POST", body: "x" })],
+    ["page data at a static path (RSC header)", get("/_next/static/chunks/a.js", { headers: { RSC: "1" } })],
+    ["page data at a static path (?_rsc=)", get("/_next/static/chunks/a.js?_rsc=1")],
+    ["another origin's static path", new Request("https://cdn.example.test/_next/static/chunks/a.js")],
   ])("%s", async (_label, request) => {
     const { handled } = await dispatch("fetch", request);
     expect(handled).toBe(false);
