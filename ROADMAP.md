@@ -12,7 +12,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 2 | Authentication & security foundation | 1 | APPROVED (2026-10-15) |
 | 3 | Contact management | 2 | APPROVED (2026-10-14) |
 | 4 | Opportunities & pipelines | 3 | APPROVED (2026-10-15) |
-| 5 | Task management & activity history | 4 | IN PROGRESS |
+| 5 | Task management & activity history | 4 | READY FOR REVIEW |
 | 6 | Automation engine | 5 | NOT STARTED |
 | 7 | Dashboard & daily workflow | 6 | NOT STARTED |
 | 8 | Renewals & cross selling | 6, 7 | NOT STARTED |
@@ -191,6 +191,17 @@ built-in auth email (Supabase-sent, not an app email feature).
 - Log activities (call, meeting, note, email-logged, text-logged, follow-up outcome) with date and outcome.
 - Completed tasks and activities remain visible on the contact timeline.
 - Tests: task lifecycle, date boundaries, activity preservation, ownership.
+
+**Status 2026-10-15** (✅ verified by automated check; ⏳ owner action):
+- ✅ Create, edit, complete, reopen (and cancel) tasks; priority; optional opportunity; completion time — DB, API, browser tests.
+- ✅ Overdue / Today / Upcoming / Completed with counts; filters by product line, priority, type — DB tests, browser test.
+- ✅ Future start date keeps a task off Today until that date, then shows it with its due date — DB + unit tests (midnight New York), browser test.
+- ✅ Review/referral tasks show the filled-in message, Copy, and "Text it" (`sms:` link, nothing sent) — unit + browser tests. Name and Google review link set in Settings.
+- ✅ Today in America/New_York: 11:59 PM / 12:00 AM and both daylight-saving change days — unit tests.
+- ✅ Log activities (call, meeting, note, logged email/text, follow-up, …) with time, outcome, follow-up date, notes — unit + browser tests.
+- ✅ Completed tasks and activities stay on the contact's history; nothing can be deleted — DB + browser tests.
+- ✅ Ownership: other accounts see and change nothing; task URL shows "not found" — DB (mutation-checked), API, browser tests.
+- ⏳ Owner: merge, deploy migration `20261018120000_task_views.sql`, redeploy preview, set name and review link in Settings, try on iPhone.
 
 ---
 

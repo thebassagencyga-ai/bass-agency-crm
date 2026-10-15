@@ -1,8 +1,8 @@
 # Progress
 
-**Current phase:** 4 — Opportunities & pipelines — **APPROVED by owner 2026-10-15**
+**Current phase:** 5 — Task management & activity history — **READY FOR REVIEW** (owner approval pending)
 **Last updated:** 2026-10-15
-**Branch:** `phase-4-opportunities`, merged to `main` on approval
+**Branch:** `phase-5-tasks-activities` (merge to `main` on approval)
 
 ## Phase 0 — APPROVED 2026-10-14
 Governance files created. ProducerIQ untouched (owner reconfirmed: it must not be modified).
@@ -206,3 +206,32 @@ Started 2026-10-15 on the owner's go-ahead ("Referred by works now, start Phase 
 **Production deploy (2026-10-15):** migrations dry run #12 listed only
 `20261017120000_opportunity_lifecycle.sql`; apply run #13 applied it and verification passed;
 preview run #5 deployed commit 37b7a56. Owner verified on iPhone ("All verified").
+
+## Phase 5 — Task management & activity history (branch `phase-5-tasks-activities`)
+Started 2026-10-15 on the owner's go-ahead ("All verified move to phase 5").
+
+**Completed**
+- Migration `20261018120000_task_views.sql`: `search_tasks`, `task_counts` (SECURITY INVOKER;
+  today passed from the app in the user's zone). Deploy verification now expects 6 functions.
+- `/tasks` tabs and filters; `/tasks/new` (from a contact or with a contact picker);
+  `/tasks/[id]` with complete / reopen / cancel and, for review/referral tasks, the message
+  with Copy and Text it; edit page.
+- Contact page: open tasks, "Log activity", and a history of activities and finished tasks.
+- Settings: display name and Google review link (used in messages).
+- New York date helpers (typed times, daylight saving) with boundary tests.
+
+**Tests (2026-10-15)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build | pass |
+| Local: unit | 187 passed |
+| Local: database (PostgreSQL 16) | 172 passed |
+| Mutation checks (search_tasks made SECURITY DEFINER; Today including overdue) | caught (4 and 3 failures), reverted |
+| CI runs #48–#49 (commits 0298014, dde9a25): all 4 jobs | pass — PostgreSQL 17, Supabase image + db lint, API tests (incl. 6 new), 4 browser journeys |
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. Deploy database migrations: dry run should list only `20261018120000_task_views.sql`; then apply
+   (verify expects 6 Data API functions plus Supabase's `rls_auto_enable`).
+3. Deploy app preview. In Settings, add your name and Google review link. Try tasks and
+   activity logging on the iPhone, including "Text it" (fictional contact, your own number).
