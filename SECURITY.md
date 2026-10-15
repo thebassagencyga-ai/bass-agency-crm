@@ -66,7 +66,7 @@ check. The Phase 2 migration and dashboard settings are applied only after owner
     new profile's own default rules only.
 - Data API functions in `public` (`search_contacts`, `find_possible_duplicates`,
   `contact_lead_sources`, `search_opportunities`, `search_tasks`, `task_counts`,
-  `confirm_no_response_follow_up`) are SECURITY INVOKER, so RLS applies; EXECUTE is revoked from
+  `confirm_no_response_follow_up`, `dashboard_summary`) are SECURITY INVOKER, so RLS applies; EXECUTE is revoked from
   `public`/`anon`. The deploy verification fails if any `public` function is SECURITY DEFINER
   or executable by `anon`, or if the function list changes unexpectedly.
 - Platform exception: hosted projects with "Enable automatic RLS" contain Supabase's own
@@ -128,6 +128,7 @@ underwriting answers, detailed health information, policy documents. No file upl
 | Opportunities: owner-only, stage within the same pipeline, product line and cycle not client-controlled | 4 | DB tests (4 mutations caught), API and browser tests in CI |
 | Tasks, activities and profile settings owner-only; no deletes; review/referral messages never sent by the app | 5 | DB tests (2 mutations caught), API and browser tests in CI |
 | Automation acts only on the caller's rows, never bypasses RLS, never duplicates; no incentive in messages | 6 | DB tests (6 mutations caught), unit, API and browser tests in CI |
+| Dashboard counts only the caller's records; nothing for password-only or anonymous sessions | 7 | DB tests against fixtures (2 mutations caught), API and browser tests in CI |
 | Audit log written and immutable to app roles | 1, 3+ | Verified locally at SQL level (`tests/db/audit.test.ts`) |
 | Service worker caches no record data | 10 | Not started |
 | `npm audit` / secret scan clean or triaged | 11 | Not started |

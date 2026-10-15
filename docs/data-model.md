@@ -139,6 +139,7 @@ granted to `authenticated` only.
 | `contact_lead_sources()` | Lead sources already used, one per case-insensitive spelling (the first one used). |
 | `search_tasks(view, today, product_line, priority, category, contact_id, limit, offset)` | Task tabs: `overdue` / `today` / `upcoming` (open tasks by due date vs. the `today` the app passes, computed in the user's zone) and `done` (completed or cancelled, newest first); with contact name/phone and the linked opportunity's product line; limit capped at 200. |
 | `task_counts(today)` | Open task counts for overdue, due today and upcoming. |
+| `dashboard_summary(today)` | One JSON object for the dashboard: open task counts (overdue, due today, next 7 days), open/nurture opportunities and estimated premium by product line, renewals in the next 60 days (count + soonest 5, lost excluded), 8 most recent activities. |
 | `confirm_no_response_follow_up(activity_id)` | Creates the "no response" follow-up for one of the caller's activities after the owner confirms; returns 1 if a task was created, else 0. |
 
 Internal schema `crm_engine` (not exposed by the Data API; usable by signed-in users only

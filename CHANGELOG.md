@@ -2,6 +2,15 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 7 — Dashboard & daily workflow (2026-10-15, ready for review)
+### Added
+- Dashboard (first screen after sign-in): overdue, due today and next-7-days counts;
+  overdue and due-today tasks with Done buttons; open opportunities and estimated annual
+  premium by product line; renewals in the next 60 days; recent activity.
+- Quick actions: Add contact, Log activity (pick a contact first), Add task.
+- Migration `20261020120000_dashboard.sql`: `dashboard_summary` (one call per page load).
+- Tests: database counts against fixture data (2 mutations caught), API and browser journey.
+
 ## Phase 6 — Automation engine (2026-10-15, approved)
 ### Added
 - Automatic tasks from 12 rules: first contact for new leads; follow-up 2 business days after
