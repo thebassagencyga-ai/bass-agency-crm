@@ -9,6 +9,7 @@ import { requireFullSession } from "@/lib/auth/require";
 import { safeNextPath } from "@/lib/auth/routing";
 import { isUuid } from "@/lib/contacts/data";
 import { TASK_FORM_FIELDS, newTaskSchema, taskFormSchema } from "@/lib/tasks";
+import { noResponseNeedsConfirmation } from "@/lib/automation/data";
 import { getProfile, getTask } from "@/lib/tasks/data";
 
 // Every action re-checks the full (two-step) session on the server and writes through the
@@ -99,9 +100,15 @@ export async function logActivity(_prev: FormState, formData: FormData): Promise
   const parsed = activitySchema(profile.time_zone).safeParse(Object.fromEntries(ACTIVITY_FORM_FIELDS.map((f) => [f, formData.get(f)])));
   if (!parsed.success) return { fieldErrors: fieldErrorsOf(parsed.error.issues), values };
 
-  const { error } = await supabase.from("activities").insert({ ...parsed.data, contact_id: contactId });
-  if (error) return { ...friendlyDbError(error.code, "activity"), values };
+  const { data: row, error } = await supabase.from("activities").insert({ ...parsed.data, contact_id: contactId }).select("id").single();
+  if (error || !row) return { ...friendlyDbError(error?.code, "activity"), values };
   revalidatePath(`/contacts/${contactId}`);
+  revalidatePath("/tasks");
+  // "No response": offer the follow-up when the owner has asked to confirm it (Phase 6 rule).
+  const noResponse = parsed.data.outcome === "no_response" || parsed.data.outcome === "no_answer";
+  if (noResponse && (await noResponseNeedsConfirmation(supabase))) {
+    redirect(`/contacts/${contactId}?logged=1&noresponse=${row.id as string}#follow-up-offer`);
+  }
   redirect(`/contacts/${contactId}?logged=1`);
 }
 
@@ -126,4 +133,16 @@ export async function saveProfile(_prev: FormState, formData: FormData): Promise
   if (error) return { error: "Could not save your settings. Please try again.", values };
   revalidatePath("/settings");
   return { message: "Settings saved.", values };
+}
+
+/** The owner confirms the "no response" follow-up offered after logging an activity. */
+export async function confirmNoResponseFollowUp(formData: FormData): Promise<void> {
+  const { supabase } = await requireFullSession();
+  const activityId = String(formData.get("activity_id") ?? "");
+  const contactId = String(formData.get("contact_id") ?? "");
+  if (!isUuid(activityId) || !isUuid(contactId)) redirect("/contacts");
+  const { data, error } = await supabase.rpc("confirm_no_response_follow_up", { p_activity_id: activityId });
+  revalidatePath(`/contacts/${contactId}`);
+  revalidatePath("/tasks");
+  redirect(`/contacts/${contactId}?${error || data === 0 ? "followupnone" : "followup"}=1`);
 }

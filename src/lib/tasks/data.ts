@@ -71,3 +71,12 @@ export async function messageTemplates(supabase: SupabaseClient): Promise<Record
   }
   return templates;
 }
+
+/** An opportunity's tasks: open ones by due date first, then finished ones. */
+export async function tasksForOpportunity(supabase: SupabaseClient, opportunityId: string): Promise<Task[]> {
+  if (!isUuid(opportunityId)) return [];
+  const { data, error } = await supabase.from("tasks").select("*").eq("opportunity_id", opportunityId).order("due_date");
+  if (error) throw new Error(`Could not load tasks (${error.code ?? "unknown"}).`);
+  const tasks = (data ?? []) as Task[];
+  return [...tasks.filter((t) => t.status === "open"), ...tasks.filter((t) => t.status !== "open")];
+}

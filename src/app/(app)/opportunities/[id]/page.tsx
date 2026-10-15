@@ -12,6 +12,8 @@ import { formatMoney } from "@/lib/opportunities/format";
 import { canToggleNurture } from "@/lib/opportunities/transitions";
 import { LOSS_REASON_LABELS } from "@/lib/opportunities/types";
 import { PRODUCT_LINE_NAMES } from "@/lib/pipelines";
+import { tasksForOpportunity } from "@/lib/tasks/data";
+import { CATEGORY_LABELS } from "@/lib/tasks/types";
 import { setNurture } from "../actions";
 
 export const metadata: Metadata = { title: "Opportunity · The Bass Agency CRM" };
@@ -19,9 +21,9 @@ export const metadata: Metadata = { title: "Opportunity · The Bass Agency CRM" 
 const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   saved: { text: "Opportunity saved.", tone: "ok" },
   moved: { text: "Stage updated.", tone: "ok" },
-  won: { text: "Marked as won.", tone: "ok" },
-  lost: { text: "Marked as lost. The record is kept and can be reopened later.", tone: "ok" },
-  reopened: { text: "Opportunity reopened. Its history is kept.", tone: "ok" },
+  won: { text: "Marked as won. Prospecting tasks were closed and onboarding, review and referral tasks added (per your Settings).", tone: "ok" },
+  lost: { text: "Marked as lost. Its prospecting tasks were closed. The record is kept and can be reopened later.", tone: "ok" },
+  reopened: { text: "Opportunity reopened. Its history is kept and a new follow-up task was added.", tone: "ok" },
   nurture: { text: "Moved to nurture.", tone: "ok" },
   unnurture: { text: "Back to open.", tone: "ok" },
   error: { text: "That didn't work. Please try again.", tone: "error" },
@@ -35,7 +37,7 @@ export default async function OpportunityPage({
   const { supabase } = await requireFullSession();
   const opp = await getOpportunity(supabase, id);
   if (!opp) notFound();
-  const [contact, allStages] = await Promise.all([getContact(supabase, opp.contact_id), getStages(supabase)]);
+  const [contact, allStages, tasks] = await Promise.all([getContact(supabase, opp.contact_id), getStages(supabase), tasksForOpportunity(supabase, opp.id)]);
   const stages = stagesFor(allStages, opp.product_line);
   const stage = stages.find((s) => s.id === opp.stage_id);
   const lostStage = stages.find((s) => s.kind === "lost");
@@ -100,6 +102,27 @@ export default async function OpportunityPage({
           </div>
         ))}
       </dl>
+
+      <section aria-labelledby="opp-tasks-heading" className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="opp-tasks-heading" className="text-lg font-semibold">Tasks</h2>
+          <Link href={`/tasks/new?contact=${opp.contact_id}`} className="flex min-h-11 items-center underline">Add task</Link>
+        </div>
+        {tasks.length === 0 ? (
+          <p className="text-sm text-slate-600 dark:text-slate-400">No tasks for this opportunity.</p>
+        ) : (
+          <ul aria-label="Tasks for this opportunity" className="flex flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+            {tasks.map((t) => (
+              <li key={t.id} className="flex flex-col p-3">
+                <Link href={`/tasks/${t.id}`} className={`font-medium break-words underline-offset-2 hover:underline ${t.status !== "open" ? "text-slate-500 line-through" : ""}`}>{t.title}</Link>
+                <span className="text-sm text-slate-600 dark:text-slate-400">
+                  {t.status === "open" ? `Due ${formatDateOnly(t.due_date)}` : t.status === "completed" ? "Completed" : "Closed"} · {CATEGORY_LABELS[t.category]}{t.origin === "automation" ? " · automatic" : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section aria-labelledby="stage-heading" className="flex flex-col gap-3 rounded-md border border-slate-200 p-3 dark:border-slate-700">
         <h2 id="stage-heading" className="text-lg font-semibold">{opp.outcome === "won" || opp.outcome === "lost" ? "Reopen" : "Change stage"}</h2>

@@ -13,7 +13,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 3 | Contact management | 2 | APPROVED (2026-10-14) |
 | 4 | Opportunities & pipelines | 3 | APPROVED (2026-10-15) |
 | 5 | Task management & activity history | 4 | APPROVED (2026-10-15) |
-| 6 | Automation engine | 5 | NOT STARTED |
+| 6 | Automation engine | 5 | IN PROGRESS |
 | 7 | Dashboard & daily workflow | 6 | NOT STARTED |
 | 8 | Renewals & cross selling | 6, 7 | NOT STARTED |
 | 9 | Reporting | 8 | NOT STARTED |

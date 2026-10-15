@@ -11,6 +11,7 @@ import { OutcomeBadge } from "@/components/opportunities/badges";
 import { getStages, listForContact } from "@/lib/opportunities/data";
 import { formatMoney } from "@/lib/opportunities/format";
 import { PRODUCT_LINE_NAMES } from "@/lib/pipelines";
+import { confirmNoResponseFollowUp } from "@/app/(app)/tasks/actions";
 import { LogActivityForm } from "@/components/tasks/log-activity-form";
 import { TaskStatusButtons } from "@/components/tasks/status-buttons";
 import { activitiesForContact } from "@/lib/activities/data";
@@ -25,6 +26,8 @@ export const metadata: Metadata = { title: "Contact · The Bass Agency CRM" };
 const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   saved: { text: "Contact saved.", tone: "ok" },
   logged: { text: "Activity logged.", tone: "ok" },
+  followup: { text: "Follow-up task added.", tone: "ok" },
+  followupnone: { text: "No follow-up was added (the rule is off or one already exists).", tone: "ok" },
   completed: { text: "Task completed.", tone: "ok" },
   reopened: { text: "Task reopened.", tone: "ok" },
   archived: { text: "Contact archived. It is hidden from the contact list but nothing was deleted.", tone: "ok" },
@@ -187,6 +190,21 @@ export default async function ContactPage({
           </ul>
         )}
       </section>
+
+      {query.noresponse && /^[0-9a-f-]{36}$/i.test(query.noresponse) ? (
+        <section id="follow-up-offer" aria-labelledby="offer-heading" className="flex flex-col gap-2 rounded-md border border-amber-400 bg-amber-50 p-3 text-amber-900 dark:bg-amber-950 dark:text-amber-100">
+          <h2 id="offer-heading" className="font-semibold">No response — follow up again?</h2>
+          <p className="text-sm">Adds a follow-up task using your &quot;no response&quot; rule (Settings).</p>
+          <div className="flex flex-wrap gap-2">
+            <form action={confirmNoResponseFollowUp}>
+              <input type="hidden" name="activity_id" value={query.noresponse} />
+              <input type="hidden" name="contact_id" value={contact.id} />
+              <button type="submit" className="min-h-11 rounded-md bg-slate-900 px-4 font-medium text-white dark:bg-slate-100 dark:text-slate-900">Add follow-up task</button>
+            </form>
+            <Link href={`/contacts/${contact.id}`} className="flex min-h-11 items-center px-3 underline">Not now</Link>
+          </div>
+        </section>
+      ) : null}
 
       <section aria-labelledby="tasks-heading" className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
