@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 6 — Automation engine (2026-10-15, ready for review)
+## Phase 6 — Automation engine (2026-10-15, approved)
 ### Added
 - Automatic tasks from 12 rules: first contact for new leads; follow-up 2 business days after
   first contact without a quote; quote follow-up after 3 days; prospect-requested date; no

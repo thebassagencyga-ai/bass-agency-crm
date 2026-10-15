@@ -423,7 +423,7 @@ silently reverted dropdowns after a validation message); see `useActionForm`.
 ---
 
 ## ADR-022 — Automation engine: database triggers, invoker-only engine schema
-**Status:** Proposed — implemented in Phase 6 (pending owner review)
+**Status:** Accepted — implemented in Phase 6 (approved with the phase, 2026-10-15)
 
 **Decision.** Automation runs in AFTER triggers on opportunities, tasks and activities, so an
 event and the tasks it creates or closes commit together (CLAUDE.md: multi-step business
