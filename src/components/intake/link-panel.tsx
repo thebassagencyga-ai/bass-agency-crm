@@ -1,5 +1,5 @@
 import { createOrReplaceIntakeLink, setIntakeLinkEnabled } from "@/app/(app)/intake/actions";
-import { qrSvg } from "@/lib/intake/qr";
+import { qrPath } from "@/lib/intake/qr";
 import type { IntakeLink } from "@/lib/intake/types";
 import { CopyButton } from "./copy-button";
 
@@ -39,8 +39,7 @@ export function IntakeLinkPanel({ link, baseUrl, notice }: { link: IntakeLink | 
                 <CopyButton text={url} />
               </div>
               <figure className="flex flex-col items-start gap-1">
-                {/* Server-rendered SVG of the link; contains no script. */}
-                <div className="w-48 rounded-md bg-white p-1" role="img" aria-label="QR code for the intake form link" dangerouslySetInnerHTML={{ __html: qrSvg(url) }} />
+                <QrCode url={url} />
                 <figcaption className="text-xs text-slate-500">Screenshot or print this QR code for business cards and the office.</figcaption>
               </figure>
             </>
@@ -63,5 +62,17 @@ export function IntakeLinkPanel({ link, baseUrl, notice }: { link: IntakeLink | 
         </form>
       )}
     </section>
+  );
+}
+
+function QrCode({ url }: { url: string }) {
+  const { size, d } = qrPath(url);
+  const m = 2; // quiet zone
+  return (
+    <svg role="img" aria-label="QR code for the intake form link" viewBox={`${-m} ${-m} ${size + 2 * m} ${size + 2 * m}`}
+      shapeRendering="crispEdges" className="w-48 rounded-md bg-white">
+      <rect x={-m} y={-m} width={size + 2 * m} height={size + 2 * m} fill="#ffffff" />
+      <path d={d} fill="#000000" />
+    </svg>
   );
 }
