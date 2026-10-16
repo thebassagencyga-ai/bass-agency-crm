@@ -9,6 +9,8 @@ export const CRM_TABLES = [
   "contacts",
   "cross_sell_dismissals",
   "cross_sell_rules",
+  "intake_links",
+  "intake_submissions",
   "opportunities",
   "pipeline_stages",
   "product_lines",
@@ -55,26 +57,38 @@ export interface VerificationRow {
   profile_trigger: unknown;
   public_functions: unknown;
   definer_or_anon_functions: unknown;
+  public_intake_function: unknown;
   unexpected_trigger_functions: unknown;
   engine_unsafe: unknown;
 }
 
-/** Database functions callable through the Data API (all SECURITY INVOKER). Update per phase. */
+/** Database functions callable through the Data API (SECURITY INVOKER except PUBLIC_ANON_FUNCTION). Update per phase. */
 export const PUBLIC_FUNCTIONS = [
+  "accept_intake",
   "confirm_no_response_follow_up",
   "contact_lead_sources",
   "cross_sell_prompts",
   "dashboard_summary",
+  "discard_intake",
   "dismiss_cross_sell",
   "find_possible_duplicates",
+  "quick_intake",
   "record_renewal_outcome",
   "report_summary",
+  "rotate_intake_link",
   "search_contacts",
   "search_opportunities",
   "search_renewals",
   "search_tasks",
+  "submit_intake",
   "task_counts",
 ] as const;
+
+/**
+ * The only function anonymous callers may run (Phase 13, ADR-028): the public intake form.
+ * SECURITY DEFINER with a pinned search_path; it can only add a submission to an inbox.
+ */
+export const PUBLIC_ANON_FUNCTION = "submit_intake";
 
 /**
  * Trigger-only functions Supabase itself adds to `public` on hosted projects. They return
@@ -104,7 +118,14 @@ select
   (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace
      and ${CALLABLE}) as public_functions,
   (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace and ${CALLABLE}
+     and p.proname <> '${PUBLIC_ANON_FUNCTION}'
      and (p.prosecdef or has_function_privilege('anon', p.oid, 'execute'))) as definer_or_anon_functions,
+  -- The public intake function: exactly one, definer, search_path pinned, anon only.
+  (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace
+     and p.proname = '${PUBLIC_ANON_FUNCTION}' and p.prosecdef
+     and has_function_privilege('anon', p.oid, 'execute')
+     and not has_function_privilege('authenticated', p.oid, 'execute')
+     and 'search_path=""' = any (coalesce(p.proconfig, '{}'))) as public_intake_function,
   (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace and not (${CALLABLE})
      and p.proname not in (${PLATFORM_TRIGGER_FUNCTIONS.map((n) => `'${n}'`).join(", ")})) as unexpected_trigger_functions,
   -- Automation engine schema (Phase 6): must exist, run as the caller only, closed to anon.
@@ -153,6 +174,7 @@ export function checkVerification(row: VerificationRow): string[] {
     ["profile_trigger", 1, "sign-up profile trigger"],
     ["public_functions", PUBLIC_FUNCTIONS.length, "Data API functions"],
     ["definer_or_anon_functions", 0, "functions that bypass RLS or allow anonymous use"],
+    ["public_intake_function", 1, `public intake function (${PUBLIC_ANON_FUNCTION}: SECURITY DEFINER, search_path pinned, anon only)`],
     ["unexpected_trigger_functions", 0, "unknown trigger functions in public"],
     ["engine_unsafe", 0, "problems in the automation engine schema (missing, SECURITY DEFINER or anonymous access)"],
   ];

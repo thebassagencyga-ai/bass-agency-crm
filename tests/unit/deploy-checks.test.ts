@@ -43,9 +43,9 @@ describe("checkTargetProject", () => {
 
 describe("checkVerification", () => {
   const good = {
-    stages: 30, product_lines: 4, tables_without_rls: 0, anon_grants: 0, crm_tables: 12,
-    mfa_policies: 12, profile_trigger: 1, public_functions: 13, definer_or_anon_functions: 0,
-    unexpected_trigger_functions: 0, engine_unsafe: 0,
+    stages: 30, product_lines: 4, tables_without_rls: 0, anon_grants: 0, crm_tables: 14,
+    mfa_policies: 14, profile_trigger: 1, public_functions: 18, definer_or_anon_functions: 0,
+    public_intake_function: 1, unexpected_trigger_functions: 0, engine_unsafe: 0,
   };
 
   it("passes the expected post-migration state", () => {
@@ -55,9 +55,9 @@ describe("checkVerification", () => {
   it("accepts numbers returned as strings by the API", () => {
     expect(
       checkVerification({
-        stages: "30", product_lines: "4", tables_without_rls: "0", anon_grants: "0", crm_tables: "12",
-        mfa_policies: "12", profile_trigger: "1", public_functions: "13", definer_or_anon_functions: "0",
-        unexpected_trigger_functions: "0", engine_unsafe: "0",
+        stages: "30", product_lines: "4", tables_without_rls: "0", anon_grants: "0", crm_tables: "14",
+        mfa_policies: "14", profile_trigger: "1", public_functions: "18", definer_or_anon_functions: "0",
+        public_intake_function: "1", unexpected_trigger_functions: "0", engine_unsafe: "0",
       }),
     ).toEqual([]);
   });
@@ -72,6 +72,8 @@ describe("checkVerification", () => {
     [{ profile_trigger: 0 }, "sign-up profile trigger"],
     [{ public_functions: 2 }, "Data API functions"],
     [{ definer_or_anon_functions: 1 }, "bypass RLS"],
+    [{ public_intake_function: 0 }, "public intake function"],
+    [{ public_intake_function: 2 }, "public intake function"],
     [{ unexpected_trigger_functions: 1 }, "unknown trigger functions"],
     [{ engine_unsafe: 1 }, "automation engine"],
   ])("reports %j", (override, message) => {

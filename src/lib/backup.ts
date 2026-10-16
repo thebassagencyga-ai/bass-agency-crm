@@ -46,7 +46,7 @@ export function buildManifest(counts: RowCounts, users: unknown, now: Date): Bac
 }
 
 /** Tables holding client work; a restore target must have none of these rows. */
-export const BUSINESS_TABLES = ["activities", "contacts", "cross_sell_dismissals", "opportunities", "renewal_outcomes", "tasks"] as const;
+export const BUSINESS_TABLES = ["activities", "contacts", "cross_sell_dismissals", "intake_submissions", "opportunities", "renewal_outcomes", "tasks"] as const;
 
 export type RemapPlan = { ok: true; map: Map<string, string> } | { ok: false; reason: string };
 

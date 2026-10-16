@@ -22,6 +22,7 @@ const insertable = (ids: Record<string, string>): Record<string, Record<string, 
   renewal_outcomes: { opportunity_id: ids.policy, renewal_date: "2027-01-01", outcome: "renewed", next_renewal_date: "2028-01-01", recorded_on: "2026-10-16" },
   cross_sell_rules: { rule_key: "spoof_rule", name: "Spoof", has_any_lines: ["auto"], lacks_line: "life", reason: "x" },
   cross_sell_dismissals: { contact_id: ids.contact, rule_id: ids.rule, dismissed_on: "2026-10-16", hidden_until: "2027-10-16" },
+  intake_links: { enabled: false, disabled_at: "2026-10-16T12:00:00Z" },
 });
 let ids: Record<string, string>;
 
@@ -59,6 +60,11 @@ beforeAll(async () => {
     const r2 = (await q.query("select id from public.cross_sell_rules where rule_key = 'home_no_auto'")).rows[0].id as string;
     return { r, r2 };
   });
+  // Phase 13: an intake link and one public submission (inserted only through submit_intake).
+  const token = await asUser(db, alice, async (q) => (await q.query("select public.rotate_intake_link() as t")).rows[0].t as string);
+  await asAnon(db, (q) =>
+    q.query("select public.submit_intake($1, $2, true)", [token, { first_name: "Pat", last_name: "Sample", email: "pat@example.com", lines: ["auto"] }]),
+  );
   ids = { contact, policy, homeStage, rule: rule.r, rule2: rule.r2 };
 });
 afterAll(async () => {
@@ -171,17 +177,31 @@ describe("every owner table", () => {
 });
 
 describe("every function", () => {
-  it("API-visible and engine functions run as the caller, pin search_path and refuse anon", async () => {
+  it("API-visible and engine functions run as the caller, pin search_path and refuse anon (except the public intake function)", async () => {
     const { rows } = await db.query<{ f: string }>(
       `select n.nspname || '.' || p.proname as f
          from pg_proc p join pg_namespace n on n.oid = p.pronamespace
         where n.nspname in ('public', 'crm_engine')
           and p.prorettype not in ('trigger'::regtype, 'event_trigger'::regtype)
+          and not (n.nspname = 'public' and p.proname = 'submit_intake')
           and (p.prosecdef
                or has_function_privilege('anon', p.oid, 'execute')
                or not exists (select 1 from unnest(coalesce(p.proconfig, '{}')) c where c like 'search_path=%'))`,
     );
     expect(rows.map((r) => r.f)).toEqual([]);
+  });
+
+  it("anonymous callers can run exactly one function: the public intake form", async () => {
+    const { rows } = await db.query<{ f: string; definer: boolean; pinned: boolean }>(
+      `select n.nspname || '.' || p.proname as f, p.prosecdef as definer,
+              exists (select 1 from unnest(coalesce(p.proconfig, '{}')) c where c = 'search_path=""') as pinned
+         from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+        where n.nspname not in ('pg_catalog', 'information_schema', 'auth', 'extensions')
+          and p.prorettype not in ('trigger'::regtype, 'event_trigger'::regtype)
+          and has_function_privilege('anon', p.oid, 'execute')
+          and has_schema_privilege('anon', n.oid, 'usage')`,
+    );
+    expect(rows).toEqual([{ f: "public.submit_intake", definer: true, pinned: true }]);
   });
 
   it("private helpers cannot be called by API roles", async () => {

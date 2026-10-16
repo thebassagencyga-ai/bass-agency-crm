@@ -137,12 +137,12 @@ describe("function privileges", () => {
     expect(await errorCode(asAnon(db, (q) => q.query(sql)))).toBe("42501");
   });
 
-  it("every function in the public schema is SECURITY INVOKER with a fixed search_path, and not executable by anon", async () => {
+  it("every function in the public schema is SECURITY INVOKER with a fixed search_path, and not executable by anon (except the public intake form, ADR-028)", async () => {
     const { rows } = await db.query<{ proname: string; prosecdef: boolean; has_path: boolean; anon: boolean }>(
       `select p.proname, p.prosecdef,
               exists (select 1 from unnest(coalesce(p.proconfig, '{}')) c where c like 'search_path=%') as has_path,
               has_function_privilege('anon', p.oid, 'execute') as anon
-         from pg_proc p where p.pronamespace = 'public'::regnamespace`,
+         from pg_proc p where p.pronamespace = 'public'::regnamespace and p.proname <> 'submit_intake'`,
     );
     expect(rows.length).toBeGreaterThan(0);
     for (const r of rows) {

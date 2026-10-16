@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
+  PUBLIC_ANON_FUNCTION,
   PUBLIC_FUNCTIONS,
   PUBLIC_FUNCTIONS_SQL,
   ROW_COUNTS_SQL,
@@ -28,10 +29,30 @@ describe("deploy verification query", () => {
     expect(checkVerification(rows[0]!)).toEqual([]);
   });
 
-  it("lists exactly the Data API functions, none SECURITY DEFINER or anonymous", async () => {
+  it("lists exactly the Data API functions; only the public intake function is SECURITY DEFINER or anonymous", async () => {
     const { rows } = await db.query<PublicFunctionRow>(PUBLIC_FUNCTIONS_SQL);
     expect(rows.map((r) => r.name)).toEqual([...PUBLIC_FUNCTIONS]);
-    expect(rows.every((r) => !r.security_definer && !r.anon_execute)).toBe(true);
+    expect(rows.filter((r) => r.security_definer || r.anon_execute).map((r) => r.name)).toEqual([PUBLIC_ANON_FUNCTION]);
+  });
+
+  it("rejects the public intake function if signed-in users could also call it", async () => {
+    await db.query("begin");
+    try {
+      await db.query("grant execute on function public.submit_intake(text, jsonb, boolean) to authenticated");
+      expect((await problems()).join(" ")).toContain("public intake function");
+    } finally {
+      await db.query("rollback");
+    }
+  });
+
+  it("rejects the public intake function without a pinned search_path", async () => {
+    await db.query("begin");
+    try {
+      await db.query("alter function public.submit_intake(text, jsonb, boolean) reset search_path");
+      expect((await problems()).join(" ")).toContain("public intake function");
+    } finally {
+      await db.query("rollback");
+    }
   });
 
   // Hosted projects with "Enable automatic RLS" have Supabase's own event-trigger function
