@@ -547,3 +547,37 @@ definer function); Deploy app #15 smoke test 17/17 incl. the public intake form.
    (verify expects 14 tables, 18 functions, the one public intake function).
 3. Deploy app (Cloudflare); Settings → *Create my form link*; open the link on your phone
    signed out and send yourself a test request; accept or discard it in Intake.
+
+## Phase 14 — Intake details (branch `phase-14-intake-details`)
+Started 2026-10-16 on the owner's go-ahead ("Yes start phase 14"). Owner decisions: add street
+address, vehicles (year/make/model) and household / other drivers (names, relationship); no
+dates of birth, license numbers or VINs (ADR-029).
+
+**Completed**
+- Migration `20261025120000_intake_details.sql`: `household_members`, `vehicles` (owner +
+  two-step RLS, audited, archived not deleted); intake submissions carry address, household and
+  vehicles (validated, size-capped, erased on review); `intake_clean` / `intake_apply` /
+  `submit_intake` / `accept_intake` / `discard_intake` updated (grants unchanged, still exactly
+  one anonymous function).
+- Form: street/city/state (GA)/ZIP; vehicle rows when Auto is ticked (up to 4); household rows
+  (up to 6) with relationship; typed rows survive validation errors.
+- Review page shows the new details; contact page **Household / other drivers** and
+  **Vehicles** with add, edit, remove.
+- Deploy verification (16 tables), RLS catalog tests, backups (restore target must have none).
+
+**Tests (2026-10-16)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build | pass |
+| Local: unit | 342 passed (10 new: address, rows, years, relationships, auto-only vehicles) |
+| Local: database (PostgreSQL 16) | 391 passed (23 new: validation incl. 1850 / far-future years, >4 vehicles, >6 people, 200-char names, dropped DOB/VIN/license keys; address merge rules; RLS, two-step, audit, no delete) |
+| CI run #125 | browser test failed: after a second save on the contact page the list did not refresh (redirect to an identical address). Fixed (unique redirect + revalidate) |
+| CI run #126 (commit caeb582): all 4 jobs | pass — browser test (form with address/vehicle/household and a refused year → review → accept → contact page edit/add/remove), Lighthouse 100 on all pages incl. the contact page with the new sections, phone widths clean |
+| Production | not deployed (awaiting owner review) |
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. Deploy database migrations: dry run lists only `20261025120000_intake_details.sql`; then apply
+   (verify expects 16 tables, 18 functions).
+3. Deploy app (Cloudflare); send yourself a test request with a vehicle and a household member.
+
