@@ -9,6 +9,7 @@ export const CRM_TABLES = [
   "contacts",
   "cross_sell_dismissals",
   "cross_sell_rules",
+  "household_members",
   "intake_links",
   "intake_submissions",
   "opportunities",
@@ -17,6 +18,7 @@ export const CRM_TABLES = [
   "profiles",
   "renewal_outcomes",
   "tasks",
+  "vehicles",
 ] as const;
 
 type Result = { ok: true } | { ok: false; reason: string };

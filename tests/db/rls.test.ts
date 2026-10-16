@@ -8,6 +8,7 @@ import {
 const BUSINESS_TABLES = [
   "contacts", "opportunities", "tasks", "activities", "automation_rules",
   "renewal_outcomes", "cross_sell_rules", "cross_sell_dismissals", "intake_links", "intake_submissions",
+  "household_members", "vehicles",
 ] as const;
 
 let db: Db;
@@ -37,6 +38,11 @@ beforeAll(async () => {
     const r = await q.query<{ id: string }>("select id from public.automation_rules limit 1");
     return { aliceTask: t.rows[0]!.id, aliceActivity: a.rows[0]!.id, aliceRule: r.rows[0]!.id };
   }));
+  // Phase 14: a household member and a vehicle on alice's contact.
+  await asUser(db, alice, async (q) => {
+    await q.query("insert into public.household_members (contact_id, first_name, relationship) values ($1, 'Sam', 'spouse')", [aliceContact]);
+    await q.query("insert into public.vehicles (contact_id, year, make, model) values ($1, 2019, 'Example', 'Sedan')", [aliceContact]);
+  });
   // Phase 13: an intake link and one public submission to it.
   const token = await asUser(db, alice, async (q) => (await q.query("select public.rotate_intake_link() as t")).rows[0].t as string);
   await asAnon(db, (q) =>

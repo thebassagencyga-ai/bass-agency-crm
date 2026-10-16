@@ -19,6 +19,9 @@ const form = (over: Record<string, unknown> = {}) => ({
     { line: "home", carrier: null, renews_month: null },
   ],
   heard_about: "Referral", referred_by_name: "Casey Sample",
+  address_line1: "1 Example St", city: "Carrollton", state: "ga",
+  household: [{ first_name: "Sam", last_name: "Example", relationship: "spouse" }, { first_name: " Kit ", relationship: "" }],
+  vehicles: [{ year: 2019, make: "Example", model: "Sedan" }],
   ...over,
 });
 
@@ -58,6 +61,20 @@ describe("public submission (anonymous)", () => {
     // Entries with nothing in them are dropped.
     expect(s.current_coverage).toEqual([{ line: "auto", carrier: "Example Mutual", renews_month: 3 }]);
     expect(s.consent_at).not.toBeNull();
+    // Phase 14 details, cleaned; extra keys (e.g. a birth date) are never stored.
+    expect(s).toMatchObject({ address_line1: "1 Example St", city: "Carrollton", state: "GA" });
+    expect(s.household).toEqual([
+      { first_name: "Sam", last_name: "Example", relationship: "spouse" },
+      { first_name: "Kit", last_name: null, relationship: "other" },
+    ]);
+    expect(s.vehicles).toEqual([{ year: 2019, make: "Example", model: "Sedan" }]);
+  });
+
+  it("drops anything not asked for, such as a date of birth", async () => {
+    await submit(token, form({ email: "extra@example.com", date_of_birth: "1980-01-01",
+      household: [{ first_name: "Sam", dob: "1980-01-01", license: "X123" }], vehicles: [{ year: 2020, make: "Example", vin: "1HGCM82633A004352" }] }));
+    const s = await newestSubmission(alice);
+    expect(JSON.stringify(s)).not.toMatch(/1980|X123|1HGCM/);
   });
 
   it("returns nothing and cannot read anything", async () => {
@@ -84,8 +101,21 @@ describe("public submission (anonymous)", () => {
     ["a huge month", form({ current_coverage: [{ line: "auto", renews_month: 1e20 }] }), true, "current_coverage"],
     ["a long field", form({ best_time: "x".repeat(101) }), true, "best_time"],
     ["a non-text field", form({ first_name: { a: 1 } }), true, "first_name"],
-    ["an oversized form", form({ padding: "x".repeat(7000) }), true, "form"],
+    ["an oversized form", form({ padding: "x".repeat(10000) }), true, "form"],
     ["an in-person contact preference", form({ preferred_contact_method: "in_person" }), true, "preferred_contact_method"],
+    ["a bad state", form({ state: "Georgia" }), true, "state"],
+    ["a long street address", form({ address_line1: "x".repeat(201) }), true, "address_line1"],
+    ["a household member without a first name", form({ household: [{ first_name: " ", last_name: "X" }] }), true, "household"],
+    ["an unknown relationship", form({ household: [{ first_name: "A", relationship: "cousin" }] }), true, "household"],
+    ["more than 6 household members", form({ household: Array.from({ length: 7 }, () => ({ first_name: "A" })) }), true, "household"],
+    ["a household birth date (unknown keys are dropped, not stored)", form({ household: "not a list" }), true, "household"],
+    ["a vehicle year of 1850", form({ vehicles: [{ year: 1850, make: "Old" }] }), true, "vehicles"],
+    ["a vehicle year far in the future", form({ vehicles: [{ year: 2100, make: "Future" }] }), true, "vehicles"],
+    ["a vehicle without a make", form({ vehicles: [{ year: 2020, make: "" }] }), true, "vehicles"],
+    ["a vehicle year as text", form({ vehicles: [{ year: "2020", make: "X" }] }), true, "vehicles"],
+    ["more than 4 vehicles", form({ vehicles: Array.from({ length: 5 }, () => ({ year: 2020, make: "X" })) }), true, "vehicles"],
+    ["vehicles without an auto quote", form({ lines: ["home"], current_coverage: [] }), true, "vehicles"],
+    ["a 200-character name", form({ household: [{ first_name: "x".repeat(200) }] }), true, "household"],
   ])("refuses %s", async (_label, f, consent, reason) => {
     expect(await errorMessage(submit(token, f, consent))).toBe(reason);
   });
@@ -150,6 +180,12 @@ describe("review inbox", () => {
     const cid = await asUser(db, alice, async (q) => (await q.query("select public.accept_intake($1, null, $2) as c", [s.id, referrer])).rows[0].c as string);
 
     const contact = (await db.query("select * from public.contacts where id = $1", [cid])).rows[0];
+    expect(contact).toMatchObject({ address_line1: "1 Example St", city: "Carrollton", state: "GA" });
+    expect((await db.query("select first_name, last_name, relationship, owner_id from public.household_members where contact_id = $1 order by first_name", [cid])).rows).toEqual([
+      { first_name: "Kit", last_name: null, relationship: "other", owner_id: alice },
+      { first_name: "Sam", last_name: "Example", relationship: "spouse", owner_id: alice },
+    ]);
+    expect((await db.query("select year, make, model from public.vehicles where contact_id = $1", [cid])).rows).toEqual([{ year: 2019, make: "Example", model: "Sedan" }]);
     expect(contact).toMatchObject({
       owner_id: alice, contact_type: "individual", first_name: "Robin", last_name: "Example",
       email: "accept-me@example.com", phone: "(404) 555-0123", postal_code: "30117",
@@ -184,20 +220,23 @@ describe("review inbox", () => {
     expect(after).toMatchObject({
       status: "accepted", contact_id: cid, first_name: null, last_name: null, email: null, phone: null,
       postal_code: null, best_time: null, lines: null, current_coverage: null, heard_about: null, referred_by_name: null,
+      address_line1: null, city: null, state: null, household: null, vehicles: null,
     });
     expect(after.reviewed_at).not.toBeNull();
     expect(after.consent_at).not.toBeNull();
   });
 
   it("accept into an existing contact fills only empty details and keeps theirs", async () => {
-    await submit(token, form({ email: "new-address@example.com", lines: ["life"], current_coverage: [] }));
+    await submit(token, form({ email: "new-address@example.com", lines: ["life"], current_coverage: [], vehicles: [] }));
     const s = await newestSubmission(alice);
     const existing = await insertContact(db, alice, { first_name: "Robin", last_name: "Example", email: "robin.old@example.com", notes: "Met at the fair." });
     await asUser(db, alice, (q) => q.query("select public.accept_intake($1, $2)", [s.id, existing]));
-    const c = (await db.query("select email, phone, postal_code, notes from public.contacts where id = $1", [existing])).rows[0];
+    const c = (await db.query("select email, phone, postal_code, address_line1, notes from public.contacts where id = $1", [existing])).rows[0];
     expect(c.email).toBe("robin.old@example.com");
     expect(c.phone).toBe("(404) 555-0123");
     expect(c.postal_code).toBe("30117");
+    // No street address before, so the whole address is taken from the request.
+    expect(c.address_line1).toBe("1 Example St");
     expect(c.notes).toMatch(/^Met at the fair\.\n\nIntake form /);
     expect((await db.query("select product_line from public.opportunities where contact_id = $1", [existing])).rows).toEqual([{ product_line: "life" }]);
   });
@@ -215,8 +254,8 @@ describe("review inbox", () => {
   it("discard erases the details; a handled submission cannot be handled again", async () => {
     const s = await newestSubmission(alice);
     await asUser(db, alice, (q) => q.query("select public.discard_intake($1)", [s.id]));
-    const after = (await db.query("select status, first_name, email, phone, lines, reviewed_at from public.intake_submissions where id = $1", [s.id])).rows[0];
-    expect(after).toMatchObject({ status: "discarded", first_name: null, email: null, phone: null, lines: null });
+    const after = (await db.query("select status, first_name, email, phone, lines, address_line1, household, vehicles, reviewed_at from public.intake_submissions where id = $1", [s.id])).rows[0];
+    expect(after).toMatchObject({ status: "discarded", first_name: null, email: null, phone: null, lines: null, address_line1: null, household: null, vehicles: null });
     expect(after.reviewed_at).not.toBeNull();
     expect(await errorCode(asUser(db, alice, (q) => q.query("select public.discard_intake($1)", [s.id])))).toBe("P0002");
     expect(await errorCode(asUser(db, alice, (q) => q.query("select public.accept_intake($1)", [s.id])))).toBe("P0002");
@@ -239,7 +278,7 @@ describe("review inbox", () => {
 describe("quick intake (the agent, on a call)", () => {
   it("creates the contact and opportunities directly, with the same rules", async () => {
     const cid = await asUser(db, alice, async (q) =>
-      (await q.query("select public.quick_intake($1) as c", [form({ first_name: "Quinn", email: "quinn@example.com", lines: ["commercial"], current_coverage: [{ line: "commercial", carrier: "Sample Ins", renews_month: 12 }] })])).rows[0].c as string);
+      (await q.query("select public.quick_intake($1) as c", [form({ first_name: "Quinn", email: "quinn@example.com", lines: ["commercial"], vehicles: [], current_coverage: [{ line: "commercial", carrier: "Sample Ins", renews_month: 12 }] })])).rows[0].c as string);
     const c = (await db.query("select first_name, email, owner_id, notes from public.contacts where id = $1", [cid])).rows[0];
     expect(c).toMatchObject({ first_name: "Quinn", email: "quinn@example.com", owner_id: alice });
     expect(c.notes).toMatch(/^Quick intake \d{4}-\d{2}-\d{2}: best time to reach: Evenings\./);
@@ -257,6 +296,54 @@ describe("quick intake (the agent, on a call)", () => {
     const before = (await db.query("select count(*)::int as n from public.contacts where owner_id = $1", [alice])).rows[0].n;
     expect(await errorCode(asPasswordOnlyUser(db, alice, (q) => q.query("select public.quick_intake($1)", [form()])))).toBeDefined();
     expect((await db.query("select count(*)::int as n from public.contacts where owner_id = $1", [alice])).rows[0].n).toBe(before);
+  });
+});
+
+describe("household members and vehicles", () => {
+  it("an existing street address is kept; a new request's address is not mixed in", async () => {
+    await submit(token, form({ email: "keep-address@example.com", address_line1: "9 Other Rd", city: "Villa Rica", postal_code: "30180" }));
+    const s = await newestSubmission(alice);
+    const existing = await insertContact(db, alice, { first_name: "Robin", last_name: "Example", address_line1: "5 Home Ln", city: "Carrollton", state: "GA", postal_code: "30117" });
+    await asUser(db, alice, (q) => q.query("select public.accept_intake($1, $2)", [s.id, existing]));
+    expect((await db.query("select address_line1, city, postal_code from public.contacts where id = $1", [existing])).rows[0])
+      .toEqual({ address_line1: "5 Home Ln", city: "Carrollton", postal_code: "30117" });
+  });
+
+  it("are the owner's only, need two-step sign-in, and are archived rather than deleted", async () => {
+    const contact = await insertContact(db, alice, { first_name: "Hh", last_name: "Owner" });
+    const ids = await asUser(db, alice, async (q) => ({
+      member: (await q.query("insert into public.household_members (contact_id, first_name) values ($1, 'Lee') returning id", [contact])).rows[0].id,
+      car: (await q.query("insert into public.vehicles (contact_id, year, make) values ($1, 2021, 'Example') returning id", [contact])).rows[0].id,
+    }));
+    for (const t of ["household_members", "vehicles"]) {
+      expect(await asUser(db, bob, async (q) => (await q.query(`select count(*)::int as n from public.${t} where owner_id = $1`, [alice])).rows[0].n)).toBe(0);
+      expect(await asPasswordOnlyUser(db, alice, async (q) => (await q.query(`select count(*)::int as n from public.${t}`)).rows[0].n)).toBe(0);
+      expect(await errorCode(asUser(db, alice, (q) => q.query(`delete from public.${t}`)))).toBe("42501");
+      expect(await errorCode(asAnon(db, (q) => q.query(`select 1 from public.${t}`)))).toBe("42501");
+    }
+    await asUser(db, alice, async (q) => {
+      await q.query("update public.household_members set archived_at = now() where id = $1", [ids.member]);
+      await q.query("update public.vehicles set make = 'Sample', archived_at = now() where id = $1", [ids.car]);
+    });
+    const audit = await db.query("select table_name, action from public.audit_log where record_id in ($1, $2) order by table_name, action", [ids.member, ids.car]);
+    expect(audit.rows).toEqual([
+      { table_name: "household_members", action: "insert" }, { table_name: "household_members", action: "update" },
+      { table_name: "vehicles", action: "insert" }, { table_name: "vehicles", action: "update" },
+    ]);
+    // Bob cannot attach a person or vehicle to alice's contact.
+    expect(await errorCode(asUser(db, bob, (q) => q.query("insert into public.vehicles (contact_id, year, make) values ($1, 2020, 'X')", [contact])))).toBeDefined();
+  });
+
+  it("refuse bad values at the database too", async () => {
+    const contact = await insertContact(db, alice, { first_name: "Bad", last_name: "Values" });
+    for (const sql of [
+      "insert into public.vehicles (contact_id, year, make) values ($1, 1850, 'Old')",
+      "insert into public.vehicles (contact_id, year, make) values ($1, 2020, ' ')",
+      "insert into public.household_members (contact_id, first_name, relationship) values ($1, 'A', 'cousin')",
+      `insert into public.household_members (contact_id, first_name) values ($1, '${"x".repeat(101)}')`,
+    ]) {
+      expect(await errorCode(asUser(db, alice, (q) => q.query(sql, [contact])))).toBe("23514");
+    }
   });
 });
 

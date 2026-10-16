@@ -23,6 +23,8 @@ const insertable = (ids: Record<string, string>): Record<string, Record<string, 
   cross_sell_rules: { rule_key: "spoof_rule", name: "Spoof", has_any_lines: ["auto"], lacks_line: "life", reason: "x" },
   cross_sell_dismissals: { contact_id: ids.contact, rule_id: ids.rule, dismissed_on: "2026-10-16", hidden_until: "2027-10-16" },
   intake_links: { enabled: false, disabled_at: "2026-10-16T12:00:00Z" },
+  household_members: { contact_id: ids.contact, first_name: "Sam", relationship: "spouse" },
+  vehicles: { contact_id: ids.contact, year: 2019, make: "Example", model: "Sedan" },
 });
 let ids: Record<string, string>;
 
@@ -59,6 +61,11 @@ beforeAll(async () => {
     await q.query("select public.dismiss_cross_sell($1, $2)", [contact, r]);
     const r2 = (await q.query("select id from public.cross_sell_rules where rule_key = 'home_no_auto'")).rows[0].id as string;
     return { r, r2 };
+  });
+  // Phase 14: a household member and a vehicle (contact-level details).
+  await asUser(db, alice, async (q) => {
+    await q.query("insert into public.household_members (contact_id, first_name) values ($1, 'Sam')", [contact]);
+    await q.query("insert into public.vehicles (contact_id, year, make) values ($1, 2020, 'Example')", [contact]);
   });
   // Phase 13: an intake link and one public submission (inserted only through submit_intake).
   const token = await asUser(db, alice, async (q) => (await q.query("select public.rotate_intake_link() as t")).rows[0].t as string);
@@ -148,7 +155,7 @@ describe("every owner table", () => {
       const asOwner = await errorCode(asUser(db, bob, (q) => q.query(spoofOwner.sql, spoofOwner.params)));
       if (!asOwner) accepted.push(`${t}: owner_id = alice`);
       // Rows that point at alice's records (contact, policy, rule) must not be accepted for bob either.
-      if (["opportunities", "tasks", "activities", "renewal_outcomes", "cross_sell_dismissals"].includes(t)) {
+      if (["opportunities", "tasks", "activities", "renewal_outcomes", "cross_sell_dismissals", "household_members", "vehicles"].includes(t)) {
         const own = insertSql(t, row);
         const attach = await errorCode(asUser(db, bob, (q) => q.query(own.sql, own.params)));
         if (!attach) accepted.push(`${t}: linked to alice's record`);
