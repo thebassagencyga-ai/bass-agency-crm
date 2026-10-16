@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** 15 — Import and export — **APPROVED by owner 2026-10-16**; deploy pending (migration + app). Phase 14 approved and deployed 2026-10-16.
+**Current phase:** 15 — Import and export — **APPROVED by owner 2026-10-16**; deployed 2026-10-16 (migration run #34, app run #17). Phase 14 approved and deployed 2026-10-16.
 **Last updated:** 2026-10-16
 **Branch:** `phase-12-production`, merged to `main` on approval
 
@@ -609,6 +609,11 @@ headings not yet seen, so matching is guessed and editable (ADR-031).
 | Local: database (PostgreSQL 16) | 408 passed (17 new: import, matched contact unchanged, all-or-nothing, limits, isolation, 500 clients, reports ignore imports, undo + 4 refusal cases, 7-day limit, no direct delete) |
 | CI run #133 (commit 34f5637): all 4 jobs | pass — browser test imports a 500-client report (guessed columns, unknown type chosen, existing contact matched, bad row explained), checks Renewals, downloads contacts CSV (formula neutralised), undoes; Lighthouse 100 on `/import`; phone widths clean |
 | Production | not deployed (awaiting owner review) |
+
+**Production deploy (2026-10-16, commit cdc5650):** migrations dry run #33 listed only
+`20261026120000_import_export.sql`; apply run #34 applied it and verification passed (17 tables,
+17 two-step policies, 19 Data API functions incl. `import_book`, one public intake function);
+Deploy app #17 smoke test 17/17.
 
 **Owner actions after approval**
 1. Merge to `main`.
