@@ -2,14 +2,13 @@
 
 import { redirect } from "next/navigation";
 import type { FormState } from "@/components/form";
+import { TOO_MANY, UNAVAILABLE, authErrorMessage, isServiceProblem } from "@/lib/auth/errors";
 import { emailSchema, newPasswordSchema, signInSchema, totpCodeSchema } from "@/lib/auth/forms";
 import { requireFullSession } from "@/lib/auth/require";
 import { safeNextPath } from "@/lib/auth/routing";
 import { siteUrl } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
-
-const TOO_MANY = "Too many attempts. Wait a few minutes and try again.";
 
 function fieldErrors(error: z.ZodError): Record<string, string> {
   const out: Record<string, string> = {};
@@ -30,7 +29,7 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) {
     // One message for wrong email or wrong password, so the form cannot be used to discover accounts.
-    return { error: error.status === 429 ? TOO_MANY : "Email or password is incorrect.", values };
+    return { error: authErrorMessage(error, "Email or password is incorrect."), values };
   }
   const { data: level } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
   const step = level?.nextLevel === "aal2" ? "/mfa" : "/mfa/setup";
@@ -45,7 +44,7 @@ export async function verifyMfa(_prev: FormState, formData: FormData): Promise<F
   const factor = factors?.totp[0];
   if (!factor) redirect("/mfa/setup");
   const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code: code.data });
-  if (error) return { error: error.status === 429 ? TOO_MANY : "That code didn't work. Check your authenticator app and try again." };
+  if (error) return { error: authErrorMessage(error, "That code didn't work. Check your authenticator app and try again.") };
   redirect(safeNextPath(String(formData.get("next") ?? "")));
 }
 
@@ -56,7 +55,7 @@ export async function confirmEnrollment(_prev: FormState, formData: FormData): P
   if (!code.success) return { fieldErrors: { code: code.error.issues[0]?.message ?? "Invalid code." } };
   const supabase = await createClient();
   const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: factorId.data, code: code.data });
-  if (error) return { error: error.status === 429 ? TOO_MANY : "That code didn't work. Make sure you scanned the code on this screen, then try the newest code." };
+  if (error) return { error: authErrorMessage(error, "That code didn't work. Make sure you scanned the code on this screen, then try the newest code.") };
   redirect(safeNextPath(String(formData.get("next") ?? "")));
 }
 
@@ -69,6 +68,7 @@ export async function requestPasswordReset(_prev: FormState, formData: FormData)
     redirectTo: `${siteUrl()}/auth/confirm?next=/reset-password`,
   });
   if (error?.status === 429) return { error: TOO_MANY, values };
+  if (error && isServiceProblem(error)) return { error: UNAVAILABLE, values };
   // Same answer whether or not the account exists.
   return { message: "If an account exists for that email, a reset link is on its way. It expires in one hour." };
 }
