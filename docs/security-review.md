@@ -1,5 +1,7 @@
 # Security review — Phase 11 (2026-10-16)
 
+Status: reviewed and approved by the owner with Phase 11 (2026-10-16).
+
 Scope: the whole application as merged through Phase 10 (Next.js app, middleware, server
 actions, database migrations, service worker, CI/deploy workflows, dependencies, Git history).
 Method: code review against SECURITY.md's threat model, automated suites added in this phase,

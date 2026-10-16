@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 11 — End-to-end testing & security review (2026-10-16, ready for review)
+## Phase 11 — End-to-end testing & security review (2026-10-16, approved)
 ### Fixed
 - Cross-sell "lost in the last 12 months" now counts New York dates (was off by a day for a
   few hours each evening). Migration `20261023120000_review_fixes.sql`.
