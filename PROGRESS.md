@@ -403,3 +403,6 @@ Started 2026-10-15 on the owner's go-ahead ("move to 10"). Design in ADR-025.
 2. Deploy app preview. On the iPhone in Safari: Share → Add to Home Screen; open "Bass CRM"
    from the home screen (full screen, opens on the dashboard); turn on Airplane Mode and
    open a page to see the offline notice.
+
+**Production deploy (2026-10-15):** no migration this phase; preview run #11 deployed commit
+e6049ad. Owner confirmed on the iPhone ("Deployed, done").
