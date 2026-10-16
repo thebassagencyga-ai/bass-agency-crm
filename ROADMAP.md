@@ -22,6 +22,11 @@ inherits the standard exit criteria at the bottom of this file.
 | 12 | Production deployment & handoff | 11 | APPROVED (2026-10-16) — LIVE: owner go-live sign-off 2026-10-16 |
 | 13 | Intake form | 12 | APPROVED (2026-10-16) |
 | 14 | Intake details (address, vehicles, household) | 13 | APPROVED (2026-10-16) |
+| 15 | Import book of business (CSV) + export data | 14 | NOT STARTED |
+| 16 | Inactivity sign-out + email/text via device apps | 15 | NOT STARTED |
+| 17 | Tags + merge duplicate contacts | 16 | NOT STARTED |
+| 18 | Calendar feed for tasks | 17 | NOT STARTED |
+| 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | NOT STARTED |
 
 ---
 

@@ -81,10 +81,18 @@ Next phase proposed
   Next.js or the adapter without re-running `npm run cf:preview` and checking pages load
   (Next 16.4.0 broke the adapter at runtime while still building successfully).
 
-## Out of scope for the MVP (do not add)
+## Scope rules (owner update 2026-10-16, ADR-030)
 
-Email sending, SMS, paid automation platforms, AI features/prospecting, purchased leads,
-Alfa integrations, file uploads of policy documents, unnecessary third-party services.
+- **Email and text:** the CRM never sends messages itself. It may open the device's own Mail /
+  Messages app with a pre-filled message (`mailto:` / `sms:`); the user presses send.
+- **AI workers** (Phase 19 only): drafting messages, turning call notes into activities,
+  a daily briefing, import clean-up. Every AI result waits for the user's OK before anything
+  is saved or sent; AI never changes records or sends anything on its own. Anthropic API only,
+  server-side, with a monthly spending cap of **$10**; send the minimum client data needed and
+  never the fields excluded below.
+- Still out of scope: paid automation platforms, AI prospecting / purchased leads, Alfa
+  integrations, file uploads of policy documents, unnecessary third-party services.
+- Dates of birth and driver's license numbers stay excluded (tabled, see DECISIONS).
 
 ## Data minimization
 
@@ -113,5 +121,5 @@ exist only in the hosting provider's secret store and the owner's password manag
 
 ## Cost guardrail
 
-Keep added infrastructure < $25/month. Do not purchase a domain, enable a paid service, or
+Keep added infrastructure < $25/month (AI usage capped at $10/month within that). Do not purchase a domain, enable a paid service, or
 change a plan without the owner's explicit approval.

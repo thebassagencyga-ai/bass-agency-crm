@@ -673,6 +673,24 @@ other drivers / household members (names and relationship). Not collected: dates
 identity-theft risk, and the CRM is not a quoting engine); details on the opportunity instead
 of the contact (rejected: people and vehicles outlive any one quote).
 
+## ADR-030 — Scope update: device mail/text, AI workers, next phases
+
+**Status:** Accepted (owner, 2026-10-16)
+
+**Context.** The owner considers the original MVP rules a starting point.
+
+**Decision.**
+- Email/text: open the device's Mail / Messages app with a pre-filled message; the CRM sends
+  nothing itself.
+- AI workers (Phase 19): draft messages; notes → activity; daily briefing; import clean-up.
+  Human approval before anything is saved or sent. Anthropic API, server-side; $10/month cap
+  (AI pauses when reached); minimum data; the Worker will hold its first secret (API key) —
+  to be designed and reviewed in Phase 19.
+- Next phases in order: 15 import/export, 16 inactivity sign-out + mail/text, 17 tags + merge,
+  18 calendar feed, 19 AI workers.
+- Unchanged: dates of birth and license numbers excluded (tabled); no Alfa integrations; no
+  policy document uploads; cost under $25/month.
+
 ---
 
 ## Open questions for the owner (do not block Phase 1 start)
