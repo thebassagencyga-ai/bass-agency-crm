@@ -495,5 +495,12 @@ SECURITY, README updated.
 **Owner actions after approval** — in order; details in `docs/go-live-checklist.md`
 1. ~~Merge to `main`; **Deploy app (Cloudflare)**~~ — done.
 2. ~~**Backup restore drill** and **Smoke test production** — both green~~ — done.
-3. Supabase dashboard checks (auth settings, leaked-password protection, backups, billing).
-4. iPhone checks; optional clean start; sign-off: "I approve entering real client data."
+3. ~~Supabase dashboard checks~~ — done by the owner 2026-10-16 (Free plan: Pro-only items
+   replaced by ADR-027 backups and accepted limits).
+4. ~~iPhone checks~~ — done by the owner (sign-in with code, Home Screen, offline notice, sign out).
+5. ~~Clean start~~ — `reset-test-data.sql` run by the owner 2026-10-16 after making two test
+   contacts' email/phone clearly fictional (the script's guard stopped it until then; nothing was
+   deleted early).
+6. Remaining: **E** accounts (two-step + recovery codes; passwords and backup passphrase in the
+   password manager; runbook read) and **F** review, then the sign-off "I approve entering real
+   client data."
