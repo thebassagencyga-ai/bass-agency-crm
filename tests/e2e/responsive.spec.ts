@@ -46,7 +46,7 @@ test("key pages fit 375/390/430 px screens with 44 px tap targets", async ({ bro
     }
     // Signed-out pages too.
     await context.clearCookies();
-    for (const path of ["/login", "/forgot-password", "/offline.html"]) {
+    for (const path of ["/login", "/forgot-password", "/offline.html", `/quote/${owner.intakeToken}`]) {
       await page.goto(path);
       for (const p of await audit(page)) problems.push(`${width}px ${path}: ${p}`);
     }

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createTestUser, fullSessionClient, fullSessionCookies } from "../../support/supabase";
+import { anonClient, createTestUser, fullSessionClient, fullSessionCookies } from "../../support/supabase";
 
 // A signed-in owner with a little of everything (fictional data), so pages render their
 // full layouts for the responsive, touch-target and accessibility audits (Phase 10).
@@ -20,6 +20,9 @@ export interface SeededOwner {
   policyId: string;
   openOppId: string;
   taskId: string;
+  /** Phase 13: the owner's public form token and one waiting request. */
+  intakeToken: string;
+  intakeId: string;
 }
 
 export async function seededOwner(label: string, appUrl: string): Promise<SeededOwner> {
@@ -51,8 +54,18 @@ export async function seededOwner(label: string, appUrl: string): Promise<Seeded
   await insert("tasks", { contact_id: contactId, title: "Overdue check-in", due_date: inDays(-3) });
   await insert("activities", { contact_id: contactId, activity_type: "call", outcome: "connected", notes: "Fictional call notes." });
 
+  const { data: intakeToken, error: linkError } = await client.rpc("rotate_intake_link");
+  if (linkError) throw linkError;
+  const { error: submitError } = await anonClient().rpc("submit_intake", {
+    p_token: intakeToken, p_consent: true,
+    p_form: { first_name: "Sky", last_name: "Example", email: "sky@example.com", phone: "404-555-0188", best_time: "Mornings",
+      lines: ["home", "life"], current_coverage: [{ line: "home", carrier: "Sample Insurance", renews_month: 4 }], heard_about: "Google search" },
+  });
+  if (submitError) throw submitError;
+  const { data: intake } = await client.from("intake_submissions").select("id").eq("status", "new").single();
+
   const cookies = await fullSessionCookies(owner.email, appUrl);
-  return { email: owner.email, cookies, contactId, policyId, openOppId, taskId };
+  return { email: owner.email, cookies, contactId, policyId, openOppId, taskId, intakeToken: intakeToken as string, intakeId: intake!.id as string };
 }
 
 /** The signed-in pages audited at phone widths. */
@@ -62,5 +75,6 @@ export function keyPages(s: SeededOwner): string[] {
     "/opportunities", "/opportunities?view=table", `/opportunities/${s.openOppId}`,
     "/tasks", `/tasks/${s.taskId}`, "/tasks/new", "/activities/new",
     "/renewals", `/renewals/${s.policyId}`, "/reports", "/settings",
+    "/intake", `/intake/${s.intakeId}`, "/intake/new",
   ];
 }

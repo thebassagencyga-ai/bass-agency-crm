@@ -23,10 +23,11 @@ test("Lighthouse accessibility ≥ 90 on key pages", async () => {
   const results: string[] = [];
   const failures: string[] = [];
   try {
-    for (const path of ["/login", ...keyPages(owner)]) {
+    const publicPages = ["/login", `/quote/${owner.intakeToken}`];
+    for (const path of [...publicPages, ...keyPages(owner)]) {
       const run = await lighthouse(`${APP_URL}${path}`, {
         port: chrome.port, output: "json", logLevel: "error", onlyCategories: ["accessibility"],
-        extraHeaders: path === "/login" ? {} : { Cookie: cookie },
+        extraHeaders: publicPages.includes(path) ? {} : { Cookie: cookie },
       });
       const category = run?.lhr.categories.accessibility;
       const score = category?.score ?? 0;

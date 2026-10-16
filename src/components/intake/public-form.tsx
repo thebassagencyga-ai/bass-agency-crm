@@ -30,7 +30,7 @@ export function PublicIntakeForm({ token }: { token: string }) {
       <IntakeFields values={values} errors={errors} audience="prospect" />
 
       {/* Trap for bots: hidden from people and screen readers, never focusable. */}
-      <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+      <div aria-hidden="true" className="invisible absolute -left-[9999px] h-px w-px overflow-hidden">
         <label htmlFor="website">Leave this empty</label>
         <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
       </div>
