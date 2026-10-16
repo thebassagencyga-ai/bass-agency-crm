@@ -466,8 +466,15 @@ Workers Free, signed-out smoke test + iPhone check, restore drill now (ADR-026).
 | CI run #104 (commit 83c4cab): all 4 jobs | pass — incl. smoke test against the Cloudflare build, secret scan, audit gate, 15 browser tests |
 | Restore-drill workflow file | first push rejected by GitHub (`runner.temp` in job env) — fixed in 83c4cab; workflow not yet run on production (owner) |
 
+**Production verification (2026-10-16, commit f042cf7, logs checked)**
+| Workflow run | Result |
+|---|---|
+| Deploy app (Cloudflare) #13 | success — "✓ Smoke test passed" |
+| Backup restore drill #3 | success — "✓ Restore drill passed: 12 tables, 137 rows, all matching production; security checks pass on the copy" (12 tables with RLS + aal2 policy, 13 functions, 0 anon grants, 0 definer functions) |
+| Smoke test production #1 | success — 16/16 checks, "✓ Smoke test passed for https://bass-agency-crm.thebassagencyga.workers.dev" |
+
 **Owner actions after approval** — in order; details in `docs/go-live-checklist.md`
-1. Merge to `main`; **Deploy app (Cloudflare)** (no migration this phase).
-2. **Backup restore drill** and **Smoke test production** — both green.
+1. ~~Merge to `main`; **Deploy app (Cloudflare)**~~ — done.
+2. ~~**Backup restore drill** and **Smoke test production** — both green~~ — done.
 3. Supabase dashboard checks (auth settings, leaked-password protection, backups, billing).
 4. iPhone checks; optional clean start; sign-off: "I approve entering real client data."
