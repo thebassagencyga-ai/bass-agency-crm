@@ -25,6 +25,7 @@ const insertable = (ids: Record<string, string>): Record<string, Record<string, 
   intake_links: { enabled: false, disabled_at: "2026-10-16T12:00:00Z" },
   household_members: { contact_id: ids.contact, first_name: "Sam", relationship: "spouse" },
   vehicles: { contact_id: ids.contact, year: 2019, make: "Example", model: "Sedan" },
+  import_batches: { file_name: "clients.csv" },
 });
 let ids: Record<string, string>;
 
@@ -62,6 +63,8 @@ beforeAll(async () => {
     const r2 = (await q.query("select id from public.cross_sell_rules where rule_key = 'home_no_auto'")).rows[0].id as string;
     return { r, r2 };
   });
+  // Phase 15: an import batch.
+  await asUser(db, alice, (q) => q.query("insert into public.import_batches (file_name) values ('clients.csv')"));
   // Phase 14: a household member and a vehicle (contact-level details).
   await asUser(db, alice, async (q) => {
     await q.query("insert into public.household_members (contact_id, first_name) values ($1, 'Sam')", [contact]);

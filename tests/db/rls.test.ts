@@ -8,7 +8,7 @@ import {
 const BUSINESS_TABLES = [
   "contacts", "opportunities", "tasks", "activities", "automation_rules",
   "renewal_outcomes", "cross_sell_rules", "cross_sell_dismissals", "intake_links", "intake_submissions",
-  "household_members", "vehicles",
+  "household_members", "vehicles", "import_batches",
 ] as const;
 
 let db: Db;
@@ -43,6 +43,8 @@ beforeAll(async () => {
     await q.query("insert into public.household_members (contact_id, first_name, relationship) values ($1, 'Sam', 'spouse')", [aliceContact]);
     await q.query("insert into public.vehicles (contact_id, year, make, model) values ($1, 2019, 'Example', 'Sedan')", [aliceContact]);
   });
+  // Phase 15: an import batch (nothing in it).
+  await asUser(db, alice, (q) => q.query("insert into public.import_batches (file_name) values ('clients.csv')"));
   // Phase 13: an intake link and one public submission to it.
   const token = await asUser(db, alice, async (q) => (await q.query("select public.rotate_intake_link() as t")).rows[0].t as string);
   await asAnon(db, (q) =>
