@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** 13 — Intake form — **APPROVED by owner 2026-10-16**; deployed 2026-10-16 (migration run #30, app run #15). Production is LIVE since the owner's go-live sign-off on 2026-10-16 (Phase 12).
+**Current phase:** 14 — Intake details — **READY FOR REVIEW** (built 2026-10-16). Phase 13 approved and deployed 2026-10-16.
 **Last updated:** 2026-10-16
 **Branch:** `phase-12-production`, merged to `main` on approval
 

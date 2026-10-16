@@ -2,6 +2,16 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 14 — Intake details (2026-10-16, ready for review)
+### Added
+- Intake form and quick intake ask for the street address, vehicles (year, make, model; with an
+  auto quote) and other drivers / household members (names, relationship).
+- Contact page: **Household / other drivers** and **Vehicles** with add, edit and remove
+  (archived, never deleted).
+- Migration `20261025120000_intake_details.sql` (`household_members`, `vehicles`).
+### Not collected (on purpose)
+- Dates of birth, driver's license numbers, VINs (ADR-029).
+
 ## Phase 13 — Intake form (2026-10-16, approved)
 ### Added
 - Public quote-request form at `/quote/<link>` (no sign-in) with a QR code and on/off/replace

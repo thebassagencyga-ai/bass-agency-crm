@@ -21,6 +21,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 11 | End-to-end testing & security review | 10 | APPROVED (2026-10-16) |
 | 12 | Production deployment & handoff | 11 | APPROVED (2026-10-16) — LIVE: owner go-live sign-off 2026-10-16 |
 | 13 | Intake form | 12 | APPROVED (2026-10-16) |
+| 14 | Intake details (address, vehicles, household) | 13 | READY FOR REVIEW |
 
 ---
 
@@ -413,6 +414,23 @@ fields: contact details, lines wanted, current carrier + renewal month, referral
 - All existing tests stay green; docs updated.
 
 **Status 2026-10-16:** built and APPROVED by the owner; see PROGRESS.md for test results. ⏳ Deploy.
+
+---
+
+## Phase 14 — Intake details
+**Objective.** The intake form and quick intake also collect the street address, vehicles
+(year, make, model) and other drivers / household members (names, relationship); the contact
+page shows and edits them. No dates of birth, license numbers or VINs (ADR-029).
+
+**Acceptance criteria**
+- A prospect sends address, vehicles and household from the iPhone form; accept and quick
+  intake put them on the contact; they can be edited and removed on the contact page.
+- Owner-only, two-step, audited, archived not deleted; another agent cannot see them.
+- Bad input refused (year 1850, more than 4 vehicles / 6 people, over-long names); unknown keys
+  such as a birth date are dropped; details erased from the inbox after review.
+- Backups and deploy verification include the new tables; all tests green.
+
+**Status 2026-10-16:** built; see PROGRESS.md. ⏳ Owner review.
 
 ---
 

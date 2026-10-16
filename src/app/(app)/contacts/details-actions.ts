@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "@/components/form";
 import { requireFullSession } from "@/lib/auth/require";
@@ -29,7 +30,10 @@ async function save(table: Table, formData: FormData, values: Record<string, unk
   if (error || !data || data.length === 0) {
     return { error: error?.code === "23514" ? "Some details are not valid. Check them and try again." : "Could not save. Please try again." };
   }
-  redirect(`/contacts/${target.contactId}?detailsaved=1#${table === "vehicles" ? "vehicles" : "household"}`);
+  revalidatePath(`/contacts/${target.contactId}`);
+  // A unique value: two saves in a row must not redirect to the same address (Next.js would
+  // treat the second as an in-page jump and not show the change).
+  redirect(`/contacts/${target.contactId}?detailsaved=${Date.now()}#${table === "vehicles" ? "vehicles" : "household"}`);
 }
 
 const fieldErrors = (issues: { path: PropertyKey[]; message: string }[]) => {
@@ -60,5 +64,6 @@ export async function removeContactDetail(formData: FormData): Promise<void> {
   const { data, error } = await supabase
     .from(table).update({ archived_at: new Date().toISOString() })
     .eq("id", target.id).eq("contact_id", target.contactId).select("id");
-  redirect(`/contacts/${target.contactId}?${error || !data?.length ? "error" : "detailremoved"}=1#${table === "vehicles" ? "vehicles" : "household"}`);
+  revalidatePath(`/contacts/${target.contactId}`);
+  redirect(`/contacts/${target.contactId}?${error || !data?.length ? "error" : "detailremoved"}=${Date.now()}#${table === "vehicles" ? "vehicles" : "household"}`);
 }

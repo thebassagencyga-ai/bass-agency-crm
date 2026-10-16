@@ -646,6 +646,33 @@ real data); Cloudflare Turnstile (free, but adds a secret to the Worker and a th
 script; can be added later if spam gets through); service-role key in the Worker (rejected:
 a secret in the Worker and a far wider privilege than one narrow function).
 
+## ADR-029 — Intake details: address, vehicles, household (no DOB, license or VIN)
+
+**Status:** Proposed — built in Phase 14 (awaiting owner review)
+
+**Owner decisions (2026-10-16).** Add the street address, vehicles (year, make, model) and
+other drivers / household members (names and relationship). Not collected: dates of birth
+(recommended against and not chosen), driver's license numbers (forbidden, CLAUDE.md), VINs.
+
+**Decision.**
+- Address: street, city, state (pre-filled GA), ZIP on the public form and quick intake, into
+  the contact's existing address fields. Into an existing contact the address is taken only
+  when that contact has no street address, and then as a whole (no mixing of two addresses).
+- `household_members` (first name required, last name, relationship: spouse / child / parent /
+  other; up to 6 on the form) and `vehicles` (year 1900 … this year + 2, make required,
+  model; up to 4, only with an auto quote) belong to the **contact**. Owner-only RLS with the
+  two-step requirement, audited, archived instead of deleted; the contact page lists them with
+  add, edit and remove.
+- The intake submission carries them as validated JSON (size-capped) and erases them on review
+  with everything else. `crm_engine.intake_clean` keeps only the known keys of each row, so
+  anything else sent (e.g. a date of birth or VIN) is dropped, never stored.
+- The catalog test that blocks columns named like birth/dob/license/… still applies to the
+  new tables.
+
+**Alternatives.** Dates of birth (rejected: name + address + DOB from a public page is an
+identity-theft risk, and the CRM is not a quoting engine); details on the opportunity instead
+of the contact (rejected: people and vehicles outlive any one quote).
+
 ---
 
 ## Open questions for the owner (do not block Phase 1 start)

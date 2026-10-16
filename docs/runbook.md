@@ -75,6 +75,9 @@ latest backup restores, on a throwaway database (production is not touched); run
   and share the new one; or *Turn off* the form for a while. Each link takes at most 10
   requests an hour and 50 a day.
 - **On a call:** Intake → *Quick intake* creates the contact and leads directly.
+- **Household and vehicles** (names/relationship; year/make/model) arrive with the request and
+  are kept on the contact page, where you can edit or remove them. Never add dates of birth,
+  license numbers or VINs; those stay in your quoting system.
 
 ## 5. Access problems
 - **Lost phone / authenticator:** Supabase → Authentication → Users → your user → remove the

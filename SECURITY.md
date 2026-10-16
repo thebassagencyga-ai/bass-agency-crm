@@ -22,7 +22,7 @@ check. The Phase 2 migration and dashboard settings are applied only after owner
 | CSRF | Cross-site form post | Server Actions origin check; SameSite cookies |
 | Credential compromise | Phished owner password | Strong password, MFA (TOTP) recommended (Phase 2 decision), signups disabled |
 | Data loss | Accidental delete, bad migration | Archive not delete; nightly encrypted backups kept 30 days (ADR-027, Supabase Free); migration review; monthly restore drill |
-| Over-collection | SSNs/health info in notes | Data-minimization rules; UI guidance on note fields |
+| Over-collection | SSNs/health info in notes; DOB or license numbers on intake | Data-minimization rules; UI guidance on note fields; intake keeps only known fields (names/relationship, year/make/model), unknown keys dropped (ADR-029); catalog test blocks birth/license columns |
 | Offline leakage | Cached records on a lost phone | Service worker caches only hashed static files, icons and the offline notice; pages and data always come from the network (ADR-025) |
 | Supply chain | Compromised npm package | Minimal deps, lockfile, `npm audit`, Dependabot |
 | Malicious link in messages | `javascript:` URL saved as review link | `google_review_url` must be `https://` (DB check); `sms:` links built server-side with encoded text |
