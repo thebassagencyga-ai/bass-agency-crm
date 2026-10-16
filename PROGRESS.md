@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** 14 — Intake details — **APPROVED by owner 2026-10-16**; deployed 2026-10-16 (migration run #32, app run #16). Phase 13 approved and deployed 2026-10-16.
+**Current phase:** 15 — Import and export — **READY FOR REVIEW** (built 2026-10-16). Phase 14 approved and deployed 2026-10-16.
 **Last updated:** 2026-10-16
 **Branch:** `phase-12-production`, merged to `main` on approval
 
@@ -585,4 +585,35 @@ test 17/17.
 2. Deploy database migrations: dry run lists only `20261025120000_intake_details.sql`; then apply
    (verify expects 16 tables, 18 functions).
 3. Deploy app (Cloudflare); send yourself a test request with a vehicle and a household member.
+
+## Phase 15 — Import and export (branch `phase-15-import-export`)
+Started 2026-10-16 on the owner's go-ahead ("start phase 15"); source: an Alfa report (CSV),
+headings not yet seen, so matching is guessed and editable (ADR-031).
+
+**Completed**
+- Migration `20261026120000_import_export.sql`: `import_batches`; `import_batch_id` on contacts
+  and opportunities; `import_book` (invoker, one transaction); private undo trigger (7 days,
+  all or nothing, only if untouched); `report_summary` ignores imported records for new leads,
+  conversion and referrals.
+- `src/lib/import/*`: CSV parser/writer (formula guard), heading and policy-type guesses, value
+  parsing (dates, money, terms, states, names), row building, matching existing contacts,
+  server schema, export definitions.
+- `/import` (wizard: file → match columns and policy types → check → import; recent imports
+  with Undo); `/export/<dataset>` downloads; links on Contacts and Settings.
+
+**Tests (2026-10-16)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build | pass |
+| Local: unit | 376 passed (34 new: CSV, guesses, values, building, matching, export guard) |
+| Local: database (PostgreSQL 16) | 408 passed (17 new: import, matched contact unchanged, all-or-nothing, limits, isolation, 500 clients, reports ignore imports, undo + 4 refusal cases, 7-day limit, no direct delete) |
+| CI run #133 (commit 34f5637): all 4 jobs | pass — browser test imports a 500-client report (guessed columns, unknown type chosen, existing contact matched, bad row explained), checks Renewals, downloads contacts CSV (formula neutralised), undoes; Lighthouse 100 on `/import`; phone widths clean |
+| Production | not deployed (awaiting owner review) |
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. Deploy database migrations: dry run lists only `20261026120000_import_export.sql`; then
+   apply (verify expects 17 tables, 19 functions).
+3. Deploy app (Cloudflare); try a small export of your Alfa report first (a few rows), check the
+   matches, import, look at the clients, then Undo if anything looks off.
 

@@ -691,6 +691,34 @@ of the contact (rejected: people and vehicles outlive any one quote).
 - Unchanged: dates of birth and license numbers excluded (tabled); no Alfa integrations; no
   policy document uploads; cost under $25/month.
 
+## ADR-031 — Import a book of business (CSV) and download data
+
+**Status:** Proposed — built in Phase 15 (awaiting owner review)
+
+**Decision.**
+- **Import** (`/import`, also from Contacts and Settings): the CSV is read in the browser (max
+  2 MB / 5,000 rows / 1,000 clients); columns are matched to CRM fields by guessing common
+  report headings (editable); every distinct policy type is mapped to a line or "skip". The
+  check shows clients, policies, rows left out with reasons, and contacts already in the CRM
+  (same email or phone) — ticked by default to add the policies to the existing contact, which
+  is not changed. Nothing is kept of the file itself.
+- `public.import_book` (invoker, one transaction) creates contacts and **won** opportunities
+  (policies: carrier, premium, effective/renewal dates, term) tagged with `import_batch_id`.
+  Renewal dates already passed are moved forward by the term; renewal reviews the automation
+  would make overdue are due today. Imported history is excluded from the new-lead, conversion
+  and referral reports.
+- **Undo** (7 days, all or nothing, only while nothing from the import was changed or used):
+  the user sets the batch to "undone"; a private trigger (`crm_private.undo_import`, like the
+  audit trigger) deletes the batch's records. Users still have no DELETE privilege. Deletions
+  are audited.
+- **Download my data** (Settings): CSV per dataset (contacts, opportunities/policies, tasks,
+  activities, household, vehicles), the user's rows only, UTF-8 with BOM for Excel; text that a
+  spreadsheet would run as a formula is prefixed with `'` (CSV-injection guard).
+
+**Alternatives.** Server-side file upload and parsing (rejected: the file would pass through
+and possibly persist on the server; browser parsing keeps it local); a staging table for the
+preview (unnecessary: the preview is computed in the browser and re-checked on the server).
+
 ---
 
 ## Open questions for the owner (do not block Phase 1 start)

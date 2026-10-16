@@ -2,6 +2,14 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 15 — Import and export (2026-10-16, ready for review)
+### Added
+- **Import clients** from a CSV report: guessed column matching, policy-type mapping, a check
+  with problems and existing-contact matches, one-step import, undo for 7 days.
+- **Download my data** in Settings: CSV files for contacts, policies, tasks, activities,
+  household and vehicles.
+- Migration `20261026120000_import_export.sql`; reports ignore imported history.
+
 ## Phase 14 — Intake details (2026-10-16, approved)
 ### Added
 - Intake form and quick intake ask for the street address, vehicles (year, make, model; with an

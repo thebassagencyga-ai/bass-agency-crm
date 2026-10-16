@@ -79,6 +79,16 @@ latest backup restores, on a throwaway database (production is not touched); run
   are kept on the contact page, where you can edit or remove them. Never add dates of birth,
   license numbers or VINs; those stay in your quoting system.
 
+## 4b. Importing and downloading
+- **Import:** run your client/policy report in Alfa's system, save it as CSV, then Contacts →
+  *Import*. Check the column matches, choose a line for any policy type it doesn't recognise
+  (or Skip), press *Check the file*, review the problems and matches, then *Import*. Imported
+  policies show in Renewals; they are not counted as new business in Reports.
+- **Undo:** Import → *Recent imports* → *Undo* (7 days; refused if you've changed anything
+  from that import — then fix records by hand).
+- **Download:** Settings → *Your data*. The files contain client details: keep them private
+  and delete them when done.
+
 ## 5. Access problems
 - **Lost phone / authenticator:** Supabase → Authentication → Users → your user → remove the
   MFA factor. Sign in with your password; the app asks you to set up a new authenticator.

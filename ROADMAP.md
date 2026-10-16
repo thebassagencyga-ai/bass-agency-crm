@@ -22,7 +22,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 12 | Production deployment & handoff | 11 | APPROVED (2026-10-16) — LIVE: owner go-live sign-off 2026-10-16 |
 | 13 | Intake form | 12 | APPROVED (2026-10-16) |
 | 14 | Intake details (address, vehicles, household) | 13 | APPROVED (2026-10-16) |
-| 15 | Import book of business (CSV) + export data | 14 | NOT STARTED |
+| 15 | Import book of business (CSV) + export data | 14 | READY FOR REVIEW |
 | 16 | Inactivity sign-out + email/text via device apps | 15 | NOT STARTED |
 | 17 | Tags + merge duplicate contacts | 16 | NOT STARTED |
 | 18 | Calendar feed for tasks | 17 | NOT STARTED |
@@ -436,6 +436,22 @@ page shows and edits them. No dates of birth, license numbers or VINs (ADR-029).
 - Backups and deploy verification include the new tables; all tests green.
 
 **Status 2026-10-16:** built and APPROVED by the owner; see PROGRESS.md. ⏳ Deploy.
+
+---
+
+## Phase 15 — Import and export
+**Objective.** Bring the client list in from an Alfa report (CSV) and let the owner download
+all data (ADR-031).
+
+**Acceptance criteria**
+- A 500-client report imports in one step on the iPhone with guessed column matches; unknown
+  policy types must be chosen; bad rows explained and left out; existing contacts matched.
+- Imported clients appear in Contacts, Renewals and cross-sell; not counted as new leads/wins.
+- Undo within 7 days removes everything, or nothing if anything was changed.
+- Downloads open in Excel/Numbers; formulas neutralised; owner's rows only.
+- All tests green.
+
+**Status 2026-10-16:** built; see PROGRESS.md. ⏳ Owner review.
 
 ---
 
