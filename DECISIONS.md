@@ -599,6 +599,53 @@ then stay as an extra copy or be switched off.
 backups (rejected: a mistake or outage could lose everything); storing dumps elsewhere (another
 service and account to secure).
 
+## ADR-028 — Intake form: public link, review inbox, quick intake
+
+**Status:** Proposed — built in Phase 13 (awaiting owner review)
+
+**Owner decisions (2026-10-16).** Both a public link for prospects and a quick in-app intake;
+public submissions go to a review inbox first; fields: contact details, lines wanted, current
+carrier + renewal month per line, how they heard about the agency / who referred them.
+
+**Decision.**
+- **Public page** `/quote/<token>` (no sign-in, `noindex`). The token is 32 hex characters
+  from a random UUID (122 random bits), one enabled link per agent; **Turn off** and **New
+  link** (the old link stops at once) in Settings, with a copyable URL and a QR code drawn
+  server-side as plain SVG.
+- **The only anonymous capability** is `public.submit_intake(token, form, consent)`:
+  SECURITY DEFINER (anon has no table privileges at all), `search_path` pinned, executable by
+  `anon` only. It accepts an enabled link only, requires consent, re-validates every field
+  (`crm_engine.intake_clean`: names, phone or email, ZIP, contact method, 1–4 known lines,
+  coverage per chosen line, length limits, 6 KB form cap), limits each link to **10 per hour
+  and 50 per day**, inserts one row into the inbox and returns nothing. It cannot read
+  anything. Anyone can call it directly with the publishable key, so the database checks are
+  the security boundary; the form's checks and a hidden bot-trap field are for usability and
+  cheap spam only.
+- **Inbox** (`intake_submissions`, owner + two-step RLS; no INSERT grant for users; not
+  audited, because the audit log would keep erased details). **Accept** (`accept_intake`,
+  invoker, one transaction): creates the contact — or fills only the empty details of a chosen
+  existing contact — with the agent-picked referrer, a *New lead* opportunity per line with
+  `current_carrier` / `current_policy_renews_on`, and a *Quote <line> before the current policy
+  renews* task due 30 days before that month (never in the past); the existing automation adds
+  *Make initial contact*. **Discard** (`discard_intake`). Either way the personal details are
+  **erased** from the inbox row (DB check); only status, dates, consent time/version and the
+  contact link remain.
+- **Quick intake** (`quick_intake`, invoker): the same questions and rules for the agent, with
+  a duplicate check (add to the existing contact or create a new one).
+- **Consent** text v1 shown on the form; time and version stored per submission and noted on
+  the contact when accepted.
+- Public server action: the page posts to `/quote/…` (a public path in the middleware). Server
+  actions are global in Next.js, but every other action re-checks the two-step session on the
+  server (`requireFullSession`), so a public path cannot reach them.
+- Deploy verification and the catalog tests allow **exactly** this one anonymous function
+  (definer, pinned path, anon-only); any other anonymous or definer function still fails.
+- Dependency: `qrcode` (core encoder only; no PNG or file code is imported).
+
+**Alternatives.** Straight into the pipeline (rejected by the owner: spam and duplicates in
+real data); Cloudflare Turnstile (free, but adds a secret to the Worker and a third-party
+script; can be added later if spam gets through); service-role key in the Worker (rejected:
+a secret in the Worker and a far wider privilege than one narrow function).
+
 ---
 
 ## Open questions for the owner (do not block Phase 1 start)

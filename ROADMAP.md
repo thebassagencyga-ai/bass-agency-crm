@@ -20,6 +20,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 10 | Mobile experience & PWA | 9 | APPROVED (2026-10-15) |
 | 11 | End-to-end testing & security review | 10 | APPROVED (2026-10-16) |
 | 12 | Production deployment & handoff | 11 | APPROVED (2026-10-16) — LIVE: owner go-live sign-off 2026-10-16 |
+| 13 | Intake form | 12 | READY FOR REVIEW |
 
 ---
 
@@ -391,6 +392,27 @@ signed-out automated smoke test + owner's iPhone check; restore drill now (ficti
   and the **Backup restore drill** rehearsed locally end to end; ⏳ drill run on production.
 - ✅ Maintenance runbook: `docs/runbook.md`.
 - ⏳ Owner sign-off before real client data: `docs/go-live-checklist.md`.
+
+---
+
+## Phase 13 — Intake form
+**Objective.** A way to pull prospects' details straight into the CRM: a public quote-request
+link (with QR code) whose submissions wait in a review inbox, and a quick intake for the agent.
+
+**Owner decisions (2026-10-16):** both public link and quick intake; review inbox first;
+fields: contact details, lines wanted, current carrier + renewal month, referral source.
+
+**Acceptance criteria** (design: ADR-028)
+- Public form opens signed out on an iPhone, validates, and a submission appears in the
+  agent's inbox; nothing else is possible anonymously (one function, reads nothing).
+- Accept creates (or adds to) the contact, a New lead per line, the referral link and a quote
+  task before each known renewal; duplicates are offered; Discard erases the details.
+- A turned-off or replaced link is refused; rate limit, field validation and bot trap work.
+- Quick intake creates the same records directly, with the duplicate check.
+- Deploy verification, RLS catalog tests and backups cover the two new tables.
+- All existing tests stay green; docs updated.
+
+**Status 2026-10-16:** built; see PROGRESS.md for test results. ⏳ Owner review.
 
 ---
 

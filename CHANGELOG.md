@@ -2,6 +2,17 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 13 — Intake form (2026-10-16, ready for review)
+### Added
+- Public quote-request form at `/quote/<link>` (no sign-in) with a QR code and on/off/replace
+  in Settings; submissions wait in a new **Intake** inbox (dashboard badge).
+- Accept creates the contact (or adds to an existing one), a New lead per line, the referral
+  link and a quote task 30 days before the current policy renews; Discard erases the details.
+- Quick intake for the agent with a duplicate check.
+- Opportunities record the prospect's current carrier and renewal (shown on the opportunity).
+- Migration `20261024120000_intake.sql`; the only anonymous database function,
+  `submit_intake` (validated, rate-limited). Smoke test checks the public form (17 checks).
+
 ## Go-live — 2026-10-16
 - Owner signed the go-live checklist: "I approve entering real client data." Test records
   removed (clean start); first post-clean-start backup saved.

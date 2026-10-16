@@ -65,6 +65,17 @@ can read a backup — keep it in your password manager; if it is lost, the backu
 Everything entered after the backup you restore is lost. A **Backup restore drill** proves the
 latest backup restores, on a throwaway database (production is not touched); run it monthly.
 
+## 4a. Intake form (quote requests)
+- **Your link:** Settings → *Intake form*: copy the link, or screenshot the QR code for cards,
+  the office or a website. Requests appear in **Intake** (and as a badge on the dashboard).
+- **Review:** open a request → *Accept and add to CRM* (pick an existing contact if it is the
+  same person, and the referrer if they named one) or *Discard*. Either way the request's
+  details are erased from the inbox afterwards.
+- **Spam:** discard it. If it keeps coming, Settings → *New link* (the old link stops at once)
+  and share the new one; or *Turn off* the form for a while. Each link takes at most 10
+  requests an hour and 50 a day.
+- **On a call:** Intake → *Quick intake* creates the contact and leads directly.
+
 ## 5. Access problems
 - **Lost phone / authenticator:** Supabase → Authentication → Users → your user → remove the
   MFA factor. Sign in with your password; the app asks you to set up a new authenticator.

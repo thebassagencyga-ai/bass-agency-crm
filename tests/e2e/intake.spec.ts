@@ -34,8 +34,8 @@ test("public intake link → review inbox → accept; quick intake; link off and
 
   await form.getByLabel("First name").fill("Jordan");
   await form.getByLabel("Last name").fill("Example");
-  await form.getByLabel("Phone", { exact: false }).fill("404 555 0177");
-  await form.getByLabel("Email", { exact: false }).fill("jordan@example.com");
+  await form.getByRole("textbox", { name: /^Phone/ }).fill("404 555 0177");
+  await form.getByRole("textbox", { name: /^Email/ }).fill("jordan@example.com");
   await form.getByLabel("ZIP code", { exact: false }).fill("30117");
   await form.getByRole("checkbox", { name: "Auto" }).check();
   await form.getByRole("checkbox", { name: "Home" }).check();
@@ -70,7 +70,7 @@ test("public intake link → review inbox → accept; quick intake; link off and
   await page.goto("/intake/new");
   await page.getByLabel("First name").fill("Jordan");
   await page.getByLabel("Last name").fill("Example");
-  await page.getByLabel("Phone", { exact: false }).fill("404-555-0177");
+  await page.getByRole("textbox", { name: /^Phone/ }).fill("404-555-0177");
   await page.getByRole("checkbox", { name: "Life" }).check();
   await page.getByRole("button", { name: "Add to CRM" }).click();
   await expect(page.getByText("You may already have this person")).toBeVisible();
@@ -86,7 +86,7 @@ test("public intake link → review inbox → accept; quick intake; link off and
   await form.goto(`${APP_URL}${quotePath}`);
   await form.getByLabel("First name").fill("Late");
   await form.getByLabel("Last name").fill("Example");
-  await form.getByLabel("Email", { exact: false }).fill("late@example.com");
+  await form.getByRole("textbox", { name: /^Email/ }).fill("late@example.com");
   await form.getByRole("checkbox", { name: "Life" }).check();
   await form.getByRole("checkbox", { name: /I agree that The Bass Agency may contact me/ }).check();
   await form.getByRole("button", { name: "Send my request" }).click();

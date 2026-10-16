@@ -13,11 +13,12 @@ check. The Phase 2 migration and dashboard settings are applied only after owner
 ## 2. Threat model (summary)
 | Threat | Example | Primary control |
 |--------|---------|-----------------|
-| Unauthenticated access | Direct API calls with the publishable key | RLS denies `anon`; protected routes |
+| Unauthenticated access | Direct API calls with the publishable key | RLS denies `anon`; protected routes; the one public function (`submit_intake`, ADR-028) only adds a validated, rate-limited submission to an inbox and reads nothing |
+| Intake form abuse | Spam or junk sent to `/quote/<token>` or straight to the API | Unguessable per-agent token, turn off / replace in Settings; DB validation and 10/hour, 50/day per link; review inbox (nothing reaches contacts until accepted); bot-trap field |
 | Cross-account access / IDOR | Agent B opens `/contacts/<A's id>` | RLS `owner_id = auth.uid()` on every table; tests |
 | Privilege escalation | Browser code using a secret key | Secret key server-only; bundle scan in CI |
 | Injection | Malicious search string | Parameterized Supabase queries / RPC args; zod validation; no string-built SQL |
-| XSS | Script in a note | React escaping; no `dangerouslySetInnerHTML`; CSP |
+| XSS | Script in a note or an intake submission | React escaping; no `dangerouslySetInnerHTML` (the QR code is JSX); CSP |
 | CSRF | Cross-site form post | Server Actions origin check; SameSite cookies |
 | Credential compromise | Phished owner password | Strong password, MFA (TOTP) recommended (Phase 2 decision), signups disabled |
 | Data loss | Accidental delete, bad migration | Archive not delete; nightly encrypted backups kept 30 days (ADR-027, Supabase Free); migration review; monthly restore drill |
@@ -56,6 +57,11 @@ check. The Phase 2 migration and dashboard settings are applied only after owner
   `with check` on insert/update so ownership cannot be reassigned.
 - Lookup tables (product lines, stage definitions) readable by `authenticated`; writable only
   by owner-scoped config rows or migrations.
+- One exception for anonymous callers (Phase 13, ADR-028): `public.submit_intake` — SECURITY
+  DEFINER, pinned `search_path`, executable by `anon` only, inserts one inbox row, returns
+  nothing. Checked by deploy verification and `tests/db/rls-regression.test.ts`.
+- Intake submissions are not audited, and their personal details are erased when accepted
+  or discarded (DB check).
 - `audit_log`: insert by trigger only (`security definer` function with fixed `search_path`);
   no update/delete grants to application roles.
 - `anon` role: no table privileges.
@@ -145,7 +151,12 @@ underwriting answers, detailed health information, policy documents. No file upl
 | Backup restore rehearsed | 11–12 | Phase 11: full dump restored into a fresh local database and verified in CI. Phase 12: **Backup restore drill** restored production data into a throwaway database (passed 2026-10-16); since ADR-027 it restores the latest nightly backup, and `tests/db/backup-tool.test.ts` covers the backup → restore scripts in CI |
 | Owner security review before real client data | 12 | Pending: `docs/go-live-checklist.md` (owner sign-off) |
 
+| Public intake: only `submit_intake` callable anonymously; links, rate limits, validation, erasure | 13 | DB tests (`tests/db/intake.test.ts`), real Data API test (`tests/integration/intake-api.test.ts`), browser test, deploy verification |
+
 ## 9. Known risks (open)
+- **Public intake form (ADR-028):** a determined spammer can fill a link's 50/day inbox
+  quota with junk (nothing reaches contacts; turn the link off or replace it). Free-text
+  fields could carry sensitive data despite the on-form warning; it is erased on review.
 - **Preview on the public internet (ADR-017):** the app is reachable at a workers.dev address
   from Phase 2 onward. Protection: invite-only sign-in, mandatory two-step login, RLS. Rule:
   fictional data only until the Phase 11 review and Phase 12 sign-off.

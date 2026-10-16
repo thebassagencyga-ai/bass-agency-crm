@@ -123,7 +123,8 @@ Production runs on Cloudflare Workers (free plan) at
 GitHub → Actions:
 - **Deploy database migrations** — dry run, then apply; ends with a schema verification.
 - **Deploy app (Cloudflare)** — builds, scans the browser bundle, deploys, smoke-tests.
-- **Smoke test production** — signed-out, read-only checks of the live site.
+- **Smoke test production** — signed-out, read-only checks of the live site (17 checks,
+  including the public intake form).
 - **Nightly backup** — every night: encrypted copy of the CRM data, kept 30 days (ADR-027).
 - **Backup restore drill** — restores the latest backup into a throwaway database and checks it.
 - **Restore backup (into an empty CRM project)** — disaster recovery (runbook §4).
