@@ -109,7 +109,8 @@ underwriting answers, detailed health information, policy documents. No file upl
 - Supabase Pro daily backups (retention per plan — owner to confirm in dashboard).
 - Point-in-time recovery is a paid add-on; not enabled without approval.
 - Supplemental: owner-initiated `pg_dump` (schema + data) stored encrypted, outside Git.
-- Restoration drill required in Phase 11 into a local/non-production database.
+- Restoration drill: rehearsed in Phase 11 into a fresh local database on every CI run
+  (`tests/db/backup-restore.test.ts`); a production backup restore is a Phase 12 step.
 
 ## 8. Verification checklist
 | Check | Phase | Status |
@@ -134,10 +135,11 @@ underwriting answers, detailed health information, policy documents. No file upl
 | Tasks, activities and profile settings owner-only; no deletes; review/referral messages never sent by the app | 5 | DB tests (2 mutations caught), API and browser tests in CI |
 | Automation acts only on the caller's rows, never bypasses RLS, never duplicates; no incentive in messages | 6 | DB tests (6 mutations caught), unit, API and browser tests in CI |
 | Dashboard counts only the caller's records; nothing for password-only or anonymous sessions | 7 | DB tests against fixtures (2 mutations caught), API and browser tests in CI |
+| RLS regression suite driven by the catalog (new tables/functions covered automatically) | 11 | Done: `tests/db/rls-regression.test.ts`, 5 injected holes caught |
 | Audit log written and immutable to app roles | 1, 3+ | Verified locally at SQL level (`tests/db/audit.test.ts`) |
 | Service worker caches no record data | 10 | Verified: unit test runs `public/sw.js` against a fake browser (pages, server actions, RSC data, other origins never cached); browser test lists the real cache (only `/_next/static/`, icons, offline page) |
-| `npm audit` / secret scan clean or triaged | 11 | Not started |
-| Backup restore rehearsed | 11–12 | Not started |
+| `npm audit` / secret scan clean or triaged | 11 | Done: production dependencies 0 findings (CI gate); dev-only `braces` accepted Low, `glob` fixed (docs/security-review.md F-05/F-06); secret scan of files + full history in CI, clean |
+| Backup restore rehearsed | 11–12 | Phase 11: full dump restored into a fresh local database and verified (data, security rules, access, automation) in CI; production restore in Phase 12 |
 | Owner security review before real client data | 12 | Not started |
 
 ## 9. Known risks (open)
