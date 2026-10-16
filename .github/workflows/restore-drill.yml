@@ -33,7 +33,6 @@ jobs:
       SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-      DRILL_DIR: ${{ runner.temp }}/restore-drill
       RESTORE_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
     steps:
       - uses: actions/checkout@v4
@@ -42,6 +41,9 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
+
+      - name: Working folder on this runner (deleted at the end)
+        run: echo "DRILL_DIR=$RUNNER_TEMP/restore-drill" >> "$GITHUB_ENV"
 
       - name: Check the three secrets are set
         run: |
