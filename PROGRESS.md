@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** 13 — Intake form — **APPROVED by owner 2026-10-16**; deploy pending (migration + app). Production is LIVE since the owner's go-live sign-off on 2026-10-16 (Phase 12).
+**Current phase:** 13 — Intake form — **APPROVED by owner 2026-10-16**; deployed 2026-10-16 (migration run #30, app run #15). Production is LIVE since the owner's go-live sign-off on 2026-10-16 (Phase 12).
 **Last updated:** 2026-10-16
 **Branch:** `phase-12-production`, merged to `main` on approval
 
@@ -535,6 +535,11 @@ renewal month, referral source (ADR-028).
 | Local: Cloudflare build in workerd + smoke test | 17/17 checks |
 | CI run #120 (commit d1daed1): all 4 jobs | pass — PG17 database tests, real Supabase stack: intake API test (anon can only submit; owner accepts; stranger refused), browser test (link → public form → inbox → accept → quick intake with duplicate → link off → new link), Lighthouse accessibility 100 on `/quote/…`, `/intake`, `/intake/<id>`, `/intake/new`, phone widths 375/390/430 clean |
 | Production | not deployed (awaiting owner review) |
+
+**Production deploy (2026-10-16, commit 2803cd2):** migrations dry run #29 listed only
+`20261024120000_intake.sql`; apply run #30 applied it and verification passed (14 tables, 14
+two-step policies, 18 Data API functions, `public_intake_function` 1, no other anonymous or
+definer function); Deploy app #15 smoke test 17/17 incl. the public intake form.
 
 **Owner actions after approval**
 1. Merge to `main`.
