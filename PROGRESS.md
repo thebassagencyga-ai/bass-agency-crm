@@ -406,3 +406,33 @@ Started 2026-10-15 on the owner's go-ahead ("move to 10"). Design in ADR-025.
 
 **Production deploy (2026-10-15):** no migration this phase; preview run #11 deployed commit
 e6049ad. Owner confirmed on the iPhone ("Deployed, done").
+
+## Phase 11 — End-to-end testing & security review (branch `phase-11-e2e-security`)
+Started 2026-10-16 on the owner's go-ahead ("move to 11"). Findings: `docs/security-review.md`.
+
+**Completed**
+- Browser: full sales journey with real two-step sign-in; error handling (404s, someone
+  else's record, bad input).
+- Database: catalog-driven RLS regression suite; date-handling suite (app vs database);
+  backup → restore rehearsal into a fresh local database.
+- Fixes: F-01 cross-sell window time zone (migration `20261023120000_review_fixes.sql`), F-02
+  outage vs wrong password, F-03 test cookie switch, F-04 404/error pages, F-05 `glob`.
+- CI: secret scan (files + history), production `npm audit` gate, PostgreSQL 17 client tools
+  for the restore rehearsal.
+
+**Tests (2026-10-16)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck | pass |
+| Local: unit | 298 passed |
+| Local: database (PostgreSQL 16) | 316 passed (11 RLS regression, 45 date handling, 4 backup/restore) |
+| Local: secret scan | clean (247 files, 86 commits); 5 planted problems all caught |
+| Mutation checks | RLS regression: 5 injected holes caught; backup: restore without grants caught; date: F-01 test fails without the fix |
+| CI runs #91–#97 | failed: the cross-sell time-zone bug (F-01) surfaced when CI ran after midnight UTC; record 404 status (F-11, streamed pages) — both resolved |
+| CI run #98 (commit ffcb42d): all 4 jobs | pass — secret scan, audit gate, PostgreSQL 17 incl. restore rehearsal, Supabase image + lint, API tests, 15 browser tests (journey, errors, Lighthouse all 100) |
+
+**Owner actions after approval**
+1. Read `docs/security-review.md`.
+2. Merge to `main`; deploy database migrations (dry run lists only
+   `20261023120000_review_fixes.sql`; verify expects 12 tables, 13 Data API functions);
+   deploy app preview.

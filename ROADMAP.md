@@ -18,7 +18,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 8 | Renewals & cross selling | 6, 7 | APPROVED (2026-10-15) |
 | 9 | Reporting | 8 | APPROVED (2026-10-15) |
 | 10 | Mobile experience & PWA | 9 | APPROVED (2026-10-15) |
-| 11 | End-to-end testing & security review | 10 | IN PROGRESS |
+| 11 | End-to-end testing & security review | 10 | READY FOR REVIEW |
 | 12 | Production deployment & handoff | 11 | NOT STARTED |
 
 ---
@@ -342,6 +342,30 @@ Lighthouse accessibility ≥ 90 on key pages.
 automated task → win → renewal); RLS regression suite; date-handling suite; error handling;
 dependency audit (`npm audit`), secret scan; backup restoration rehearsed into a local
 database; findings fixed or documented with risk rating.
+
+**Status 2026-10-16** (✅ verified by automated check; ⏳ owner action). Findings:
+`docs/security-review.md`.
+- ✅ Playwright journey: real sign-in (password + authenticator code) → add contact →
+  opportunity → automatic first-contact task → follow-up → quote → quote follow-up → win
+  (onboarding, review, referral, renewal tasks) → renewal recorded → reports → sign out
+  (`tests/e2e/journey.spec.ts`).
+- ✅ RLS regression suite driven by the catalog, so new tables and functions are covered
+  automatically (`tests/db/rls-regression.test.ts`; 5 injected holes caught).
+- ✅ Date-handling suite: app and database agree on New York "today" across midnight, DST and
+  New Year, day/month arithmetic, business days, renewal roll-forward; found and fixed one
+  time-zone bug (F-01) with a regression test.
+- ✅ Error handling: app-wide 404 and last-resort error page; outages no longer reported as
+  a wrong password; someone else's record looks exactly like a missing one
+  (`tests/e2e/errors.spec.ts`, unit tests).
+- ✅ Dependency audit: production dependencies 0 findings (CI gate); `glob` fixed; dev-only
+  `braces` accepted as Low (no fix published).
+- ✅ Secret scan of every tracked file and the full Git history, in CI on every push; clean.
+- ✅ Backup restoration rehearsed into a fresh local database on every CI run: every row,
+  policy, function, trigger and grant restored; access rules and automation still work
+  (`tests/db/backup-restore.test.ts`).
+- ✅ Findings fixed or documented with a risk rating (11 findings: 6 fixed, 5 accepted/info).
+- ⏳ Owner: read `docs/security-review.md`; Phase 12 covers the production backup restore and
+  Supabase settings check.
 
 ---
 

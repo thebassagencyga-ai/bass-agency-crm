@@ -2,6 +2,21 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 11 — End-to-end testing & security review (2026-10-16, ready for review)
+### Fixed
+- Cross-sell "lost in the last 12 months" now counts New York dates (was off by a day for a
+  few hours each evening). Migration `20261023120000_review_fixes.sql`.
+- Sign-in says the service is unavailable when it is, instead of "incorrect password".
+- The local-test cookie switch can no longer weaken cookies on the real site.
+- Friendly "Page not found" and last-resort error pages.
+- `glob` in build tooling updated to a patched version.
+### Added
+- Full sales-journey browser test with real two-step sign-in; error-handling browser tests.
+- Catalog-driven RLS regression suite; app/database date-handling suite; backup-and-restore
+  rehearsal into a fresh local database.
+- CI: secret scan of files and full history; production dependency audit gate.
+- `docs/security-review.md`: 11 findings with risk ratings.
+
 ## Phase 10 — Mobile experience & PWA (2026-10-15, approved)
 ### Added
 - Add to Home Screen on iPhone: app name "Bass CRM", icon, full-screen (standalone) mode,

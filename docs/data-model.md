@@ -183,7 +183,8 @@ Ended policies get no reviews.
 
 Internal schema `crm_engine` (not exposed by the Data API; usable by signed-in users only
 because triggers run as them): `user_today`, `add_business_days`, `rule_enabled`,
-`apply_rule`, `upsert_task`, `close_prospecting`, and (Phase 9) `cross_sell_matches` — the
+`apply_rule`, `upsert_task`, `close_prospecting`, and (Phase 9; time-zone fix in Phase 11)
+`cross_sell_matches` — the
 cross-sell matching shared by `cross_sell_prompts` and `report_summary` — all SECURITY INVOKER.
 | `search_opportunities(query, product_line, outcome, stage_id, closed, sort, limit, offset)` | Board and table: opportunities with stage name/position and contact name; search over contact name, business, description, carrier; `closed` = `all` / `none` / `recent` (open + closed in 30 days); sort `updated` / `created` / `name` / `premium` / `renewal`; limit capped at 200. |
 
