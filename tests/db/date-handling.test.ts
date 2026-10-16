@@ -116,3 +116,19 @@ describe("stored values", () => {
     await db.query("set time zone 'UTC'");
   });
 });
+
+describe("cross-sell 12-month window uses New York dates (regression, Phase 11)", () => {
+  it("a loss at 8:30 pm in New York (next day in UTC) counts on its New York date", async () => {
+    await db.query("set time zone 'UTC'"); // the database server's own zone must not matter
+    const c = await insertContact(db, user, { first_name: "Wren" });
+    await insertOpportunity(db, user, c, "auto", "bound", { outcome: "won" });
+    const lost = await insertOpportunity(db, user, c, "home", "lost", { outcome: "lost", loss_reason: "price" });
+    await db.query("update public.opportunities set closed_at = '2026-10-16T00:30:00Z' where id = $1", [lost]); // Oct 15, 8:30 pm EDT
+    const keys = (onDate: string) =>
+      asUser(db, user, async (q) =>
+        (await q.query("select rule_key from public.cross_sell_prompts($1::date, $2) order by rule_key", [onDate, c])).rows.map((r) => r.rule_key),
+      );
+    expect(await keys("2027-10-14")).toEqual(["personal_no_life"]); // 364 days after Oct 15: still hidden
+    expect(await keys("2027-10-15")).toEqual(["auto_no_home", "personal_no_life"]); // 365 days: back
+  });
+});
