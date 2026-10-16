@@ -463,7 +463,8 @@ Workers Free, signed-out smoke test + iPhone check, restore drill now (ADR-026).
 | Local: smoke test against a production build | 16/16 checks pass |
 | Local: restore drill rehearsal (fixture DB → dump → fresh DB from migrations → check) | pass: 12 tables, 425 rows match, security verification passes; a deleted row is caught; a non-local target is refused |
 | Local: reset-test-data.sql | removes only the named user's test records; stops on a real-looking contact; stops on the placeholder email |
-| CI | see Phase 12 report |
+| CI run #104 (commit 83c4cab): all 4 jobs | pass — incl. smoke test against the Cloudflare build, secret scan, audit gate, 15 browser tests |
+| Restore-drill workflow file | first push rejected by GitHub (`runner.temp` in job env) — fixed in 83c4cab; workflow not yet run on production (owner) |
 
 **Owner actions after approval** — in order; details in `docs/go-live-checklist.md`
 1. Merge to `main`; **Deploy app (Cloudflare)** (no migration this phase).
