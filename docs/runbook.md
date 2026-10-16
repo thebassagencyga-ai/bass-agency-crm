@@ -10,7 +10,8 @@ Supabase (the database and sign-in). Nothing needs to be installed.
 |---|---|---|
 | Code, history, deploy buttons | GitHub → `thebassagencyga-ai/bass-agency-crm` → **Actions** | Owner |
 | The running app | Cloudflare → Workers & Pages → `bass-agency-crm` (`https://bass-agency-crm.<subdomain>.workers.dev`) | Owner |
-| Data, sign-in, backups | Supabase → the **CRM** project (never ProducerIQ's) | Owner |
+| Data, sign-in | Supabase → the **CRM** project (never ProducerIQ's), Free plan | Owner |
+| Backups (encrypted, 30 days) | GitHub → Actions → **Nightly backup** → a run → *Artifacts* | Owner |
 | Secrets | GitHub → Settings → Secrets and variables → Actions; copies in your password manager | Owner |
 
 The Worker itself holds **no secrets**: only the database address, the publishable key
@@ -32,30 +33,45 @@ migration.
 ## 3. Regular checks
 | How often | Check |
 |---|---|
-| Weekly (1 min) | Supabase → Database → **Backups**: today's or yesterday's daily backup is listed. |
+| Weekly (1 min) | GitHub → Actions → **Nightly backup**: last night's run is green (a failed run also emails you). |
+| Monthly | Actions → **Backup restore drill** → Run: ends "✓ Restore check passed". |
 | Monthly | Actions → **Smoke test production** → Run. GitHub → Security → Dependabot/alerts if enabled; ask for a dependency update if anything is high. |
 | Monthly | Supabase → **Usage** and **Billing**: within plan, spend cap on. Cloudflare → Workers → `bass-agency-crm` → Metrics: no errors, requests far below 100,000/day. |
-| Before risky migrations | Supabase → Database → Backups → confirm a recent backup exists. |
+| Before risky migrations | Actions → **Nightly backup** → Run workflow (a fresh backup first). |
 
-## 4. Restoring data (disaster recovery)
-Supabase Pro keeps **daily backups for 7 days**.
+## 4. Backups and restoring data (disaster recovery)
+The CRM's Supabase project is on the **Free** plan, which keeps no backups, so GitHub does
+(ADR-027): **Nightly backup** runs every night (about 4 am), copies the CRM data and the list of
+sign-ins (emails only — no passwords), **encrypts** it with your backup passphrase, and keeps
+each night's copy for **30 days** under that run's *Artifacts*. Without the passphrase nobody
+can read a backup — keep it in your password manager; if it is lost, the backups are useless.
 
-1. Supabase → CRM project → Database → **Backups** → choose the backup from before the
-   problem → **Restore**. This replaces the current database with that day's copy (everything
-   since is lost) and the app is unavailable for a few minutes.
-2. When Supabase says it is done: Actions → **Deploy database migrations** with *Apply* ticked
-   (re-applies any newer migrations and runs the verification).
-3. Actions → **Smoke test production**. Sign in on the iPhone; spot-check a few records.
+**If data is lost or the project is gone:**
+1. Use the existing project if it still works and only the data is wrong; otherwise create a new
+   Supabase project and update the GitHub secrets `SUPABASE_PROJECT_REF` and
+   `SUPABASE_DB_PASSWORD` (and, for a new project, `CRM_SUPABASE_PUBLISHABLE_KEY`, then the
+   auth settings of checklist section A).
+2. The restore only goes into a project **without client records**. In the old project, the
+   bad records must be removed first — ask the developer; never delete in Supabase by hand.
+3. Supabase → Authentication → Users: make sure exactly the same sign-ins exist (same emails).
+   Add any that are missing (Add user → Auto Confirm).
+4. Actions → **Deploy database migrations** with *Apply* ticked.
+5. Actions → **Restore backup (into an empty CRM project)** → type `RESTORE`; leave the run ID
+   empty for last night's backup, or paste the ID from an older Nightly backup run's address
+   (`…/actions/runs/<ID>`). It ends "✓ Restore check passed".
+6. For a new project: Actions → **Deploy app (Cloudflare)**. Then sign in on the iPhone (you
+   will set up the authenticator again) and spot-check a few records.
 
-The restore procedure was proven with the **Backup restore drill** workflow (copies
-production data into a throwaway database on GitHub's runner, checks every table and the
-security rules, deletes it). Run the drill only while the data is fictional; with real
-clients, rely on Supabase's restore above (the drill would briefly place client data on a
-GitHub runner). Point-in-time recovery is a paid add-on and is **not** enabled.
+Everything entered after the backup you restore is lost. A **Backup restore drill** proves the
+latest backup restores, on a throwaway database (production is not touched); run it monthly.
 
 ## 5. Access problems
 - **Lost phone / authenticator:** Supabase → Authentication → Users → your user → remove the
   MFA factor. Sign in with your password; the app asks you to set up a new authenticator.
+  On the Free plan a signed-in phone stays signed in (no inactivity sign-out), so if the phone
+  is lost or stolen also change your password and, if Supabase offers it on the user's page,
+  **ban** the user for a day (blocks the lost phone's session from renewing within the hour),
+  then lift the ban once the new phone is set up.
 - **Forgot password:** "Forgot password?" on the sign-in page (email link, valid 1 hour).
 - **Too many attempts:** wait a few minutes (Supabase rate limit), then try again.
 - Keep two-step sign-in and recovery codes on your **GitHub, Cloudflare and Supabase**
@@ -67,6 +83,7 @@ GitHub runner). Point-in-time recovery is a paid add-on and is **not** enabled.
 | `CLOUDFLARE_API_TOKEN` | Cloudflare → My Profile → API Tokens → "Edit Cloudflare Workers" template | Update the GitHub secret; delete the old token. |
 | `SUPABASE_ACCESS_TOKEN` | Supabase → Account → Access Tokens | Update the GitHub secret; revoke the old one. |
 | `SUPABASE_DB_PASSWORD` | Supabase → Project Settings → Database → Reset password | Update the GitHub secret. |
+| `BACKUP_PASSPHRASE` | A new 30+ character password from your password manager | Update the GitHub secret, keep the **old** one too until its backups expire (30 days) — older backups only open with it. |
 | `CRM_SUPABASE_PUBLISHABLE_KEY` | Supabase → Project Settings → API Keys → new publishable key | Update the GitHub secret, run **Deploy app**, then disable the old key. |
 
 Never paste secrets into chat, email or the code. Never use the secret (service-role) key in
@@ -92,17 +109,18 @@ feature.)
 | Cloudflare error **1102** | A page exceeded the free plan's 10 ms CPU limit | Tell the developer; the fix may be Workers Paid ($5/month) — needs your approval. |
 | "Something went wrong" page | App or database error | Retry; check Cloudflare → Workers → Logs (Observability) for the time; tell the developer with the time and the reference shown. |
 | Data looks wrong after a change | Bug | Don't edit data in Supabase directly; tell the developer. If needed, restore (section 4). |
+| "Sign-in is unavailable" after a quiet week or more | Supabase Free paused the project (it emails you first) | Supabase → the CRM project → **Restore project**; data is kept. Wait a few minutes. |
 | Phone shows "You're offline" | No signal | Nothing is stored on the phone; reconnect and tap Try again. |
 
-## 10. Costs (re-checked 2026-10-16)
+## 10. Costs (re-checked 2026-10-16; Supabase Free)
 | Item | Monthly |
 |---|---|
-| Supabase Pro (existing org plan) | already paid |
-| CRM project compute (Micro; Pro's $10 credit covers one instance, so a second project ≈ $10) | ≈ $10 — confirm on Supabase → Billing |
+| Supabase Free plan (CRM project) | $0 |
+| Backups in GitHub Actions (a few KB per night, 30 days) | $0 |
 | Cloudflare Workers Free (100,000 requests/day, 10 ms CPU per request) | $0 |
 | GitHub private repo + Actions (free minutes) | $0 |
 | Address `*.workers.dev` | $0 |
-| **Added total** | **≈ $10** (guardrail: under $25) |
+| **Added total** | **$0** (guardrail: under $25). Supabase Pro ($25/month) would add daily backups, no pausing, leaked-password protection and inactivity sign-out — needs your approval. |
 
 No purchase, plan change or paid add-on without the owner's explicit approval.
 

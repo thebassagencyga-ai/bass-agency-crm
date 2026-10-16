@@ -1,39 +1,36 @@
 name: Backup restore drill
 
-# Proves the production CRM data can be restored (Phase 12, ADR-026). Started by hand only,
-# from main. Steps:
-#   1. Count rows per table on production (counts only, read-only).
-#   2. Copy production's CRM data (schema `public`) with `supabase db dump` — read-only.
-#   3. Build a throwaway local database on this runner from the migrations in Git.
-#   4. Load the copy into it and check: same row count in every table, and the same security
-#      verification the deploy runs (RLS, two-step policies, no anonymous access …).
-#   5. Delete everything. Nothing is uploaded, attached or kept; logs show counts only.
-# Sign-in accounts (Supabase Auth) are not part of the copy: in a real disaster they come
-# back with Supabase's own dashboard restore (docs/runbook.md).
-#
-# Run it while nobody is using the app, so the counts don't change mid-drill.
-# Uses the same secrets as "Deploy database migrations".
+# Proves the latest backup can be restored (Phase 12, ADR-026/027). Started by hand, from main;
+# run it monthly. Never touches the production project. Steps:
+#   1. Download the latest (or a chosen) "Nightly backup" and decrypt it.
+#   2. Build a throwaway Supabase database on this runner from the migrations in Git, and
+#      re-create the backed-up sign-ins there with NEW ids (as after a real disaster).
+#   3. Restore with the same scripts as "Restore backup", then check: same row count in every
+#      table, every row has its owner, and the deploy's security verification passes.
+#   4. Delete everything. Logs show counts only.
 
 on:
   workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Run ID of the Nightly backup to use, from its address …/actions/runs/<ID> (empty = latest)"
+        required: false
+        default: ""
 
 permissions:
   contents: read
-
-concurrency:
-  group: deploy-migrations
-  cancel-in-progress: false
+  actions: read
 
 jobs:
   drill:
-    name: Restore production data into a throwaway local database
+    name: Restore the backup into a throwaway local database
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
-      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      GH_TOKEN: ${{ github.token }}
       RESTORE_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+      RUN_ID: ${{ inputs.run_id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -43,53 +40,30 @@ jobs:
       - run: npm ci
 
       - name: Working folder on this runner (deleted at the end)
-        run: echo "DRILL_DIR=$RUNNER_TEMP/restore-drill" >> "$GITHUB_ENV"
+        run: echo "WORK=$RUNNER_TEMP/restore-drill" >> "$GITHUB_ENV"
 
-      - name: Check the three secrets are set
-        run: |
-          missing=0
-          for name in SUPABASE_PROJECT_REF SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD; do
-            if [ -z "${!name}" ]; then echo "✗ Secret $name is not set"; missing=1; fi
-          done
-          exit $missing
-
-      - name: Confirm the source is the CRM project (read-only)
-        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/supabase-remote.mts guard
-
-      - name: Link the project
-        run: npx supabase link --project-ref "$SUPABASE_PROJECT_REF"
-
-      - name: Count production rows, copy the data, count again (read-only)
-        run: |
-          umask 077
-          mkdir -p "$DRILL_DIR"
-          node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/supabase-remote.mts counts > "$DRILL_DIR/before.json"
-          npx supabase db dump --linked --data-only --use-copy --schema public -f "$DRILL_DIR/data.sql"
-          node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/supabase-remote.mts counts > "$DRILL_DIR/after.json"
-          if ! cmp -s "$DRILL_DIR/before.json" "$DRILL_DIR/after.json"; then
-            echo "✗ Data changed while copying (someone was using the app). Run the drill again when it's quiet."
-            exit 1
-          fi
-          echo "Copied $(wc -c < "$DRILL_DIR/data.sql") bytes of CRM data (kept on this runner only)."
+      - name: Download and decrypt the backup
+        run: bash scripts/fetch-backup.sh "$RUN_ID" "$WORK"
 
       - name: Build a throwaway local database from the migrations in Git
         run: npx supabase db start
 
-      - name: Restore the copy into it
+      - name: Re-create the sign-ins (new ids), check the target, remap the copy
         run: |
-          # The migrations pre-fill the reference tables (product lines, stages); the copy
-          # brings its own rows, so clear them first. Triggers are paused while loading
-          # (replica mode), exactly as a restore must not re-run automation.
-          psql "$RESTORE_DATABASE_URL" -X -q -v ON_ERROR_STOP=1 \
-            -c "truncate public.product_lines, public.pipeline_stages cascade"
-          psql "$RESTORE_DATABASE_URL" -X -q -v ON_ERROR_STOP=1 --single-transaction \
-            -c "set session_replication_role = replica" -f "$DRILL_DIR/data.sql" > /dev/null
+          node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/backup-tool.mts seed-users "$WORK"
+          node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/backup-tool.mts prepare "$WORK" local
 
-      - name: Check the restored copy (row counts + security verification)
-        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/restore-drill.mts "$DRILL_DIR/before.json"
+      - name: Restore (one transaction)
+        run: bash scripts/restore-load.sh "$RESTORE_DATABASE_URL" "$WORK"
+
+      - name: Check the restored copy
+        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/backup-tool.mts check "$WORK" local
+
+      - name: Done
+        run: echo "✓ Restore drill passed."
 
       - name: Delete the copy and the throwaway database
         if: always()
         run: |
-          rm -rf "$DRILL_DIR"
+          rm -rf "$WORK"
           npx supabase stop --no-backup || true

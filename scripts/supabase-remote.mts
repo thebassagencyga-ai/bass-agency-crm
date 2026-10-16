@@ -3,7 +3,9 @@
 //
 //   node scripts/supabase-remote.mts guard    refuse unless the project is empty or already the CRM
 //   node scripts/supabase-remote.mts verify   check the deployed schema matches expectations
-//   node scripts/supabase-remote.mts counts   print row counts per table as JSON (no data; restore drill)
+//   node scripts/supabase-remote.mts counts   print row counts per table as JSON (no data; backups)
+//   node scripts/supabase-remote.mts users    print sign-ins (id + email) as JSON (backups; stdout
+//                                             goes to a file inside the encrypted backup, never the log)
 //
 // Needs SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF. Runs SQL through the Supabase
 // Management API over HTTPS. Only SELECT statements are sent. Never prints secrets.
@@ -13,36 +15,14 @@ import {
   PUBLIC_FUNCTIONS_SQL,
   VERIFICATION_SQL,
   type PublicFunctionRow,
-  checkProjectRef,
   checkTargetProject,
   checkVerification,
   type VerificationRow,
 } from "../src/lib/deploy-checks.ts";
+import { BACKUP_USERS_SQL } from "../src/lib/backup.ts";
+import { fail, query, requireProject } from "./supabase-api.mts";
 
-const ref = process.env.SUPABASE_PROJECT_REF ?? "";
-const token = process.env.SUPABASE_ACCESS_TOKEN ?? "";
-
-function fail(message: string): never {
-  console.error(`✗ ${message}`);
-  process.exit(1);
-}
-
-async function query<T>(sql: string): Promise<T[]> {
-  const response = await fetch(`https://api.supabase.com/v1/projects/${ref}/database/query`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ query: sql }),
-  });
-  if (!response.ok) {
-    const body = (await response.text()).slice(0, 300);
-    fail(`Supabase API returned ${response.status}: ${body}`);
-  }
-  return (await response.json()) as T[];
-}
-
-const refCheck = checkProjectRef(ref);
-if (!refCheck.ok) fail(refCheck.reason);
-if (!token) fail("SUPABASE_ACCESS_TOKEN is not set.");
+requireProject();
 
 const command = process.argv[2];
 if (command === "guard") {
@@ -75,6 +55,10 @@ if (command === "guard") {
   const [row] = await query<{ counts: Record<string, number> }>(ROW_COUNTS_SQL);
   if (!row) fail("Row-count query returned no rows.");
   console.log(JSON.stringify(row.counts));
+} else if (command === "users") {
+  const [row] = await query<{ users: unknown }>(BACKUP_USERS_SQL);
+  if (!row) fail("Sign-in query returned no rows.");
+  console.log(JSON.stringify(row.users));
 } else {
-  fail("Usage: node scripts/supabase-remote.mts guard|verify|counts");
+  fail("Usage: node scripts/supabase-remote.mts guard|verify|counts|users");
 }

@@ -20,7 +20,7 @@ check. The Phase 2 migration and dashboard settings are applied only after owner
 | XSS | Script in a note | React escaping; no `dangerouslySetInnerHTML`; CSP |
 | CSRF | Cross-site form post | Server Actions origin check; SameSite cookies |
 | Credential compromise | Phished owner password | Strong password, MFA (TOTP) recommended (Phase 2 decision), signups disabled |
-| Data loss | Accidental delete, bad migration | Archive not delete; Supabase daily backups (Pro); migration review; restore drill |
+| Data loss | Accidental delete, bad migration | Archive not delete; nightly encrypted backups kept 30 days (ADR-027, Supabase Free); migration review; monthly restore drill |
 | Over-collection | SSNs/health info in notes | Data-minimization rules; UI guidance on note fields |
 | Offline leakage | Cached records on a lost phone | Service worker caches only hashed static files, icons and the offline notice; pages and data always come from the network (ADR-025) |
 | Supply chain | Compromised npm package | Minimal deps, lockfile, `npm audit`, Dependabot |
@@ -42,7 +42,8 @@ check. The Phase 2 migration and dashboard settings are applied only after owner
 - Redirect targets after sign-in are validated (`safeNextPath`): same-site paths only, never
   back into the sign-in screens. Email-link redirects are built from `SITE_URL`, not the Host
   header.
-- Sessions end after **7 days of inactivity** (Supabase Pro setting, owner decision).
+- No inactivity sign-out: that is a Supabase Pro setting and the CRM project is on Free
+  (ADR-027, accepted by the owner). Sessions last until Sign out; lost-phone steps in the runbook.
 - **Break-glass recovery:** if the authenticator is lost, the owner removes the factor in the
   Supabase dashboard (Authentication → Users → user → MFA factors), protected by the owner's
   own Supabase login (which should itself use two-step login). Password reset by email
@@ -106,9 +107,11 @@ Do not store: SSNs, payment cards/bank details, driver's license numbers, medica
 underwriting answers, detailed health information, policy documents. No file uploads in the MVP.
 
 ## 7. Backups and restoration (details in README)
-- Supabase Pro daily backups, 7-day retention (owner confirms in the dashboard; go-live checklist).
+- Supabase Free keeps no backups. **Nightly backup** (GitHub Actions) stores the CRM data and
+  sign-in emails (no passwords or authenticator secrets), AES-256 encrypted with a passphrase held
+  only in GitHub secrets and the owner's password manager, for 30 days (ADR-027). Restores only
+  go into a project without client records, in one transaction, and are checked afterwards.
 - Point-in-time recovery is a paid add-on; not enabled without approval.
-- Supplemental: owner-initiated `pg_dump` (schema + data) stored encrypted, outside Git.
 - Restoration drill: rehearsed in Phase 11 into a fresh local database on every CI run
   (`tests/db/backup-restore.test.ts`); a production backup restore is a Phase 12 step.
 
@@ -139,7 +142,7 @@ underwriting answers, detailed health information, policy documents. No file upl
 | Audit log written and immutable to app roles | 1, 3+ | Verified locally at SQL level (`tests/db/audit.test.ts`) |
 | Service worker caches no record data | 10 | Verified: unit test runs `public/sw.js` against a fake browser (pages, server actions, RSC data, other origins never cached); browser test lists the real cache (only `/_next/static/`, icons, offline page) |
 | `npm audit` / secret scan clean or triaged | 11 | Done: production dependencies 0 findings (CI gate); dev-only `braces` accepted Low, `glob` fixed (docs/security-review.md F-05/F-06); secret scan of files + full history in CI, clean |
-| Backup restore rehearsed | 11–12 | Phase 11: full dump restored into a fresh local database and verified in CI. Phase 12: **Backup restore drill** workflow restores production data into a throwaway database (owner runs; result in PROGRESS) |
+| Backup restore rehearsed | 11–12 | Phase 11: full dump restored into a fresh local database and verified in CI. Phase 12: **Backup restore drill** restored production data into a throwaway database (passed 2026-10-16); since ADR-027 it restores the latest nightly backup, and `tests/db/backup-tool.test.ts` covers the backup → restore scripts in CI |
 | Owner security review before real client data | 12 | Pending: `docs/go-live-checklist.md` (owner sign-off) |
 
 ## 9. Known risks (open)

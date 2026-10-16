@@ -1,0 +1,97 @@
+name: Nightly backup
+
+# Supabase Free keeps no backups, so this job does (ADR-027). Every night, and on demand:
+#   1. Copy the CRM data (schema `public`) with `supabase db dump` — read-only — plus the list of
+#      sign-ins (id + email only; no passwords or authenticator secrets) and row counts.
+#   2. Encrypt it (AES-256, passphrase in the BACKUP_PASSPHRASE secret) and check it decrypts.
+#   3. Keep the encrypted file as this run's artifact for 30 days. Nothing unencrypted is kept;
+#      logs show counts only.
+# A failed run emails the repository owner (GitHub's default for scheduled workflows).
+# Restore: .github/workflows/restore-backup.yml; proof: restore-drill.yml (docs/runbook.md §4).
+
+on:
+  schedule:
+    - cron: "23 8 * * *" # 08:23 UTC = 4:23 am (summer) / 3:23 am (winter) in Carrollton
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-migrations
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    name: Encrypted copy of the CRM data
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+
+      - name: Working folder on this runner (deleted at the end)
+        run: |
+          echo "WORK=$RUNNER_TEMP/backup" >> "$GITHUB_ENV"
+          echo "BACKUP_NAME=crm-backup-$(TZ=America/New_York date +%Y-%m-%d-%H%M)" >> "$GITHUB_ENV"
+
+      - name: Check the four secrets are set
+        run: |
+          missing=0
+          for name in SUPABASE_PROJECT_REF SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD BACKUP_PASSPHRASE; do
+            if [ -z "${!name}" ]; then echo "✗ Secret $name is not set"; missing=1; fi
+          done
+          exit $missing
+
+      - name: Confirm the source is the CRM project (read-only)
+        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/supabase-remote.mts guard
+
+      - name: Link the project
+        run: npx supabase link --project-ref "$SUPABASE_PROJECT_REF"
+
+      - name: Copy the data (read-only; retried if someone is using the app)
+        run: |
+          umask 077
+          mkdir -p "$WORK"
+          remote() { node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/supabase-remote.mts "$@"; }
+          for attempt in 1 2 3; do
+            remote counts > "$WORK/counts.json"
+            remote users > "$WORK/users.json"
+            npx supabase db dump --linked --data-only --use-copy --schema public -f "$WORK/data.sql"
+            remote counts > "$WORK/after.json"
+            if cmp -s "$WORK/counts.json" "$WORK/after.json"; then break; fi
+            if [ "$attempt" = 3 ]; then echo "✗ Data kept changing while copying; try again later."; exit 1; fi
+            echo "Data changed while copying (attempt $attempt); retrying in 2 minutes."
+            sleep 120
+          done
+          node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/backup-tool.mts manifest \
+            "$WORK/counts.json" "$WORK/users.json" "$WORK/manifest.json"
+
+      - name: Encrypt and check it opens
+        run: bash scripts/backup-archive.sh pack "$WORK" "$WORK/$BACKUP_NAME.tar.gpg"
+
+      - name: Keep the encrypted backup for 30 days
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.BACKUP_NAME }}
+          path: ${{ env.WORK }}/${{ env.BACKUP_NAME }}.tar.gpg
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
+
+      - name: Done
+        run: |
+          echo "✓ Backup saved: $BACKUP_NAME (encrypted, kept 30 days)."
+
+      - name: Delete the working folder
+        if: always()
+        run: rm -rf "$WORK"

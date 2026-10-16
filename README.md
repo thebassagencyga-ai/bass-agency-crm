@@ -12,7 +12,7 @@ prompts and basic reports.
 | Layer | Choice | Notes |
 |-------|--------|-------|
 | App | Next.js 16.3.8 App Router, TypeScript 5.9 strict, Tailwind CSS 4 | Next pinned to a version verified with the Cloudflare adapter (ADR-004) |
-| Data | Supabase PostgreSQL (dedicated project in existing Pro org) | RLS on every table |
+| Data | Supabase PostgreSQL (dedicated CRM project, Free plan — ADR-027) | RLS on every table |
 | Auth | Supabase Auth (email + password, invite only) | `@supabase/ssr` cookie sessions |
 | Validation | zod on the server | |
 | Tests | Vitest (unit + database), Playwright (E2E, Phase 11) | Database tests run SQL as Supabase's API roles |
@@ -22,7 +22,7 @@ prompts and basic reports.
 ## Cost assumptions
 | Item | Expected monthly cost | Status |
 |------|----------------------|--------|
-| Supabase Pro plan | already paid by owner | existing |
+| Supabase Free plan (CRM project) | $0 | backups in GitHub Actions, $0 |
 | Additional Supabase project (Micro compute) | ≈ $10 (third-party sources; confirm on billing page) | needs owner confirmation |
 | Cloudflare Workers free plan | $0 | to be verified in Phase 1 spike |
 | GitHub private repo + Actions (free minutes) | $0 | |
@@ -124,23 +124,25 @@ GitHub → Actions:
 - **Deploy database migrations** — dry run, then apply; ends with a schema verification.
 - **Deploy app (Cloudflare)** — builds, scans the browser bundle, deploys, smoke-tests.
 - **Smoke test production** — signed-out, read-only checks of the live site.
-- **Backup restore drill** — restores production data into a throwaway database and checks it
-  (only while data is fictional; see the runbook).
+- **Nightly backup** — every night: encrypted copy of the CRM data, kept 30 days (ADR-027).
+- **Backup restore drill** — restores the latest backup into a throwaway database and checks it.
+- **Restore backup (into an empty CRM project)** — disaster recovery (runbook §4).
 
 Needs repository secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
 `CRM_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`,
-`SUPABASE_DB_PASSWORD`. The Worker itself holds no secrets.
+`SUPABASE_DB_PASSWORD`, `BACKUP_PASSPHRASE`. The Worker itself holds no secrets.
 
 Day-to-day operation, restore, access problems, secret rotation and costs:
 **[docs/runbook.md](docs/runbook.md)**. Before any real client data:
 **[docs/go-live-checklist.md](docs/go-live-checklist.md)** (owner sign-off).
 
 ## Backups and recovery
-Supabase Pro daily backups, 7-day retention (Dashboard → Database → Backups); restore steps in
-the runbook. The restore was rehearsed into a fresh local database on every CI run
-(`tests/db/backup-restore.test.ts`) and against production data with the **Backup restore
-drill** workflow. Manual exports (`supabase db dump`) contain client data: store them
-encrypted, never in Git.
+Supabase Free keeps no backups, so **Nightly backup** (`.github/workflows/backup.yml`) copies the
+CRM data and sign-in list every night, encrypts it (`BACKUP_PASSPHRASE`) and keeps it 30 days as
+an Actions artifact. **Restore backup** puts one into a project without client records;
+**Backup restore drill** proves the latest one restores, on a throwaway database. Steps:
+`docs/runbook.md` §4; design: DECISIONS ADR-027. The full schema restore is also rehearsed in CI
+(`tests/db/backup-restore.test.ts`, `tests/db/backup-tool.test.ts`).
 
 ## Project control files
 `CLAUDE.md` (rules) · `ROADMAP.md` (phases) · `PROGRESS.md` (current state) ·

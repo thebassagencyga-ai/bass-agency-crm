@@ -546,9 +546,56 @@ organization with $10 compute credit (one Micro instance); daily backups, 7-day 
 spend cap on by default. Added cost ≈ $10/month (second project's Micro compute) — owner to
 confirm on the Billing page.
 
+**Update (2026-10-16).** The CRM project turned out to be on Supabase Free; backups and the drill
+were reworked in ADR-027 (the drill now restores the latest nightly backup).
+
 **Clean start.** `scripts/sql/reset-test-data.sql` lets the owner remove their fictional test
 records before go-live (one transaction; refuses if any contact looks real). The app still
 never deletes.
+
+## ADR-027 — Supabase Free plan: nightly encrypted backups in GitHub Actions
+
+**Status:** Proposed — built 2026-10-16 after the owner chose it (awaiting owner review)
+
+**Context.** At go-live the owner found the CRM's Supabase project is on the **Free** plan, not in
+the Pro organization ADR-002 assumed. Free has no backups, pauses a project after 7 days of low
+activity, and lacks leaked-password protection and the inactivity sign-out (ADR-016 setting).
+Owner decision (2026-10-16): stay on Free; build backups ($0).
+
+**Decision.**
+- **Nightly backup** (`.github/workflows/backup.yml`, 08:23 UTC daily + on demand): the CRM data
+  (schema `public`, `supabase db dump --data-only`, read-only), row counts and the list of
+  sign-ins (**id + email only** — no password hashes or authenticator secrets) are packed and
+  encrypted with AES-256 (`gpg --symmetric`, passphrase in the `BACKUP_PASSPHRASE` secret and the
+  owner's password manager), checked to decrypt, and kept as a GitHub Actions artifact for
+  **30 days** (private repo; a few KB per night, inside the free storage). Nothing unencrypted is
+  kept; logs show counts only. GitHub emails the owner when a scheduled run fails.
+- **Restore** (`restore-backup.yml`, manual, typed confirmation): only into a project with the
+  current CRM schema, **no client records**, and the **same sign-ins** (by email) re-created by
+  hand. The copy's sign-in ids are replaced with the new ones; the CRM tables are emptied and
+  refilled in **one transaction** with triggers paused; then counts, owners (no orphan rows) and
+  the deploy verification are checked. It cannot overwrite live work.
+- **Drill** (`restore-drill.yml`, monthly): the same restore path into a throwaway Supabase
+  database on the runner, from the latest backup; it no longer reads production.
+- After a restore the owner sets up the authenticator again (factors are not copied).
+
+**Tests.** Unit (`tests/unit/backup.test.ts`: manifest, sign-in matching, target checks, id
+remapping). Database (`tests/db/backup-tool.test.ts`): copy from one snapshot → encrypt → decrypt
+→ fresh database with new sign-in ids → prepare → load → check; owners remapped, RLS and two-step
+still enforced, wrong passphrase / short passphrase / target with client records / non-local
+database refused. The production restore's own connection step (pooler address from
+`supabase link`) is not exercised until a real restore or a rehearsal on a scratch project.
+
+**Accepted on Free (owner).** No leaked-password protection (mitigation: a unique
+password-manager password + required authenticator); no inactivity sign-out (a signed-in phone stays signed in until
+Sign out; mitigation: the phone's own passcode/Face ID; if the phone is lost, block the account in
+Supabase — runbook §5); an app-level idle sign-out could be added later; possible pausing after 7 quiet days (data kept; Supabase emails first;
+restore from the dashboard). Upgrading to Pro ($25/month) later removes these; the backups can
+then stay as an extra copy or be switched off.
+
+**Alternatives.** Supabase Pro ($25/month — over the < $25 guardrail; declined for now); no
+backups (rejected: a mistake or outage could lose everything); storing dumps elsewhere (another
+service and account to secure).
 
 ---
 

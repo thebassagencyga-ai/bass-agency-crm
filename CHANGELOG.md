@@ -2,6 +2,17 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 12 follow-up — Free-plan backups (2026-10-16, awaiting review)
+### Added
+- **Nightly backup** workflow: encrypted (AES-256) copy of the CRM data and sign-in list, kept
+  30 days as a GitHub Actions artifact (ADR-027).
+- **Restore backup (into an empty CRM project)** workflow: guarded, one transaction, sign-in ids
+  remapped by email, checked afterwards.
+### Changed
+- **Backup restore drill** restores the latest nightly backup instead of reading production.
+- Runbook, go-live checklist, SECURITY and README describe the Supabase Free plan (no Pro
+  backups, leaked-password check or inactivity sign-out).
+
 ## Phase 12 — Production deployment & handoff (2026-10-16, approved)
 ### Added
 - Production on the free `workers.dev` address; deploy workflow renamed **Deploy app

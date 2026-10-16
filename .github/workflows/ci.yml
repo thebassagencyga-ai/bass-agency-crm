@@ -54,10 +54,11 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
-      # Backup/restore rehearsal (tests/db/backup-restore.test.ts) needs client tools that
+      # Backup/restore rehearsals (tests/db/backup-*.test.ts) need client tools that
       # match the server version.
       PG_DUMP: /usr/lib/postgresql/17/bin/pg_dump
       PG_RESTORE: /usr/lib/postgresql/17/bin/pg_restore
+      PSQL: /usr/lib/postgresql/17/bin/psql
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
