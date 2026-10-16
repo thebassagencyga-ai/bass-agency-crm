@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 12 follow-up — Free-plan backups (2026-10-16, awaiting review)
+## Phase 12 follow-up — Free-plan backups (2026-10-16, approved)
 ### Added
 - **Nightly backup** workflow: encrypted (AES-256) copy of the CRM data and sign-in list, kept
   30 days as a GitHub Actions artifact (ADR-027).

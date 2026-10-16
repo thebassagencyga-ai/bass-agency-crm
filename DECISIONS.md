@@ -555,7 +555,7 @@ never deletes.
 
 ## ADR-027 — Supabase Free plan: nightly encrypted backups in GitHub Actions
 
-**Status:** Proposed — built 2026-10-16 after the owner chose it (awaiting owner review)
+**Status:** Accepted — built and approved by the owner 2026-10-16
 
 **Context.** At go-live the owner found the CRM's Supabase project is on the **Free** plan, not in
 the Pro organization ADR-002 assumed. Free has no backups, pauses a project after 7 days of low
