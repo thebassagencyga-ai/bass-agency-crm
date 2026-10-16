@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** 14 — Intake details — **APPROVED by owner 2026-10-16**; deploy pending (migration + app). Phase 13 approved and deployed 2026-10-16.
+**Current phase:** 14 — Intake details — **APPROVED by owner 2026-10-16**; deployed 2026-10-16 (migration run #32, app run #16). Phase 13 approved and deployed 2026-10-16.
 **Last updated:** 2026-10-16
 **Branch:** `phase-12-production`, merged to `main` on approval
 
@@ -574,6 +574,11 @@ dates of birth, license numbers or VINs (ADR-029).
 | CI run #125 | browser test failed: after a second save on the contact page the list did not refresh (redirect to an identical address). Fixed (unique redirect + revalidate) |
 | CI run #126 (commit caeb582): all 4 jobs | pass — browser test (form with address/vehicle/household and a refused year → review → accept → contact page edit/add/remove), Lighthouse 100 on all pages incl. the contact page with the new sections, phone widths clean |
 | Production | not deployed (awaiting owner review) |
+
+**Production deploy (2026-10-16, commit 63b7946):** migrations dry run #31 listed only
+`20261025120000_intake_details.sql`; apply run #32 applied it and verification passed (16 tables,
+16 two-step policies, 18 Data API functions, one public intake function); Deploy app #16 smoke
+test 17/17.
 
 **Owner actions after approval**
 1. Merge to `main`.
