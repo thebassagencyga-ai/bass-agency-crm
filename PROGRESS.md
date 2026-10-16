@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** 12 — Production deployment & handoff — **APPROVED by owner 2026-10-16**; go-live (real client data) waits for the owner's signed checklist (`docs/go-live-checklist.md`)
+**Current phase:** 12 — Production deployment & handoff — **APPROVED by owner 2026-10-16**; **LIVE: owner signed off "I approve entering real client data" on 2026-10-16** (`docs/go-live-checklist.md`)
 **Last updated:** 2026-10-16
 **Branch:** `phase-12-production`, merged to `main` on approval
 
@@ -501,6 +501,9 @@ SECURITY, README updated.
 5. ~~Clean start~~ — `reset-test-data.sql` run by the owner 2026-10-16 after making two test
    contacts' email/phone clearly fictional (the script's guard stopped it until then; nothing was
    deleted early).
-6. Remaining: **E** accounts (two-step + recovery codes; passwords and backup passphrase in the
-   password manager; runbook read) and **F** review, then the sign-off "I approve entering real
-   client data."
+6. ~~Sections E and F~~ — completed by the owner; Nightly backup #2 (c061acb) after the clean
+   start: "✓ Backup saved: crm-backup-2026-10-16-1048" (12 tables, 67 rows — reference data,
+   profile and rules only — 1 sign-in).
+7. **Go-live sign-off (2026-10-16):** the owner wrote "I approve entering real client data."
+   Real client data may now be entered. The Backup restore drill is safe to run monthly with real
+   data (it restores the encrypted nightly backup on a throwaway runner; production is untouched).
