@@ -2,6 +2,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   PUBLIC_FUNCTIONS,
   PUBLIC_FUNCTIONS_SQL,
+  ROW_COUNTS_SQL,
+  CRM_TABLES,
   VERIFICATION_SQL,
   checkVerification,
   type PublicFunctionRow,
@@ -64,5 +66,14 @@ describe("deploy verification query", () => {
       expect(found).toContain("Data API functions");
       expect(found).toContain("bypass RLS");
     });
+  });
+});
+
+describe("restore drill row counts (Phase 12)", () => {
+  it("counts every CRM table and nothing else, as numbers", async () => {
+    const counts = (await db.query("select (" + ROW_COUNTS_SQL + ") as c")).rows[0].c as Record<string, number>;
+    expect(Object.keys(counts).sort()).toEqual([...CRM_TABLES].sort());
+    expect(Object.values(counts).every((n) => Number.isInteger(Number(n)) && Number(n) >= 0)).toBe(true);
+    expect(Number(counts.pipeline_stages)).toBe(30);
   });
 });

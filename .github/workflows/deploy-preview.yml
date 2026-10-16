@@ -1,9 +1,13 @@
-name: Deploy app preview (Cloudflare)
+name: Deploy app (Cloudflare)
 
 # Deploys the app to Cloudflare Workers (free plan) at
-# https://bass-agency-crm.<your-subdomain>.workers.dev (ADR-017).
-# Runs ONLY when started by hand from the Actions tab, and ONLY from main.
-# Uses the production CRM Supabase project: NO REAL CLIENT DATA until Phases 11–12 are done.
+# https://bass-agency-crm.<your-subdomain>.workers.dev — the production address since Phase 12
+# (ADR-017, ADR-026). Runs ONLY when started by hand from the Actions tab, and ONLY from main.
+# No real client data until the owner signs off docs/go-live-checklist.md.
+#
+# The Worker holds no secrets: only the database address, the publishable key (designed to
+# be public; RLS protects the data) and the site address, as plain variables. The real
+# secrets below live only in GitHub's encrypted secrets.
 #
 # Required repository secrets (Settings → Secrets and variables → Actions):
 #   CLOUDFLARE_API_TOKEN          Cloudflare token from the "Edit Cloudflare Workers" template
@@ -23,7 +27,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Build and deploy preview
+    name: Build and deploy
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
@@ -83,17 +87,5 @@ jobs:
             --var "SUPABASE_PUBLISHABLE_KEY:$SUPABASE_PUBLISHABLE_KEY" \
             --var "SITE_URL:$SITE_URL"
 
-      - name: Smoke test the live site
-        run: |
-          for i in $(seq 1 20); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE_URL/login") && [ "$code" = "200" ] && break
-            sleep 3
-          done
-          [ "$code" = "200" ] || { echo "✗ /login returned $code"; exit 1; }
-          loc=$(curl -s -o /dev/null -w '%{redirect_url}' "$SITE_URL/dashboard")
-          [[ "$loc" == "$SITE_URL/login?next=%2Fdashboard" ]] || { echo "✗ /dashboard did not redirect to sign-in ($loc)"; exit 1; }
-          headers=$(curl -sI "$SITE_URL/login")
-          for h in "content-security-policy" "strict-transport-security" "x-frame-options: DENY"; do
-            echo "$headers" | grep -qi "$h" || { echo "✗ Missing header: $h"; exit 1; }
-          done
-          echo "✓ Live: $SITE_URL — sign-in page up, protected pages redirect, security headers present."
+      - name: Smoke test the live site (signed out, read-only)
+        run: bash scripts/smoke-test.sh "$SITE_URL"

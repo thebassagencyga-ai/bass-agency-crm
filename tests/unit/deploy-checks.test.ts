@@ -4,6 +4,7 @@ import {
   checkProjectRef,
   checkTargetProject,
   checkVerification,
+  compareRowCounts,
 } from "@/lib/deploy-checks";
 
 describe("checkProjectRef", () => {
@@ -81,5 +82,18 @@ describe("checkVerification", () => {
 
   it("reports a missing value instead of passing", () => {
     expect(checkVerification({ ...good, stages: undefined })).not.toEqual([]);
+  });
+});
+
+describe("compareRowCounts (restore drill)", () => {
+  it("passes when every table matches (numbers or numeric strings)", () => {
+    expect(compareRowCounts({ contacts: 3, tasks: 0 }, { contacts: 3, tasks: "0" as unknown as number })).toEqual([]);
+  });
+  it("reports missing, extra and different tables", () => {
+    expect(compareRowCounts({ contacts: 3, tasks: 2, audit_log: 9 }, { contacts: 3, tasks: 1, extra: 0 })).toEqual([
+      "audit_log: missing from the restored copy",
+      "extra: only in the restored copy",
+      "tasks: production 2 rows, restored 1",
+    ]);
   });
 });

@@ -3,10 +3,12 @@
 //
 //   node scripts/supabase-remote.mts guard    refuse unless the project is empty or already the CRM
 //   node scripts/supabase-remote.mts verify   check the deployed schema matches expectations
+//   node scripts/supabase-remote.mts counts   print row counts per table as JSON (no data; restore drill)
 //
 // Needs SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF. Runs SQL through the Supabase
 // Management API over HTTPS. Only SELECT statements are sent. Never prints secrets.
 import {
+  ROW_COUNTS_SQL,
   PUBLIC_TABLES_SQL,
   PUBLIC_FUNCTIONS_SQL,
   VERIFICATION_SQL,
@@ -69,6 +71,10 @@ if (command === "guard") {
     "✓ Verification passed: 30 stages, 4 product lines, RLS and two-step policies on every table, " +
       "sign-up trigger present, Data API functions as expected, automation engine safe, no anonymous access.",
   );
+} else if (command === "counts") {
+  const [row] = await query<{ counts: Record<string, number> }>(ROW_COUNTS_SQL);
+  if (!row) fail("Row-count query returned no rows.");
+  console.log(JSON.stringify(row.counts));
 } else {
-  fail("Usage: node scripts/supabase-remote.mts guard|verify");
+  fail("Usage: node scripts/supabase-remote.mts guard|verify|counts");
 }

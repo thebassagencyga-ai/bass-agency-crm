@@ -131,6 +131,9 @@ jobs:
           for i in $(seq 1 60); do curl -sf -o /dev/null "$APP_URL/login" && exit 0; sleep 2; done
           tail -50 "$RUNNER_TEMP/wrangler.log"; exit 1
 
+      - name: Production smoke test script against the Cloudflare build
+        run: bash scripts/smoke-test.sh "$APP_URL"
+
       - name: Auth API and app HTTP tests
         run: npm run test:integration
 

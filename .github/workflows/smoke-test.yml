@@ -1,0 +1,30 @@
+name: Smoke test production
+
+# Signed-out, read-only checks of the live CRM (Phase 12): sign-in page up, protected pages
+# and actions refuse signed-out visitors, security headers present, installable-app files
+# served. Started by hand; also part of every "Deploy app (Cloudflare)" run.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Smoke test the live site
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find the workers.dev address
+        run: |
+          sub=$(curl -sf -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" \
+            | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);process.stdout.write(j?.result?.subdomain??"")})') || true
+          if [ -z "$sub" ]; then echo "✗ Could not find the workers.dev address (check the Cloudflare secrets)."; exit 1; fi
+          echo "SITE_URL=https://bass-agency-crm.${sub}.workers.dev" >> "$GITHUB_ENV"
+      - name: Smoke test (signed out, read-only)
+        run: bash scripts/smoke-test.sh "$SITE_URL"

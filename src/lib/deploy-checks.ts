@@ -166,3 +166,32 @@ export function checkVerification(row: VerificationRow): string[] {
   }
   return problems;
 }
+
+/**
+ * Row count of every table in public, as one JSON object { table: count }. Counts only — no
+ * data — so it is safe to print. Used by the restore drill (Phase 12) on production and on
+ * the restored copy.
+ */
+export const ROW_COUNTS_SQL = `
+select coalesce(json_object_agg(c.relname,
+  (xpath('/row/n/text()', query_to_xml(format('select count(*) as n from public.%I', c.relname), false, true, '')))[1]::text::bigint
+  order by c.relname), '{}'::json) as counts
+from pg_class c
+where c.relnamespace = 'public'::regnamespace and c.relkind = 'r'
+`;
+
+export type RowCounts = Record<string, number>;
+
+/** Differences between production and the restored copy; empty means every table matches. */
+export function compareRowCounts(production: RowCounts, restored: RowCounts): string[] {
+  const problems: string[] = [];
+  const tables = [...new Set([...Object.keys(production), ...Object.keys(restored)])].sort();
+  for (const t of tables) {
+    const p = production[t];
+    const r = restored[t];
+    if (p === undefined) problems.push(`${t}: only in the restored copy`);
+    else if (r === undefined) problems.push(`${t}: missing from the restored copy`);
+    else if (Number(p) !== Number(r)) problems.push(`${t}: production ${p} rows, restored ${r}`);
+  }
+  return problems;
+}
