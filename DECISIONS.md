@@ -241,6 +241,8 @@ if a template mentions gifts, discounts, rewards, etc.). The CRM tracks referral
 suggest referral rewards: insurance inducement/rebating rules (Georgia, and possibly Alfa
 policy) may restrict them — **owner to confirm with Alfa/compliance before offering any
 referral thank-you of value.**
+**Resolved (owner, 2026-10-16):** the owner confirmed they know the applicable referral
+policies; nothing changes in the CRM (it still never suggests or tracks rewards).
 
 **Also added.** `tasks.category` (prospecting, onboarding, renewal, review_request,
 referral_request, other) so win/loss automation closes only prospecting tasks. "Ask for
