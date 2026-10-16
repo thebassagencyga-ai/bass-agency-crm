@@ -5,7 +5,7 @@ import type { IntakeLink, IntakeSubmission } from "./types";
 
 // Reads go through the signed-in user's client, so RLS (owner + two-step) decides visibility.
 
-const COLUMNS = "id, status, first_name, last_name, email, phone, postal_code, preferred_contact_method, best_time, lines, current_coverage, heard_about, referred_by_name, submitted_at, consent_at";
+const COLUMNS = "id, status, first_name, last_name, email, phone, address_line1, city, state, household, vehicles, postal_code, preferred_contact_method, best_time, lines, current_coverage, heard_about, referred_by_name, submitted_at, consent_at";
 
 export async function listNewSubmissions(supabase: SupabaseClient): Promise<IntakeSubmission[]> {
   const { data, error } = await supabase

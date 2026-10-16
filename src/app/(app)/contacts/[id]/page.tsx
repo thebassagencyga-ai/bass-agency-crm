@@ -22,6 +22,8 @@ import { notStartedYet, taskView } from "@/lib/tasks/schedule";
 import { setContactArchived } from "../actions";
 import { CrossSellPromptList } from "@/components/cross-sell/prompt-list";
 import { crossSellPrompts } from "@/lib/cross-sell/data";
+import { HouseholdSection, VehiclesSection } from "@/components/contacts/detail-sections";
+import { listHousehold, listVehicles } from "@/lib/contacts/details-data";
 
 export const metadata: Metadata = { title: "Contact · The Bass Agency CRM" };
 
@@ -34,6 +36,8 @@ const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   reopened: { text: "Task reopened.", tone: "ok" },
   archived: { text: "Contact archived. It is hidden from the contact list but nothing was deleted.", tone: "ok" },
   restored: { text: "Contact restored.", tone: "ok" },
+  detailsaved: { text: "Saved.", tone: "ok" },
+  detailremoved: { text: "Removed. It is kept in the history, not deleted.", tone: "ok" },
   error: { text: "That didn't work. Please try again.", tone: "error" },
 };
 
@@ -46,7 +50,7 @@ export default async function ContactPage({
   const contact = await getContact(supabase, id);
   if (!contact) notFound();
 
-  const [referrer, referrals, opportunities, stages, tasks, activities, profile] = await Promise.all([
+  const [referrer, referrals, opportunities, stages, tasks, activities, profile, household, vehicles] = await Promise.all([
     contact.referred_by_contact_id ? getContact(supabase, contact.referred_by_contact_id) : Promise.resolve(null),
     getReferrals(supabase, contact.id),
     listForContact(supabase, contact.id),
@@ -54,6 +58,8 @@ export default async function ContactPage({
     tasksForContact(supabase, contact.id),
     activitiesForContact(supabase, contact.id),
     getProfile(supabase, userId),
+    listHousehold(supabase, contact.id),
+    listVehicles(supabase, contact.id),
   ]);
   const today = todayInZone(profile.time_zone);
   const prompts = await crossSellPrompts(supabase, today, { contactId: contact.id });
@@ -165,6 +171,9 @@ export default async function ContactPage({
           </ul>
         )}
       </section>
+
+      <HouseholdSection contactId={contact.id} members={household} editable={!contact.archived_at} />
+      <VehiclesSection contactId={contact.id} vehicles={vehicles} editable={!contact.archived_at} />
 
       <section aria-labelledby="opps-heading" className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">

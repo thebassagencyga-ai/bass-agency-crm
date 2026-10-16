@@ -1,4 +1,5 @@
 // Intake form (Phase 13, ADR-028): shared constants and types.
+import type { HouseholdRelationship } from "@/lib/contacts/details";
 import { PRODUCT_LINES, PRODUCT_LINE_NAMES, type ProductLine } from "@/lib/pipelines";
 
 export const INTAKE_LINES = PRODUCT_LINES;
@@ -31,12 +32,27 @@ export interface CoverageEntry {
   renews_month: number | null;
 }
 
+export interface HouseholdEntry {
+  first_name: string;
+  last_name: string | null;
+  relationship: HouseholdRelationship;
+}
+
+export interface VehicleEntry {
+  year: number;
+  make: string;
+  model: string | null;
+}
+
 /** The form as sent to the database (submit_intake / quick_intake). */
 export interface IntakePayload {
   first_name: string;
   last_name: string;
   email: string | null;
   phone: string | null;
+  address_line1: string | null;
+  city: string | null;
+  state: string | null;
   postal_code: string | null;
   preferred_contact_method: (typeof INTAKE_CONTACT_METHODS)[number] | null;
   best_time: string | null;
@@ -44,6 +60,8 @@ export interface IntakePayload {
   current_coverage: CoverageEntry[];
   heard_about: string | null;
   referred_by_name: string | null;
+  household: HouseholdEntry[];
+  vehicles: VehicleEntry[];
 }
 
 /** A row of the review inbox (status "new": details present). */

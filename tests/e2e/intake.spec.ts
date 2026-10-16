@@ -36,15 +36,31 @@ test("public intake link → review inbox → accept; quick intake; link off and
   await form.getByLabel("Last name").fill("Example");
   await form.getByRole("textbox", { name: /^Phone/ }).fill("404 555 0177");
   await form.getByRole("textbox", { name: /^Email/ }).fill("jordan@example.com");
-  await form.getByLabel("ZIP code", { exact: false }).fill("30117");
+  await form.getByLabel("Street address", { exact: false }).fill("1 Example St");
+  await form.getByLabel("City", { exact: false }).fill("Carrollton");
+  await expect(form.getByLabel("State", { exact: false })).toHaveValue("GA");
+  await form.getByLabel("ZIP", { exact: false }).fill("30117");
   await form.getByRole("checkbox", { name: "Auto" }).check();
   await form.getByRole("checkbox", { name: "Home" }).check();
   await form.getByLabel("Auto: current company", { exact: false }).fill("Example Mutual");
   await form.locator("#renews_auto").selectOption({ label: "March" });
+  // Vehicles appear because Auto is ticked; one bad year is explained, then fixed.
+  await form.getByLabel("Vehicle 1 year", { exact: false }).fill("1850");
+  await form.locator("#veh_make_0").fill("Example");
+  await form.locator("#veh_model_0").fill("Sedan");
+  await form.getByRole("button", { name: "Add a person" }).click();
+  await form.getByLabel("Person 1 first name", { exact: false }).fill("Sam");
+  await form.locator("#hh_last_0").fill("Example");
+  await form.locator("#hh_rel_0").selectOption({ label: "Spouse or partner" });
   await form.getByLabel("How did you hear about us?", { exact: false }).selectOption("Referral");
   await form.getByLabel("Who referred you?", { exact: false }).fill("Casey Sample");
   await form.getByRole("checkbox", { name: /I agree that The Bass Agency may contact me/ }).check();
   expect(await noSidewaysScroll(form)).toBe(true);
+  await form.getByRole("button", { name: "Send my request" }).click();
+  await expect(form.getByText(/Enter a year from 1900 to \d{4}\./)).toBeVisible();
+  // Typed rows survive the error.
+  await expect(form.locator("#hh_first_0")).toHaveValue("Sam");
+  await form.getByLabel("Vehicle 1 year", { exact: false }).fill("2019");
   await form.getByRole("button", { name: "Send my request" }).click();
   await expect(form.getByText("Thank you — we have your request.")).toBeVisible();
 
@@ -56,6 +72,9 @@ test("public intake link → review inbox → accept; quick intake; link off and
   await expect(page.getByRole("heading", { name: "Jordan Example" })).toBeVisible();
   await expect(page.getByText("Auto: Example Mutual, renews in March")).toBeVisible();
   await expect(page.getByText("Casey Sample").first()).toBeVisible();
+  await expect(page.getByText("1 Example St, Carrollton, GA 30117")).toBeVisible();
+  await expect(page.getByText("2019 Example Sedan")).toBeVisible();
+  await expect(page.getByText("Sam Example (Spouse or partner)")).toBeVisible();
   expect(await noSidewaysScroll(page)).toBe(true);
   await page.getByRole("button", { name: "Accept and add to CRM" }).click();
   await expect(page.getByText("Added to the CRM.")).toBeVisible();
@@ -65,6 +84,24 @@ test("public intake link → review inbox → accept; quick intake; link off and
   const opportunities = page.getByRole("list", { name: "Opportunities for this contact" });
   await expect(opportunities).toContainText("Auto");
   await expect(opportunities).toContainText("Home");
+  await expect(page.getByRole("list", { name: "Household members" })).toContainText("Sam Example");
+  await expect(page.getByRole("list", { name: "Vehicles" })).toContainText("2019 Example Sedan");
+  expect(await noSidewaysScroll(page)).toBe(true);
+
+  // Edit a vehicle, add and remove a household member, on the contact page.
+  await page.getByText("Edit 2019 Example Sedan").click();
+  await page.locator("#vehicles").getByLabel("Model", { exact: false }).first().fill("Wagon");
+  await page.getByRole("button", { name: "Save vehicle" }).click();
+  await expect(page.getByText("Saved.")).toBeVisible();
+  await expect(page.getByRole("list", { name: "Vehicles" })).toContainText("2019 Example Wagon");
+  await page.locator("#household").getByText("Add a person").click();
+  await page.locator("#hh-first-new").fill("Kit");
+  await page.locator("#hh-rel-new").selectOption({ label: "Child" });
+  await page.getByRole("button", { name: "Add person", exact: true }).click();
+  await expect(page.getByRole("list", { name: "Household members" })).toContainText("Kit");
+  await page.getByRole("button", { name: "Remove Kit" }).click();
+  await expect(page.getByText("Removed. It is kept in the history, not deleted.")).toBeVisible();
+  await expect(page.getByRole("list", { name: "Household members" })).not.toContainText("Kit");
 
   // Quick intake with the same phone: the duplicate is offered; add to the existing contact.
   await page.goto("/intake/new");

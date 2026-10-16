@@ -53,13 +53,17 @@ export async function seededOwner(label: string, appUrl: string): Promise<Seeded
   const taskId = await insert("tasks", { contact_id: contactId, opportunity_id: openOppId, title: "Call about the home quote", due_date: inDays(0), priority: "high" });
   await insert("tasks", { contact_id: contactId, title: "Overdue check-in", due_date: inDays(-3) });
   await insert("activities", { contact_id: contactId, activity_type: "call", outcome: "connected", notes: "Fictional call notes." });
+  await insert("household_members", { contact_id: contactId, first_name: "Sam", last_name: "Example", relationship: "spouse" });
+  await insert("vehicles", { contact_id: contactId, year: 2019, make: "Example", model: "Sedan" });
 
   const { data: intakeToken, error: linkError } = await client.rpc("rotate_intake_link");
   if (linkError) throw linkError;
   const { error: submitError } = await anonClient().rpc("submit_intake", {
     p_token: intakeToken, p_consent: true,
     p_form: { first_name: "Sky", last_name: "Example", email: "sky@example.com", phone: "404-555-0188", best_time: "Mornings",
-      lines: ["home", "life"], current_coverage: [{ line: "home", carrier: "Sample Insurance", renews_month: 4 }], heard_about: "Google search" },
+      lines: ["home", "life", "auto"], current_coverage: [{ line: "home", carrier: "Sample Insurance", renews_month: 4 }], heard_about: "Google search",
+      address_line1: "2 Example Ave", city: "Carrollton", state: "GA", postal_code: "30117",
+      household: [{ first_name: "Lee", last_name: "Example", relationship: "child" }], vehicles: [{ year: 2021, make: "Example", model: "Truck" }] },
   });
   if (submitError) throw submitError;
   const { data: intake } = await client.from("intake_submissions").select("id").eq("status", "new").single();
