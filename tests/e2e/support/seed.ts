@@ -80,5 +80,6 @@ export function keyPages(s: SeededOwner): string[] {
     "/tasks", `/tasks/${s.taskId}`, "/tasks/new", "/activities/new",
     "/renewals", `/renewals/${s.policyId}`, "/reports", "/settings",
     "/intake", `/intake/${s.intakeId}`, "/intake/new",
+    "/import",
   ];
 }

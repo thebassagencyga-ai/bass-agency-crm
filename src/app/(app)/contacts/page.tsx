@@ -35,9 +35,12 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
     <section className="flex max-w-4xl flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">Contacts</h1>
-        <Link href="/contacts/new" className="flex min-h-11 items-center rounded-md bg-slate-900 px-4 font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900">
-          Add contact
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/import" className="flex min-h-11 items-center rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">Import</Link>
+          <Link href="/contacts/new" className="flex min-h-11 items-center rounded-md bg-slate-900 px-4 font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900">
+            Add contact
+          </Link>
+        </div>
       </div>
 
       <form method="get" action="/contacts" role="search" className="flex flex-col gap-2 rounded-md border border-slate-200 p-3 dark:border-slate-700">
@@ -89,7 +92,7 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
           {filtered || params.page > 1 ? (
             <p>No contacts match. <Link href="/contacts" className="underline">Clear search and filters</Link></p>
           ) : (
-            <p>No contacts yet. <Link href="/contacts/new" className="underline">Add your first contact</Link>.</p>
+            <p>No contacts yet. <Link href="/contacts/new" className="underline">Add your first contact</Link>, or <Link href="/import" className="underline">import your client list</Link>.</p>
           )}
         </div>
       ) : (

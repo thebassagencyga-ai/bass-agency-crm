@@ -11,6 +11,7 @@ import { IntakeLinkPanel } from "@/components/intake/link-panel";
 import { requireFullSession } from "@/lib/auth/require";
 import { siteUrl } from "@/lib/env";
 import { getIntakeLink } from "@/lib/intake/data";
+import { EXPORT_DATASETS, type ExportDataset } from "@/lib/import/export";
 import { getProfile } from "@/lib/tasks/data";
 
 export const metadata: Metadata = { title: "Settings · The Bass Agency CRM" };
@@ -33,6 +34,20 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         <dd>{profile.time_zone.replace("_", " ")}</dd>
       </dl>
       <IntakeLinkPanel link={intakeLink} baseUrl={siteUrl()} notice={query.intake} />
+      <section aria-labelledby="data-heading" className="flex flex-col gap-2">
+        <h2 id="data-heading" className="text-lg font-semibold">Your data</h2>
+        <p className="text-sm text-slate-600 dark:text-slate-400">
+          <Link href="/import" className="inline-flex min-h-11 items-center underline">Import clients from a CSV report</Link>
+        </p>
+        <p className="text-sm text-slate-600 dark:text-slate-400">Download a copy (CSV files that open in Excel or Numbers). Keep them somewhere safe: they contain client details.</p>
+        <ul aria-label="Downloads" className="flex flex-wrap gap-2">
+          {(Object.keys(EXPORT_DATASETS) as ExportDataset[]).map((d) => (
+            <li key={d}>
+              <a href={`/export/${d}`} download className="flex min-h-11 items-center rounded-md border border-slate-900 px-3 text-sm font-medium dark:border-slate-100">{EXPORT_DATASETS[d].label}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
       <section aria-labelledby="messages-heading" className="flex flex-col gap-2">
         <h2 id="messages-heading" className="text-lg font-semibold">Review and referral messages</h2>
         <p className="text-sm text-slate-600 dark:text-slate-400">Used to fill in the messages on Google review and referral request tasks.</p>
