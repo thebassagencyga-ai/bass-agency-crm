@@ -487,7 +487,9 @@ SECURITY, README updated.
 | Local: lint, typecheck, secret scan | pass |
 | Local: unit | 310 passed (10 new: manifest, sign-in matching, target checks, id remap) |
 | Local: database (PostgreSQL 16) | 325 passed (8 new: snapshot copy → encrypt → decrypt → fresh DB with new sign-in ids → restore → check; RLS holds; wrong/short passphrase, non-empty target, non-local DB refused) |
-| GitHub: Nightly backup, drill on a real backup | not run yet — needs the owner's `BACKUP_PASSPHRASE` secret |
+| GitHub: Nightly backup #1 (54f0475) | success — "✓ Backup saved: crm-backup-2026-10-16-1007" (13,134 bytes encrypted, kept 30 days) |
+| GitHub: Backup restore drill #4 (54f0475) | success — restored that backup with sign-ins re-created under new ids: "✓ Restore check passed: 12 tables, 137 rows, all matching the backup; every row has its owner; security checks pass" |
+| GitHub: Deploy app (Cloudflare) #14 (54f0475) | success — "✓ Smoke test passed" |
 | GitHub: Restore backup into a hosted project | not run (only for a disaster, or a rehearsal on a scratch project) |
 
 **Owner actions after approval** — in order; details in `docs/go-live-checklist.md`
