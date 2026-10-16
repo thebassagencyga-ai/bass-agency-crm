@@ -21,6 +21,7 @@
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "test:integration": "vitest run --project integration",
     "test:e2e": "playwright test",
+    "scan:secrets": "node scripts/secret-scan.mjs",
     "check:bundle": "node scripts/check-client-bundle.mjs"
   },
   "dependencies": {
@@ -51,5 +52,10 @@
     "typescript-eslint": "8.71.2",
     "vitest": "5.0.4",
     "wrangler": "4.151.0"
+  },
+  "overrides": {
+    "@node-minify/core": {
+      "glob": "10.5.0"
+    }
   }
 }
