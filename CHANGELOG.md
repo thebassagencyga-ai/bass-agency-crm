@@ -2,6 +2,18 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 12 — Production deployment & handoff (2026-10-16, ready for review)
+### Added
+- Production on the free `workers.dev` address; deploy workflow renamed **Deploy app
+  (Cloudflare)**.
+- `scripts/smoke-test.sh` (16 signed-out checks) after every deploy, in CI, and as the
+  **Smoke test production** workflow.
+- **Backup restore drill** workflow and `scripts/restore-drill.mts` (row counts per table +
+  security verification on the restored copy).
+- `docs/runbook.md` (operations, restore, access, secrets, costs) and
+  `docs/go-live-checklist.md` (owner sign-off before real data).
+- `scripts/sql/reset-test-data.sql`: optional clean start before go-live, guarded.
+
 ## Phase 11 — End-to-end testing & security review (2026-10-16, approved)
 ### Fixed
 - Cross-sell "lost in the last 12 months" now counts New York dates (was off by a day for a

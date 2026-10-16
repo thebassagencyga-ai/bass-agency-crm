@@ -436,3 +436,37 @@ Started 2026-10-16 on the owner's go-ahead ("move to 11"). Findings: `docs/secur
 2. Merge to `main`; deploy database migrations (dry run lists only
    `20261023120000_review_fixes.sql`; verify expects 12 tables, 13 Data API functions);
    deploy app preview.
+
+**Production deploy (2026-10-16):** migrations dry run #27; apply run #28 applied
+`20261023120000_review_fixes.sql` and verification passed (12 tables, 13 Data API functions,
+engine safe, no anonymous access); preview run #12 deployed commit 9a4296e.
+
+## Phase 12 — Production deployment & handoff (branch `phase-12-production`)
+Started 2026-10-16 on the owner's go-ahead ("start 12"). Owner decisions: keep workers.dev,
+Workers Free, signed-out smoke test + iPhone check, restore drill now (ADR-026).
+
+**Completed**
+- Hosting and commercial terms re-checked (ADR-026); cost unchanged (≈ $10/month added).
+- `scripts/smoke-test.sh` — 16 signed-out, read-only checks; in the deploy workflow, in CI
+  against the Cloudflare build, and as **Smoke test production**.
+- **Backup restore drill** workflow + `scripts/restore-drill.mts` + row-count checks in
+  `src/lib/deploy-checks.ts`; `supabase-remote.mts counts`.
+- `docs/runbook.md`, `docs/go-live-checklist.md`, `scripts/sql/reset-test-data.sql`; README,
+  SECURITY, DECISIONS (ADR-026) updated.
+
+**Tests (2026-10-16)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build, secret scan | pass |
+| Local: unit | 300 passed (2 new: row-count comparison) |
+| Local: database (PostgreSQL 16) | 317 passed (1 new: row-count query covers every table) |
+| Local: smoke test against a production build | 16/16 checks pass |
+| Local: restore drill rehearsal (fixture DB → dump → fresh DB from migrations → check) | pass: 12 tables, 425 rows match, security verification passes; a deleted row is caught; a non-local target is refused |
+| Local: reset-test-data.sql | removes only the named user's test records; stops on a real-looking contact; stops on the placeholder email |
+| CI | see Phase 12 report |
+
+**Owner actions after approval** — in order; details in `docs/go-live-checklist.md`
+1. Merge to `main`; **Deploy app (Cloudflare)** (no migration this phase).
+2. **Backup restore drill** and **Smoke test production** — both green.
+3. Supabase dashboard checks (auth settings, leaked-password protection, backups, billing).
+4. iPhone checks; optional clean start; sign-off: "I approve entering real client data."

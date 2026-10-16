@@ -106,7 +106,7 @@ Do not store: SSNs, payment cards/bank details, driver's license numbers, medica
 underwriting answers, detailed health information, policy documents. No file uploads in the MVP.
 
 ## 7. Backups and restoration (details in README)
-- Supabase Pro daily backups (retention per plan — owner to confirm in dashboard).
+- Supabase Pro daily backups, 7-day retention (owner confirms in the dashboard; go-live checklist).
 - Point-in-time recovery is a paid add-on; not enabled without approval.
 - Supplemental: owner-initiated `pg_dump` (schema + data) stored encrypted, outside Git.
 - Restoration drill: rehearsed in Phase 11 into a fresh local database on every CI run
@@ -139,8 +139,8 @@ underwriting answers, detailed health information, policy documents. No file upl
 | Audit log written and immutable to app roles | 1, 3+ | Verified locally at SQL level (`tests/db/audit.test.ts`) |
 | Service worker caches no record data | 10 | Verified: unit test runs `public/sw.js` against a fake browser (pages, server actions, RSC data, other origins never cached); browser test lists the real cache (only `/_next/static/`, icons, offline page) |
 | `npm audit` / secret scan clean or triaged | 11 | Done: production dependencies 0 findings (CI gate); dev-only `braces` accepted Low, `glob` fixed (docs/security-review.md F-05/F-06); secret scan of files + full history in CI, clean |
-| Backup restore rehearsed | 11–12 | Phase 11: full dump restored into a fresh local database and verified (data, security rules, access, automation) in CI; production restore in Phase 12 |
-| Owner security review before real client data | 12 | Not started |
+| Backup restore rehearsed | 11–12 | Phase 11: full dump restored into a fresh local database and verified in CI. Phase 12: **Backup restore drill** workflow restores production data into a throwaway database (owner runs; result in PROGRESS) |
+| Owner security review before real client data | 12 | Pending: `docs/go-live-checklist.md` (owner sign-off) |
 
 ## 9. Known risks (open)
 - **Preview on the public internet (ADR-017):** the app is reachable at a workers.dev address

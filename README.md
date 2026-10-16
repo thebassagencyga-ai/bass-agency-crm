@@ -117,27 +117,30 @@ is approved (they mirror `supabase/config.toml`):
 7. **Lost authenticator:** Authentication → Users → your user → remove the MFA factor; sign in
    again and set up a new one.
 
-## Preview deployment (ADR-017)
-GitHub → Actions → **Deploy app preview (Cloudflare)** → Run workflow (branch `main`). Needs
-repository secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
-`CRM_SUPABASE_PUBLISHABLE_KEY` (plus the existing `SUPABASE_PROJECT_REF`). The run prints the
-app address and smoke-tests it. After the first deploy, set Supabase → Authentication → URL
-Configuration → Site URL to that address and add `<address>/**` to Redirect URLs.
-**Do not enter real client data until Phases 11–12 are complete.**
+## Deployment (Phase 12, ADR-026)
+Production runs on Cloudflare Workers (free plan) at
+`https://bass-agency-crm.<subdomain>.workers.dev` against the CRM Supabase project.
+GitHub → Actions:
+- **Deploy database migrations** — dry run, then apply; ends with a schema verification.
+- **Deploy app (Cloudflare)** — builds, scans the browser bundle, deploys, smoke-tests.
+- **Smoke test production** — signed-out, read-only checks of the live site.
+- **Backup restore drill** — restores production data into a throwaway database and checks it
+  (only while data is fictional; see the runbook).
 
-## Deployment (planned, Phase 12)
-Build with `@opennextjs/cloudflare`, deploy with Wrangler, set secrets with
-`wrangler secret put`. Full runbook written in Phase 12.
+Needs repository secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
+`CRM_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`,
+`SUPABASE_DB_PASSWORD`. The Worker itself holds no secrets.
 
-## Backups and recovery (planned; verified in Phases 11–12)
-1. **Automatic:** Supabase Pro daily backups — Dashboard → Database → Backups. Confirm retention.
-2. **Manual export (recommended monthly and before risky migrations):**
-   `npx supabase db dump --linked -f backup-schema.sql` and
-   `npx supabase db dump --linked --data-only -f backup-data.sql`.
-   Store encrypted outside Git; files contain client data.
-3. **Restore:** dashboard restore of a daily backup (overwrites the project — confirm first),
-   or restore dump files into a fresh/local database with `psql`. A restoration drill into a
-   non-production database is an acceptance criterion of Phase 11.
+Day-to-day operation, restore, access problems, secret rotation and costs:
+**[docs/runbook.md](docs/runbook.md)**. Before any real client data:
+**[docs/go-live-checklist.md](docs/go-live-checklist.md)** (owner sign-off).
+
+## Backups and recovery
+Supabase Pro daily backups, 7-day retention (Dashboard → Database → Backups); restore steps in
+the runbook. The restore was rehearsed into a fresh local database on every CI run
+(`tests/db/backup-restore.test.ts`) and against production data with the **Backup restore
+drill** workflow. Manual exports (`supabase db dump`) contain client data: store them
+encrypted, never in Git.
 
 ## Project control files
 `CLAUDE.md` (rules) · `ROADMAP.md` (phases) · `PROGRESS.md` (current state) ·

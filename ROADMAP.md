@@ -19,7 +19,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 9 | Reporting | 8 | APPROVED (2026-10-15) |
 | 10 | Mobile experience & PWA | 9 | APPROVED (2026-10-15) |
 | 11 | End-to-end testing & security review | 10 | APPROVED (2026-10-16) |
-| 12 | Production deployment & handoff | 11 | NOT STARTED |
+| 12 | Production deployment & handoff | 11 | READY FOR REVIEW |
 
 ---
 
@@ -374,6 +374,23 @@ database; findings fixed or documented with risk rating.
 secrets configured in Cloudflare (never in Git); deployed; smoke tests pass on production;
 Supabase backups confirmed and a restoration procedure tested; maintenance runbook written;
 owner sign-off required before entering real client data.
+
+**Owner decisions (2026-10-16):** keep the free workers.dev address; Workers Free plan;
+signed-out automated smoke test + owner's iPhone check; restore drill now (fictional data).
+
+**Status 2026-10-16** (✅ verified by automated check; ⏳ owner action). Design: ADR-026.
+- ✅ Hosting and terms re-verified: Workers Free limits (100,000 requests/day, 10 ms CPU) and
+  Supabase Pro ($25/org, $10 compute credit, daily backups 7 days); app builds and runs on
+  the Cloudflare runtime in CI on every push; added cost ≈ $10/month.
+- ✅ No secrets in Git or in the Worker (vars only: database address, publishable key, site
+  address); secret scan of full history in CI. ⏳ Owner keeps GitHub secrets current (runbook §6).
+- ⏳ Deployed: run **Deploy app (Cloudflare)** from `main` after this phase merges.
+- ✅ Smoke test script (16 signed-out checks) passes against the Cloudflare build in CI and a
+  local production build; runs after every deploy and on demand. ⏳ Passes on production.
+- ⏳ Supabase backups confirmed in the dashboard; ✅ restoration procedure written (runbook §4)
+  and the **Backup restore drill** rehearsed locally end to end; ⏳ drill run on production.
+- ✅ Maintenance runbook: `docs/runbook.md`.
+- ⏳ Owner sign-off before real client data: `docs/go-live-checklist.md`.
 
 ---
 

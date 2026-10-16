@@ -516,6 +516,40 @@ middleware skips `sw.js`, `offline.html` and the manifest so they load before si
 (dev dependency, runs locally in CI, no external service) requires an accessibility score ≥ 90
 on every key page, signed in.
 
+## ADR-026 — Production on the free workers.dev address; signed-out smoke test; restore drill
+**Status:** Proposed — implemented in Phase 12 (pending owner review)
+
+**Owner decisions (2026-10-16).** Keep `https://bass-agency-crm.<subdomain>.workers.dev`
+(no domain purchase); stay on Cloudflare Workers **Free**; smoke-test production signed out
+(no stored test login) with the owner checking signed-in behaviour on the iPhone; run the
+backup restore drill now, while production data is fictional.
+
+**Decision.** The preview deployment (ADR-017) becomes production: same Worker, same project;
+the workflow is renamed **Deploy app (Cloudflare)** and its smoke test moved into
+`scripts/smoke-test.sh` (also run in CI against the Cloudflare build on every push, and as the
+manual **Smoke test production** workflow). The Worker gets no secrets — only the database
+address, the publishable key and the site address — so there is nothing secret to configure in
+Cloudflare; all secrets stay in GitHub's encrypted secrets.
+
+**Restore drill.** `.github/workflows/restore-drill.yml` (manual, main only): counts rows on
+production (Management API, counts only), dumps schema `public` data with `supabase db dump`
+(read-only), aborts if counts changed meanwhile, builds a local Supabase database from the
+migrations in Git, loads the data with triggers paused, then `scripts/restore-drill.mts`
+requires every table's count to match and the deploy verification to pass. Files are
+deleted; nothing is uploaded. Auth accounts are not copied (restored by Supabase's own backup
+restore in a real disaster). Rehearsed locally end to end (12 tables, 425 fixture rows) and
+mutation-checked (a missing row fails).
+
+**Terms re-checked (2026-10-16, Cloudflare docs; Supabase pricing via search).** Workers Free:
+100,000 requests/day, 10 ms CPU per request, no request charge. Supabase Pro: $25/month per
+organization with $10 compute credit (one Micro instance); daily backups, 7-day retention;
+spend cap on by default. Added cost ≈ $10/month (second project's Micro compute) — owner to
+confirm on the Billing page.
+
+**Clean start.** `scripts/sql/reset-test-data.sql` lets the owner remove their fictional test
+records before go-live (one transaction; refuses if any contact looks real). The app still
+never deletes.
+
 ---
 
 ## Open questions for the owner (do not block Phase 1 start)
