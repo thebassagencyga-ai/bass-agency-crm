@@ -1,8 +1,8 @@
 # Progress
 
-**Current phase:** 11 — End-to-end testing & security review — **APPROVED by owner 2026-10-16**
+**Current phase:** 12 — Production deployment & handoff — **APPROVED by owner 2026-10-16**; go-live (real client data) waits for the owner's signed checklist (`docs/go-live-checklist.md`)
 **Last updated:** 2026-10-16
-**Branch:** `phase-11-e2e-security`, merged to `main` on approval
+**Branch:** `phase-12-production`, merged to `main` on approval
 
 ## Phase 0 — APPROVED 2026-10-14
 Governance files created. ProducerIQ untouched (owner reconfirmed: it must not be modified).

@@ -517,7 +517,7 @@ middleware skips `sw.js`, `offline.html` and the manifest so they load before si
 on every key page, signed in.
 
 ## ADR-026 — Production on the free workers.dev address; signed-out smoke test; restore drill
-**Status:** Proposed — implemented in Phase 12 (pending owner review)
+**Status:** Accepted — implemented in Phase 12 (approved with the phase, 2026-10-16)
 
 **Owner decisions (2026-10-16).** Keep `https://bass-agency-crm.<subdomain>.workers.dev`
 (no domain purchase); stay on Cloudflare Workers **Free**; smoke-test production signed out

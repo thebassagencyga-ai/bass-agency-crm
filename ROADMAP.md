@@ -19,7 +19,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 9 | Reporting | 8 | APPROVED (2026-10-15) |
 | 10 | Mobile experience & PWA | 9 | APPROVED (2026-10-15) |
 | 11 | End-to-end testing & security review | 10 | APPROVED (2026-10-16) |
-| 12 | Production deployment & handoff | 11 | READY FOR REVIEW |
+| 12 | Production deployment & handoff | 11 | APPROVED (2026-10-16) — go-live pending owner checklist |
 
 ---
 

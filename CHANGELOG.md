@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 12 — Production deployment & handoff (2026-10-16, ready for review)
+## Phase 12 — Production deployment & handoff (2026-10-16, approved)
 ### Added
 - Production on the free `workers.dev` address; deploy workflow renamed **Deploy app
   (Cloudflare)**.
