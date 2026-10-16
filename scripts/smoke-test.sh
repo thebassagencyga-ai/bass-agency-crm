@@ -26,6 +26,12 @@ loc=$(curl -s -o /dev/null -w '%{redirect_url}' "$SITE/dashboard")
 code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "next-action: smoke-test" -H "content-type: text/plain" --data "x" "$SITE/contacts")
 [ "$code" = "401" ] && ok "actions refuse signed-out callers (401)" || bad "unauthenticated action returned $code (expected 401)"
 
+# Public intake form (Phase 13): opens signed out, not indexed, no database address. A made-up
+# token is used, so nothing can be submitted to a real inbox.
+quote=$(curl -s "$SITE/quote/00000000000000000000000000000000")
+grep -q "Request an insurance quote" <<<"$quote" && grep -q 'content="noindex, nofollow"' <<<"$quote" && ! grep -qi "supabase\.co" <<<"$quote" \
+  && ok "public intake form opens (not indexed)" || bad "public intake form missing, indexable or showing the database address"
+
 headers=$(curl -sI "$SITE/login" | tr -d '\r')
 for h in "content-security-policy: .*worker-src 'self'" "strict-transport-security: max-age=" "x-frame-options: DENY" \
          "x-content-type-options: nosniff" "referrer-policy: no-referrer" "cache-control: private, no-store"; do

@@ -14,7 +14,8 @@ export type RouteDecision =
   | { action: "unauthorized" };
 
 export const HOME_PATH = "/dashboard";
-const PUBLIC_PATHS = ["/login", "/forgot-password", "/auth/confirm"];
+// "/quote": the public intake form (ADR-028). Its one action can only add a submission to an inbox.
+const PUBLIC_PATHS = ["/login", "/forgot-password", "/auth/confirm", "/quote"];
 const MFA_PATHS = ["/mfa", "/mfa/setup"];
 const NOT_A_DESTINATION = [...PUBLIC_PATHS, ...MFA_PATHS, "/auth"];
 

@@ -7,14 +7,20 @@ import { getCrossSellRules } from "@/lib/cross-sell/data";
 import { ProfileForm } from "@/components/tasks/profile-form";
 import { describeRule } from "@/lib/automation";
 import { getRules } from "@/lib/automation/data";
+import { IntakeLinkPanel } from "@/components/intake/link-panel";
 import { requireFullSession } from "@/lib/auth/require";
+import { siteUrl } from "@/lib/env";
+import { getIntakeLink } from "@/lib/intake/data";
 import { getProfile } from "@/lib/tasks/data";
 
 export const metadata: Metadata = { title: "Settings · The Bass Agency CRM" };
 
-export default async function SettingsPage() {
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const query = await searchParams;
   const { supabase, userId, email } = await requireFullSession();
-  const [profile, rules, crossSell] = await Promise.all([getProfile(supabase, userId), getRules(supabase), getCrossSellRules(supabase)]);
+  const [profile, rules, crossSell, intakeLink] = await Promise.all([
+    getProfile(supabase, userId), getRules(supabase), getCrossSellRules(supabase), getIntakeLink(supabase),
+  ]);
   return (
     <section className="flex max-w-xl flex-col gap-6">
       <h1 className="text-2xl font-semibold">Settings</h1>
@@ -26,6 +32,7 @@ export default async function SettingsPage() {
         <dt className="font-medium">Time zone</dt>
         <dd>{profile.time_zone.replace("_", " ")}</dd>
       </dl>
+      <IntakeLinkPanel link={intakeLink} baseUrl={siteUrl()} notice={query.intake} />
       <section aria-labelledby="messages-heading" className="flex flex-col gap-2">
         <h2 id="messages-heading" className="text-lg font-semibold">Review and referral messages</h2>
         <p className="text-sm text-slate-600 dark:text-slate-400">Used to fill in the messages on Google review and referral request tasks.</p>

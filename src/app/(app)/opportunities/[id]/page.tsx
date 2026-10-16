@@ -62,6 +62,9 @@ export default async function OpportunityPage({
     ["Est. annual premium", formatMoney(opp.estimated_annual_premium) || "—"],
     ["Effective date", formatDateOnly(opp.effective_date) || "—"],
     ["Renewal date", formatDateOnly(opp.renewal_date) || "—"],
+    ...(opp.current_carrier || opp.current_policy_renews_on
+      ? [["Current coverage", [opp.current_carrier, opp.current_policy_renews_on ? `renews ${formatDateOnly(opp.current_policy_renews_on)}` : null].filter(Boolean).join(", ")] as [string, React.ReactNode]]
+      : []),
     ...(opp.product_line === "auto" ? [["Policy term", termLabel(opp.policy_term_months)] as [string, React.ReactNode]] : []),
     ...(opp.policy_ended_on ? [["Policy ended", formatDateOnly(opp.policy_ended_on)] as [string, React.ReactNode]] : []),
     ...(opp.outcome === "lost" && opp.loss_reason

@@ -5,6 +5,7 @@ import { ACTIVITY_OUTCOME_LABELS, ACTIVITY_TYPE_LABELS } from "@/lib/activities/
 import { requireFullSession } from "@/lib/auth/require";
 import { contactDisplayName } from "@/lib/contacts/format";
 import { getDashboard } from "@/lib/dashboard";
+import { countNewSubmissions } from "@/lib/intake/data";
 import { formatDateOnly, formatInstantDateTime, todayInZone } from "@/lib/dates";
 import { formatMoney } from "@/lib/opportunities/format";
 import { PRODUCT_LINES, PRODUCT_LINE_NAMES } from "@/lib/pipelines";
@@ -22,10 +23,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const profile = await getProfile(supabase, userId);
   const today = todayInZone(profile.time_zone);
   const base = { line: null, priority: null, category: null, page: 1 } as const;
-  const [summary, overdue, dueToday] = await Promise.all([
+  const [summary, overdue, dueToday, newIntake] = await Promise.all([
     getDashboard(supabase, today),
     listTasks(supabase, { ...base, view: "overdue" }, today),
     listTasks(supabase, { ...base, view: "today" }, today),
+    countNewSubmissions(supabase),
   ]);
   const notice = Object.keys(NOTICES).find((k) => query[k]);
   const byLine = new Map(summary.open_by_line.map((r) => [r.product_line, r]));
@@ -38,6 +40,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <h1 className="text-2xl font-semibold">{firstName ? `Good to see you, ${firstName}` : "Today"}</h1>
         <p className="text-sm text-slate-600 dark:text-slate-400">{formatDateOnly(today)} · New York time</p>
       </div>
+
+      {newIntake > 0 ? (
+        <Link href="/intake" className="flex min-h-11 items-center justify-between gap-2 rounded-md border border-blue-300 bg-blue-50 px-3 py-2 font-medium text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-100">
+          <span>New quote requests ({newIntake})</span>
+          <span aria-hidden="true">→</span>
+        </Link>
+      ) : null}
 
       <nav aria-label="Quick actions" className="grid grid-cols-3 gap-2">
         <Link href="/contacts/new" className={`${ACTION} bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900`}>Add contact</Link>

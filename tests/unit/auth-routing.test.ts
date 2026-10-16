@@ -19,6 +19,15 @@ describe("decideRoute", () => {
     expect(decideRoute(path, signedOut)).toEqual({ action: "allow" });
   });
 
+  it("lets anyone open and submit the public intake form, but not the agent's intake inbox", () => {
+    expect(decideRoute("/quote/0123456789abcdef0123456789abcdef", signedOut)).toEqual({ action: "allow" });
+    expect(decideRoute("/quote/0123456789abcdef0123456789abcdef", signedOut, { isServerAction: true })).toEqual({ action: "allow" });
+    expect(decideRoute("/quote/0123456789abcdef0123456789abcdef", aal2)).toEqual({ action: "allow" });
+    expect(decideRoute("/intake", signedOut).action).toBe("redirect");
+    expect(decideRoute("/intake/new", signedOut, { isServerAction: true })).toEqual({ action: "unauthorized" });
+    expect(decideRoute("/quotes", signedOut).action).toBe("redirect");
+  });
+
   it("keeps the query string when sending a visitor to sign in", () => {
     expect(decideRoute("/contacts", signedOut, { search: "?status=archived" })).toEqual({
       action: "redirect",

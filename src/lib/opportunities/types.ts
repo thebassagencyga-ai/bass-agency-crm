@@ -53,6 +53,9 @@ export interface Opportunity {
   policy_term_months: number;
   /** Set when a renewal was recorded as lost: the policy is no longer active (Phase 8). */
   policy_ended_on: string | null;
+  /** From intake (Phase 13): the prospect's current insurer and when that policy renews. */
+  current_carrier: string | null;
+  current_policy_renews_on: string | null;
   loss_reason: LossReason | null;
   loss_reason_detail: string | null;
   closed_at: string | null;
@@ -62,7 +65,7 @@ export interface Opportunity {
 }
 
 /** Row returned by search_opportunities: the opportunity plus stage and contact names. */
-export interface OpportunityListRow extends Omit<Opportunity, "loss_reason" | "loss_reason_detail" | "policy_term_months" | "policy_ended_on"> {
+export interface OpportunityListRow extends Omit<Opportunity, "loss_reason" | "loss_reason_detail" | "policy_term_months" | "policy_ended_on" | "current_carrier" | "current_policy_renews_on"> {
   stage_name: string;
   stage_position: number;
   contact_type: ContactType;

@@ -2,6 +2,7 @@
 export const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/contacts", label: "Contacts" },
+  { href: "/intake", label: "Intake" },
   { href: "/opportunities", label: "Opportunities" },
   { href: "/tasks", label: "Tasks" },
   { href: "/renewals", label: "Renewals" },

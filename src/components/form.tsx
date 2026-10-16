@@ -85,11 +85,12 @@ export function Field({
 }
 
 export function SelectField({
-  label, name, id, options, defaultValue, error, required = false, placeholder,
+  label, name, id, options, defaultValue, error, required = false, placeholder, onChange,
 }: {
   id?: string;
   label: string; name: string; options: readonly { value: string; label: string }[];
   defaultValue?: string; error?: string; required?: boolean; placeholder?: string;
+  onChange?: (value: string) => void;
 }) {
   const inputId = id ?? name;
   const errorId = `${inputId}-error`;
@@ -101,6 +102,7 @@ export function SelectField({
       </label>
       <select
         id={inputId} name={name} defaultValue={defaultValue ?? ""} required={required}
+        onChange={onChange ? (e) => onChange(e.target.value) : undefined}
         aria-invalid={error ? true : undefined} aria-describedby={error ? errorId : undefined}
         className={INPUT_CLASS}
       >
