@@ -693,7 +693,7 @@ of the contact (rejected: people and vehicles outlive any one quote).
 
 ## ADR-031 — Import a book of business (CSV) and download data
 
-**Status:** Proposed — built in Phase 15 (awaiting owner review)
+**Status:** Accepted — built in Phase 15, approved by the owner 2026-10-16
 
 **Decision.**
 - **Import** (`/import`, also from Contacts and Settings): the CSV is read in the browser (max

@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 15 — Import and export (2026-10-16, ready for review)
+## Phase 15 — Import and export (2026-10-16, approved)
 ### Added
 - **Import clients** from a CSV report: guessed column matching, policy-type mapping, a check
   with problems and existing-contact matches, one-step import, undo for 7 days.

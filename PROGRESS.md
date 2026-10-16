@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** 15 — Import and export — **READY FOR REVIEW** (built 2026-10-16). Phase 14 approved and deployed 2026-10-16.
+**Current phase:** 15 — Import and export — **APPROVED by owner 2026-10-16**; deploy pending (migration + app). Phase 14 approved and deployed 2026-10-16.
 **Last updated:** 2026-10-16
 **Branch:** `phase-12-production`, merged to `main` on approval
 
