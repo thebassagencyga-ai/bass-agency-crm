@@ -677,6 +677,13 @@ of the contact (rejected: people and vehicles outlive any one quote).
 
 ## Open questions for the owner (do not block Phase 1 start)
 
+- **Tabled (owner, 2026-10-16): collecting dates of birth and driver's license numbers on the
+  intake form.** Possible design if revisited: encrypted in the prospect's browser with the
+  agent's public key, revealed only on the agent's device with a separate vault passphrase,
+  every reveal logged, auto-erased ~30 days after acceptance. Prerequisites: owner changes the
+  CLAUDE.md data rule in writing; Alfa/compliance confirms storage outside Alfa systems is
+  allowed; GLBA / Georgia breach-law obligations reviewed. Until then: not collected.
+
 1. US holidays in business-day calculations? (Default: weekends only.)
 2. Custom domain later? (Default: free `workers.dev` URL; no purchase.)
 3. Error monitoring (e.g. Sentry free tier)? (Default: none in MVP; Cloudflare logs only.)
