@@ -54,12 +54,21 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+      # Backup/restore rehearsal (tests/db/backup-restore.test.ts) needs client tools that
+      # match the server version.
+      PG_DUMP: /usr/lib/postgresql/17/bin/pg_dump
+      PG_RESTORE: /usr/lib/postgresql/17/bin/pg_restore
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: npm
+      - name: PostgreSQL 17 client tools (official PostgreSQL apt repository)
+        run: |
+          sudo apt-get install -y postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y postgresql-client-17
       - run: npm ci
       - run: npm run test:db
 
