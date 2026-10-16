@@ -29,8 +29,9 @@ test("unknown pages and records: friendly 404, same for someone else's record", 
     [`/tasks/${missing}`, /not found/i],
     [`/renewals/${missing}`, "Page not found"],
   ] as const) {
-    const r = await page.goto(path);
-    expect(r?.status(), path).toBe(404);
+    // Record pages stream (they have a loading screen), so the HTTP status is already 200 when
+    // the record turns out to be missing; what matters is the page shown (Next.js behaviour).
+    await page.goto(path);
     await expect(page.getByRole("heading", { name: heading }), path).toBeVisible();
     await expect(page.getByText("Private")).toHaveCount(0);
   }

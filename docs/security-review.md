@@ -21,6 +21,7 @@ weaken a control), **Low** (hardening / correctness), **Info** (no action needed
 | F-08 | No application-level rate limiting on server actions. | Info | Accepted: sign-in and code entry are rate-limited by Supabase Auth (429 handled with a clear message); all data actions need a full two-step session and touch only the caller's rows through RLS. |
 | F-09 | Supabase dashboard settings (sign-ups off, MFA, 7-day idle session, leaked-password protection, backup retention) are configuration, not code. | Info | Re-verify on the production project in Phase 12 (checklist in ROADMAP). |
 | F-10 | Audit log grows without limit. | Info | Acceptable for one agent; revisit if storage approaches the plan limit. |
+| F-11 | A missing (or someone else's) record id shows the "not found" page with HTTP status 200, because record pages stream behind a loading screen (Next.js behaviour). | Info | Accepted: the page and wording are identical for "missing" and "not yours", so nothing is revealed; unknown addresses return a real 404. Browser test checks the page shown. |
 
 ## Checks that passed without findings
 - Every server action re-checks the full two-step session on the server, validates input with
