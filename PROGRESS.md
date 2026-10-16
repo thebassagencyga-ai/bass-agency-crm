@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** 12 — Production deployment & handoff — **APPROVED by owner 2026-10-16**; **LIVE: owner signed off "I approve entering real client data" on 2026-10-16** (`docs/go-live-checklist.md`)
+**Current phase:** 13 — Intake form — **READY FOR REVIEW** (built 2026-10-16). Production is LIVE since the owner's go-live sign-off on 2026-10-16 (Phase 12).
 **Last updated:** 2026-10-16
 **Branch:** `phase-12-production`, merged to `main` on approval
 
@@ -507,3 +507,38 @@ SECURITY, README updated.
 7. **Go-live sign-off (2026-10-16):** the owner wrote "I approve entering real client data."
    Real client data may now be entered. The Backup restore drill is safe to run monthly with real
    data (it restores the encrypted nightly backup on a throwaway runner; production is untouched).
+
+## Phase 13 — Intake form (branch `phase-13-intake`)
+Started 2026-10-16 on the owner's go-ahead ("Yes start phase 13"). Owner decisions: public link
+**and** quick intake; review inbox first; fields: contact details, lines, current carrier +
+renewal month, referral source (ADR-028).
+
+**Completed**
+- Migration `20261024120000_intake.sql`: `intake_links`, `intake_submissions` (RLS + two-step,
+  no INSERT for users, not audited, details erased on review), opportunity `current_carrier` /
+  `current_policy_renews_on`; `submit_intake` (the only anonymous function: definer, validated,
+  10/hour + 50/day per link), `accept_intake`, `discard_intake`, `quick_intake`,
+  `rotate_intake_link` (invoker); shared `crm_engine.intake_clean` / `intake_apply`.
+- Public page `/quote/<token>` (no sign-in, noindex, bot trap, consent v1); Intake inbox with
+  review (duplicates, referrer pick, accept/discard); quick intake; Settings link with copy,
+  QR code (JSX), turn off/on, new link; dashboard badge; nav item; current coverage on the
+  opportunity page.
+- Deploy verification (14 tables, 18 functions, exactly one anonymous function), RLS catalog
+  tests, backups (restore target must have no intake requests), smoke test (17 checks).
+
+**Tests (2026-10-16)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build, secret scan, browser-bundle scan | pass |
+| Local: unit | 332 passed (21 new: form parsing, messages, tokens, dates, QR, routing, verification) |
+| Local: database (PostgreSQL 16) | 368 passed (34 new in `tests/db/intake.test.ts`; RLS/verification suites extended) |
+| Local: Cloudflare build in workerd + smoke test | 17/17 checks |
+| CI run #120 (commit d1daed1): all 4 jobs | pass — PG17 database tests, real Supabase stack: intake API test (anon can only submit; owner accepts; stranger refused), browser test (link → public form → inbox → accept → quick intake with duplicate → link off → new link), Lighthouse accessibility 100 on `/quote/…`, `/intake`, `/intake/<id>`, `/intake/new`, phone widths 375/390/430 clean |
+| Production | not deployed (awaiting owner review) |
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. Deploy database migrations: dry run should list only `20261024120000_intake.sql`; then apply
+   (verify expects 14 tables, 18 functions, the one public intake function).
+3. Deploy app (Cloudflare); Settings → *Create my form link*; open the link on your phone
+   signed out and send yourself a test request; accept or discard it in Intake.
