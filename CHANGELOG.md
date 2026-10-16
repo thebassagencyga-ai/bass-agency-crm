@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 14 — Intake details (2026-10-16, ready for review)
+## Phase 14 — Intake details (2026-10-16, approved)
 ### Added
 - Intake form and quick intake ask for the street address, vehicles (year, make, model; with an
   auto quote) and other drivers / household members (names, relationship).

@@ -21,7 +21,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 11 | End-to-end testing & security review | 10 | APPROVED (2026-10-16) |
 | 12 | Production deployment & handoff | 11 | APPROVED (2026-10-16) — LIVE: owner go-live sign-off 2026-10-16 |
 | 13 | Intake form | 12 | APPROVED (2026-10-16) |
-| 14 | Intake details (address, vehicles, household) | 13 | READY FOR REVIEW |
+| 14 | Intake details (address, vehicles, household) | 13 | APPROVED (2026-10-16) |
 
 ---
 
@@ -430,7 +430,7 @@ page shows and edits them. No dates of birth, license numbers or VINs (ADR-029).
   such as a birth date are dropped; details erased from the inbox after review.
 - Backups and deploy verification include the new tables; all tests green.
 
-**Status 2026-10-16:** built; see PROGRESS.md. ⏳ Owner review.
+**Status 2026-10-16:** built and APPROVED by the owner; see PROGRESS.md. ⏳ Deploy.
 
 ---
 

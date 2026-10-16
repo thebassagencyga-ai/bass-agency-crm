@@ -648,7 +648,7 @@ a secret in the Worker and a far wider privilege than one narrow function).
 
 ## ADR-029 — Intake details: address, vehicles, household (no DOB, license or VIN)
 
-**Status:** Proposed — built in Phase 14 (awaiting owner review)
+**Status:** Accepted — built in Phase 14, approved by the owner 2026-10-16
 
 **Owner decisions (2026-10-16).** Add the street address, vehicles (year, make, model) and
 other drivers / household members (names and relationship). Not collected: dates of birth
