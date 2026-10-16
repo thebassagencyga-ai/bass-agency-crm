@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 13 — Intake form (2026-10-16, ready for review)
+## Phase 13 — Intake form (2026-10-16, approved)
 ### Added
 - Public quote-request form at `/quote/<link>` (no sign-in) with a QR code and on/off/replace
   in Settings; submissions wait in a new **Intake** inbox (dashboard badge).

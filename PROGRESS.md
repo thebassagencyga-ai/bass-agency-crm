@@ -1,6 +1,6 @@
 # Progress
 
-**Current phase:** 13 — Intake form — **READY FOR REVIEW** (built 2026-10-16). Production is LIVE since the owner's go-live sign-off on 2026-10-16 (Phase 12).
+**Current phase:** 13 — Intake form — **APPROVED by owner 2026-10-16**; deploy pending (migration + app). Production is LIVE since the owner's go-live sign-off on 2026-10-16 (Phase 12).
 **Last updated:** 2026-10-16
 **Branch:** `phase-12-production`, merged to `main` on approval
 

@@ -601,7 +601,7 @@ service and account to secure).
 
 ## ADR-028 — Intake form: public link, review inbox, quick intake
 
-**Status:** Proposed — built in Phase 13 (awaiting owner review)
+**Status:** Accepted — built in Phase 13, approved by the owner 2026-10-16
 
 **Owner decisions (2026-10-16).** Both a public link for prospects and a quick in-app intake;
 public submissions go to a review inbox first; fields: contact details, lines wanted, current

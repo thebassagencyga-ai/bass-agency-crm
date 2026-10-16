@@ -20,7 +20,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 10 | Mobile experience & PWA | 9 | APPROVED (2026-10-15) |
 | 11 | End-to-end testing & security review | 10 | APPROVED (2026-10-16) |
 | 12 | Production deployment & handoff | 11 | APPROVED (2026-10-16) — LIVE: owner go-live sign-off 2026-10-16 |
-| 13 | Intake form | 12 | READY FOR REVIEW |
+| 13 | Intake form | 12 | APPROVED (2026-10-16) |
 
 ---
 
@@ -412,7 +412,7 @@ fields: contact details, lines wanted, current carrier + renewal month, referral
 - Deploy verification, RLS catalog tests and backups cover the two new tables.
 - All existing tests stay green; docs updated.
 
-**Status 2026-10-16:** built; see PROGRESS.md for test results. ⏳ Owner review.
+**Status 2026-10-16:** built and APPROVED by the owner; see PROGRESS.md for test results. ⏳ Deploy.
 
 ---
 
