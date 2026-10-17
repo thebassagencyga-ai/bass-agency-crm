@@ -652,7 +652,7 @@ change.
 
 **Production deploy (2026-10-17, commit b7bd46c):** no database migration; Deploy app
 (Cloudflare) run 39007353475 succeeded, bundle check clean, smoke test 17/17 against the live
-workers.dev site. ⏳ Owner: try Text / Email / "Log this text" on the iPhone.
+workers.dev site. ✅ Owner checked on the iPhone 2026-10-17: "Phase 16 is done and working."
 
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
