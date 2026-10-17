@@ -796,6 +796,41 @@ size); deleting the duplicate (against the "preserve, don't delete" rule).
 
 ---
 
+## ADR-034 — Calendar feed for tasks
+
+**Status:** Proposed — built in Phase 18, awaiting owner review
+
+**Owner decisions (2026-10-17):** events show the task and the client's name; open tasks only.
+
+**Decision.**
+- A private subscription link, `/calendar/<token>.ics` (iCalendar), that the owner adds to iPhone
+  Calendar ("Add to iPhone Calendar" opens a `webcal:` link) or Google Calendar ("From URL").
+  Each open task is an all-day event on its due date: "task — client name", with a link back to
+  the task. Tasks due from 90 days ago to 400 days ahead, at most 1,000. Completed or cancelled
+  tasks drop off at the calendar's next refresh (the feed asks for hourly; Google decides itself,
+  often 8–24 hours). Nothing else is in the feed (no phone, email, notes or policy details).
+- Calendar apps cannot sign in, so the feed is read by `public.calendar_feed(token)`: SECURITY
+  DEFINER, executable by `anon` only, search_path pinned — the second (and only other) anonymous
+  function after the intake form (ADR-028). It returns the open tasks of the owner of an enabled
+  link and nothing else; unknown or turned-off links get 404. Deploy verification now checks an
+  explicit list of anonymous functions.
+- The token is 64 hex characters (244 random bits). Only its SHA-256 hash is stored, so the link
+  cannot be read back from the database or a backup: it is shown once when created. "Replace
+  link" disables the old one; "Turn off" disables it. Created/replaced/turned off is audited;
+  each fetch updates "last checked" at most hourly (not audited).
+- The response is `private, no-store`, `noindex`, `no-referrer`. No service-role key involved.
+
+**Accepted risk.** Anyone holding the link sees open task titles and client names until it is
+replaced; the calendar provider (Apple/Google) stores those events in the owner's account. No
+rate limit: a guessed token is infeasible, and the function only reads.
+
+**Alternatives.** Service-role read in the app (rejected: puts the secret key in the Worker for a
+public URL); pushing events into Google/Apple calendars through their APIs (OAuth, more services,
+out of scope); storing the token in plain text like the intake link (rejected: the feed exposes
+client names, so a leaked database or backup must not reveal working links).
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 - **Tabled (owner, 2026-10-16): collecting dates of birth and driver's license numbers on the

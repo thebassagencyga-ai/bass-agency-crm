@@ -79,6 +79,13 @@ latest backup restores, on a throwaway database (production is not touched); run
   are kept on the contact page, where you can edit or remove them. Never add dates of birth,
   license numbers or VINs; those stay in your quoting system.
 
+## 4c. Calendar
+- **Set up:** Settings → *Calendar* → *Create calendar link* → *Add to iPhone Calendar* (or copy
+  the link into Google Calendar: Other calendars → + → From URL). The link is shown only once.
+- **Lost the link / new phone / link may have leaked:** *Replace link* (the old one stops at once),
+  remove the old "CRM tasks" calendar from the phone, subscribe again.
+- **Stop:** *Turn off*. Tasks disappear from the calendar at its next refresh.
+
 ## 4b. Importing and downloading
 - **Import:** run your client/policy report in Alfa's system, save it as CSV, then Contacts →
   *Import*. Check the column matches, choose a line for any policy type it doesn't recognise

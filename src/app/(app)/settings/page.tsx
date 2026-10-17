@@ -16,6 +16,9 @@ import { getProfile } from "@/lib/tasks/data";
 import { knownTags } from "@/lib/contacts/data";
 import { MAX_TAG_LENGTH } from "@/lib/contacts/tags";
 import { renameTag } from "./actions";
+import { CalendarLinkPanel } from "@/components/calendar/link-panel";
+import { getCalendarFeed } from "@/lib/calendar/data";
+import { formatInstantDate, formatInstantDateTime } from "@/lib/dates";
 
 export const metadata: Metadata = { title: "Settings · The Bass Agency CRM" };
 
@@ -29,8 +32,9 @@ const TAG_NOTICES: Record<string, { text: string; ok: boolean }> = {
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const query = await searchParams;
   const { supabase, userId, email } = await requireFullSession();
-  const [profile, rules, crossSell, intakeLink, tags] = await Promise.all([
+  const [profile, rules, crossSell, intakeLink, tags, calendar] = await Promise.all([
     getProfile(supabase, userId), getRules(supabase), getCrossSellRules(supabase), getIntakeLink(supabase), knownTags(supabase),
+    getCalendarFeed(supabase),
   ]);
   const tagNotice = query.tags ? TAG_NOTICES[query.tags] : undefined;
   return (
@@ -45,6 +49,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         <dd>{profile.time_zone.replace("_", " ")}</dd>
       </dl>
       <IntakeLinkPanel link={intakeLink} baseUrl={siteUrl()} notice={query.intake} />
+      <CalendarLinkPanel
+        baseUrl={siteUrl()} notice={query.calendar}
+        active={calendar ? {
+          since: formatInstantDate(calendar.created_at, profile.time_zone),
+          lastUsed: calendar.last_fetched_at ? formatInstantDateTime(calendar.last_fetched_at, profile.time_zone) : null,
+        } : null}
+      />
       <section aria-labelledby="data-heading" className="flex flex-col gap-2">
         <h2 id="data-heading" className="text-lg font-semibold">Your data</h2>
         <p className="text-sm text-slate-600 dark:text-slate-400">

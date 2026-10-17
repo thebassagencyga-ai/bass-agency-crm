@@ -26,6 +26,7 @@ const insertable = (ids: Record<string, string>): Record<string, Record<string, 
   household_members: { contact_id: ids.contact, first_name: "Sam", relationship: "spouse" },
   vehicles: { contact_id: ids.contact, year: 2019, make: "Example", model: "Sedan" },
   import_batches: { file_name: "clients.csv" },
+  calendar_feeds: { token_hash: "\\x" + "ab".repeat(32), enabled: false, disabled_at: "2026-10-16T12:00:00Z" },
 });
 let ids: Record<string, string>;
 
@@ -75,6 +76,8 @@ beforeAll(async () => {
   await asAnon(db, (q) =>
     q.query("select public.submit_intake($1, $2, true)", [token, { first_name: "Pat", last_name: "Sample", email: "pat@example.com", lines: ["auto"] }]),
   );
+  // Phase 18: a calendar link.
+  await asUser(db, alice, (q) => q.query("select public.rotate_calendar_link()"));
   ids = { contact, policy, homeStage, rule: rule.r, rule2: rule.r2 };
 });
 afterAll(async () => {
@@ -187,13 +190,13 @@ describe("every owner table", () => {
 });
 
 describe("every function", () => {
-  it("API-visible and engine functions run as the caller, pin search_path and refuse anon (except the public intake function)", async () => {
+  it("API-visible and engine functions run as the caller, pin search_path and refuse anon (except the intake form and calendar feed)", async () => {
     const { rows } = await db.query<{ f: string }>(
       `select n.nspname || '.' || p.proname as f
          from pg_proc p join pg_namespace n on n.oid = p.pronamespace
         where n.nspname in ('public', 'crm_engine')
           and p.prorettype not in ('trigger'::regtype, 'event_trigger'::regtype)
-          and not (n.nspname = 'public' and p.proname = 'submit_intake')
+          and not (n.nspname = 'public' and p.proname in ('submit_intake', 'calendar_feed'))
           and (p.prosecdef
                or has_function_privilege('anon', p.oid, 'execute')
                or not exists (select 1 from unnest(coalesce(p.proconfig, '{}')) c where c like 'search_path=%'))`,
@@ -201,7 +204,7 @@ describe("every function", () => {
     expect(rows.map((r) => r.f)).toEqual([]);
   });
 
-  it("anonymous callers can run exactly one function: the public intake form", async () => {
+  it("anonymous callers can run exactly two functions: the intake form and the calendar feed", async () => {
     const { rows } = await db.query<{ f: string; definer: boolean; pinned: boolean }>(
       `select n.nspname || '.' || p.proname as f, p.prosecdef as definer,
               exists (select 1 from unnest(coalesce(p.proconfig, '{}')) c where c = 'search_path=""') as pinned
@@ -211,7 +214,10 @@ describe("every function", () => {
           and has_function_privilege('anon', p.oid, 'execute')
           and has_schema_privilege('anon', n.oid, 'usage')`,
     );
-    expect(rows).toEqual([{ f: "public.submit_intake", definer: true, pinned: true }]);
+    expect(rows.sort((a, b) => (a.f < b.f ? -1 : 1))).toEqual([
+      { f: "public.calendar_feed", definer: true, pinned: true },
+      { f: "public.submit_intake", definer: true, pinned: true },
+    ]);
   });
 
   it("private helpers cannot be called by API roles", async () => {

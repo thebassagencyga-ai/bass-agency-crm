@@ -25,7 +25,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 15 | Import book of business (CSV) + export data | 14 | APPROVED (2026-10-16) |
 | 16 | Inactivity sign-out + email/text via device apps | 15 | APPROVED (2026-10-17) |
 | 17 | Tags + merge duplicate contacts | 16 | APPROVED (2026-10-17) |
-| 18 | Calendar feed for tasks | 17 | NOT STARTED |
+| 18 | Calendar feed for tasks | 17 | READY FOR REVIEW |
 | 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | NOT STARTED |
 
 ---
@@ -485,6 +485,20 @@ losing anything (ADR-033).
 - All tests green; phone widths and Lighthouse clean.
 
 **Status 2026-10-17:** built, APPROVED and deployed (migration applied, smoke test 17/17); see PROGRESS.md.
+
+---
+
+## Phase 18 — Calendar feed for tasks
+**Objective.** Open tasks appear in the owner's phone calendar through a private subscription
+link (ADR-034). Owner decisions: "task — client name"; open tasks only.
+
+**Acceptance criteria**
+- Settings creates, replaces and turns off the link; iPhone (webcal) and Google (URL) work.
+- The feed lists only the owner's open tasks as all-day events; done tasks drop off; unknown,
+  replaced or turned-off links get 404; the token is stored only as a hash.
+- All tests green; deploy verification knows exactly two anonymous functions.
+
+**Status 2026-10-17:** READY FOR REVIEW; see PROGRESS.md.
 
 ---
 

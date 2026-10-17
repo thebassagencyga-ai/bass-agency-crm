@@ -141,6 +141,7 @@ underwriting answers, detailed health information, policy documents. No file upl
 | Session cookies HttpOnly; expired session refreshes | 2 | CI HTTP + browser tests |
 | Session ends after 7 days unused (cookie missing, old or malformed → revoked, `/login?expired=1`); code asked again after 12 hours | 16 | Unit tests (cookie parsing, expiry, refresh, `amr` freshness, routing); CI HTTP tests (3 expiry cases incl. refresh token revoked, renewal of the cookie); browser test |
 | Tags and merge act only on the caller's contacts; merge is all or nothing and deletes nothing | 17 | DB tests (`tests/db/tags-merge.test.ts`: other agent's contact refused, password-only and anonymous refused, row counts unchanged, audit written, import undo blocked); browser test |
+| Calendar feed: only the link owner's open tasks (title, due date, client name); token stored as a hash; replaced/turned-off links refused; signed-in users cannot call the feed function | 18 | DB tests (`tests/db/calendar.test.ts`), catalog checks (exactly two anonymous functions), browser test reading the feed without cookies, smoke check (unknown link → 404) |
 | Text/email never sent by the app; message text not stored | 16 | Unit tests (link encoding, no header injection via `?`/`&` in addresses); browser test checks the `sms:`/`mailto:` links and the log entry |
 | No secret key in client bundle | 2 | Verified: `check-client-bundle.mjs` (patterns locally; real key values in CI) |
 | Security headers / CSP present, nonce on every script, no CSP violations | 2 | Verified locally in workerd + Chromium; CI HTTP tests |
@@ -161,6 +162,9 @@ underwriting answers, detailed health information, policy documents. No file upl
 | Public intake: only `submit_intake` callable anonymously; links, rate limits, validation, erasure | 13 | DB tests (`tests/db/intake.test.ts`), real Data API test (`tests/integration/intake-api.test.ts`), browser test, deploy verification |
 
 ## 9. Known risks (open)
+- **Calendar link (ADR-034):** whoever has the link sees open task titles and client names, and
+  Apple/Google keep a copy in the owner's calendar account. Replace the link in Settings if it
+  may have leaked, and remove the old calendar subscription on the phone.
 - **Public intake form (ADR-028):** a determined spammer can fill a link's 50/day inbox
   quota with junk (nothing reaches contacts; turn the link off or replace it). Free-text
   fields could carry sensitive data despite the on-form warning; it is erased on review.

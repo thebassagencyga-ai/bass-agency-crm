@@ -32,6 +32,11 @@ quote=$(curl -s "$SITE/quote/00000000000000000000000000000000")
 grep -q "Request an insurance quote" <<<"$quote" && grep -q 'content="noindex, nofollow"' <<<"$quote" && ! grep -qi "supabase\.co" <<<"$quote" \
   && ok "public intake form opens (not indexed)" || bad "public intake form missing, indexable or showing the database address"
 
+# Phase 18: the calendar feed answers 404 to a link that does not exist (a well-formed but
+# unknown token: no real feed is read).
+cal=$(curl -s -o /dev/null -w '%{http_code}' "$SITE/calendar/$(printf '0%.0s' {1..64}).ics")
+[ "$cal" = "404" ] && ok "calendar feed refuses an unknown link (404)" || bad "calendar feed answered $cal to an unknown link (expected 404)"
+
 headers=$(curl -sI "$SITE/login" | tr -d '\r')
 for h in "content-security-policy: .*worker-src 'self'" "strict-transport-security: max-age=" "x-frame-options: DENY" \
          "x-content-type-options: nosniff" "referrer-policy: no-referrer" "cache-control: private, no-store"; do

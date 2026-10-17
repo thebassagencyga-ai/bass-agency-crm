@@ -150,6 +150,12 @@ for existing ones): auto → home, home → auto, auto or home → life (individ
 One row per contact and rule: `dismissed_on` and `hidden_until` (12 months later). Dismissing
 again after it reappears restarts the 12 months (same row).
 
+### calendar_feeds (Phase 18)
+Calendar subscription links: `token_hash` (SHA-256 of the 64-hex token; the token itself is never
+stored), `enabled` / `disabled_at` (one enabled per agent), `last_fetched_at` (updated at most
+hourly by the feed). Users read their own rows and turn a link off; links are created only by
+`rotate_calendar_link()`.
+
 ### audit_log
 Append-only, written by trigger on contacts, opportunities, tasks, activities and
 automation_rules: actor, table, record, action, and for updates only the changed columns.
@@ -165,6 +171,8 @@ granted to `authenticated` only.
 |---|---|
 | `search_contacts(query, type, status, lead_source, archived, sort, limit, offset, tag)` | Contact list: name (either order), business, email (escaped ILIKE) or phone digits (≥ 3); filters incl. a tag (case-insensitive, Phase 17); sort `name` / `recent` / `updated`; limit capped at 100. |
 | `find_possible_duplicates(email, phone, exclude_id)` | Up to 5 contacts with the same email (case-insensitive) or the same last 10 phone digits (phone or alt phone), archived included, merged contacts excluded. |
+| `rotate_calendar_link()` | Phase 18: disables the current calendar link and creates a new one; returns the token once (only its hash is stored). |
+| `calendar_feed(token)` | Phase 18, **anonymous callers only**, SECURITY DEFINER: the open tasks (id, title, due date, priority, category, contact name) of the owner of an enabled link, due −90 to +400 days, ≤ 1,000; unknown/disabled link → P0002. |
 | `contact_tags()` | Tags in use with how many unmerged contacts carry each; one spelling per tag ignoring case (Phase 17). |
 | `rename_tag(from, to)` | Renames a tag on every one of the caller's contacts (no repeats if the contact already has the new name), or removes it when `to` is empty; returns contacts changed (Phase 17). |
 | `merge_contacts(keep, merge)` | One transaction (Phase 17, ADR-033): fills the kept contact's blanks from the duplicate, combines notes and tags, keeps the stronger status; moves opportunities (their tasks and activities follow by ON UPDATE CASCADE), other tasks and activities, household, vehicles, intake requests, cross-sell dismissals and referrals; archives the duplicate with `merged_into_contact_id`. Returns what moved. |

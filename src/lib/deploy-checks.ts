@@ -6,6 +6,7 @@ export const CRM_TABLES = [
   "activities",
   "audit_log",
   "automation_rules",
+  "calendar_feeds",
   "contacts",
   "cross_sell_dismissals",
   "cross_sell_rules",
@@ -60,14 +61,15 @@ export interface VerificationRow {
   profile_trigger: unknown;
   public_functions: unknown;
   definer_or_anon_functions: unknown;
-  public_intake_function: unknown;
+  public_anon_functions: unknown;
   unexpected_trigger_functions: unknown;
   engine_unsafe: unknown;
 }
 
-/** Database functions callable through the Data API (SECURITY INVOKER except PUBLIC_ANON_FUNCTION). Update per phase. */
+/** Database functions callable through the Data API (SECURITY INVOKER except PUBLIC_ANON_FUNCTIONS). Update per phase. */
 export const PUBLIC_FUNCTIONS = [
   "accept_intake",
+  "calendar_feed",
   "confirm_no_response_follow_up",
   "contact_lead_sources",
   "contact_tags",
@@ -82,6 +84,7 @@ export const PUBLIC_FUNCTIONS = [
   "record_renewal_outcome",
   "rename_tag",
   "report_summary",
+  "rotate_calendar_link",
   "rotate_intake_link",
   "search_contacts",
   "search_opportunities",
@@ -92,10 +95,12 @@ export const PUBLIC_FUNCTIONS = [
 ] as const;
 
 /**
- * The only function anonymous callers may run (Phase 13, ADR-028): the public intake form.
- * SECURITY DEFINER with a pinned search_path; it can only add a submission to an inbox.
+ * The only functions anonymous callers may run, each SECURITY DEFINER with a pinned
+ * search_path and closed to signed-in users: the public intake form (Phase 13, ADR-028), which
+ * can only add a submission to an inbox, and the calendar feed (Phase 18, ADR-034), which only
+ * returns the open tasks of the owner of an enabled link.
  */
-export const PUBLIC_ANON_FUNCTION = "submit_intake";
+export const PUBLIC_ANON_FUNCTIONS = ["calendar_feed", "submit_intake"] as const;
 
 /**
  * Trigger-only functions Supabase itself adds to `public` on hosted projects. They return
@@ -125,14 +130,14 @@ select
   (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace
      and ${CALLABLE}) as public_functions,
   (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace and ${CALLABLE}
-     and p.proname <> '${PUBLIC_ANON_FUNCTION}'
+     and p.proname not in (${PUBLIC_ANON_FUNCTIONS.map((n) => `'${n}'`).join(", ")})
      and (p.prosecdef or has_function_privilege('anon', p.oid, 'execute'))) as definer_or_anon_functions,
-  -- The public intake function: exactly one, definer, search_path pinned, anon only.
+  -- The anonymous functions: each exactly once, definer, search_path pinned, anon only.
   (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace
-     and p.proname = '${PUBLIC_ANON_FUNCTION}' and p.prosecdef
+     and p.proname in (${PUBLIC_ANON_FUNCTIONS.map((n) => `'${n}'`).join(", ")}) and p.prosecdef
      and has_function_privilege('anon', p.oid, 'execute')
      and not has_function_privilege('authenticated', p.oid, 'execute')
-     and 'search_path=""' = any (coalesce(p.proconfig, '{}'))) as public_intake_function,
+     and 'search_path=""' = any (coalesce(p.proconfig, '{}'))) as public_anon_functions,
   (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace and not (${CALLABLE})
      and p.proname not in (${PLATFORM_TRIGGER_FUNCTIONS.map((n) => `'${n}'`).join(", ")})) as unexpected_trigger_functions,
   -- Automation engine schema (Phase 6): must exist, run as the caller only, closed to anon.
@@ -181,7 +186,7 @@ export function checkVerification(row: VerificationRow): string[] {
     ["profile_trigger", 1, "sign-up profile trigger"],
     ["public_functions", PUBLIC_FUNCTIONS.length, "Data API functions"],
     ["definer_or_anon_functions", 0, "functions that bypass RLS or allow anonymous use"],
-    ["public_intake_function", 1, `public intake function (${PUBLIC_ANON_FUNCTION}: SECURITY DEFINER, search_path pinned, anon only)`],
+    ["public_anon_functions", PUBLIC_ANON_FUNCTIONS.length, `public functions for anonymous callers (${PUBLIC_ANON_FUNCTIONS.join(", ")}: SECURITY DEFINER, search_path pinned, anon only)`],
     ["unexpected_trigger_functions", 0, "unknown trigger functions in public"],
     ["engine_unsafe", 0, "problems in the automation engine schema (missing, SECURITY DEFINER or anonymous access)"],
   ];

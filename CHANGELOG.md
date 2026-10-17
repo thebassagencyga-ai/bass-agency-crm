@@ -2,6 +2,12 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 18 — Calendar feed (2026-10-17, ready for review)
+### Added
+- **Calendar** in Settings: a private link that shows your open tasks in iPhone or Google
+  Calendar ("task — client name" on the due date); replace or turn off at any time.
+- Migration `20261028120000_calendar_feed.sql`; smoke test gains a calendar check (18 checks).
+
 ## Phase 17 — Tags and merging duplicates (2026-10-17, approved)
 ### Added
 - **Tags** on contacts (e.g. VIP, Church): on the contact form, the contact page and list; filter

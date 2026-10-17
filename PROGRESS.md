@@ -696,3 +696,34 @@ smoke test 17/17. ⏳ Owner: tag, filter and merge two test duplicates on the iP
 2. Deploy database migrations: dry run lists only `20261027120000_tags_merge.sql`; then apply
    (verify expects 17 tables, 22 functions).
 3. Deploy app (Cloudflare).
+
+## Phase 18 — Calendar feed for tasks (branch `phase-18-calendar-feed`)
+Started 2026-10-17 on the owner's go-ahead ("Start phase 18"); owner chose "task — client name"
+and open tasks only. Design in ADR-034.
+
+**Completed**
+- Migration `20261028120000_calendar_feed.sql`: `calendar_feeds` (token hash only, one enabled per
+  agent, RLS + two-step policy, audited on create/replace/turn off), `rotate_calendar_link()`
+  (invoker), `calendar_feed(token)` (definer, anonymous only).
+- `src/lib/calendar/ics.ts` (iCalendar writer: escaping, 75-octet folding, all-day events),
+  `/calendar/<token>.ics` route (404 for unknown links, `no-store`, `noindex`), `/calendar` public
+  path, Settings → Calendar (create, shown once, Add to iPhone Calendar, copy for Google, replace,
+  turn off, last checked).
+- Deploy verification: 18 tables, 24 functions, an explicit list of two anonymous functions.
+- Smoke test: unknown calendar link → 404 (18 checks).
+
+**Tests (2026-10-17)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build | pass |
+| Local: unit | 406 passed (5 new: escaping, folding, dates, feed contents; plus routing) |
+| Local: database (PostgreSQL 16) | 421 passed (5 new: hash only + replace, owner's open tasks with names and window, bad/unknown/off links and no signed-in use, last-used without audit noise, isolation/aal1/anon; catalog tests updated for two anonymous functions) |
+| CI (integration + browser) | pending |
+| Production | not deployed (awaiting owner review) |
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. Deploy database migrations: dry run lists only `20261028120000_calendar_feed.sql`; then apply
+   (verify expects 18 tables, 24 functions, 2 anonymous functions).
+3. Deploy app (Cloudflare) — smoke test now 18 checks.
+4. Settings → Calendar → Create calendar link → Add to iPhone Calendar.

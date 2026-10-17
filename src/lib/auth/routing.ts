@@ -19,7 +19,8 @@ export type RouteDecision =
 
 export const HOME_PATH = "/dashboard";
 // "/quote": the public intake form (ADR-028). Its one action can only add a submission to an inbox.
-const PUBLIC_PATHS = ["/login", "/forgot-password", "/auth/confirm", "/quote"];
+// "/calendar": the calendar feed (ADR-034), read by calendar apps with the link's secret token.
+const PUBLIC_PATHS = ["/login", "/forgot-password", "/auth/confirm", "/quote", "/calendar"];
 const MFA_PATHS = ["/mfa", "/mfa/setup"];
 const NOT_A_DESTINATION = [...PUBLIC_PATHS, ...MFA_PATHS, "/auth"];
 

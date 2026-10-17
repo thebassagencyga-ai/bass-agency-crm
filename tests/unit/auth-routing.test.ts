@@ -26,6 +26,9 @@ describe("decideRoute", () => {
     expect(decideRoute("/intake", signedOut).action).toBe("redirect");
     expect(decideRoute("/intake/new", signedOut, { isServerAction: true })).toEqual({ action: "unauthorized" });
     expect(decideRoute("/quotes", signedOut).action).toBe("redirect");
+    // Phase 18: the calendar feed is read by calendar apps without a session.
+    expect(decideRoute(`/calendar/${"a".repeat(64)}.ics`, signedOut)).toEqual({ action: "allow" });
+    expect(decideRoute("/calendars", signedOut).action).toBe("redirect");
   });
 
   it("keeps the query string when sending a visitor to sign in", () => {
