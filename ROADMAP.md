@@ -484,7 +484,7 @@ losing anything (ADR-033).
 - An import cannot be undone after one of its contacts was merged.
 - All tests green; phone widths and Lighthouse clean.
 
-**Status 2026-10-17:** built and APPROVED by the owner; see PROGRESS.md. ⏳ Deploy.
+**Status 2026-10-17:** built, APPROVED and deployed (migration applied, smoke test 17/17); see PROGRESS.md.
 
 ---
 

@@ -685,6 +685,12 @@ choice instead).
 
 **Approved by the owner 2026-10-17** ("Approved").
 
+**Production deploy (2026-10-17, commit 2a0b323):** migrations dry run 39028156870 listed only
+`20261027120000_tags_merge.sql`; apply run 39028259903 applied it and verification passed (17
+tables, 17 two-step policies, 22 Data API functions incl. `contact_tags`, `rename_tag`,
+`merge_contacts`, one public intake function, no anonymous access); Deploy app 39029551462
+smoke test 17/17. ⏳ Owner: tag, filter and merge two test duplicates on the iPhone.
+
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
 2. Deploy database migrations: dry run lists only `20261027120000_tags_merge.sql`; then apply
