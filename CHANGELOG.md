@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 18 — Calendar feed (2026-10-17, ready for review)
+## Phase 18 — Calendar feed (2026-10-17, approved)
 ### Added
 - **Calendar** in Settings: a private link that shows your open tasks in iPhone or Google
   Calendar ("task — client name" on the due date); replace or turn off at any time.

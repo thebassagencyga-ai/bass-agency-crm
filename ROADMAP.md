@@ -25,7 +25,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 15 | Import book of business (CSV) + export data | 14 | APPROVED (2026-10-16) |
 | 16 | Inactivity sign-out + email/text via device apps | 15 | APPROVED (2026-10-17) |
 | 17 | Tags + merge duplicate contacts | 16 | APPROVED (2026-10-17) |
-| 18 | Calendar feed for tasks | 17 | READY FOR REVIEW |
+| 18 | Calendar feed for tasks | 17 | APPROVED (2026-10-17) |
 | 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | NOT STARTED |
 
 ---
@@ -498,7 +498,7 @@ link (ADR-034). Owner decisions: "task — client name"; open tasks only.
   replaced or turned-off links get 404; the token is stored only as a hash.
 - All tests green; deploy verification knows exactly two anonymous functions.
 
-**Status 2026-10-17:** READY FOR REVIEW; see PROGRESS.md.
+**Status 2026-10-17:** built and APPROVED by the owner; see PROGRESS.md. ⏳ Deploy.
 
 ---
 

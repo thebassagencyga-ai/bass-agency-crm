@@ -719,10 +719,12 @@ and open tasks only. Design in ADR-034.
 | Local: unit | 406 passed (5 new: escaping, folding, dates, feed contents; plus routing) |
 | Local: database (PostgreSQL 16) | 421 passed (5 new: hash only + replace, owner's open tasks with names and window, bad/unknown/off links and no signed-in use, last-used without audit noise, isolation/aal1/anon; catalog tests updated for two anonymous functions) |
 | CI run 39031603121 (commit 5ef9fd0): all 4 jobs | pass — migrations on the Supabase image, schema/RLS on PG 17, smoke script against the Cloudflare build (18 checks incl. unknown calendar link → 404), browser test (create link, feed read with no cookies shows "task — client", done task drops off, reload hides the link, replace stops the old link, turn off), phone widths, Lighthouse. Earlier runs 39030862965/39030895100 failed only that browser test: it navigated to the same URL with a #fragment, which does not reload; it now reloads |
-| Production | not deployed (awaiting owner review) |
+| Production | not deployed yet |
+
+**Approved by the owner 2026-10-17** ("Approved").
 
 **Owner actions after approval**
-1. Merge to `main`.
+1. Merge to `main` (done by Claude).
 2. Deploy database migrations: dry run lists only `20261028120000_calendar_feed.sql`; then apply
    (verify expects 18 tables, 24 functions, 2 anonymous functions).
 3. Deploy app (Cloudflare) — smoke test now 18 checks.

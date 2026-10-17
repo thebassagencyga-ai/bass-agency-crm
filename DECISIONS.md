@@ -798,7 +798,7 @@ size); deleting the duplicate (against the "preserve, don't delete" rule).
 
 ## ADR-034 — Calendar feed for tasks
 
-**Status:** Proposed — built in Phase 18, awaiting owner review
+**Status:** Accepted — built in Phase 18, approved by the owner 2026-10-17
 
 **Owner decisions (2026-10-17):** events show the task and the client's name; open tasks only.
 
