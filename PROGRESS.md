@@ -680,7 +680,7 @@ choice instead).
 | Local: lint, typecheck, build | pass |
 | Local: unit | 401 passed (6 new: tag parsing, merge preview rules) |
 | Local: database (PostgreSQL 16) | 416 passed (8 new: tag rules, counts/filter/privacy, rename/fold/remove, full merge incl. counts unchanged and audit, referrer edge case, dismissals, refusals incl. other agent/aal1/anon, import undo blocked) |
-| CI (integration + browser) | pending |
+| CI run 39009040063 (commit 97bbb97): all 4 jobs | pass — migrations on the Supabase image, schema/RLS tests on PG 17, browser test (tag, filter, possible-duplicate hint, preview, merge, merged record, rename in Settings), phone widths and Lighthouse incl. the merge page. Earlier run 39008417191 failed the tap-size audit: tag links were 35 px wide; now at least 44 px |
 | Production | not deployed (awaiting owner review) |
 
 **Owner actions after approval**
