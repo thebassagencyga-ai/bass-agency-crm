@@ -727,8 +727,8 @@ and open tasks only. Design in ADR-034.
 `20261028120000_calendar_feed.sql`; apply run 39032648257 applied it and verification passed (18
 tables, 18 two-step policies, 24 Data API functions, exactly 2 anonymous functions —
 `calendar_feed` and `submit_intake` — both SECURITY DEFINER; no other anonymous access); Deploy
-app 39033065393 smoke test 18/18 incl. "calendar feed refuses an unknown link (404)". ⏳ Owner:
-Settings → Calendar → Create calendar link → Add to iPhone Calendar; check a task appears.
+app 39033065393 smoke test 18/18 incl. "calendar feed refuses an unknown link (404)". ✅ Owner set up
+the calendar link on the iPhone and confirmed it works (2026-10-17).
 
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
