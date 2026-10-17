@@ -762,10 +762,12 @@ on connecting it." Built switched off; design in ADR-035.
 | Local: database (PostgreSQL 16) | 425 passed (4 new: ledger sum, no edit/delete, bad values refused, isolation/aal1/anon; catalog tests cover the new table) |
 | CI run 39035195061 (commit 54a3d40): all 4 jobs | pass — secret scan, lint/typecheck/unit, schema/RLS on PG 17, migrations on the Supabase image, Cloudflare build + bundle check, smoke 18/18, browser tests incl. "AI helpers stay hidden until connected", phone widths, Lighthouse. Earlier run 39034413565 stopped at the secret scan: a test used a realistic SSN-shaped string; replaced with an invalid 000-prefixed one and the branch commit amended (own unmerged branch) |
 | Real Anthropic API | **not run** — not connected, by owner decision |
-| Production | not deployed (awaiting owner review) |
+| Production | not deployed yet |
+
+**Approved by the owner 2026-10-17** ("Approved").
 
 **Owner actions after approval**
-1. Merge to `main`.
+1. Merge to `main` (done by Claude).
 2. Deploy database migrations: dry run lists only `20261029120000_ai_usage.sql`; then apply
    (verify expects 19 tables, 24 functions, 2 anonymous functions).
 3. Deploy app (Cloudflare). Nothing AI appears (no key). Connecting later: runbook §4d.

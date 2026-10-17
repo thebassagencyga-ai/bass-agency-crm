@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 19 — AI helpers, not connected (2026-10-17, ready for review)
+## Phase 19 — AI helpers, not connected (2026-10-17, approved)
 ### Added
 - AI helpers, **off until an API key is added** (runbook §4d): Draft with AI in the message
   composer, Fill in from my notes on Log activity, Daily briefing on the dashboard, Suggest

@@ -26,7 +26,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 16 | Inactivity sign-out + email/text via device apps | 15 | APPROVED (2026-10-17) |
 | 17 | Tags + merge duplicate contacts | 16 | APPROVED (2026-10-17) |
 | 18 | Calendar feed for tasks | 17 | APPROVED (2026-10-17) |
-| 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | READY FOR REVIEW (built, not connected) |
+| 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | APPROVED (2026-10-17) — built, not connected |
 
 ---
 
@@ -515,8 +515,8 @@ decision: build now, hold off on connecting.
   are handled; sensitive typed text is refused; only the listed fields are sent.
 - All tests green; the key cannot reach the browser bundle.
 
-**Status 2026-10-17:** READY FOR REVIEW; see PROGRESS.md. Connecting is a later owner step
-(runbook §4d).
+**Status 2026-10-17:** built and APPROVED by the owner (not connected); see PROGRESS.md. ⏳ Deploy.
+Connecting is a later owner step (runbook §4d).
 
 ---
 

@@ -833,7 +833,7 @@ client names, so a leaked database or backup must not reveal working links).
 
 ## ADR-035 — AI helpers, built but not connected
 
-**Status:** Proposed — built in Phase 19, awaiting owner review. **Owner decision (2026-10-17):**
+**Status:** Accepted — built in Phase 19, approved by the owner 2026-10-17. **Owner decision (2026-10-17):**
 "Let's build it but we will hold off on connecting it" — no API key is set, so the helpers are
 off and hidden in production.
 
