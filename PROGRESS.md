@@ -650,6 +650,10 @@ change.
 
 **Approved by the owner 2026-10-17** ("Approved").
 
+**Production deploy (2026-10-17, commit b7bd46c):** no database migration; Deploy app
+(Cloudflare) run 39007353475 succeeded, bundle check clean, smoke test 17/17 against the live
+workers.dev site. ⏳ Owner: try Text / Email / "Log this text" on the iPhone.
+
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
 2. No database migration this phase.

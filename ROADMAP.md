@@ -468,7 +468,7 @@ Mail apps with ready-made messages (ADR-030, ADR-032).
   activity in one step.
 - No database change. All tests green; phone widths and Lighthouse clean.
 
-**Status 2026-10-17:** built and APPROVED by the owner; see PROGRESS.md. ⏳ Deploy.
+**Status 2026-10-17:** built, APPROVED and deployed (smoke test 17/17); see PROGRESS.md.
 
 ---
 
