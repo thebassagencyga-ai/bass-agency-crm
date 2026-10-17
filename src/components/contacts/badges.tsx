@@ -24,7 +24,7 @@ export function TagList({ tags, linked = false }: { tags: readonly string[]; lin
       {tags.map((t) => (
         <li key={t}>
           {linked ? (
-            <Link href={`/contacts?tag=${encodeURIComponent(t)}`} className={`inline-flex min-h-11 items-center ${TAG} underline-offset-2 hover:underline`}>{t}</Link>
+            <Link href={`/contacts?tag=${encodeURIComponent(t)}`} className={`inline-flex min-h-11 min-w-11 items-center justify-center ${TAG} underline-offset-2 hover:underline`}>{t}</Link>
           ) : (
             <span className={TAG}>{t}</span>
           )}
