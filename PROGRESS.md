@@ -760,7 +760,7 @@ on connecting it." Built switched off; design in ADR-035.
 | Local: lint, typecheck, build, bundle check | pass |
 | Local: unit | 434 passed (28 new: config, budget, month start across DST, guard patterns, each job's payload and answer checks; `runJob` against a fake API — off without key, cap refuses before calling, call parameters, usage recorded even for refusals, nothing shown if usage can't be recorded, error mapping; schema conversion checked once against the real SDK) |
 | Local: database (PostgreSQL 16) | 425 passed (4 new: ledger sum, no edit/delete, bad values refused, isolation/aal1/anon; catalog tests cover the new table) |
-| CI (integration + browser) | pending |
+| CI run 39035195061 (commit 54a3d40): all 4 jobs | pass — secret scan, lint/typecheck/unit, schema/RLS on PG 17, migrations on the Supabase image, Cloudflare build + bundle check, smoke 18/18, browser tests incl. "AI helpers stay hidden until connected", phone widths, Lighthouse. Earlier run 39034413565 stopped at the secret scan: a test used a realistic SSN-shaped string; replaced with an invalid 000-prefixed one and the branch commit amended (own unmerged branch) |
 | Real Anthropic API | **not run** — not connected, by owner decision |
 | Production | not deployed (awaiting owner review) |
 
