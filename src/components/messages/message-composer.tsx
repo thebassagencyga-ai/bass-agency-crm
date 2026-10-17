@@ -83,7 +83,7 @@ export function MessageComposer({
       ) : null}
       <p className="text-xs text-slate-500">
         Text and Email open your phone&apos;s Messages or Mail app with this filled in. Nothing is sent until you press send there,
-        and nothing you type here is saved.
+        and the CRM keeps no copy of what you type here.
       </p>
     </div>
   );
