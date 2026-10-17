@@ -24,7 +24,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 14 | Intake details (address, vehicles, household) | 13 | APPROVED (2026-10-16) |
 | 15 | Import book of business (CSV) + export data | 14 | APPROVED (2026-10-16) |
 | 16 | Inactivity sign-out + email/text via device apps | 15 | APPROVED (2026-10-17) |
-| 17 | Tags + merge duplicate contacts | 16 | READY FOR REVIEW |
+| 17 | Tags + merge duplicate contacts | 16 | APPROVED (2026-10-17) |
 | 18 | Calendar feed for tasks | 17 | NOT STARTED |
 | 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | NOT STARTED |
 
@@ -484,7 +484,7 @@ losing anything (ADR-033).
 - An import cannot be undone after one of its contacts was merged.
 - All tests green; phone widths and Lighthouse clean.
 
-**Status 2026-10-17:** READY FOR REVIEW; see PROGRESS.md.
+**Status 2026-10-17:** built and APPROVED by the owner; see PROGRESS.md. ⏳ Deploy.
 
 ---
 

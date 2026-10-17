@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 17 — Tags and merging duplicates (2026-10-17, ready for review)
+## Phase 17 — Tags and merging duplicates (2026-10-17, approved)
 ### Added
 - **Tags** on contacts (e.g. VIP, Church): on the contact form, the contact page and list; filter
   the list by tag; rename or remove a tag everywhere in Settings.

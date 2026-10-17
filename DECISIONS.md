@@ -763,7 +763,7 @@ cookie plus refresh-token revocation); sending email/SMS from the server (out of
 
 ## ADR-033 — Tags on contacts and merging duplicate contacts
 
-**Status:** Proposed — built in Phase 17, awaiting owner review
+**Status:** Accepted — built in Phase 17, approved by the owner 2026-10-17
 
 **Decision.**
 - **Tags** are a text array on the contact (`contacts.tags`), not separate tables: they inherit
