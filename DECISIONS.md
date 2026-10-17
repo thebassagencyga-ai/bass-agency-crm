@@ -723,7 +723,7 @@ preview (unnecessary: the preview is computed in the browser and re-checked on t
 
 ## ADR-032 — Inactivity sign-out, code every 12 hours, and text/email via the phone's apps
 
-**Status:** Proposed — built in Phase 16, awaiting owner review
+**Status:** Accepted — built in Phase 16, approved by the owner 2026-10-17
 
 **Context.** Supabase's own inactivity timeout and session time-box are Pro features; the CRM
 project stays on Free (ADR-027). The owner asked for an app-level sign-out after 7 days unused

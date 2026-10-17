@@ -646,9 +646,11 @@ change.
 | Local: unit | 395 passed (19 new: cookie parsing/expiry/refresh, `amr` freshness, routing for a stale code, templates, link encoding) |
 | Local: database (PostgreSQL 16) | 408 passed (no change) |
 | CI run 38985172787 (commit 77f686e): all 4 jobs | pass — HTTP tests: 3 expiry cases (missing, 8-day-old, malformed cookie → `/login?expired=1`, refresh token revoked), hourly cookie renewal, code re-entry renews the 12-hour clock; browser: renewal text composed, links checked, logged as an activity; 7-day sign-out with message; phone widths and Lighthouse incl. the open composer. Earlier run 38984295520 failed one intake test (composer note contained "saved.", matching that test's "Saved." check); wording changed |
-| Production | not deployed (awaiting owner review) |
+| Production | not deployed yet |
+
+**Approved by the owner 2026-10-17** ("Approved").
 
 **Owner actions after approval**
-1. Merge to `main`.
+1. Merge to `main` (done by Claude).
 2. No database migration this phase.
 3. Deploy app (Cloudflare). Every device is signed out once; sign in again.

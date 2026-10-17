@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 16 — Inactivity sign-out and text/email (2026-10-16, ready for review)
+## Phase 16 — Inactivity sign-out and text/email (2026-10-17, approved)
 ### Added
 - Signed out after **7 days without use** (with a message on the sign-in page); the
   authenticator code is asked for again **every 12 hours**.
