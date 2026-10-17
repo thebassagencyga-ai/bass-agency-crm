@@ -27,7 +27,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 17 | Tags + merge duplicate contacts | 16 | APPROVED (2026-10-17) |
 | 18 | Calendar feed for tasks | 17 | APPROVED (2026-10-17) |
 | 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | APPROVED (2026-10-17) — built, not connected |
-| 20 | Tag list (pick tags from options) — owner request after go-live | 19 | READY FOR REVIEW |
+| 20 | Tag list (pick tags from options) — owner request after go-live | 19 | APPROVED (2026-10-17) |
 
 ---
 
@@ -531,7 +531,7 @@ Connecting is a later owner step (runbook §4d).
   use kept and added to the list.
 - All tests green; phone widths and Lighthouse clean.
 
-**Status 2026-10-17:** READY FOR REVIEW; see PROGRESS.md.
+**Status 2026-10-17:** built and APPROVED by the owner; see PROGRESS.md. ⏳ Deploy.
 
 ---
 

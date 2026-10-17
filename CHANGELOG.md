@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 20 — Tag list (2026-10-17, ready for review)
+## Phase 20 — Tag list (2026-10-17, approved)
 ### Changed
 - Tags are now **ticked from a list** on the contact form instead of typed. The list lives in
   Settings → Tags (add, rename, remove). Starter list: VIP, Referral partner, Church, Small

@@ -874,7 +874,7 @@ client-side calls (rejected: would expose the key).
 
 ## ADR-036 — Tags picked from a list
 
-**Status:** Proposed — built in Phase 20, awaiting owner review. **Owner decisions (2026-10-17):**
+**Status:** Accepted — built in Phase 20, approved by the owner 2026-10-17. **Owner decisions (2026-10-17):**
 "this should be a ticker with options for consistency"; new tags are added only in Settings; load
 a starter list.
 
