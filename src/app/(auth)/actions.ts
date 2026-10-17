@@ -8,7 +8,15 @@ import { requireFullSession } from "@/lib/auth/require";
 import { safeNextPath } from "@/lib/auth/routing";
 import { siteUrl } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import { z } from "zod";
+import { seenCookie } from "@/lib/auth/seen-cookie";
+import { SEEN_COOKIE } from "@/lib/auth/session-policy";
+
+/** Marks this browser as active now (Phase 16 inactivity rule). */
+async function markSeen() {
+  (await cookies()).set(seenCookie());
+}
 
 function fieldErrors(error: z.ZodError): Record<string, string> {
   const out: Record<string, string> = {};
@@ -31,6 +39,7 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
     // One message for wrong email or wrong password, so the form cannot be used to discover accounts.
     return { error: authErrorMessage(error, "Email or password is incorrect."), values };
   }
+  await markSeen();
   const { data: level } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
   const step = level?.nextLevel === "aal2" ? "/mfa" : "/mfa/setup";
   redirect(`${step}?next=${encodeURIComponent(next)}`);
@@ -45,6 +54,7 @@ export async function verifyMfa(_prev: FormState, formData: FormData): Promise<F
   if (!factor) redirect("/mfa/setup");
   const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code: code.data });
   if (error) return { error: authErrorMessage(error, "That code didn't work. Check your authenticator app and try again.") };
+  await markSeen();
   redirect(safeNextPath(String(formData.get("next") ?? "")));
 }
 
@@ -56,6 +66,7 @@ export async function confirmEnrollment(_prev: FormState, formData: FormData): P
   const supabase = await createClient();
   const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: factorId.data, code: code.data });
   if (error) return { error: authErrorMessage(error, "That code didn't work. Make sure you scanned the code on this screen, then try the newest code.") };
+  await markSeen();
   redirect(safeNextPath(String(formData.get("next") ?? "")));
 }
 
@@ -87,5 +98,6 @@ export async function updatePassword(_prev: FormState, formData: FormData): Prom
 export async function signOut(): Promise<void> {
   const supabase = await createClient();
   await supabase.auth.signOut({ scope: "local" });
+  (await cookies()).delete(SEEN_COOKIE);
   redirect("/login?signedOut=1");
 }

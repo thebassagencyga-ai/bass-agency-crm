@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { PASSWORD, cookieJarClient, createTestUser, integrationEnv } from "../support/supabase";
 import { totp } from "../support/totp";
+import { lastMfaAt } from "@/lib/auth/session-policy";
 
 // The app (Cloudflare build running in workerd) with real Supabase session cookies.
 const { appUrl } = integrationEnv();
@@ -13,14 +14,18 @@ const location = (r: Response) => {
   return loc ? new URL(loc, appUrl).pathname + new URL(loc, appUrl).search : null;
 };
 
+const nowSeconds = () => Math.floor(Date.now() / 1000);
+
 let user: { id: string; email: string };
 let session: ReturnType<typeof cookieJarClient>;
+let factor: { id: string; secret: string };
 
 beforeAll(async () => {
   user = await createTestUser("http");
   session = cookieJarClient();
   const { error } = await session.client.auth.signInWithPassword({ email: user.email, password: PASSWORD });
   if (error) throw error;
+  session.jar.set("crm_seen", String(nowSeconds()));
 });
 
 describe("signed out", () => {
@@ -68,6 +73,7 @@ describe("full session", () => {
     if (error || !data) throw error ?? new Error("enroll failed");
     const verify = await session.client.auth.mfa.challengeAndVerify({ factorId: data.id, code: totp(data.totp.secret) });
     if (verify.error) throw verify.error;
+    factor = { id: data.id, secret: data.totp.secret };
   });
 
   it("opens the app and shows the signed-in email", async () => {
@@ -81,6 +87,17 @@ describe("full session", () => {
   it("is moved off the sign-in and MFA screens", async () => {
     expect(location(await get("/login", session.header()))).toBe("/dashboard");
     expect(location(await get("/mfa", session.header()))).toBe("/dashboard");
+  });
+
+  it("entering the code again renews the time the 12-hour rule checks", async () => {
+    const before = lastMfaAt((await session.client.auth.getClaims()).data?.claims.amr);
+    expect(before).not.toBeNull();
+    await new Promise((r) => setTimeout(r, 1100));
+    // The next 30-second code, so it is not a replay of the one used to enrol.
+    const again = await session.client.auth.mfa.challengeAndVerify({ factorId: factor.id, code: totp(factor.secret, Date.now() + 30_000) });
+    expect(again.error).toBeNull();
+    const after = lastMfaAt((await session.client.auth.getClaims()).data?.claims.amr);
+    expect(after).toBeGreaterThan(before!);
   });
 
   it("rejects a tampered session cookie", async () => {
@@ -97,7 +114,7 @@ describe("full session", () => {
     const raw = names.map((n) => session.jar.get(n)!).join("");
     const json = JSON.parse(Buffer.from(raw.replace(/^base64-/, ""), "base64url").toString("utf8"));
     json.expires_at = Math.floor(Date.now() / 1000) - 60;
-    const expired = `${base}=base64-${Buffer.from(JSON.stringify(json)).toString("base64url")}`;
+    const expired = `${base}=base64-${Buffer.from(JSON.stringify(json)).toString("base64url")}; crm_seen=${nowSeconds()}`;
 
     const res = await get("/settings", expired);
     expect(res.status).toBe(200);
@@ -105,5 +122,44 @@ describe("full session", () => {
     expect(setCookie).toContain(base);
     expect(setCookie.toLowerCase()).toContain("httponly");
     expect(res.headers.get("cache-control")).toMatch(/no-store/);
+  });
+});
+
+describe("inactivity sign-out (Phase 16)", () => {
+  // Each case signs in separately: an expired visit ends that session on the server too.
+  async function freshSignIn() {
+    const s = cookieJarClient();
+    const { error } = await s.client.auth.signInWithPassword({ email: user.email, password: PASSWORD });
+    if (error) throw error;
+    return s;
+  }
+
+  it.each([
+    ["no activity cookie", null],
+    ["an activity cookie 8 days old", nowSeconds() - 8 * 86_400],
+    ["a malformed activity cookie", "abc"],
+  ])("%s signs the session out and says why", async (_label, seen) => {
+    const s = await freshSignIn();
+    if (seen !== null) s.jar.set("crm_seen", String(seen));
+    const res = await get("/dashboard", s.header());
+    expect(res.status).toBe(307);
+    expect(location(res)).toBe(`/login?expired=1&next=${encodeURIComponent("/dashboard")}`);
+    const setCookie = res.headers.getSetCookie().join("\n");
+    expect(setCookie).toMatch(/crm_seen=;/);
+    // The session's refresh token no longer works.
+    const { error } = await s.client.auth.refreshSession();
+    expect(error).not.toBeNull();
+  });
+
+  it("a recent activity cookie keeps the session, and an hour-old one is renewed", async () => {
+    const s = await freshSignIn();
+    s.jar.set("crm_seen", String(nowSeconds() - 2 * 3600));
+    const res = await get("/dashboard", s.header());
+    // Password-only (this user has an authenticator): on to the code screen, not signed out.
+    expect(location(res)).toBe(`/mfa?next=${encodeURIComponent("/dashboard")}`);
+    const renewed = res.headers.getSetCookie().find((c) => c.startsWith("crm_seen="));
+    expect(renewed).toBeDefined();
+    expect(renewed!.toLowerCase()).toContain("httponly");
+    expect(Number(/^crm_seen=(\d+)/.exec(renewed!)?.[1])).toBeGreaterThanOrEqual(nowSeconds() - 5);
   });
 });

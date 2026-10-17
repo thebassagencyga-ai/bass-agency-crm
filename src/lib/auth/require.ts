@@ -12,5 +12,6 @@ export async function requireFullSession() {
   const { state, userId, email } = await readAuthState(supabase);
   if (!state.signedIn || !userId) redirect("/login");
   if (state.aal !== "aal2") redirect(state.hasVerifiedFactor ? "/mfa" : "/mfa/setup");
+  if (state.mfaFresh === false) redirect("/mfa?again=1");
   return { supabase, userId, email: email ?? "" };
 }

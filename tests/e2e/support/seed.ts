@@ -81,5 +81,6 @@ export function keyPages(s: SeededOwner): string[] {
     "/renewals", `/renewals/${s.policyId}`, "/reports", "/settings",
     "/intake", `/intake/${s.intakeId}`, "/intake/new",
     "/import",
+    `/contacts/${s.contactId}?message=renewal&opp=${s.policyId}&log=text_message&about=renewal`, // composer + log form open (Phase 16)
   ];
 }

@@ -2,6 +2,17 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 16 — Inactivity sign-out and text/email (2026-10-16, ready for review)
+### Added
+- Signed out after **7 days without use** (with a message on the sign-in page); the
+  authenticator code is asked for again **every 12 hours**.
+- **Text or email** on the contact page — opened from opportunities, renewals and tasks, and as
+  a reply on intake review: ready-made, editable messages that open the phone's Messages or Mail
+  app (nothing is sent by the CRM), plus Call, Copy and "Log this text/email".
+- Review and referral request messages on tasks also get **Email it**.
+### Note
+- After deploying, every device is signed out once.
+
 ## Phase 15 — Import and export (2026-10-16, approved)
 ### Added
 - **Import clients** from a CSV report: guessed column matching, policy-type mapping, a check

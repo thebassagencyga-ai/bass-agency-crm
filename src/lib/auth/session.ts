@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AuthState } from "./routing";
+import { isMfaFresh, lastMfaAt } from "./session-policy";
 
 /**
  * Reads the caller's sign-in state. The assurance level comes from getClaims(), which
@@ -18,8 +19,9 @@ export async function readAuthState(supabase: SupabaseClient): Promise<{ state: 
       const { data: level } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       hasVerifiedFactor = level?.nextLevel === "aal2";
     }
+    const mfaFresh = aal === "aal2" ? isMfaFresh(lastMfaAt(claims.amr), Math.floor(Date.now() / 1000)) : undefined;
     return {
-      state: { signedIn: true, aal, hasVerifiedFactor },
+      state: { signedIn: true, aal, hasVerifiedFactor, ...(mfaFresh === undefined ? {} : { mfaFresh }) },
       userId: claims.sub,
       email: typeof claims.email === "string" ? claims.email : undefined,
     };

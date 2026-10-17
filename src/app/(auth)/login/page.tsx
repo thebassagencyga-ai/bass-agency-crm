@@ -8,6 +8,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const params = await searchParams;
   const notice =
     params.signedOut ? "You have been signed out." :
+    params.expired ? "You were signed out because the CRM wasn't used for 7 days. Sign in again." :
     params.error === "link" ? "That link is invalid or has expired. Request a new one." :
     undefined;
   return <LoginForm next={safeNextPath(params.next)} notice={notice} />;

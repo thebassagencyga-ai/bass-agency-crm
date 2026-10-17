@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-/** Shows a ready-to-send message with Copy and "Text it". The CRM itself never sends it. */
-export function MessageBox({ message, smsHref }: { message: string; smsHref: string | null }) {
+/** Shows a ready-to-send message with Copy, "Text it" and "Email it". The CRM itself never sends it. */
+export function MessageBox({ message, smsHref, mailHref = null }: { message: string; smsHref: string | null; mailHref?: string | null }) {
   const [copied, setCopied] = useState<"idle" | "copied" | "failed">("idle");
   async function copy() {
     try {
@@ -24,11 +24,14 @@ export function MessageBox({ message, smsHref }: { message: string; smsHref: str
         ) : (
           <p className="self-center text-sm text-slate-600 dark:text-slate-400">Add a mobile number to the contact to text from here.</p>
         )}
+        {mailHref ? (
+          <a href={mailHref} className="flex min-h-11 items-center rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">Email it</a>
+        ) : null}
       </div>
       <p aria-live="polite" className="text-sm">
         {copied === "copied" ? "Copied." : copied === "failed" ? "Couldn't copy automatically — press and hold the message to copy it." : ""}
       </p>
-      <p className="text-xs text-slate-500">&quot;Text it&quot; opens your phone&apos;s Messages app with this text filled in. Nothing is sent until you press send there.</p>
+      <p className="text-xs text-slate-500">&quot;Text it&quot; and &quot;Email it&quot; open your phone&apos;s Messages or Mail app with this text filled in. Nothing is sent until you press send there.</p>
     </section>
   );
 }

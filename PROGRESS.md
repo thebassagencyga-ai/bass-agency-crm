@@ -622,3 +622,33 @@ Deploy app #17 smoke test 17/17.
 3. Deploy app (Cloudflare); try a small export of your Alfa report first (a few rows), check the
    matches, import, look at the clients, then Undo if anything looks off.
 
+
+## Phase 16 — Inactivity sign-out and text/email (branch `phase-16-session-messages`)
+Started 2026-10-16 on the owner's go-ahead ("Start phase 16"); design in ADR-032. No database
+change.
+
+**Completed**
+- `src/lib/auth/session-policy.ts`, `seen-cookie.ts`: 7-day "last visit" cookie (`crm_seen`,
+  HttpOnly, renewed hourly) and the 12-hour code rule from the token's `amr`; used by the
+  middleware (revokes and signs out an unused session → `/login?expired=1`) and by
+  `requireFullSession`/routing (`/mfa?again=1`). Cookie set on every successful sign-in step,
+  removed on sign out.
+- `src/lib/messages/*`: ready-made messages (check-in, quote follow-up, renewal, current policy
+  renewing, thank you, quote request received, blank) and `sms:`/`mailto:`/`tel:` links.
+- Message composer on the contact page ("Text or email…"), opened with the right message from
+  opportunities, renewals (both lists) and tasks; reply composer on intake review; "Log this
+  text/email" opens the activity form pre-filled. Review/referral task messages get "Email it".
+
+**Tests (2026-10-17)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build | pass |
+| Local: unit | 395 passed (19 new: cookie parsing/expiry/refresh, `amr` freshness, routing for a stale code, templates, link encoding) |
+| Local: database (PostgreSQL 16) | 408 passed (no change) |
+| CI (integration + browser) | see below |
+| Production | not deployed (awaiting owner review) |
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. No database migration this phase.
+3. Deploy app (Cloudflare). Every device is signed out once; sign in again.

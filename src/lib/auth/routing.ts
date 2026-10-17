@@ -6,7 +6,11 @@
 
 export type AuthState =
   | { signedIn: false }
-  | { signedIn: true; aal: "aal1" | "aal2"; hasVerifiedFactor: boolean };
+  | {
+      signedIn: true; aal: "aal1" | "aal2"; hasVerifiedFactor: boolean;
+      /** false: the authenticator code was entered more than 12 hours ago (Phase 16); ask again. */
+      mfaFresh?: boolean;
+    };
 
 export type RouteDecision =
   | { action: "allow" }
@@ -44,7 +48,9 @@ export function decideRoute(
       : { action: "redirect", to: `/login?next=${encodeURIComponent(target)}` };
   }
 
-  if (state.aal !== "aal2") {
+  // A two-step session older than 12 hours counts as password-only until the code is entered
+  // again (Phase 16). The database still sees aal2; this is the app's own, stricter rule.
+  if (state.aal !== "aal2" || state.mfaFresh === false) {
     if (matches(pathname, MFA_PATHS)) {
       if (pathname === "/mfa/setup" && state.hasVerifiedFactor) return { action: "redirect", to: "/mfa" };
       if (pathname === "/mfa" && !state.hasVerifiedFactor) return { action: "redirect", to: "/mfa/setup" };
@@ -52,7 +58,8 @@ export function decideRoute(
     }
     if (wantsJson) return { action: "unauthorized" };
     const step = state.hasVerifiedFactor ? "/mfa" : "/mfa/setup";
-    return { action: "redirect", to: `${step}?next=${encodeURIComponent(target)}` };
+    const again = state.aal === "aal2" ? "again=1&" : "";
+    return { action: "redirect", to: `${step}?${again}next=${encodeURIComponent(target)}` };
   }
 
   if (pathname === "/" || matches(pathname, MFA_PATHS)) {

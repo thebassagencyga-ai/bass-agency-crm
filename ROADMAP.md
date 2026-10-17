@@ -23,7 +23,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 13 | Intake form | 12 | APPROVED (2026-10-16) |
 | 14 | Intake details (address, vehicles, household) | 13 | APPROVED (2026-10-16) |
 | 15 | Import book of business (CSV) + export data | 14 | APPROVED (2026-10-16) |
-| 16 | Inactivity sign-out + email/text via device apps | 15 | NOT STARTED |
+| 16 | Inactivity sign-out + email/text via device apps | 15 | READY FOR REVIEW |
 | 17 | Tags + merge duplicate contacts | 16 | NOT STARTED |
 | 18 | Calendar feed for tasks | 17 | NOT STARTED |
 | 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | NOT STARTED |
@@ -452,6 +452,23 @@ all data (ADR-031).
 - All tests green.
 
 **Status 2026-10-16:** built and APPROVED by the owner; see PROGRESS.md. ⏳ Deploy.
+
+---
+
+## Phase 16 — Inactivity sign-out and text/email via the phone's apps
+**Objective.** End sessions unused for 7 days, ask for the authenticator code again every 12
+hours, and let the owner text or email clients from the CRM through the phone's own Messages and
+Mail apps with ready-made messages (ADR-030, ADR-032).
+
+**Acceptance criteria**
+- A session not used for 7 days is signed out (and revoked) with a clear message; normal use
+  keeps it going; after 12 hours the code is asked for again.
+- Contact, opportunity, renewal, task and intake pages offer Text / Email / Call with an
+  editable ready-made message; nothing is sent or stored by the CRM; the text can be logged as an
+  activity in one step.
+- No database change. All tests green; phone widths and Lighthouse clean.
+
+**Status 2026-10-16:** READY FOR REVIEW; see PROGRESS.md.
 
 ---
 

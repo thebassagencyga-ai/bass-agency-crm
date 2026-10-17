@@ -45,8 +45,10 @@ check. The Phase 2 migration and dashboard settings are applied only after owner
 - Redirect targets after sign-in are validated (`safeNextPath`): same-site paths only, never
   back into the sign-in screens. Email-link redirects are built from `SITE_URL`, not the Host
   header.
-- No inactivity sign-out: that is a Supabase Pro setting and the CRM project is on Free
-  (ADR-027, accepted by the owner). Sessions last until Sign out; lost-phone steps in the runbook.
+- **Inactivity sign-out after 7 days** and **the authenticator code again every 12 hours**,
+  enforced by the app (ADR-032; Supabase's own timeouts are Pro features, ADR-027). An unused
+  session is revoked at Supabase when next seen. The database itself still trusts a valid aal2
+  token for its 1-hour life; lost-phone steps in the runbook.
 - **Break-glass recovery:** if the authenticator is lost, the owner removes the factor in the
   Supabase dashboard (Authentication → Users → user → MFA factors), protected by the owner's
   own Supabase login (which should itself use two-step login). Password reset by email
@@ -137,6 +139,8 @@ underwriting answers, detailed health information, policy documents. No file upl
 | Password-only (aal1) session gets no data (SQL + API) | 2 | Verified: DB tests, CI API tests |
 | Public sign-up refused | 2 | Verified in CI against Supabase Auth (local config); hosted setting is an owner step |
 | Session cookies HttpOnly; expired session refreshes | 2 | CI HTTP + browser tests |
+| Session ends after 7 days unused (cookie missing, old or malformed → revoked, `/login?expired=1`); code asked again after 12 hours | 16 | Unit tests (cookie parsing, expiry, refresh, `amr` freshness, routing); CI HTTP tests (3 expiry cases incl. refresh token revoked, renewal of the cookie); browser test |
+| Text/email never sent by the app; message text not stored | 16 | Unit tests (link encoding, no header injection via `?`/`&` in addresses); browser test checks the `sms:`/`mailto:` links and the log entry |
 | No secret key in client bundle | 2 | Verified: `check-client-bundle.mjs` (patterns locally; real key values in CI) |
 | Security headers / CSP present, nonce on every script, no CSP violations | 2 | Verified locally in workerd + Chromium; CI HTTP tests |
 | Open redirect via `next` blocked | 2 | Unit tests + verified in workerd |

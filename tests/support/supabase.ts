@@ -123,6 +123,8 @@ export async function fullSessionCookies(email: string, appUrl: string) {
   if (error) throw error;
   await upgradeToAal2(session.client, email);
   const { hostname } = new URL(appUrl);
+  // Phase 16: the app signs out sessions with no recent "last seen" cookie (ADR-032).
+  session.jar.set("crm_seen", String(Math.floor(Date.now() / 1000)));
   return [...session.jar].map(([name, value]) => ({
     name, value, domain: hostname, path: "/", httpOnly: true, secure: false, sameSite: "Lax" as const,
   }));

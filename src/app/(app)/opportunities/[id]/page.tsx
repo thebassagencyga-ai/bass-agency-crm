@@ -18,6 +18,7 @@ import { outcomesFor } from "@/lib/renewals/data";
 import { tasksForOpportunity } from "@/lib/tasks/data";
 import { CATEGORY_LABELS } from "@/lib/tasks/types";
 import { setNurture } from "../actions";
+import { templateForOpportunity } from "@/lib/messages/templates";
 
 export const metadata: Metadata = { title: "Opportunity · The Bass Agency CRM" };
 
@@ -93,6 +94,11 @@ export default async function OpportunityPage({
         </div>
         <div className="flex flex-wrap gap-2">
           <Link href={`/opportunities/${opp.id}/edit`} className="flex min-h-11 items-center rounded-md bg-slate-900 px-4 font-medium text-white dark:bg-slate-100 dark:text-slate-900">Edit details</Link>
+          {contact && !contact.archived_at ? (
+            <Link href={`/contacts/${contact.id}?message=${templateForOpportunity(opp)}&opp=${opp.id}#message`} className="flex min-h-11 items-center rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">
+              Text or email
+            </Link>
+          ) : null}
           {canToggleNurture(opp.outcome, opp.stage_kind) ? (
             <form action={setNurture}>
               <input type="hidden" name="id" value={opp.id} />

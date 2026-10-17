@@ -10,6 +10,8 @@ import { getSubmission } from "@/lib/intake/data";
 import { describeCoverage } from "@/lib/intake/format";
 import { INTAKE_CONTACT_METHOD_LABELS, INTAKE_LINE_LABELS } from "@/lib/intake/types";
 import { RELATIONSHIP_LABELS } from "@/lib/contacts/details";
+import { MessageComposer } from "@/components/messages/message-composer";
+import { getProfile } from "@/lib/tasks/data";
 
 export const metadata: Metadata = { title: "Review request · The Bass Agency CRM" };
 
@@ -17,10 +19,10 @@ export default async function ReviewIntakePage({
   params, searchParams,
 }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
-  const { supabase } = await requireFullSession();
+  const { supabase, userId } = await requireFullSession();
   const s = await getSubmission(supabase, id);
   if (!s || s.status !== "new") notFound();
-  const duplicates = await findDuplicates(supabase, s.email, s.phone, null);
+  const [duplicates, profile] = await Promise.all([findDuplicates(supabase, s.email, s.phone, null), getProfile(supabase, userId)]);
 
   const rows: [string, string | null][] = [
     ["Phone", s.phone],
@@ -51,6 +53,14 @@ export default async function ReviewIntakePage({
         ))}
       </dl>
       <p className="text-xs text-slate-500">Agreed to be contacted by phone, text or email on {formatInstantDateTime(s.consent_at)}.</p>
+      <details className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+        <summary className="min-h-11 cursor-pointer py-2 font-semibold">Reply by text or email…</summary>
+        <MessageComposer
+          phone={s.phone} email={s.email}
+          values={{ first_name: s.first_name, agent_name: profile.display_name, line: null, renewal_date: null }}
+          templates={["intake_reply", "checkin", "blank"]} initial="intake_reply" logHref={null}
+        />
+      </details>
       <ReviewForm id={s.id} duplicates={duplicates} referredByName={s.referred_by_name} />
       <form action={discardIntake} className="border-t border-slate-200 pt-4 dark:border-slate-700">
         <input type="hidden" name="id" value={s.id} />

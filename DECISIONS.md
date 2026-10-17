@@ -721,6 +721,46 @@ preview (unnecessary: the preview is computed in the browser and re-checked on t
 
 ---
 
+## ADR-032 — Inactivity sign-out, code every 12 hours, and text/email via the phone's apps
+
+**Status:** Proposed — built in Phase 16, awaiting owner review
+
+**Context.** Supabase's own inactivity timeout and session time-box are Pro features; the CRM
+project stays on Free (ADR-027). The owner asked for an app-level sign-out after 7 days unused
+and for email/text to open the device's own apps (ADR-030).
+
+**Decision.**
+- **7 days unused → signed out.** The middleware keeps an HttpOnly, Secure, SameSite=Lax cookie
+  `crm_seen` (Unix time of the last visit, renewed at most once an hour). A signed-in request with
+  the cookie missing, malformed, more than 7 days old or more than 5 minutes in the future ends
+  the session (`signOut({ scope: "local" })`, which also revokes that session's refresh token at
+  Supabase) and sends the user to `/login?expired=1` with an explanation. The cookie is set on
+  sign-in (password, code, set-up, email link) and removed on sign out.
+- **Code again every 12 hours.** The latest `totp` entry in the verified token's `amr` claim
+  must be at most 12 hours old; otherwise the app treats the session as password-only and sends
+  the user to `/mfa?again=1` (same rule in the middleware and in `requireFullSession`). Entering
+  the code refreshes `amr`.
+- **Text / email.** A composer on the contact page (opened from opportunities, renewals, tasks
+  and with a reply on intake review) offers ready-made messages (check-in, quote follow-up,
+  renewal, current-policy renewing, thank you, quote request received, blank), editable, and
+  builds `sms:` / `mailto:` / `tel:` links. The user presses send in Messages or Mail. Nothing
+  typed is saved; after opening an app, "Log this text/email" opens the activity form pre-filled
+  (type, opportunity, a one-line note naming the template — not the message text).
+- No database change.
+
+**Limits (accepted).** The 7-day and 12-hour rules are enforced by the app, not the database:
+the Data API still accepts a valid aal2 token until it expires (1 hour) and RLS still sees aal2
+after 12 hours. Someone holding a copy of all the session cookies could keep them fresh by
+visiting within 7 days — the same exposure as before; "Sign out" and the lost-phone steps
+(runbook §5) still apply. After the first deploy, existing sessions have no `crm_seen` cookie and
+are signed out once.
+
+**Alternatives.** Supabase Pro inactivity timeout (rejected by the owner: cost); a `last_seen`
+column in the database (rejected: a write on every visit and no stronger guarantee than the
+cookie plus refresh-token revocation); sending email/SMS from the server (out of scope, ADR-030).
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 - **Tabled (owner, 2026-10-16): collecting dates of birth and driver's license numbers on the

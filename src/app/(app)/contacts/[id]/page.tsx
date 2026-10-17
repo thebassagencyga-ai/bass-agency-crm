@@ -24,6 +24,8 @@ import { CrossSellPromptList } from "@/components/cross-sell/prompt-list";
 import { crossSellPrompts } from "@/lib/cross-sell/data";
 import { HouseholdSection, VehiclesSection } from "@/components/contacts/detail-sections";
 import { listHousehold, listVehicles } from "@/lib/contacts/details-data";
+import { MessageComposer } from "@/components/messages/message-composer";
+import { isTemplateKey, TEMPLATE_KEYS, TEMPLATES, templateForOpportunity, valuesFor } from "@/lib/messages/templates";
 
 export const metadata: Metadata = { title: "Contact · The Bass Agency CRM" };
 
@@ -87,6 +89,19 @@ export default async function ContactPage({
   const noticeKey = Object.keys(NOTICES).find((k) => query[k]);
   const notice = noticeKey ? NOTICES[noticeKey] : undefined;
   const person = contactPersonName(contact);
+
+  // Text or email (Phase 16): ?message=<template>&opp=<id> opens the composer about an opportunity;
+  // ?log=email|text_message&about=<template> opens the activity form ready to log what was sent.
+  const aboutOpp = opportunities.find((o) => o.id === query.opp) ?? null;
+  const messageKey = isTemplateKey(query.message) ? query.message : aboutOpp ? templateForOpportunity(aboutOpp) : "checkin";
+  const logType = query.log === "email" || query.log === "text_message" ? query.log : null;
+  const logDefaults = logType
+    ? {
+        activity_type: logType,
+        opportunity_id: aboutOpp?.id,
+        notes: `${logType === "email" ? "Emailed" : "Texted"}: ${isTemplateKey(query.about) ? TEMPLATES[query.about].label : "message"}.`,
+      }
+    : undefined;
   const address = [contact.address_line1, contact.address_line2, [contact.city, contact.state].filter(Boolean).join(", "), contact.postal_code]
     .filter((p) => p && p.trim())
     .join(", ");
@@ -253,13 +268,27 @@ export default async function ContactPage({
         )}
       </section>
 
-      <details id="log-activity" className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+      {contact.archived_at ? null : (
+        <details id="message" open={Boolean(query.message)} className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+          <summary className="min-h-11 cursor-pointer py-2 text-lg font-semibold">Text or email…</summary>
+          <MessageComposer
+            phone={contact.phone} email={contact.email}
+            values={valuesFor(contact, profile.display_name, aboutOpp, formatDateOnly)}
+            templates={TEMPLATE_KEYS.filter((k) => k !== "intake_reply")} initial={messageKey}
+            logHref={`/contacts/${contact.id}${aboutOpp ? `?opp=${aboutOpp.id}` : ""}`}
+          />
+        </details>
+      )}
+
+      <details id="log-activity" open={Boolean(logDefaults)} className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
         <summary className="min-h-11 cursor-pointer py-2 text-lg font-semibold">Log activity…</summary>
         <LogActivityForm
+          key={logDefaults ? `${logDefaults.activity_type}-${query.about ?? ""}-${aboutOpp?.id ?? ""}` : "log"}
           contactId={contact.id}
           now={isoToZonedLocal(new Date().toISOString(), profile.time_zone)}
           opportunities={opportunities.map((o) => ({ id: o.id, label: [PRODUCT_LINE_NAMES[o.product_line], o.description].filter(Boolean).join(" · ") }))}
           openTasks={openTasks.map((t) => ({ id: t.id, label: t.title }))}
+          defaults={logDefaults}
         />
       </details>
 

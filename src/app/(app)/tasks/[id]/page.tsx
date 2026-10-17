@@ -11,6 +11,8 @@ import { getOpportunity } from "@/lib/opportunities/data";
 import { PRODUCT_LINE_NAMES } from "@/lib/pipelines";
 import { getProfile, getTask, messageTemplates } from "@/lib/tasks/data";
 import { messageRuleFor, renderMessage, smsHref } from "@/lib/tasks/message";
+import { mailtoHref } from "@/lib/messages/links";
+import { templateForTaskCategory } from "@/lib/messages/templates";
 import { notStartedYet, taskView } from "@/lib/tasks/schedule";
 import { CATEGORY_LABELS, PRIORITY_LABELS } from "@/lib/tasks/types";
 
@@ -78,7 +80,16 @@ export default async function TaskPage({
           <Link href={`/tasks/${task.id}/edit`} className="flex min-h-11 items-center rounded-md border border-slate-400 px-4 font-medium">Edit</Link>
         </div>
       </div>
-      {message ? <MessageBox message={message} smsHref={smsHref(contact?.phone ?? null, message)} /> : null}
+      {message ? (
+        <MessageBox message={message} smsHref={smsHref(contact?.phone ?? null, message)} mailHref={mailtoHref(contact?.email ?? null, profile.display_name || "The Bass Agency", message)} />
+      ) : contact && !contact.archived_at && task.status === "open" ? (
+        <Link
+          href={`/contacts/${contact.id}?message=${templateForTaskCategory(task.category)}${opportunity ? `&opp=${opportunity.id}` : ""}#message`}
+          className="flex min-h-11 w-fit items-center rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100"
+        >
+          Text or email {contactDisplayName(contact)}
+        </Link>
+      ) : null}
       <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-[10rem_1fr]">
         {rows.map(([label, value]) => (
           <div key={label} className="contents">

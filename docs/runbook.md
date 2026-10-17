@@ -92,10 +92,14 @@ latest backup restores, on a throwaway database (production is not touched); run
 ## 5. Access problems
 - **Lost phone / authenticator:** Supabase → Authentication → Users → your user → remove the
   MFA factor. Sign in with your password; the app asks you to set up a new authenticator.
-  On the Free plan a signed-in phone stays signed in (no inactivity sign-out), so if the phone
-  is lost or stolen also change your password and, if Supabase offers it on the user's page,
+  A signed-in phone is signed out after 7 days without use and asks for the code again every
+  12 hours (ADR-032) — but if the phone is lost or stolen also change your password and, if Supabase offers it on the user's page,
   **ban** the user for a day (blocks the lost phone's session from renewing within the hour),
   then lift the ban once the new phone is set up.
+- **"You were signed out because the CRM wasn't used for 7 days":** expected; sign in again.
+  Right after the Phase 16 deploy every device is signed out once (the new "last visit" cookie
+  does not exist yet).
+- **"The CRM asks for your code again every 12 hours":** expected; enter the code from the app.
 - **Forgot password:** "Forgot password?" on the sign-in page (email link, valid 1 hour).
 - **Too many attempts:** wait a few minutes (Supabase rate limit), then try again.
 - Keep two-step sign-in and recovery codes on your **GitHub, Cloudflare and Supabase**

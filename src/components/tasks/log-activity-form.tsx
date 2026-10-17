@@ -8,11 +8,16 @@ import { ACTIVITY_OUTCOMES, ACTIVITY_OUTCOME_LABELS, ACTIVITY_TYPES, ACTIVITY_TY
 
 type Option = { id: string; label: string };
 
-/** contactId null: the form starts with a contact picker (dashboard quick action). */
-export function LogActivityForm({ contactId, now, opportunities, openTasks }: { contactId: string | null; now: string; opportunities: Option[]; openTasks: Option[] }) {
+type Defaults = { activity_type?: string; opportunity_id?: string; notes?: string };
+
+/**
+ * contactId null: the form starts with a contact picker (dashboard quick action).
+ * defaults: starting values, e.g. after a text or email was opened from the CRM (Phase 16).
+ */
+export function LogActivityForm({ contactId, now, opportunities, openTasks, defaults }: { contactId: string | null; now: string; opportunities: Option[]; openTasks: Option[]; defaults?: Defaults }) {
   const { state, formAction, pending, onSubmit } = useActionForm(logActivity);
   const err = state.fieldErrors ?? {};
-  const v = (name: string) => state.values?.[name];
+  const v = (name: string) => state.values?.[name] ?? (defaults as Record<string, string | undefined> | undefined)?.[name];
   const [outcome, setOutcome] = useState(v("outcome") ?? "");
   return (
     <form action={formAction} onSubmit={onSubmit} className="flex flex-col gap-3" noValidate>

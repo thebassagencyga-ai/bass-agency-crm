@@ -2,6 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { decideRoute } from "@/lib/auth/routing";
 import { readAuthState } from "@/lib/auth/session";
+import { SEEN_COOKIE, parseSeen, seenDecision } from "@/lib/auth/session-policy";
+import { seenCookie } from "@/lib/auth/seen-cookie";
 import { supabaseEnv } from "@/lib/env";
 import { buildContentSecurityPolicy, SECURITY_HEADERS } from "@/lib/security/headers";
 import { SESSION_COOKIE_OPTIONS } from "@/lib/supabase/cookies";
@@ -40,7 +42,21 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  const { state } = await readAuthState(supabase);
+  let { state } = await readAuthState(supabase);
+
+  // Inactivity (Phase 16): no visit for 7 days, or no activity cookie at all, ends the session.
+  const now = Math.floor(Date.now() / 1000);
+  let expired = false;
+  let refreshSeen = false;
+  if (state.signedIn) {
+    const seen = seenDecision(parseSeen(request.cookies.get(SEEN_COOKIE)?.value), now);
+    if (seen.action === "expire") {
+      await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+      state = { signedIn: false };
+      expired = true;
+    } else refreshSeen = seen.action === "refresh";
+  }
+
   const decision = decideRoute(request.nextUrl.pathname, state, {
     isServerAction: request.method === "POST" && request.headers.has("next-action"),
     search: request.nextUrl.search,
@@ -48,7 +64,8 @@ export async function middleware(request: NextRequest) {
 
   let result: NextResponse = response;
   if (decision.action === "redirect") {
-    result = NextResponse.redirect(new URL(decision.to, request.url));
+    const to = expired && decision.to.startsWith("/login?") ? decision.to.replace("/login?", "/login?expired=1&") : decision.to;
+    result = NextResponse.redirect(new URL(to, request.url));
   } else if (decision.action === "unauthorized") {
     result = NextResponse.json({ error: "Not signed in" }, { status: 401 });
   }
@@ -56,6 +73,8 @@ export async function middleware(request: NextRequest) {
     for (const cookie of response.cookies.getAll()) result.cookies.set(cookie);
   }
   for (const [name, value] of Object.entries(cacheHeaders)) result.headers.set(name, value);
+  if (expired) result.cookies.delete(SEEN_COOKIE);
+  else if (refreshSeen) result.cookies.set(seenCookie(now));
   return secure(result, csp);
 }
 

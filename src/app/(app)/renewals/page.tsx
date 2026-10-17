@@ -108,12 +108,21 @@ function RenewalList({
                   ].filter(Boolean).join(" · ")}
                 </span>
               </div>
-              <Link
-                href={prospect ? `/opportunities/${r.id}` : `/renewals/${r.id}`}
-                className={`flex min-h-11 shrink-0 items-center justify-center rounded-md px-3 text-sm font-medium ${prospect ? "border border-slate-900 dark:border-slate-100" : "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"}`}
-              >
-                {prospect ? "Open opportunity" : "Record outcome"}
-              </Link>
+              <div className="flex shrink-0 gap-2">
+                <Link
+                  href={`/contacts/${r.contact_id}?message=${prospect ? "xdate" : "renewal"}&opp=${r.id}#message`}
+                  aria-label={`Text or email ${contactDisplayName(r)}`}
+                  className="flex min-h-11 flex-1 items-center justify-center rounded-md border border-slate-900 px-3 text-sm font-medium dark:border-slate-100"
+                >
+                  Text or email
+                </Link>
+                <Link
+                  href={prospect ? `/opportunities/${r.id}` : `/renewals/${r.id}`}
+                  className={`flex min-h-11 flex-1 items-center justify-center rounded-md px-3 text-sm font-medium ${prospect ? "border border-slate-900 dark:border-slate-100" : "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"}`}
+                >
+                  {prospect ? "Open opportunity" : "Record outcome"}
+                </Link>
+              </div>
             </li>
           ))}
         </ul>

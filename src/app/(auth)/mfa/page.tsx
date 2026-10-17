@@ -6,5 +6,6 @@ export const metadata: Metadata = { title: "Two-step sign-in · The Bass Agency 
 
 export default async function MfaPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const params = await searchParams;
-  return <MfaForm next={safeNextPath(params.next)} />;
+  // Asked again 12 hours after the last code (Phase 16): the session may still be two-step.
+  return <MfaForm next={safeNextPath(params.next)} again={params.again === "1"} />;
 }
