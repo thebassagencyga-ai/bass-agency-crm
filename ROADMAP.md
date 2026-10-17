@@ -515,7 +515,7 @@ decision: build now, hold off on connecting.
   are handled; sensitive typed text is refused; only the listed fields are sent.
 - All tests green; the key cannot reach the browser bundle.
 
-**Status 2026-10-17:** built and APPROVED by the owner (not connected); see PROGRESS.md. ⏳ Deploy.
+**Status 2026-10-17:** built, APPROVED and deployed (migration applied, smoke test 18/18); not connected by owner decision; see PROGRESS.md.
 Connecting is a later owner step (runbook §4d).
 
 ---

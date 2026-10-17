@@ -766,6 +766,12 @@ on connecting it." Built switched off; design in ADR-035.
 
 **Approved by the owner 2026-10-17** ("Approved").
 
+**Production deploy (2026-10-17, commit c45a271):** migrations dry run 39039628365 listed only
+`20261029120000_ai_usage.sql`; apply run 39039690339 applied it and verification passed (19
+tables, 19 two-step policies, 24 Data API functions, exactly 2 anonymous functions, no other
+anonymous access); Deploy app 39040190470 smoke test 18/18. AI helpers not connected (no
+`ANTHROPIC_API_KEY`), so nothing AI is visible — as decided. Connecting later: runbook §4d.
+
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
 2. Deploy database migrations: dry run lists only `20261029120000_ai_usage.sql`; then apply
