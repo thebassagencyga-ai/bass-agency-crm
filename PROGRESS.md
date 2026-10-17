@@ -718,7 +718,7 @@ and open tasks only. Design in ADR-034.
 | Local: lint, typecheck, build | pass |
 | Local: unit | 406 passed (5 new: escaping, folding, dates, feed contents; plus routing) |
 | Local: database (PostgreSQL 16) | 421 passed (5 new: hash only + replace, owner's open tasks with names and window, bad/unknown/off links and no signed-in use, last-used without audit noise, isolation/aal1/anon; catalog tests updated for two anonymous functions) |
-| CI (integration + browser) | pending |
+| CI run 39031603121 (commit 5ef9fd0): all 4 jobs | pass — migrations on the Supabase image, schema/RLS on PG 17, smoke script against the Cloudflare build (18 checks incl. unknown calendar link → 404), browser test (create link, feed read with no cookies shows "task — client", done task drops off, reload hides the link, replace stops the old link, turn off), phone widths, Lighthouse. Earlier runs 39030862965/39030895100 failed only that browser test: it navigated to the same URL with a #fragment, which does not reload; it now reloads |
 | Production | not deployed (awaiting owner review) |
 
 **Owner actions after approval**
