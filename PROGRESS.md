@@ -797,7 +797,7 @@ consistency"); owner chose: new tags only in Settings; load a starter list. Desi
 | Local: unit | 434 passed (tag picking replaces the free-text parsing tests) |
 | Local: database (PostgreSQL 16) | 430 passed (5 new: starter list, only listed tags (any case, own list), name rules and uniqueness, remove/re-add, isolation/no deletes/aal1/anon; Phase 17 tag tests updated) |
 | Local: upgrade check | migrations up to Phase 19 + existing contact tags, then this migration: tags in use added to the list alongside the starter list |
-| CI (integration + browser) | pending |
+| CI run 39041410771 (commit 420a120): all 4 jobs | pass — migrations on the Supabase image, schema/RLS on PG 17, browser test (tick tags, no free-text box, filter, merge, rename in Settings, add a tag and tick it), phone widths, Lighthouse |
 | Production | not deployed (awaiting owner review) |
 
 **Owner actions after approval**
