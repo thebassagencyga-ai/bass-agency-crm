@@ -498,7 +498,7 @@ link (ADR-034). Owner decisions: "task — client name"; open tasks only.
   replaced or turned-off links get 404; the token is stored only as a hash.
 - All tests green; deploy verification knows exactly two anonymous functions.
 
-**Status 2026-10-17:** built and APPROVED by the owner; see PROGRESS.md. ⏳ Deploy.
+**Status 2026-10-17:** built, APPROVED and deployed (migration applied, smoke test 18/18); see PROGRESS.md.
 
 ---
 
