@@ -117,3 +117,14 @@ export async function renameTag(formData: FormData): Promise<void> {
   revalidatePath("/contacts");
   redirect(`/settings?tags=${remove ? "removed" : "renamed"}#tags`);
 }
+
+/** Add a tag to the list contacts pick from (Phase 20). */
+export async function addTag(formData: FormData): Promise<void> {
+  const { supabase } = await requireFullSession();
+  const { name, error } = parseTagName(String(formData.get("name") ?? ""));
+  if (error || name === "") redirect(`/settings?tags=invalid#tags`);
+  const { error: dbError } = await supabase.from("tag_options").insert({ name });
+  if (dbError) redirect(`/settings?tags=${dbError.code === "23505" ? "exists" : "error"}#tags`);
+  revalidatePath("/contacts");
+  redirect(`/settings?tags=added#tags`);
+}

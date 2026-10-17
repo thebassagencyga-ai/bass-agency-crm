@@ -777,3 +777,31 @@ anonymous access); Deploy app 39040190470 smoke test 18/18. AI helpers not conne
 2. Deploy database migrations: dry run lists only `20261029120000_ai_usage.sql`; then apply
    (verify expects 19 tables, 24 functions, 2 anonymous functions).
 3. Deploy app (Cloudflare). Nothing AI appears (no key). Connecting later: runbook §4d.
+
+## Phase 20 — Tag list (branch `phase-20-tag-list`)
+Started 2026-10-17 on the owner's request ("this should be a ticker with options for
+consistency"); owner chose: new tags only in Settings; load a starter list. Design in ADR-036.
+
+**Completed**
+- Migration `20261030120000_tag_options.sql`: `tag_options` (owner-only, two-step, audited,
+  archived not deleted), starter list for every agent (existing and new), tags already in use
+  added to the list, trigger refusing tags not on the list, `contact_tags` lists every option with
+  counts, `rename_tag` updates the list too (rename, fold, remove).
+- Contact form: tick boxes (`src/components/contacts/tag-picker.tsx`); server keeps only listed
+  tags (`pickTags`). Settings → Tags: Add a tag; rename/remove as before.
+
+**Tests (2026-10-17)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build | pass |
+| Local: unit | 434 passed (tag picking replaces the free-text parsing tests) |
+| Local: database (PostgreSQL 16) | 430 passed (5 new: starter list, only listed tags (any case, own list), name rules and uniqueness, remove/re-add, isolation/no deletes/aal1/anon; Phase 17 tag tests updated) |
+| Local: upgrade check | migrations up to Phase 19 + existing contact tags, then this migration: tags in use added to the list alongside the starter list |
+| CI (integration + browser) | pending |
+| Production | not deployed (awaiting owner review) |
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. Deploy database migrations: dry run lists only `20261030120000_tag_options.sql`; then apply
+   (verify expects 20 tables, 24 functions, 2 anonymous functions).
+3. Deploy app (Cloudflare). Settings → Tags shows the starter list plus any tags you already used.

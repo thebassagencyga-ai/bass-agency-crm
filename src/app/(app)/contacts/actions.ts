@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import type { FormState } from "@/components/form";
 import { requireFullSession } from "@/lib/auth/require";
 import { CONTACT_FORM_FIELDS, contactFormSchema } from "@/lib/contacts/schema";
-import { findDuplicates, isUuid, knownTags, summarize, type ContactSummary } from "@/lib/contacts/data";
+import { findDuplicates, getContact, isUuid, knownTags, summarize, type ContactSummary } from "@/lib/contacts/data";
+import { pickTags } from "@/lib/contacts/tags";
 import type { Contact } from "@/lib/contacts/types";
 
 // Every action re-checks the full (two-step) session on the server and writes through the
@@ -17,6 +18,8 @@ function echoValues(formData: FormData): Record<string, string> {
     const v = formData.get(name);
     if (typeof v === "string") values[name] = v.slice(0, 5000);
   }
+  // Ticked tags (several values with the same name), kept as JSON for redisplay.
+  values.tags = JSON.stringify(formData.getAll("tags").filter((t): t is string => typeof t === "string").slice(0, 50));
   return values;
 }
 
@@ -41,9 +44,12 @@ export async function saveContact(_prev: FormState, formData: FormData): Promise
     for (const issue of parsed.error.issues) fieldErrors[String(issue.path[0] ?? "form")] ??= issue.message;
     return { fieldErrors, values };
   }
-  // A tag typed in another case joins the existing one ("vip" → "VIP").
-  const known = new Map((await knownTags(supabase)).map((t) => [t.tag.toLowerCase(), t.tag]));
-  const data = { ...parsed.data, tags: parsed.data.tags.map((t) => known.get(t.toLowerCase()) ?? t) };
+  // Tags are ticked from the agent's list (Phase 20); a tag the contact already has may stay.
+  const [options, existing] = await Promise.all([knownTags(supabase), id ? getContact(supabase, id) : Promise.resolve(null)]);
+  const selected = formData.getAll("tags").filter((t): t is string => typeof t === "string");
+  const picked = pickTags(selected, [...options.map((o) => o.tag), ...(existing?.tags ?? [])]);
+  if (picked.error) return { fieldErrors: { tags: picked.error }, values };
+  const data = { ...parsed.data, tags: picked.tags };
   // Text typed in the referrer search but no contact tapped: never drop it silently.
   const referrerSearch = formData.get("referred_by_search");
   if (data.referred_by_contact_id === null && typeof referrerSearch === "string" && referrerSearch.trim() !== "") {

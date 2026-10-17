@@ -27,6 +27,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 17 | Tags + merge duplicate contacts | 16 | APPROVED (2026-10-17) |
 | 18 | Calendar feed for tasks | 17 | APPROVED (2026-10-17) |
 | 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | APPROVED (2026-10-17) — built, not connected |
+| 20 | Tag list (pick tags from options) — owner request after go-live | 19 | READY FOR REVIEW |
 
 ---
 
@@ -517,6 +518,20 @@ decision: build now, hold off on connecting.
 
 **Status 2026-10-17:** built, APPROVED and deployed (migration applied, smoke test 18/18); not connected by owner decision; see PROGRESS.md.
 Connecting is a later owner step (runbook §4d).
+
+---
+
+## Phase 20 — Tag list
+**Objective.** Tags are ticked from a list the owner keeps in Settings, for consistency (ADR-036).
+
+**Acceptance criteria**
+- The contact form offers the list as tick boxes; no free-text tags; the database refuses tags not
+  on the list.
+- Settings adds, renames and removes tags; contacts follow. Starter list loaded; tags already in
+  use kept and added to the list.
+- All tests green; phone widths and Lighthouse clean.
+
+**Status 2026-10-17:** READY FOR REVIEW; see PROGRESS.md.
 
 ---
 

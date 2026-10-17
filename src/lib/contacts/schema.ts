@@ -4,7 +4,6 @@
 import { z } from "zod";
 import { isIsoDate, todayInZone } from "@/lib/dates";
 import { formatUsPhone } from "./format";
-import { parseTags } from "./tags";
 import { CONTACT_METHODS, CONTACT_TYPES, RELATIONSHIP_STATUSES } from "./types";
 
 const blankToNull = (v: unknown) => {
@@ -59,14 +58,6 @@ export const contactFormSchema = z
         .nullable(),
     ),
     notes: optionalText(5000, "Notes"),
-    // Comma-separated text → tags (Phase 17).
-    tags: z
-      .preprocess((v) => (typeof v === "string" ? v : ""), z.string().max(2000, "Too many tags."))
-      .transform((text, ctx) => {
-        const { tags, error } = parseTags(text);
-        if (error) ctx.addIssue({ code: "custom", message: error });
-        return tags;
-      }),
   })
   .superRefine((c, ctx) => {
     if (c.contact_type === "individual" && !c.first_name && !c.last_name) {
@@ -82,5 +73,5 @@ export type ContactFormValues = z.infer<typeof contactFormSchema>;
 export const CONTACT_FORM_FIELDS = [
   "contact_type", "first_name", "last_name", "business_name", "email", "phone", "alt_phone",
   "address_line1", "address_line2", "city", "state", "postal_code", "preferred_contact_method",
-  "lead_source", "relationship_status", "referred_by_contact_id", "google_review_left_on", "notes", "tags",
+  "lead_source", "relationship_status", "referred_by_contact_id", "google_review_left_on", "notes",
 ] as const;

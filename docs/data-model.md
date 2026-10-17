@@ -162,6 +162,11 @@ import_cleanup), `model`, `input_tokens`, `output_tokens`, `cost_usd` (priced co
 No prompt or answer text. Users insert and read their own rows only (no update or delete), so a
 recorded cost always counts toward the monthly cap.
 
+### tag_options (Phase 20)
+Each agent's tag list: `name` (1–40 characters, trimmed, no commas; unique per agent ignoring
+case among active rows), `archived_at` (removed). Contacts can only gain tags on this list
+(trigger). New agents start with a starter list.
+
 ### audit_log
 Append-only, written by trigger on contacts, opportunities, tasks, activities and
 automation_rules: actor, table, record, action, and for updates only the changed columns.

@@ -18,13 +18,16 @@ test("tag contacts, filter by tag, merge a duplicate, rename a tag", async ({ pa
   const { data: stage } = await api.from("pipeline_stages").select("id").eq("product_line", "auto").eq("code", "new_lead").single();
   await api.from("opportunities").insert({ contact_id: dup, product_line: "auto", stage_id: stage!.id });
 
-  // Tag Robin; a tag typed in another case joins the existing one.
+  // Tag Robin by ticking options from the list (Phase 20); there is no free-text tag box.
   await page.goto(`/contacts/${robin}/edit`);
-  await page.getByLabel("Tags", { exact: false }).fill("VIP, church");
+  await expect(page.getByRole("textbox", { name: /^Tags/ })).toHaveCount(0);
+  await page.getByRole("checkbox", { name: "VIP" }).check();
+  await page.getByRole("checkbox", { name: "Church" }).check();
+  expect(await noSidewaysScroll(page)).toBe(true);
   await page.getByRole("button", { name: "Save changes" }).click();
   await expect(page.getByText("Contact saved.")).toBeVisible();
   const tags = page.getByRole("list", { name: "Tags" });
-  await expect(tags).toHaveText(/VIP\s*Church/);
+  await expect(tags).toHaveText(/Church\s*VIP/);
 
   // Filter the list by tag.
   await tags.getByRole("link", { name: "VIP" }).click();
@@ -66,6 +69,17 @@ test("tag contacts, filter by tag, merge a duplicate, rename a tag", async ({ pa
   await page.locator("#tags").getByRole("button", { name: "Rename" }).first().click();
   await expect(page.getByText("Tag renamed on every contact.")).toBeVisible();
   await page.goto(`/contacts/${robin}`);
-  await expect(page.getByRole("list", { name: "Tags" })).toHaveText(/VIP\s*First Baptist/);
+  await expect(page.getByRole("list", { name: "Tags" })).toHaveText(/First Baptist\s*VIP/);
+
+  // Add a new tag to the list in Settings; it then appears as an option on the contact form.
+  await page.goto("/settings#tags");
+  await page.getByLabel("Add a tag").fill("Golf club");
+  await page.locator("#tags").getByRole("button", { name: "Add", exact: true }).click();
+  await expect(page.getByText("Tag added.", { exact: false })).toBeVisible();
+  await page.goto(`/contacts/${robin}/edit`);
+  await expect(page.getByRole("checkbox", { name: "First Baptist" })).toBeChecked();
+  await page.getByRole("checkbox", { name: "Golf club" }).check();
+  await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(page.getByRole("list", { name: "Tags" })).toContainText("Golf club");
   expect(await noSidewaysScroll(page)).toBe(true);
 });

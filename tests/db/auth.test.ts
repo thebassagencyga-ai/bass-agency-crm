@@ -17,7 +17,7 @@ const TABLES = [
   "profiles", "product_lines", "pipeline_stages", "contacts", "opportunities",
   "automation_rules", "tasks", "activities", "audit_log",
   "renewal_outcomes", "cross_sell_rules", "cross_sell_dismissals", "intake_links", "intake_submissions",
-  "household_members", "vehicles", "import_batches", "calendar_feeds", "ai_usage",
+  "household_members", "vehicles", "import_batches", "calendar_feeds", "ai_usage", "tag_options",
 ];
 
 describe("profile creation", () => {

@@ -1,19 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { MERGE_NOTE_SEPARATOR, mergedFields } from "@/lib/contacts/merge";
-import { cleanTag, parseTagName, parseTags } from "@/lib/contacts/tags";
+import { cleanTag, parseTagName, pickTags } from "@/lib/contacts/tags";
 import type { Contact } from "@/lib/contacts/types";
 
 describe("tags", () => {
-  it("parses comma-separated text: trims, collapses spaces, drops blanks and repeats, reuses known spellings", () => {
-    expect(parseTags(" vip ,  Church  group,, VIP ,church group", ["VIP"])).toEqual({ tags: ["VIP", "Church group"], error: null });
-    expect(parseTags("")).toEqual({ tags: [], error: null });
+  it("keeps only ticked tags that are on the list (or already on the contact), in the list's spelling", () => {
+    expect(pickTags(["vip", " Church ", "VIP", "Made up"], ["VIP", "Church", "Farm"])).toEqual({ tags: ["VIP", "Church"], error: null });
+    expect(pickTags([], ["VIP"])).toEqual({ tags: [], error: null });
     expect(cleanTag("a\tb\u0000c")).toBe("a b c");
   });
 
-  it("refuses too long or too many", () => {
-    expect(parseTags("x".repeat(41)).error).toMatch(/too long/);
-    expect(parseTags(Array.from({ length: 21 }, (_, i) => `t${i}`).join(",")).error).toBe("Use at most 20 tags.");
-    expect(parseTags(Array.from({ length: 20 }, (_, i) => `t${i}`).join(",")).error).toBeNull();
+  it("refuses more than 20", () => {
+    const many = Array.from({ length: 21 }, (_, i) => `t${i}`);
+    expect(pickTags(many, many).error).toBe("Choose at most 20 tags.");
+    expect(pickTags(many.slice(0, 20), many).error).toBeNull();
   });
 
   it("checks a single tag name for renaming", () => {

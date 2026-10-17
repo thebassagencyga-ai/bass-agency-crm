@@ -2,6 +2,13 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 20 — Tag list (2026-10-17, ready for review)
+### Changed
+- Tags are now **ticked from a list** on the contact form instead of typed. The list lives in
+  Settings → Tags (add, rename, remove). Starter list: VIP, Referral partner, Church, Small
+  business, Farm, Family plan, Do not text. Tags already in use were added to the list.
+- Migration `20261030120000_tag_options.sql`.
+
 ## Phase 19 — AI helpers, not connected (2026-10-17, approved)
 ### Added
 - AI helpers, **off until an API key is added** (runbook §4d): Draft with AI in the message

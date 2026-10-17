@@ -872,6 +872,23 @@ client-side calls (rejected: would expose the key).
 
 ---
 
+## ADR-036 — Tags picked from a list
+
+**Status:** Proposed — built in Phase 20, awaiting owner review. **Owner decisions (2026-10-17):**
+"this should be a ticker with options for consistency"; new tags are added only in Settings; load
+a starter list.
+
+**Decision.** Amends ADR-033. A `tag_options` table holds each agent's list (owner-scoped RLS,
+two-step policy, audited; removed tags are archived, not deleted). The contact form shows the list
+as tick boxes — no free-text tag box. The database refuses a tag that is not on the owner's list
+(only newly added tags are checked, so a contact keeps a tag removed from the list later; the form
+still shows it so saving doesn't drop it). Settings → Tags adds, renames (folding into an existing
+tag when the name matches) and removes; rename/remove update every contact and the list together.
+Starter list for every agent: VIP, Referral partner, Church, Small business, Farm, Family plan, Do
+not text. Tags already on contacts were added to the list by the migration.
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 - **Tabled (owner, 2026-10-16): collecting dates of birth and driver's license numbers on the

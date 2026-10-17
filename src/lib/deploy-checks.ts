@@ -20,6 +20,7 @@ export const CRM_TABLES = [
   "product_lines",
   "profiles",
   "renewal_outcomes",
+  "tag_options",
   "tasks",
   "vehicles",
 ] as const;

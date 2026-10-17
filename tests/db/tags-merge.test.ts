@@ -19,6 +19,10 @@ afterAll(async () => {
 const setTags = (user: string, id: string, tags: string[]) =>
   asUser(db, user, (q) => q.query("update public.contacts set tags = $2 where id = $1", [id, tags]));
 const tagsOf = async (id: string) => (await db.query("select tags from public.contacts where id = $1", [id])).rows[0].tags as string[];
+// Phase 20: a contact's tags must be on its owner's list (starter list: VIP, Referral partner,
+// Church, Small business, Farm, Family plan, Do not text).
+const addOption = (user: string, name: string) =>
+  asUser(db, user, (q) => q.query("insert into public.tag_options (name) values ($1)", [name]));
 const contactTags = (user: string) =>
   asUser(db, user, async (q) => (await q.query("select tag, contact_count from public.contact_tags()")).rows);
 const merge = (user: string, keep: string, dup: string) =>
@@ -48,11 +52,13 @@ describe("tags", () => {
     const a = await insertContact(db, carol, { first_name: "Avery", tags: ["VIP", "Referral partner"] });
     await insertContact(db, carol, { first_name: "Blake", tags: ["vip"] });
     await insertContact(db, carol, { first_name: "Casey" });
+    await addOption(bob, "Secret");
     await insertContact(db, bob, { first_name: "Bobs", tags: ["VIP", "Secret"] });
-    expect(await contactTags(carol)).toEqual([
-      { tag: "Referral partner", contact_count: 1 },
-      { tag: "VIP", contact_count: 2 },
-    ]);
+    const listed = await contactTags(carol);
+    expect(listed).toContainEqual({ tag: "VIP", contact_count: 2 });
+    expect(listed).toContainEqual({ tag: "Referral partner", contact_count: 1 });
+    expect(listed).toContainEqual({ tag: "Church", contact_count: 0 }); // on the list, unused
+    expect(listed.map((t) => t.tag)).not.toContain("Secret");
     const found = await asUser(db, carol, async (q) =>
       (await q.query("select first_name from public.search_contacts(p_tag => 'vip') order by first_name")).rows.map((r) => r.first_name));
     expect(found).toEqual(["Avery", "Blake"]);
@@ -65,6 +71,7 @@ describe("tags", () => {
 
   it("rename_tag renames, folds into an existing tag without repeats, or removes — own contacts only", async () => {
     const dana = await createUser(db, "tags-dana");
+    await addOption(dana, "Friends");
     const one = await insertContact(db, dana, { first_name: "One", tags: ["Church", "VIP"] });
     const two = await insertContact(db, dana, { first_name: "Two", tags: ["church", "Friends"] });
     const theirs = await insertContact(db, bob, { first_name: "Theirs", tags: ["Church"] });
@@ -81,6 +88,12 @@ describe("tags", () => {
     expect(await tagsOf(one)).toEqual(["VIP"]);
     expect(await tagsOf(two)).toEqual([]);
     expect(await tagsOf(theirs)).toEqual(["Church"]);
+    // The list follows: renamed, folded and removed tags.
+    const names = (await contactTags(dana)).map((t) => t.tag);
+    expect(names).not.toContain("Church");
+    expect(names).not.toContain("Friends");
+    expect(names).not.toContain("First Baptist");
+    expect(await errorCode(rename("Nope", "x"))).toBe("P0002");
     expect(await errorCode(rename(" ", "x"))).toBe("22023");
     expect(await errorCode(rename("VIP", "y".repeat(41)))).toBe("23514");
   });
@@ -97,7 +110,7 @@ describe("merge_contacts", () => {
       first_name: "Rob", last_name: "Example", email: "robin@example.com", phone: "404-555-0102",
       address_line1: "1 Example St", city: "Carrollton", state: "GA", postal_code: "30117",
       lead_source: "Referral", referred_by_contact_id: referrer, relationship_status: "client",
-      google_review_left_on: "2026-05-01", notes: "Duplicate notes.", tags: ["vip", "Book club"],
+      google_review_left_on: "2026-05-01", notes: "Duplicate notes.", tags: ["vip", "Farm"],
     });
     const referred = await insertContact(db, alice, { first_name: "Friend", referred_by_contact_id: dup });
     const opp = await insertOpportunity(db, alice, dup, "auto", "new_lead");
@@ -127,7 +140,7 @@ describe("merge_contacts", () => {
       first_name: "Robin", email: "robin@example.com", phone: "404-555-0101", alt_phone: "404-555-0102",
       address_line1: "1 Example St", city: "Carrollton", state: "GA", postal_code: "30117", lead_source: "Referral",
       referred_by_contact_id: referrer, relationship_status: "client", archived_at: null, merged_into_contact_id: null,
-      tags: ["VIP", "Book club"],
+      tags: ["VIP", "Farm"],
     });
     expect(k.notes).toBe("Kept notes.\n\n— Merged from a duplicate contact —\nDuplicate notes.");
     const d = (await db.query("select * from public.contacts where id = $1", [dup])).rows[0];
@@ -149,7 +162,7 @@ describe("merge_contacts", () => {
     expect(dups).toEqual([keep]);
     expect(await errorCode(asUser(db, alice, (q) => q.query("update public.contacts set merged_into_contact_id = null where id = $1", [dup])))).toBe("23514");
     expect(await errorCode(asUser(db, alice, (q) => q.query("update public.contacts set archived_at = null where id = $1", [dup])))).toBe("23514");
-    expect(await contactTags(alice)).toContainEqual({ tag: "Book club", contact_count: 1 });
+    expect(await contactTags(alice)).toContainEqual({ tag: "Farm", contact_count: 1 });
   });
 
   it("the kept contact's referrer being the duplicate is replaced by the duplicate's own referrer", async () => {

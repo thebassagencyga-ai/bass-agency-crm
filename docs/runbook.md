@@ -89,6 +89,10 @@ latest backup restores, on a throwaway database (production is not touched); run
 - **Download:** Settings → *Your data*. The files contain client details: keep them private
   and delete them when done.
 
+## 4b-2. Tags
+Settings → *Tags*: add a tag, rename it (renaming to an existing tag combines them) or remove it
+(taken off every contact). On a contact, tick tags from the list.
+
 ## 4c. Calendar
 - **Set up:** Settings → *Calendar* → *Create calendar link* → *Add to iPhone Calendar* (or copy
   the link into Google Calendar: Other calendars → + → From URL). The link is shown only once.

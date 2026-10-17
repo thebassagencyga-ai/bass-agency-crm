@@ -15,7 +15,7 @@ import { EXPORT_DATASETS, type ExportDataset } from "@/lib/import/export";
 import { getProfile } from "@/lib/tasks/data";
 import { knownTags } from "@/lib/contacts/data";
 import { MAX_TAG_LENGTH } from "@/lib/contacts/tags";
-import { renameTag } from "./actions";
+import { addTag, renameTag } from "./actions";
 import { CalendarLinkPanel } from "@/components/calendar/link-panel";
 import { AiSettingsPanel } from "@/components/ai/settings-panel";
 import { aiEnabled, monthlyBudgetUsd } from "@/lib/ai/config";
@@ -26,6 +26,8 @@ import { formatInstantDate, formatInstantDateTime } from "@/lib/dates";
 export const metadata: Metadata = { title: "Settings · The Bass Agency CRM" };
 
 const TAG_NOTICES: Record<string, { text: string; ok: boolean }> = {
+  added: { text: "Tag added. Tick it on any contact.", ok: true },
+  exists: { text: "That tag is already on the list.", ok: false },
   renamed: { text: "Tag renamed on every contact.", ok: true },
   removed: { text: "Tag removed from every contact.", ok: true },
   invalid: { text: `Enter a new name (up to ${MAX_TAG_LENGTH} characters, no commas).`, ok: false },
@@ -81,8 +83,17 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         {tagNotice ? (
           <p role={tagNotice.ok ? "status" : "alert"} className={`rounded-md p-3 text-sm ${tagNotice.ok ? "bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200" : "bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200"}`}>{tagNotice.text}</p>
         ) : null}
+        <p className="text-sm text-slate-600 dark:text-slate-400">The tags you can tick on a contact. Keep the list short so it stays consistent.</p>
+        <form action={addTag} className="flex flex-col gap-1">
+          <label htmlFor="tag-add" className="text-sm font-medium">Add a tag</label>
+          <div className="flex gap-2">
+            <input id="tag-add" name="name" maxLength={MAX_TAG_LENGTH} required placeholder="e.g. Golf club"
+              className="min-h-11 min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-base dark:border-slate-600 dark:bg-slate-900" />
+            <button type="submit" className="min-h-11 rounded-md bg-slate-900 px-4 font-medium text-white dark:bg-slate-100 dark:text-slate-900">Add</button>
+          </div>
+        </form>
         {tags.length === 0 ? (
-          <p className="text-sm text-slate-600 dark:text-slate-400">No tags yet. Add tags such as VIP or Church when you edit a contact.</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400">No tags on the list.</p>
         ) : (
           <ul aria-label="Tags in use" className="flex flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
             {tags.map((t, i) => (
@@ -92,7 +103,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                     {t.tag} <span className="text-sm font-normal text-slate-600 dark:text-slate-400">({t.contact_count} contact{t.contact_count === 1 ? "" : "s"})</span>
                   </summary>
                   <div className="mt-2 flex flex-col gap-3">
-                    <Link href={`/contacts?tag=${encodeURIComponent(t.tag)}`} className="flex min-h-11 w-fit items-center text-sm underline">Show these contacts</Link>
+                    {t.contact_count > 0 ? <Link href={`/contacts?tag=${encodeURIComponent(t.tag)}`} className="flex min-h-11 w-fit items-center text-sm underline">Show these contacts</Link> : null}
                     <form action={renameTag} className="flex flex-col gap-1">
                       <input type="hidden" name="from" value={t.tag} />
                       <label htmlFor={`tag-rename-${i}`} className="text-sm font-medium">New name</label>
@@ -107,7 +118,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                       <input type="hidden" name="from" value={t.tag} />
                       <input type="hidden" name="remove" value="1" />
                       <button type="submit" className="min-h-11 rounded-md border border-red-700 px-4 font-medium text-red-800 dark:border-red-400 dark:text-red-300">
-                        Remove from {t.contact_count} contact{t.contact_count === 1 ? "" : "s"}
+                        {t.contact_count === 0 ? "Remove from the list" : `Remove from the list and ${t.contact_count} contact${t.contact_count === 1 ? "" : "s"}`}
                       </button>
                     </form>
                   </div>

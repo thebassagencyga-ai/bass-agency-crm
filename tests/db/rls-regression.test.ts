@@ -27,6 +27,7 @@ const insertable = (ids: Record<string, string>): Record<string, Record<string, 
   vehicles: { contact_id: ids.contact, year: 2019, make: "Example", model: "Sedan" },
   import_batches: { file_name: "clients.csv" },
   ai_usage: { job: "daily_briefing", model: "claude-opus-5-5", input_tokens: 100, output_tokens: 50, cost_usd: 0.0014 },
+  tag_options: { name: "Spoof tag" },
   calendar_feeds: { token_hash: "\\x" + "ab".repeat(32), enabled: false, disabled_at: "2026-10-16T12:00:00Z" },
 });
 let ids: Record<string, string>;
@@ -151,8 +152,12 @@ describe("every owner table", () => {
 
   it("every table that accepts inserts has a spoof check below (keep the list complete)", async () => {
     const { rows } = await db.query<{ t: string }>(
-      `select distinct table_name as t from information_schema.role_table_grants
-        where table_schema = 'public' and grantee = 'authenticated' and privilege_type = 'INSERT' order by 1`,
+      `select distinct t from (
+         select table_name as t from information_schema.role_table_grants
+          where table_schema = 'public' and grantee = 'authenticated' and privilege_type = 'INSERT'
+         union all
+         select table_name from information_schema.column_privileges
+          where table_schema = 'public' and grantee = 'authenticated' and privilege_type = 'INSERT') g order by 1`,
     );
     expect(rows.map((r) => r.t)).toEqual(Object.keys(insertable(ids)).sort());
   });
