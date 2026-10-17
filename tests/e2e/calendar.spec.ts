@@ -39,7 +39,7 @@ test("calendar link: create, feed shows open tasks with client names, replace, t
   expect(await (await calendarApp.get(url)).text()).not.toContain("Call about the home quote");
 
   // After a reload the link is no longer shown; it can be replaced (old one stops) or turned off.
-  await page.goto("/settings#calendar");
+  await page.reload();
   await expect(panel.getByText("On since", { exact: false })).toBeVisible();
   await expect(panel.getByText("Last checked by your calendar", { exact: false })).toBeVisible();
   await expect(panel.getByLabel("Link", { exact: false })).toHaveCount(0);
