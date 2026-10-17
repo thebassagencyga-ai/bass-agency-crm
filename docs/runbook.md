@@ -96,6 +96,19 @@ latest backup restores, on a throwaway database (production is not touched); run
   remove the old "CRM tasks" calendar from the phone, subscribe again.
 - **Stop:** *Turn off*. Tasks disappear from the calendar at its next refresh.
 
+## 4d. AI helpers (off — connect only when you decide to)
+The helpers are built but not connected (ADR-035). To turn them on later:
+1. Anthropic console (console.anthropic.com) → create an API key for this CRM only, and set the
+   organization's **monthly spend limit to $10** (a backstop to the CRM's own cap).
+2. Cloudflare dashboard → Workers & Pages → `bass-agency-crm` → Settings → Variables and Secrets
+   → Add → type **Secret**, name `ANTHROPIC_API_KEY`, paste the key. Never put it in GitHub, a
+   file, or a chat.
+3. Run **Deploy app (Cloudflare)** (or wait for the next deploy). Settings → AI helpers then says
+   "On" with this month's spend.
+- **Turn off:** delete the `ANTHROPIC_API_KEY` secret in Cloudflare (and revoke the key in the
+  Anthropic console). Everything AI disappears; nothing else changes.
+- **Lower the cap:** add a plain variable `AI_MONTHLY_BUDGET_USD` (e.g. 5). It can't go above 10.
+
 ## 5. Access problems
 - **Lost phone / authenticator:** Supabase → Authentication → Users → your user → remove the
   MFA factor. Sign in with your password; the app asks you to set up a new authenticator.
@@ -155,6 +168,7 @@ feature.)
 | Cloudflare Workers Free (100,000 requests/day, 10 ms CPU per request) | $0 |
 | GitHub private repo + Actions (free minutes) | $0 |
 | Address `*.workers.dev` | $0 |
+| AI helpers (Phase 19) | $0 while not connected; at most $10 if connected (app cap + Anthropic console limit) |
 | **Added total** | **$0** (guardrail: under $25). Supabase Pro ($25/month) would add daily backups, no pausing, leaked-password protection and inactivity sign-out — needs your approval. |
 
 No purchase, plan change or paid add-on without the owner's explicit approval.

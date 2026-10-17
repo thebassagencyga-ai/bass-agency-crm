@@ -11,6 +11,8 @@ import { formatMoney } from "@/lib/opportunities/format";
 import { PRODUCT_LINES, PRODUCT_LINE_NAMES } from "@/lib/pipelines";
 import { getProfile, listTasks } from "@/lib/tasks/data";
 import type { TaskListRow } from "@/lib/tasks/types";
+import { BriefingPanel } from "@/components/ai/briefing";
+import { aiEnabled } from "@/lib/ai/config";
 
 export const metadata: Metadata = { title: "Dashboard · The Bass Agency CRM" };
 
@@ -53,6 +55,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <Link href="/activities/new" className={`${ACTION} border border-slate-900 dark:border-slate-100`}>Log activity</Link>
         <Link href="/tasks/new" className={`${ACTION} border border-slate-900 dark:border-slate-100`}>Add task</Link>
       </nav>
+
+      {aiEnabled() ? <BriefingPanel /> : null}
 
       <section aria-labelledby="task-counts-heading" className="flex flex-col gap-2">
         <h2 id="task-counts-heading" className="sr-only">Task counts</h2>

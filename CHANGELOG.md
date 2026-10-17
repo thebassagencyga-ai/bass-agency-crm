@@ -2,6 +2,13 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 19 — AI helpers, not connected (2026-10-17, ready for review)
+### Added
+- AI helpers, **off until an API key is added** (runbook §4d): Draft with AI in the message
+  composer, Fill in from my notes on Log activity, Daily briefing on the dashboard, Suggest
+  matches with AI when importing. Suggestions only; $10/month cap; Settings → AI helpers.
+- Migration `20261029120000_ai_usage.sql` (usage ledger, numbers only).
+
 ## Phase 18 — Calendar feed (2026-10-17, approved)
 ### Added
 - **Calendar** in Settings: a private link that shows your open tasks in iPhone or Google

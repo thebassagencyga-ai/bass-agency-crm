@@ -17,6 +17,9 @@ import { knownTags } from "@/lib/contacts/data";
 import { MAX_TAG_LENGTH } from "@/lib/contacts/tags";
 import { renameTag } from "./actions";
 import { CalendarLinkPanel } from "@/components/calendar/link-panel";
+import { AiSettingsPanel } from "@/components/ai/settings-panel";
+import { aiEnabled, monthlyBudgetUsd } from "@/lib/ai/config";
+import { monthSpendUsd } from "@/lib/ai/run";
 import { getCalendarFeed } from "@/lib/calendar/data";
 import { formatInstantDate, formatInstantDateTime } from "@/lib/dates";
 
@@ -36,6 +39,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     getProfile(supabase, userId), getRules(supabase), getCrossSellRules(supabase), getIntakeLink(supabase), knownTags(supabase),
     getCalendarFeed(supabase),
   ]);
+  const aiConnected = aiEnabled();
+  const aiSpent = aiConnected ? await monthSpendUsd(supabase) : 0;
   const tagNotice = query.tags ? TAG_NOTICES[query.tags] : undefined;
   return (
     <section className="flex max-w-xl flex-col gap-6">
@@ -70,6 +75,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           ))}
         </ul>
       </section>
+      <AiSettingsPanel connected={aiConnected} spent={aiSpent} cap={monthlyBudgetUsd()} />
       <section id="tags" aria-labelledby="tags-heading" className="flex flex-col gap-2">
         <h2 id="tags-heading" className="text-lg font-semibold">Tags</h2>
         {tagNotice ? (

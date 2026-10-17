@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { undoImport } from "@/app/(app)/import/actions";
 import { ImportWizard } from "@/components/import/import-wizard";
+import { aiEnabled } from "@/lib/ai/config";
 import { requireFullSession } from "@/lib/auth/require";
 import { isUuid } from "@/lib/contacts/data";
 import { formatInstantDateTime } from "@/lib/dates";
@@ -36,7 +37,7 @@ export default async function ImportPage({ searchParams }: { searchParams: Promi
         <p role={undo.ok ? "status" : "alert"} className={`rounded-md p-3 text-sm ${undo.ok ? "bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200" : "bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200"}`}>{undo.text}</p>
       ) : null}
 
-      <ImportWizard />
+      <ImportWizard ai={aiEnabled()} />
 
       <section aria-labelledby="recent-heading" className="flex max-w-2xl flex-col gap-2">
         <h2 id="recent-heading" className="text-lg font-semibold">Recent imports</h2>

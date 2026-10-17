@@ -8,7 +8,7 @@ import { ACTIVITY_OUTCOMES, ACTIVITY_OUTCOME_LABELS, ACTIVITY_TYPES, ACTIVITY_TY
 
 type Option = { id: string; label: string };
 
-type Defaults = { activity_type?: string; opportunity_id?: string; notes?: string };
+type Defaults = { activity_type?: string; opportunity_id?: string; notes?: string; outcome?: string; requested_follow_up_on?: string };
 
 /**
  * contactId null: the form starts with a contact picker (dashboard quick action).

@@ -831,6 +831,47 @@ client names, so a leaked database or backup must not reveal working links).
 
 ---
 
+## ADR-035 — AI helpers, built but not connected
+
+**Status:** Proposed — built in Phase 19, awaiting owner review. **Owner decision (2026-10-17):**
+"Let's build it but we will hold off on connecting it" — no API key is set, so the helpers are
+off and hidden in production.
+
+**Decision.**
+- Four helpers (ADR-030): **draft a text/email** (message composer), **notes → activity** (fills
+  the Log activity form), **daily briefing** (dashboard), **import clean-up** (suggests column
+  and policy-type matches). Each returns a suggestion the user reviews; none saves, changes or
+  sends anything.
+- **Off unless connected:** the helpers and every AI control appear only when the server has an
+  `ANTHROPIC_API_KEY`, set by the owner as an encrypted Worker secret in the Cloudflare dashboard
+  (runbook §4d). Never `NEXT_PUBLIC_`; the browser bundle check fails on the key or the API
+  address.
+- **Server-only, one module** (`src/lib/ai/run.ts`), official Anthropic SDK (pinned 0.131.0),
+  model Claude Opus 5.5 at low effort, structured (schema-checked) answers, Anthropic's
+  server-side refusal fallback (`fallbacks: "default"`), one retry, 60 s timeout.
+- **$10/month cap:** every call is priced conservatively ($5 / $25 per million input/output tokens,
+  the higher of the model and its fallback) and checked *before* calling against this month's
+  recorded spend (America/New_York month); `AI_MONTHLY_BUDGET_USD` may only lower the cap.
+  `public.ai_usage` records job, model, token counts and cost — never text — append-only for the
+  app. Recommended backstop: a $10 monthly limit in the Anthropic console.
+- **Minimum data:** drafts — client's first name, agent name, line, renewal date, the current
+  text and the user's note; notes → activity — the notes typed and today's date; briefing —
+  open/overdue task titles, first names, due dates, priorities, renewals in 30 days (first name,
+  line, date), number of new requests; import — column headings and policy-type names, never a
+  client row. Never last names, phones, emails, addresses or stored notes. Typed text that looks
+  like an SSN, card or bank number, driver's license number or health detail is refused before
+  sending (`src/lib/ai/guard.ts`).
+- Nothing is logged from prompts or answers.
+
+**Not built.** Per-agent caps (with one user the cap is per account; revisit with ADR "another
+agent"); streaming; saving briefings.
+
+**Alternatives.** Raw `fetch` to the API (rejected: the SDK handles retries, types and parsing);
+a cheaper model (kept the default model; low effort keeps calls to roughly 1–2 cents);
+client-side calls (rejected: would expose the key).
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 - **Tabled (owner, 2026-10-16): collecting dates of birth and driver's license numbers on the

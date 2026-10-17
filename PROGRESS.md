@@ -736,3 +736,36 @@ Settings → Calendar → Create calendar link → Add to iPhone Calendar; check
    (verify expects 18 tables, 24 functions, 2 anonymous functions).
 3. Deploy app (Cloudflare) — smoke test now 18 checks.
 4. Settings → Calendar → Create calendar link → Add to iPhone Calendar.
+
+## Phase 19 — AI helpers (branch `phase-19-ai-workers`)
+Started 2026-10-17. Owner: "Phase 19 might not be necessary. Let's build it but we will hold off
+on connecting it." Built switched off; design in ADR-035.
+
+**Completed**
+- Migration `20261029120000_ai_usage.sql`: usage ledger (tokens, cost; insert/read only).
+- `src/lib/ai/`: `config.ts` (off without a key; cap ≤ $10), `budget.ts` (conservative pricing,
+  New York month, check before calling), `guard.ts` (refuse SSN/card/bank/license/health
+  patterns), `jobs.ts` (four jobs: minimal payloads, answer schemas, checks), `run.ts` (the only
+  Anthropic call; SDK 0.131.0, Claude Opus 5.5, low effort, structured output, refusal fallback;
+  records usage before returning).
+- Server actions `src/app/(app)/ai/actions.ts` (data gathered from the database, not the browser).
+- UI, shown only when connected: Draft with AI (composer), Fill in from my notes (contact →
+  Log activity), Daily briefing (dashboard), Suggest matches with AI (import). Settings → AI
+  helpers shows status, monthly spend and what is sent.
+- Bundle check also fails on an Anthropic key, its variable name or the API address.
+
+**Tests (2026-10-17)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build, bundle check | pass |
+| Local: unit | 434 passed (28 new: config, budget, month start across DST, guard patterns, each job's payload and answer checks; `runJob` against a fake API — off without key, cap refuses before calling, call parameters, usage recorded even for refusals, nothing shown if usage can't be recorded, error mapping; schema conversion checked once against the real SDK) |
+| Local: database (PostgreSQL 16) | 425 passed (4 new: ledger sum, no edit/delete, bad values refused, isolation/aal1/anon; catalog tests cover the new table) |
+| CI (integration + browser) | pending |
+| Real Anthropic API | **not run** — not connected, by owner decision |
+| Production | not deployed (awaiting owner review) |
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. Deploy database migrations: dry run lists only `20261029120000_ai_usage.sql`; then apply
+   (verify expects 19 tables, 24 functions, 2 anonymous functions).
+3. Deploy app (Cloudflare). Nothing AI appears (no key). Connecting later: runbook §4d.

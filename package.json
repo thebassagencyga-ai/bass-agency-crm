@@ -25,6 +25,7 @@
     "check:bundle": "node scripts/check-client-bundle.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "0.131.0",
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "2.117.3",
     "next": "16.3.8",

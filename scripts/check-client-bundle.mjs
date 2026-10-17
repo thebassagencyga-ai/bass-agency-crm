@@ -14,6 +14,8 @@ if (roots.length === 0) {
 
 const patterns = [
   [/sb_secret_[A-Za-z0-9_-]{8,}/, "Supabase secret key"],
+  [/sk-ant-[A-Za-z0-9_-]{8,}/, "Anthropic API key"],
+  [/ANTHROPIC_API_KEY|api\.anthropic\.com/, "Anthropic key name or API address (AI calls are server-only)"],
   [/service_role/, "service_role reference"],
   [/SUPABASE_SECRET_KEY|SUPABASE_SERVICE_ROLE/, "secret key variable name"],
   [/SUPABASE_PUBLISHABLE_KEY|SUPABASE_URL/, "Supabase config variable name (browser must not talk to Supabase)"],

@@ -25,6 +25,8 @@ import { crossSellPrompts } from "@/lib/cross-sell/data";
 import { HouseholdSection, VehiclesSection } from "@/components/contacts/detail-sections";
 import { listHousehold, listVehicles } from "@/lib/contacts/details-data";
 import { MessageComposer } from "@/components/messages/message-composer";
+import { aiEnabled } from "@/lib/ai/config";
+import { LogActivityWithAi } from "@/components/ai/log-activity-with-ai";
 import { isTemplateKey, TEMPLATE_KEYS, TEMPLATES, templateForOpportunity, valuesFor } from "@/lib/messages/templates";
 
 export const metadata: Metadata = { title: "Contact · The Bass Agency CRM" };
@@ -54,6 +56,9 @@ export default async function ContactPage({
   if (!contact) notFound();
 
   const merged = contact.merged_into_contact_id;
+  const ai = aiEnabled();
+  // With AI helpers connected, the activity form can be filled in from rough notes (Phase 19).
+  const LogForm = ai ? LogActivityWithAi : LogActivityForm;
   const [referrer, referrals, opportunities, stages, tasks, activities, profile, household, vehicles, mergedInto, duplicates] = await Promise.all([
     contact.referred_by_contact_id ? getContact(supabase, contact.referred_by_contact_id) : Promise.resolve(null),
     getReferrals(supabase, contact.id),
@@ -305,13 +310,14 @@ export default async function ContactPage({
             values={valuesFor(contact, profile.display_name, aboutOpp, formatDateOnly)}
             templates={TEMPLATE_KEYS.filter((k) => k !== "intake_reply")} initial={messageKey}
             logHref={`/contacts/${contact.id}${aboutOpp ? `?opp=${aboutOpp.id}` : ""}`}
+            ai={ai ? { contactId: contact.id, opportunityId: aboutOpp?.id ?? null } : null}
           />
         </details>
       )}
 
       <details id="log-activity" open={Boolean(logDefaults)} className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
         <summary className="min-h-11 cursor-pointer py-2 text-lg font-semibold">Log activity…</summary>
-        <LogActivityForm
+        <LogForm
           key={logDefaults ? `${logDefaults.activity_type}-${query.about ?? ""}-${aboutOpp?.id ?? ""}` : "log"}
           contactId={contact.id}
           now={isoToZonedLocal(new Date().toISOString(), profile.time_zone)}

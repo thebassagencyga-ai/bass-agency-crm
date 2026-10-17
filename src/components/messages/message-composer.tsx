@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { aiDraftMessage } from "@/app/(app)/ai/actions";
 import { mailtoHref, smsHref, telHref } from "@/lib/messages/links";
 import { renderTemplate, TEMPLATES, type TemplateKey, type TemplateValues } from "@/lib/messages/templates";
 
@@ -15,16 +16,38 @@ const INPUT = "min-h-11 w-full min-w-0 rounded-md border border-slate-300 bg-whi
  * `logHref`: where "Log it" goes (the contact page's activity form); null hides it.
  */
 export function MessageComposer({
-  phone, email, values, templates, initial, logHref,
+  phone, email, values, templates, initial, logHref, ai = null,
 }: {
   phone: string | null; email: string | null; values: TemplateValues;
   templates: readonly TemplateKey[]; initial: TemplateKey; logHref: string | null;
+  /** AI drafting (Phase 19), only when the helpers are connected and the message is about a saved contact. */
+  ai?: { contactId: string; opportunityId: string | null } | null;
 }) {
   const [key, setKey] = useState<TemplateKey>(initial);
   const [subject, setSubject] = useState(() => renderTemplate(initial, values).subject);
   const [body, setBody] = useState(() => renderTemplate(initial, values).body);
   const [opened, setOpened] = useState<"text_message" | "email" | null>(null);
   const [copied, setCopied] = useState<"idle" | "copied" | "failed">("idle");
+  const [instruction, setInstruction] = useState("");
+  const [channel, setChannel] = useState<"text" | "email">(phone || !email ? "text" : "email");
+  const [aiNote, setAiNote] = useState<{ ok: boolean; text: string } | null>(null);
+  const [drafting, startDraft] = useTransition();
+
+  function draftWithAi() {
+    if (!ai) return;
+    setAiNote(null);
+    startDraft(async () => {
+      const result = await aiDraftMessage({
+        contactId: ai.contactId, opportunityId: ai.opportunityId, purpose: TEMPLATES[key].label,
+        currentText: body, instruction, channel,
+      });
+      if (result.ok) {
+        setBody(result.value.body);
+        if (result.value.subject) setSubject(result.value.subject);
+        setAiNote({ ok: true, text: "AI draft below. Read it and change anything before you send it." });
+      } else setAiNote({ ok: false, text: result.error });
+    });
+  }
 
   function choose(next: TemplateKey) {
     const filled = renderTemplate(next, values);
@@ -61,6 +84,23 @@ export function MessageComposer({
           <input id="message-subject" value={subject} maxLength={200} onChange={(e) => setSubject(e.target.value)} className={INPUT} />
         </div>
       ) : null}
+      {ai ? (
+        <details className="rounded-md border border-dashed border-slate-300 p-2 dark:border-slate-600">
+          <summary className="min-h-11 cursor-pointer py-2 text-sm font-medium">Draft with AI…</summary>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="ai-channel" className="text-sm font-medium">Draft a</label>
+            <select id="ai-channel" value={channel} onChange={(e) => setChannel(e.target.value as "text" | "email")} className={INPUT}>
+              <option value="text">Text message</option><option value="email">Email</option>
+            </select>
+            <label htmlFor="ai-instruction" className="text-sm font-medium">What should it say? <span className="font-normal text-slate-500">(optional)</span></label>
+            <input id="ai-instruction" value={instruction} maxLength={300} onChange={(e) => setInstruction(e.target.value)}
+              placeholder="e.g. mention I can review their home policy too" className={INPUT} />
+            <button type="button" onClick={draftWithAi} disabled={drafting} className={`${SECONDARY} disabled:opacity-60`}>{drafting ? "Drafting…" : "Write a draft"}</button>
+            <p className="text-xs text-slate-500">Sends the client&apos;s first name, the line and renewal date, the text below and your note to the AI. Nothing is sent to the client.</p>
+          </div>
+        </details>
+      ) : null}
+      {aiNote ? <p role={aiNote.ok ? "status" : "alert"} className={`text-sm ${aiNote.ok ? "" : "text-red-700 dark:text-red-400"}`}>{aiNote.text}</p> : null}
       <div className="flex flex-col gap-1">
         <label htmlFor="message-body" className="text-sm font-medium">Text</label>
         <textarea id="message-body" value={body} rows={5} maxLength={2000} onChange={(e) => setBody(e.target.value)} className={INPUT} />

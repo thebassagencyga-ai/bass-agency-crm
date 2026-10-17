@@ -26,6 +26,7 @@ const insertable = (ids: Record<string, string>): Record<string, Record<string, 
   household_members: { contact_id: ids.contact, first_name: "Sam", relationship: "spouse" },
   vehicles: { contact_id: ids.contact, year: 2019, make: "Example", model: "Sedan" },
   import_batches: { file_name: "clients.csv" },
+  ai_usage: { job: "daily_briefing", model: "claude-opus-5-5", input_tokens: 100, output_tokens: 50, cost_usd: 0.0014 },
   calendar_feeds: { token_hash: "\\x" + "ab".repeat(32), enabled: false, disabled_at: "2026-10-16T12:00:00Z" },
 });
 let ids: Record<string, string>;
@@ -76,6 +77,8 @@ beforeAll(async () => {
   await asAnon(db, (q) =>
     q.query("select public.submit_intake($1, $2, true)", [token, { first_name: "Pat", last_name: "Sample", email: "pat@example.com", lines: ["auto"] }]),
   );
+  // Phase 19: one recorded AI call.
+  await asUser(db, alice, (q) => q.query("insert into public.ai_usage (job, model, input_tokens, output_tokens, cost_usd) values ('draft_message', 'claude-opus-5-5', 10, 5, 0.0001)"));
   // Phase 18: a calendar link.
   await asUser(db, alice, (q) => q.query("select public.rotate_calendar_link()"));
   ids = { contact, policy, homeStage, rule: rule.r, rule2: rule.r2 };

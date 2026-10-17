@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
+import { aiSuggestImport } from "@/app/(app)/ai/actions";
 import { findImportMatches, runImport } from "@/app/(app)/import/actions";
 import { SelectField } from "@/components/form";
 import { buildImport, distinctLineValues, lineKey, MAX_IMPORT_ROWS, type ImportClient, type ImportIssue, type LineChoices } from "@/lib/import/build";
@@ -17,7 +18,7 @@ const lineOptions = [...PRODUCT_LINES.map((l) => ({ value: l, label: PRODUCT_LIN
 type Preview = { clients: ImportClient[]; issues: ImportIssue[]; tooMany: boolean; matches: Record<string, { id: string; label: string }> };
 
 /** Import a client list: choose a CSV → match columns → check → import (Phase 15). */
-export function ImportWizard() {
+export function ImportWizard({ ai = false }: { ai?: boolean }) {
   const router = useRouter();
   const [fileName, setFileName] = useState("");
   const [headers, setHeaders] = useState<string[]>([]);
@@ -27,6 +28,9 @@ export function ImportWizard() {
   const [preview, setPreview] = useState<Preview | null>(null);
   const [useMatch, setUseMatch] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
+  // AI suggestions (Phase 19) change the selects' starting values; bumping this remounts them.
+  const [aiRound, setAiRound] = useState(0);
+  const [aiNote, setAiNote] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, startTransition] = useTransition();
 
   const lineValues = useMemo(() => distinctLineValues(rows, mapping), [rows, mapping]);
@@ -47,6 +51,22 @@ export function ImportWizard() {
     setRows(parsed.slice(1));
     setMapping(guessMapping(head));
     setLineChoices({});
+  }
+
+  function suggestWithAi() {
+    setAiNote(null);
+    startTransition(async () => {
+      const result = await aiSuggestImport(headers, lineValues.map((v) => v.value));
+      if (!result.ok) {
+        setAiNote({ ok: false, text: result.error });
+        return;
+      }
+      setPreview(null);
+      setMapping(result.value.mapping);
+      setLineChoices(Object.fromEntries(Object.entries(result.value.lines).map(([value, line]) => [lineKey(value), line as LineChoices[string]])));
+      setAiRound((r) => r + 1);
+      setAiNote({ ok: true, text: "Suggestions filled in. Check each column and policy type before checking the file." });
+    });
   }
 
   function setField(field: ImportField, value: string) {
@@ -113,9 +133,16 @@ export function ImportWizard() {
         <section aria-labelledby="step2" className="flex flex-col gap-3">
           <h2 id="step2" className="text-lg font-semibold">2. Match the columns</h2>
           <p className="text-sm text-slate-600 dark:text-slate-400">Guessed from the headings. Change any that are wrong; leave a field as &quot;Not in file&quot; if the report doesn&apos;t have it.</p>
+          {ai ? (
+            <div className="flex flex-col gap-1">
+              <button type="button" className={SECONDARY} disabled={pending} onClick={suggestWithAi}>{pending ? "Asking…" : "Suggest matches with AI"}</button>
+              <p className="text-xs text-slate-500">Sends only the column headings and policy-type names, never client rows.</p>
+              {aiNote ? <p role={aiNote.ok ? "status" : "alert"} className={`text-sm ${aiNote.ok ? "" : "text-red-700 dark:text-red-400"}`}>{aiNote.text}</p> : null}
+            </div>
+          ) : null}
           <div className="grid gap-3 sm:grid-cols-2">
             {IMPORT_FIELDS.map((f) => (
-              <SelectField key={`${fileName}-${f.key}`} id={`map-${f.key}`} name={`map-${f.key}`} label={f.label} options={columnOptions}
+              <SelectField key={`${fileName}-${aiRound}-${f.key}`} id={`map-${f.key}`} name={`map-${f.key}`} label={f.label} options={columnOptions}
                 defaultValue={mapping[f.key] === undefined ? "" : String(mapping[f.key])} placeholder="Not in file"
                 onChange={(v) => setField(f.key, v)} />
             ))}
@@ -126,7 +153,7 @@ export function ImportWizard() {
             <fieldset className="flex flex-col gap-2 rounded-md border border-slate-200 p-3 dark:border-slate-700">
               <legend className="px-1 text-sm font-medium">Policy types in the file</legend>
               {lineValues.map((v) => (
-                <SelectField key={v.value} id={`line-${lineKey(v.value)}`} name={`line-${lineKey(v.value)}`}
+                <SelectField key={`${aiRound}-${v.value}`} id={`line-${lineKey(v.value)}`} name={`line-${lineKey(v.value)}`}
                   label={`"${v.value}" (${v.count} row${v.count === 1 ? "" : "s"})`} options={lineOptions}
                   defaultValue={lineChoices[lineKey(v.value)] ?? v.guess ?? ""} placeholder="Choose a line" required
                   onChange={(choice) => { setPreview(null); setLineChoices((c) => ({ ...c, [lineKey(v.value)]: choice as LineChoices[string] })); }} />

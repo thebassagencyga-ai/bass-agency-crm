@@ -26,7 +26,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 16 | Inactivity sign-out + email/text via device apps | 15 | APPROVED (2026-10-17) |
 | 17 | Tags + merge duplicate contacts | 16 | APPROVED (2026-10-17) |
 | 18 | Calendar feed for tasks | 17 | APPROVED (2026-10-17) |
-| 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | NOT STARTED |
+| 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | READY FOR REVIEW (built, not connected) |
 
 ---
 
@@ -499,6 +499,24 @@ link (ADR-034). Owner decisions: "task — client name"; open tasks only.
 - All tests green; deploy verification knows exactly two anonymous functions.
 
 **Status 2026-10-17:** built, APPROVED and deployed (migration applied, smoke test 18/18); see PROGRESS.md.
+
+---
+
+## Phase 19 — AI helpers (built, not connected)
+**Objective.** Four AI helpers that only suggest — draft messages, notes → activity, a daily
+briefing, import clean-up — under a $10/month cap, sending the minimum data (ADR-035). Owner
+decision: build now, hold off on connecting.
+
+**Acceptance criteria**
+- With no API key everything AI is hidden and nothing calls Anthropic; Settings explains how to
+  connect.
+- Each helper returns a suggestion the user reviews; no helper writes CRM records.
+- The cap is checked before every call; usage (numbers only) is recorded; refusals and errors
+  are handled; sensitive typed text is refused; only the listed fields are sent.
+- All tests green; the key cannot reach the browser bundle.
+
+**Status 2026-10-17:** READY FOR REVIEW; see PROGRESS.md. Connecting is a later owner step
+(runbook §4d).
 
 ---
 

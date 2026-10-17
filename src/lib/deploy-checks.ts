@@ -4,6 +4,7 @@
 /** Every table the CRM migrations create in the public schema. */
 export const CRM_TABLES = [
   "activities",
+  "ai_usage",
   "audit_log",
   "automation_rules",
   "calendar_feeds",

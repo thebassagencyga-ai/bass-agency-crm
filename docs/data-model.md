@@ -156,6 +156,12 @@ stored), `enabled` / `disabled_at` (one enabled per agent), `last_fetched_at` (u
 hourly by the feed). Users read their own rows and turn a link off; links are created only by
 `rotate_calendar_link()`.
 
+### ai_usage (Phase 19)
+One row per AI helper call: `job` (draft_message | notes_to_activity | daily_briefing |
+import_cleanup), `model`, `input_tokens`, `output_tokens`, `cost_usd` (priced conservatively).
+No prompt or answer text. Users insert and read their own rows only (no update or delete), so a
+recorded cost always counts toward the monthly cap.
+
 ### audit_log
 Append-only, written by trigger on contacts, opportunities, tasks, activities and
 automation_rules: actor, table, record, action, and for updates only the changed columns.
