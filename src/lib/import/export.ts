@@ -3,7 +3,7 @@ export const EXPORT_DATASETS = {
   contacts: {
     label: "Contacts",
     table: "contacts",
-    select: "id, contact_type, first_name, last_name, business_name, relationship_status, email, phone, alt_phone, address_line1, address_line2, city, state, postal_code, preferred_contact_method, lead_source, referred_by_contact_id, google_review_left_on, notes, archived_at, created_at",
+    select: "id, contact_type, first_name, last_name, business_name, relationship_status, email, phone, alt_phone, address_line1, address_line2, city, state, postal_code, preferred_contact_method, lead_source, referred_by_contact_id, google_review_left_on, notes, tags, merged_into_contact_id, archived_at, created_at",
     columns: [
       { key: "name", label: "Name" }, { key: "contact_type", label: "Type" }, { key: "first_name", label: "First name" },
       { key: "last_name", label: "Last name" }, { key: "business_name", label: "Business name" },
@@ -13,7 +13,8 @@ export const EXPORT_DATASETS = {
       { key: "postal_code", label: "ZIP" }, { key: "preferred_contact_method", label: "Preferred contact" },
       { key: "lead_source", label: "Lead source" }, { key: "referred_by", label: "Referred by" },
       { key: "google_review_left_on", label: "Google review left on" }, { key: "notes", label: "Notes" },
-      { key: "archived", label: "Archived" }, { key: "created_at", label: "Added" },
+      { key: "tag_list", label: "Tags" }, { key: "archived", label: "Archived" }, { key: "merged_into", label: "Merged into" },
+      { key: "created_at", label: "Added" },
     ],
   },
   opportunities: {

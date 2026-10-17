@@ -11,6 +11,7 @@ export interface ContactListParams {
   type: ContactType | null;
   status: RelationshipStatus | null;
   leadSource: string | null;
+  tag: string | null;
   archived: (typeof ARCHIVE_FILTERS)[number];
   sort: (typeof CONTACT_SORTS)[number];
   page: number;
@@ -30,6 +31,7 @@ export function parseContactListParams(raw: Raw): ContactListParams {
     type: oneOf(first(raw.type), CONTACT_TYPES),
     status: oneOf(first(raw.status), RELATIONSHIP_STATUSES),
     leadSource: source || null,
+    tag: first(raw.tag).trim().slice(0, 40) || null,
     archived: oneOf(first(raw.archived), ARCHIVE_FILTERS) ?? "active",
     sort: oneOf(first(raw.sort), CONTACT_SORTS) ?? "name",
     page: Number.isFinite(page) && page >= 1 && page <= 1000 ? page : 1,

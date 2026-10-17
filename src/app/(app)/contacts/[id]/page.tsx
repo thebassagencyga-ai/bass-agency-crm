@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArchivedBadge, StatusBadge } from "@/components/contacts/badges";
+import { ArchivedBadge, MergedBadge, StatusBadge, TagList } from "@/components/contacts/badges";
 import { requireFullSession } from "@/lib/auth/require";
-import { getContact, getReferrals } from "@/lib/contacts/data";
+import { findDuplicates, getContact, getReferrals } from "@/lib/contacts/data";
 import { contactDisplayName, contactPersonName } from "@/lib/contacts/format";
 import { CONTACT_METHOD_LABELS } from "@/lib/contacts/types";
 import { formatDateOnly, formatInstantDate } from "@/lib/dates";
@@ -40,6 +40,7 @@ const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   restored: { text: "Contact restored.", tone: "ok" },
   detailsaved: { text: "Saved.", tone: "ok" },
   detailremoved: { text: "Removed. It is kept in the history, not deleted.", tone: "ok" },
+  merged: { text: "Contacts merged. Everything from the duplicate is now here; the duplicate is archived.", tone: "ok" },
   error: { text: "That didn't work. Please try again.", tone: "error" },
 };
 
@@ -52,7 +53,8 @@ export default async function ContactPage({
   const contact = await getContact(supabase, id);
   if (!contact) notFound();
 
-  const [referrer, referrals, opportunities, stages, tasks, activities, profile, household, vehicles] = await Promise.all([
+  const merged = contact.merged_into_contact_id;
+  const [referrer, referrals, opportunities, stages, tasks, activities, profile, household, vehicles, mergedInto, duplicates] = await Promise.all([
     contact.referred_by_contact_id ? getContact(supabase, contact.referred_by_contact_id) : Promise.resolve(null),
     getReferrals(supabase, contact.id),
     listForContact(supabase, contact.id),
@@ -62,7 +64,11 @@ export default async function ContactPage({
     getProfile(supabase, userId),
     listHousehold(supabase, contact.id),
     listVehicles(supabase, contact.id),
+    merged ? getContact(supabase, merged) : Promise.resolve(null),
+    // Possible duplicates still active, for the merge hint (Phase 17).
+    merged || contact.archived_at ? Promise.resolve([]) : findDuplicates(supabase, contact.email, contact.phone, contact.id),
   ]);
+  const activeDuplicates = duplicates.filter((d) => !d.archived);
   const today = todayInZone(profile.time_zone);
   const prompts = await crossSellPrompts(supabase, today, { contactId: contact.id });
   const openTasks = tasks.filter((t) => t.status === "open");
@@ -115,6 +121,7 @@ export default async function ContactPage({
     ["Address", address || "—"],
     ["Prefers", contact.preferred_contact_method ? CONTACT_METHOD_LABELS[contact.preferred_contact_method] : "—"],
     ["Lead source", contact.lead_source ?? "—"],
+    ["Tags", contact.tags.length > 0 ? <TagList tags={contact.tags} linked /> : "—"],
     ["Referred by", referrer ? <Link href={`/contacts/${referrer.id}`} className="inline-flex min-h-11 min-w-11 items-center underline">{contactDisplayName(referrer)}</Link> : "—"],
     ["Google review", contact.google_review_left_on ? `Left on ${formatDateOnly(contact.google_review_left_on)}` : "Not recorded"],
     ["Added", formatInstantDate(contact.created_at)],
@@ -134,9 +141,28 @@ export default async function ContactPage({
         <h1 className="text-2xl font-semibold break-words">{contactDisplayName(contact)}</h1>
         <div className="flex gap-1">
           <StatusBadge status={contact.relationship_status} />
-          {contact.archived_at ? <ArchivedBadge /> : null}
+          {merged ? <MergedBadge /> : contact.archived_at ? <ArchivedBadge /> : null}
         </div>
-        <div className="flex flex-wrap gap-2">
+        {merged ? (
+          <p role="status" className="rounded-md bg-slate-100 p-3 text-sm dark:bg-slate-800">
+            This contact was merged into{" "}
+            <Link href={`/contacts/${merged}`} className="font-medium underline">{mergedInto ? contactDisplayName(mergedInto) : "another contact"}</Link>.
+            Its opportunities, tasks, history, household and vehicles are there now. This record is kept for reference.
+          </p>
+        ) : null}
+        {activeDuplicates.length > 0 ? (
+          <div role="note" className="flex flex-col gap-1 rounded-md border border-amber-400 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">
+            <p className="font-medium">Possible duplicate (same email or phone):</p>
+            <ul className="flex flex-col">
+              {activeDuplicates.map((d) => (
+                <li key={d.id}>
+                  <Link href={`/contacts/${contact.id}/merge?with=${d.id}`} className="inline-flex min-h-11 items-center underline">Compare and merge with {d.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        {merged ? null : <div className="flex flex-wrap gap-2">
           <Link href={`/contacts/${contact.id}/edit`} className="flex min-h-11 items-center rounded-md bg-slate-900 px-4 font-medium text-white dark:bg-slate-100 dark:text-slate-900">Edit</Link>
           {contact.archived_at ? (
             <form action={setContactArchived}>
@@ -155,7 +181,10 @@ export default async function ContactPage({
               </form>
             </details>
           )}
-        </div>
+          {contact.archived_at ? null : (
+            <Link href={`/contacts/${contact.id}/merge`} className="flex min-h-11 items-center rounded-md border border-slate-400 px-4 font-medium">Merge…</Link>
+          )}
+        </div>}
       </div>
 
       <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-[10rem_1fr]">

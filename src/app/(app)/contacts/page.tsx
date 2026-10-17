@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArchivedBadge, StatusBadge } from "@/components/contacts/badges";
+import { ArchivedBadge, MergedBadge, StatusBadge, TagList } from "@/components/contacts/badges";
 import { requireFullSession } from "@/lib/auth/require";
 import { contactDisplayName, contactPersonName } from "@/lib/contacts/format";
-import { leadSourceOptions, listContacts } from "@/lib/contacts/data";
+import { knownTags, leadSourceOptions, listContacts } from "@/lib/contacts/data";
 import { parseContactListParams, type ContactListParams } from "@/lib/contacts/params";
 import { RELATIONSHIP_LABELS, RELATIONSHIP_STATUSES } from "@/lib/contacts/types";
 
@@ -18,6 +18,7 @@ function pageHref(p: ContactListParams, page: number): string {
   if (p.type) qs.set("type", p.type);
   if (p.status) qs.set("status", p.status);
   if (p.leadSource) qs.set("source", p.leadSource);
+  if (p.tag) qs.set("tag", p.tag);
   if (p.archived !== "active") qs.set("archived", p.archived);
   if (p.sort !== "name") qs.set("sort", p.sort);
   if (page > 1) qs.set("page", String(page));
@@ -28,8 +29,8 @@ function pageHref(p: ContactListParams, page: number): string {
 export default async function ContactsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const params = parseContactListParams(await searchParams);
   const { supabase } = await requireFullSession();
-  const [{ rows, hasMore }, sources] = await Promise.all([listContacts(supabase, params), leadSourceOptions(supabase)]);
-  const filtered = Boolean(params.q || params.type || params.status || params.leadSource || params.archived !== "active");
+  const [{ rows, hasMore }, sources, tags] = await Promise.all([listContacts(supabase, params), leadSourceOptions(supabase), knownTags(supabase)]);
+  const filtered = Boolean(params.q || params.type || params.status || params.leadSource || params.tag || params.archived !== "active");
 
   return (
     <section className="flex max-w-4xl flex-col gap-4">
@@ -69,6 +70,15 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
                 {sources.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
             </label>
+            {tags.length > 0 || params.tag ? (
+              <label className="flex flex-col gap-1 text-sm">Tag
+                <select name="tag" defaultValue={tags.find((t) => t.tag.toLowerCase() === params.tag?.toLowerCase())?.tag ?? params.tag ?? ""} className={CONTROL}>
+                  <option value="">All</option>
+                  {params.tag && !tags.some((t) => t.tag.toLowerCase() === params.tag?.toLowerCase()) ? <option value={params.tag}>{params.tag}</option> : null}
+                  {tags.map((t) => <option key={t.tag} value={t.tag}>{t.tag} ({t.contact_count})</option>)}
+                </select>
+              </label>
+            ) : null}
             <label className="flex flex-col gap-1 text-sm">Show
               <select name="archived" defaultValue={params.archived} className={CONTROL}>
                 <option value="active">Active contacts</option><option value="archived">Archived only</option><option value="all">All</option>
@@ -86,6 +96,13 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
           </div>
         </details>
       </form>
+
+      {params.tag ? (
+        <p className="flex flex-wrap items-center gap-2 text-sm" role="status">
+          Tagged <span className="rounded-full bg-sky-100 px-2 py-0.5 font-medium text-sky-900 dark:bg-sky-900 dark:text-sky-100">{params.tag}</span>
+          <Link href={pageHref({ ...params, tag: null }, 1)} className="inline-flex min-h-11 items-center underline">Show all tags</Link>
+        </p>
+      ) : null}
 
       {rows.length === 0 ? (
         <div className="rounded-md border border-dashed border-slate-300 p-6 text-center dark:border-slate-600">
@@ -105,12 +122,13 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
                   <span className="flex flex-1 flex-col">
                     <span className="font-medium">{contactDisplayName(c)}</span>
                     {person ? <span className="text-sm text-slate-600 dark:text-slate-400">{person}</span> : null}
+                    {c.tags.length > 0 ? <TagList tags={c.tags} /> : null}
                   </span>
                   <span className="text-sm text-slate-600 sm:w-40 dark:text-slate-400">{c.phone ?? ""}</span>
                   <span className="truncate text-sm text-slate-600 sm:w-56 dark:text-slate-400">{c.email ?? ""}</span>
                   <span className="flex gap-1">
                     <StatusBadge status={c.relationship_status} />
-                    {c.archived_at ? <ArchivedBadge /> : null}
+                    {c.merged_into_contact_id ? <MergedBadge /> : c.archived_at ? <ArchivedBadge /> : null}
                   </span>
                 </Link>
               </li>

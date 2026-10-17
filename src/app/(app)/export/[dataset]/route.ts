@@ -37,6 +37,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ dat
     contact: names.get(r.contact_id as string) ?? "",
     referred_by: r.referred_by_contact_id ? names.get(r.referred_by_contact_id as string) ?? "" : "",
     archived: r.archived_at ? "yes" : "",
+    tag_list: Array.isArray(r.tags) ? (r.tags as string[]).join(", ") : "",
+    merged_into: r.merged_into_contact_id ? names.get(r.merged_into_contact_id as string) ?? "" : "",
     created_at: instant(r.created_at), closed_at: instant(r.closed_at), completed_at: instant(r.completed_at), occurred_at: instant(r.occurred_at),
   }));
 

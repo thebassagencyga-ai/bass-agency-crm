@@ -13,15 +13,26 @@ import { siteUrl } from "@/lib/env";
 import { getIntakeLink } from "@/lib/intake/data";
 import { EXPORT_DATASETS, type ExportDataset } from "@/lib/import/export";
 import { getProfile } from "@/lib/tasks/data";
+import { knownTags } from "@/lib/contacts/data";
+import { MAX_TAG_LENGTH } from "@/lib/contacts/tags";
+import { renameTag } from "./actions";
 
 export const metadata: Metadata = { title: "Settings · The Bass Agency CRM" };
+
+const TAG_NOTICES: Record<string, { text: string; ok: boolean }> = {
+  renamed: { text: "Tag renamed on every contact.", ok: true },
+  removed: { text: "Tag removed from every contact.", ok: true },
+  invalid: { text: `Enter a new name (up to ${MAX_TAG_LENGTH} characters, no commas).`, ok: false },
+  error: { text: "That didn't work. Please try again.", ok: false },
+};
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const query = await searchParams;
   const { supabase, userId, email } = await requireFullSession();
-  const [profile, rules, crossSell, intakeLink] = await Promise.all([
-    getProfile(supabase, userId), getRules(supabase), getCrossSellRules(supabase), getIntakeLink(supabase),
+  const [profile, rules, crossSell, intakeLink, tags] = await Promise.all([
+    getProfile(supabase, userId), getRules(supabase), getCrossSellRules(supabase), getIntakeLink(supabase), knownTags(supabase),
   ]);
+  const tagNotice = query.tags ? TAG_NOTICES[query.tags] : undefined;
   return (
     <section className="flex max-w-xl flex-col gap-6">
       <h1 className="text-2xl font-semibold">Settings</h1>
@@ -47,6 +58,47 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </li>
           ))}
         </ul>
+      </section>
+      <section id="tags" aria-labelledby="tags-heading" className="flex flex-col gap-2">
+        <h2 id="tags-heading" className="text-lg font-semibold">Tags</h2>
+        {tagNotice ? (
+          <p role={tagNotice.ok ? "status" : "alert"} className={`rounded-md p-3 text-sm ${tagNotice.ok ? "bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200" : "bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200"}`}>{tagNotice.text}</p>
+        ) : null}
+        {tags.length === 0 ? (
+          <p className="text-sm text-slate-600 dark:text-slate-400">No tags yet. Add tags such as VIP or Church when you edit a contact.</p>
+        ) : (
+          <ul aria-label="Tags in use" className="flex flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+            {tags.map((t, i) => (
+              <li key={t.tag} className="p-3">
+                <details>
+                  <summary className="flex min-h-11 cursor-pointer items-center gap-2 font-medium">
+                    {t.tag} <span className="text-sm font-normal text-slate-600 dark:text-slate-400">({t.contact_count} contact{t.contact_count === 1 ? "" : "s"})</span>
+                  </summary>
+                  <div className="mt-2 flex flex-col gap-3">
+                    <Link href={`/contacts?tag=${encodeURIComponent(t.tag)}`} className="flex min-h-11 w-fit items-center text-sm underline">Show these contacts</Link>
+                    <form action={renameTag} className="flex flex-col gap-1">
+                      <input type="hidden" name="from" value={t.tag} />
+                      <label htmlFor={`tag-rename-${i}`} className="text-sm font-medium">New name</label>
+                      <div className="flex gap-2">
+                        <input id={`tag-rename-${i}`} name="to" defaultValue={t.tag} maxLength={MAX_TAG_LENGTH} required
+                          className="min-h-11 min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-base dark:border-slate-600 dark:bg-slate-900" />
+                        <button type="submit" className="min-h-11 rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">Rename</button>
+                      </div>
+                      <p className="text-xs text-slate-500">Renaming to a tag you already use combines the two.</p>
+                    </form>
+                    <form action={renameTag}>
+                      <input type="hidden" name="from" value={t.tag} />
+                      <input type="hidden" name="remove" value="1" />
+                      <button type="submit" className="min-h-11 rounded-md border border-red-700 px-4 font-medium text-red-800 dark:border-red-400 dark:text-red-300">
+                        Remove from {t.contact_count} contact{t.contact_count === 1 ? "" : "s"}
+                      </button>
+                    </form>
+                  </div>
+                </details>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
       <section aria-labelledby="messages-heading" className="flex flex-col gap-2">
         <h2 id="messages-heading" className="text-lg font-semibold">Review and referral messages</h2>

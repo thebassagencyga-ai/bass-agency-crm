@@ -761,6 +761,41 @@ cookie plus refresh-token revocation); sending email/SMS from the server (out of
 
 ---
 
+## ADR-033 — Tags on contacts and merging duplicate contacts
+
+**Status:** Proposed — built in Phase 17, awaiting owner review
+
+**Decision.**
+- **Tags** are a text array on the contact (`contacts.tags`), not separate tables: they inherit
+  the contacts table's RLS and audit, export with the contact, and need no delete privilege to
+  remove. Up to 20 per contact, 1–40 characters, no repeats ignoring case (a trigger checks;
+  CHECK constraints cannot run the subquery and private functions are not callable by users).
+  A tag typed in another case takes the spelling already in use. Tags filter the contact list;
+  Settings lists them with counts and renames or removes a tag on every contact
+  (`rename_tag`).
+- **Merge** (`merge_contacts(keep, merge)`, invoker, one transaction): the user picks the
+  duplicate (suggested by same email/phone, or searched) and which contact to keep, sees the
+  merged result first, then confirms. The kept contact's values win; blanks are filled from the
+  duplicate (address only as a whole); a different phone goes to "other phone"; notes are
+  combined with a marker; tags added together (≤ 20); status client > former client > prospect;
+  earliest Google review date. Opportunities, tasks, activities, household, vehicles, intake
+  requests, cross-sell dismissals (one per rule) and referrals move to the kept contact. The
+  duplicate is archived with `merged_into_contact_id` and is otherwise unchanged, so nothing is
+  lost; it cannot be restored or un-merged, is hidden from duplicate warnings and the referrer
+  picker, and links to the kept contact.
+- To move an opportunity with its tasks and activities, the composite keys
+  tasks/activities → opportunities (id, contact_id) now cascade updates (deletes still restrict).
+- An import whose contact or policies were merged can no longer be undone (it was changed).
+
+**Not done.** No un-merge (the duplicate's record and the audit log show what moved); open
+automatic tasks from both contacts are kept, so the owner may cancel a repeated one; no
+field-by-field choice (the owner can edit the kept contact afterwards).
+
+**Alternatives.** `tags` + `contact_tags` tables (more RLS, grants and tests for no gain at this
+size); deleting the duplicate (against the "preserve, don't delete" rule).
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 - **Tabled (owner, 2026-10-16): collecting dates of birth and driver's license numbers on the

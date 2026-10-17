@@ -53,7 +53,9 @@ needs a business name. Email, phone, address (2-letter state, US ZIP), preferred
 method, lead source (free text), `relationship_status` (prospect | client | former_client),
 `referred_by_contact_id` (another of the same agent's contacts; never itself),
 `google_review_left_on` (recorded by the agent), notes (≤ 5,000 chars), `archived_at`
-(archive instead of delete).
+(archive instead of delete). Phase 17: `tags` (text array: ≤ 20 tags of 1–40 characters, no
+repeats ignoring case; checked by a trigger) and `merged_into_contact_id` (set when merged into
+another contact; such a contact stays archived and cannot be un-merged).
 
 ### opportunities
 Many per contact, in any mix of product lines.
@@ -161,8 +163,11 @@ granted to `authenticated` only.
 
 | Function | Purpose |
 |---|---|
-| `search_contacts(query, type, status, lead_source, archived, sort, limit, offset)` | Contact list: name (either order), business, email (escaped ILIKE) or phone digits (≥ 3); filters; sort `name` / `recent` / `updated`; limit capped at 100. |
-| `find_possible_duplicates(email, phone, exclude_id)` | Up to 5 contacts with the same email (case-insensitive) or the same last 10 phone digits (phone or alt phone), archived included. |
+| `search_contacts(query, type, status, lead_source, archived, sort, limit, offset, tag)` | Contact list: name (either order), business, email (escaped ILIKE) or phone digits (≥ 3); filters incl. a tag (case-insensitive, Phase 17); sort `name` / `recent` / `updated`; limit capped at 100. |
+| `find_possible_duplicates(email, phone, exclude_id)` | Up to 5 contacts with the same email (case-insensitive) or the same last 10 phone digits (phone or alt phone), archived included, merged contacts excluded. |
+| `contact_tags()` | Tags in use with how many unmerged contacts carry each; one spelling per tag ignoring case (Phase 17). |
+| `rename_tag(from, to)` | Renames a tag on every one of the caller's contacts (no repeats if the contact already has the new name), or removes it when `to` is empty; returns contacts changed (Phase 17). |
+| `merge_contacts(keep, merge)` | One transaction (Phase 17, ADR-033): fills the kept contact's blanks from the duplicate, combines notes and tags, keeps the stronger status; moves opportunities (their tasks and activities follow by ON UPDATE CASCADE), other tasks and activities, household, vehicles, intake requests, cross-sell dismissals and referrals; archives the duplicate with `merged_into_contact_id`. Returns what moved. |
 | `contact_lead_sources()` | Lead sources already used, one per case-insensitive spelling (the first one used). |
 | `search_tasks(view, today, product_line, priority, category, contact_id, limit, offset)` | Task tabs: `overdue` / `today` / `upcoming` (open tasks by due date vs. the `today` the app passes, computed in the user's zone) and `done` (completed or cancelled, newest first); with contact name/phone and the linked opportunity's product line; limit capped at 200. |
 | `task_counts(today)` | Open task counts for overdue, due today and upcoming. |
@@ -190,7 +195,8 @@ cross-sell matching shared by `cross_sell_prompts` and `report_summary` — all 
 
 ## Deletion and history
 
-No foreign key cascades. The API roles have no DELETE privilege on any table: contacts are
+No delete cascades. (Since Phase 17 the task/activity → opportunity keys cascade *updates*, so
+a merged opportunity's tasks and activities move with it.) The API roles have no DELETE privilege on any table: contacts are
 archived, opportunities closed, tasks completed or cancelled, and activities kept. A user
 who owns CRM records cannot be removed from `auth.users` without first dealing with their
 data (deliberate safeguard).

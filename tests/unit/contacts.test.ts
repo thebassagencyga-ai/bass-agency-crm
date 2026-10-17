@@ -92,17 +92,17 @@ describe("contactDisplayName", () => {
 describe("parseContactListParams", () => {
   it("defaults to active contacts sorted by name, first page", () => {
     expect(parseContactListParams({})).toEqual({
-      q: "", type: null, status: null, leadSource: null, archived: "active", sort: "name", page: 1,
+      q: "", type: null, status: null, leadSource: null, tag: null, archived: "active", sort: "name", page: 1,
     });
   });
 
   it("accepts valid values and ignores invalid ones instead of failing", () => {
     expect(
-      parseContactListParams({ q: "  pat  ", type: "business", status: "client", source: "Referral", archived: "all", sort: "recent", page: "3" }),
-    ).toEqual({ q: "pat", type: "business", status: "client", leadSource: "Referral", archived: "all", sort: "recent", page: 3 });
+      parseContactListParams({ q: "  pat  ", type: "business", status: "client", source: "Referral", tag: " VIP ", archived: "all", sort: "recent", page: "3" }),
+    ).toEqual({ q: "pat", type: "business", status: "client", leadSource: "Referral", tag: "VIP", archived: "all", sort: "recent", page: 3 });
     expect(
       parseContactListParams({ type: "robot", status: "x", archived: "sometimes", sort: "drop table", page: "-4" }),
-    ).toEqual({ q: "", type: null, status: null, leadSource: null, archived: "active", sort: "name", page: 1 });
+    ).toEqual({ q: "", type: null, status: null, leadSource: null, tag: null, archived: "active", sort: "name", page: 1 });
   });
 
   it("limits the search text length", () => {

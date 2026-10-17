@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import type { FormState } from "@/components/form";
 import { requireFullSession } from "@/lib/auth/require";
 import { CONTACT_FORM_FIELDS, contactFormSchema } from "@/lib/contacts/schema";
-import { findDuplicates, isUuid, summarize, type ContactSummary } from "@/lib/contacts/data";
+import { findDuplicates, isUuid, knownTags, summarize, type ContactSummary } from "@/lib/contacts/data";
 import type { Contact } from "@/lib/contacts/types";
 
 // Every action re-checks the full (two-step) session on the server and writes through the
@@ -41,7 +41,9 @@ export async function saveContact(_prev: FormState, formData: FormData): Promise
     for (const issue of parsed.error.issues) fieldErrors[String(issue.path[0] ?? "form")] ??= issue.message;
     return { fieldErrors, values };
   }
-  const data = parsed.data;
+  // A tag typed in another case joins the existing one ("vip" → "VIP").
+  const known = new Map((await knownTags(supabase)).map((t) => [t.tag.toLowerCase(), t.tag]));
+  const data = { ...parsed.data, tags: parsed.data.tags.map((t) => known.get(t.toLowerCase()) ?? t) };
   // Text typed in the referrer search but no contact tapped: never drop it silently.
   const referrerSearch = formData.get("referred_by_search");
   if (data.referred_by_contact_id === null && typeof referrerSearch === "string" && referrerSearch.trim() !== "") {
@@ -101,7 +103,23 @@ export async function searchReferrers(query: string, excludeId: string | null): 
   });
   if (error) return [];
   return ((data ?? []) as Contact[])
-    .filter((c) => c.id !== excludeId)
+    .filter((c) => c.id !== excludeId && !c.merged_into_contact_id)
     .slice(0, 8)
     .map(summarize);
+}
+
+/** Merge a duplicate into the contact to keep (Phase 17). One database transaction. */
+export async function mergeContacts(formData: FormData): Promise<void> {
+  const { supabase } = await requireFullSession();
+  const keep = String(formData.get("keep") ?? "");
+  const dup = String(formData.get("merge") ?? "");
+  const from = String(formData.get("from") ?? "");
+  if (!isUuid(keep) || !isUuid(dup) || !isUuid(from)) redirect("/contacts");
+  const { error } = await supabase.rpc("merge_contacts", { p_keep: keep, p_merge: dup });
+  if (error) {
+    const reason = error.message === "already_merged" ? "already" : error.message === "keep_archived" ? "archived" : "failed";
+    redirect(`/contacts/${from}/merge?with=${from === keep ? dup : keep}&keep=${keep}&error=${reason}`);
+  }
+  revalidatePath("/contacts");
+  redirect(`/contacts/${keep}?merged=1`);
 }

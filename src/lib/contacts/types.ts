@@ -27,6 +27,10 @@ export interface Contact {
   referred_by_contact_id: string | null;
   google_review_left_on: string | null;
   notes: string | null;
+  /** Labels such as "VIP" (Phase 17). */
+  tags: string[];
+  /** Set when this contact was merged into another (Phase 17); it then stays archived. */
+  merged_into_contact_id: string | null;
   archived_at: string | null;
   created_at: string;
   updated_at: string;

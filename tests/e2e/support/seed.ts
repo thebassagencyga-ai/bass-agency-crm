@@ -37,7 +37,7 @@ export async function seededOwner(label: string, appUrl: string): Promise<Seeded
   const referrer = await insert("contacts", { contact_type: "individual", first_name: "Robin", last_name: "Example", relationship_status: "client" });
   const contactId = await insert("contacts", {
     contact_type: "individual", first_name: "Jordan", last_name: "Example", phone: "(555) 010-0123",
-    email: "jordan@example.com", city: "Carrollton", state: "GA", postal_code: "30117", lead_source: "Website",
+    email: "jordan@example.com", city: "Carrollton", state: "GA", postal_code: "30117", lead_source: "Website", tags: ["VIP", "Church"],
     referred_by_contact_id: referrer, relationship_status: "client",
   });
   await insert("contacts", { contact_type: "business", business_name: "Example Hardware LLC", phone: "(555) 010-0144" });
@@ -81,6 +81,7 @@ export function keyPages(s: SeededOwner): string[] {
     "/renewals", `/renewals/${s.policyId}`, "/reports", "/settings",
     "/intake", `/intake/${s.intakeId}`, "/intake/new",
     "/import",
+    `/contacts/${s.contactId}/merge`,
     `/contacts/${s.contactId}?message=renewal&opp=${s.policyId}&log=text_message&about=renewal`, // composer + log form open (Phase 16)
   ];
 }

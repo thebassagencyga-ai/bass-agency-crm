@@ -11,11 +11,13 @@ const statusOptions = RELATIONSHIP_STATUSES.map((s) => ({ value: s, label: RELAT
 const methodOptions = CONTACT_METHODS.map((m) => ({ value: m, label: CONTACT_METHOD_LABELS[m] }));
 
 export function ContactForm({
-  contact, referrer, leadSources,
+  contact, referrer, leadSources, knownTags = [],
 }: {
   contact: Contact | null;
   referrer: { id: string; label: string; detail: string } | null;
   leadSources: string[];
+  /** Tags already in use, shown as a hint (Phase 17). */
+  knownTags?: string[];
 }) {
   const { state, formAction, pending, onSubmit } = useActionForm(saveContact);
   const v = (name: keyof Contact): string | undefined => {
@@ -80,6 +82,11 @@ export function ContactForm({
         <Field label="Lead source" name="lead_source" required={false} defaultValue={v("lead_source")} error={err.lead_source} list="lead-sources" maxLength={100} />
         <SelectField label="Status" name="relationship_status" options={statusOptions} defaultValue={v("relationship_status") ?? "prospect"} error={err.relationship_status} required />
       </div>
+      <Field
+        label="Tags" name="tags" required={false} maxLength={900}
+        defaultValue={state.values?.tags ?? contact?.tags.join(", ")} error={err.tags}
+        hint={`Separate with commas, e.g. VIP, Church.${knownTags.length > 0 ? ` In use: ${knownTags.slice(0, 12).join(", ")}${knownTags.length > 12 ? "…" : ""}` : ""}`}
+      />
       <datalist id="lead-sources">
         {leadSources.map((s) => <option key={s} value={s} />)}
       </datalist>

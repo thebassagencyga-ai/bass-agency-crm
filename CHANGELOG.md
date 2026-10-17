@@ -2,6 +2,16 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 17 — Tags and merging duplicates (2026-10-17, ready for review)
+### Added
+- **Tags** on contacts (e.g. VIP, Church): on the contact form, the contact page and list; filter
+  the list by tag; rename or remove a tag everywhere in Settings.
+- **Merge duplicates:** "Merge…" on a contact (and a "possible duplicate" hint with the same
+  email or phone): pick which contact to keep, see the merged result, confirm. Everything moves
+  to the kept contact; the duplicate is archived and marked "merged". Nothing is deleted.
+- Contacts download includes tags and "merged into".
+- Migration `20261027120000_tags_merge.sql`.
+
 ## Phase 16 — Inactivity sign-out and text/email (2026-10-17, approved)
 ### Added
 - Signed out after **7 days without use** (with a message on the sign-in page); the

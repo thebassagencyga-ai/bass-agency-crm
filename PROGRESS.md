@@ -658,3 +658,33 @@ workers.dev site. ⏳ Owner: try Text / Email / "Log this text" on the iPhone.
 1. Merge to `main` (done by Claude).
 2. No database migration this phase.
 3. Deploy app (Cloudflare). Every device is signed out once; sign in again.
+
+## Phase 17 — Tags and merging duplicates (branch `phase-17-tags-merge`)
+Started 2026-10-17 on the owner's go-ahead ("move to next"); design in ADR-033 (merge rule:
+kept contact's values win, blanks filled from the duplicate — owner may ask for field-by-field
+choice instead).
+
+**Completed**
+- Migration `20261027120000_tags_merge.sql`: `contacts.tags` (+ trigger check, GIN index),
+  `contacts.merged_into_contact_id` (archived, final), `contact_tags`, `rename_tag`,
+  `merge_contacts`; `search_contacts` gains a tag filter; `find_possible_duplicates` skips merged
+  contacts; task/activity → opportunity keys cascade updates.
+- `src/lib/contacts/tags.ts` (parsing), `merge.ts` (preview mirroring the database rules).
+- Contact form Tags field; tags on contact page (link to filter) and list; tag filter; merged
+  badge and notice; possible-duplicate hint; `/contacts/[id]/merge` (pick, choose kept contact,
+  preview, merge); Settings → Tags (rename/remove); export columns.
+
+**Tests (2026-10-17)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build | pass |
+| Local: unit | 401 passed (6 new: tag parsing, merge preview rules) |
+| Local: database (PostgreSQL 16) | 416 passed (8 new: tag rules, counts/filter/privacy, rename/fold/remove, full merge incl. counts unchanged and audit, referrer edge case, dismissals, refusals incl. other agent/aal1/anon, import undo blocked) |
+| CI (integration + browser) | pending |
+| Production | not deployed (awaiting owner review) |
+
+**Owner actions after approval**
+1. Merge to `main`.
+2. Deploy database migrations: dry run lists only `20261027120000_tags_merge.sql`; then apply
+   (verify expects 17 tables, 22 functions).
+3. Deploy app (Cloudflare).

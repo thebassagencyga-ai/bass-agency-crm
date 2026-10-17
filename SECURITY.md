@@ -140,6 +140,7 @@ underwriting answers, detailed health information, policy documents. No file upl
 | Public sign-up refused | 2 | Verified in CI against Supabase Auth (local config); hosted setting is an owner step |
 | Session cookies HttpOnly; expired session refreshes | 2 | CI HTTP + browser tests |
 | Session ends after 7 days unused (cookie missing, old or malformed → revoked, `/login?expired=1`); code asked again after 12 hours | 16 | Unit tests (cookie parsing, expiry, refresh, `amr` freshness, routing); CI HTTP tests (3 expiry cases incl. refresh token revoked, renewal of the cookie); browser test |
+| Tags and merge act only on the caller's contacts; merge is all or nothing and deletes nothing | 17 | DB tests (`tests/db/tags-merge.test.ts`: other agent's contact refused, password-only and anonymous refused, row counts unchanged, audit written, import undo blocked); browser test |
 | Text/email never sent by the app; message text not stored | 16 | Unit tests (link encoding, no header injection via `?`/`&` in addresses); browser test checks the `sms:`/`mailto:` links and the log entry |
 | No secret key in client bundle | 2 | Verified: `check-client-bundle.mjs` (patterns locally; real key values in CI) |
 | Security headers / CSP present, nonce on every script, no CSP violations | 2 | Verified locally in workerd + Chromium; CI HTTP tests |

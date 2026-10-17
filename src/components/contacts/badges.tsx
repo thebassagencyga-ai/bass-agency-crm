@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { RELATIONSHIP_LABELS, type RelationshipStatus } from "@/lib/contacts/types";
 
 const STATUS_STYLES: Record<RelationshipStatus, string> = {
@@ -12,4 +13,27 @@ export function StatusBadge({ status }: { status: RelationshipStatus }) {
 
 export function ArchivedBadge() {
   return <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900 dark:bg-amber-900 dark:text-amber-100">Archived</span>;
+}
+
+const TAG = "rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-900 dark:bg-sky-900 dark:text-sky-100";
+
+/** A contact's tags (Phase 17). `linked`: each opens the contact list filtered by that tag. */
+export function TagList({ tags, linked = false }: { tags: readonly string[]; linked?: boolean }) {
+  return (
+    <ul aria-label="Tags" className="flex flex-wrap gap-1">
+      {tags.map((t) => (
+        <li key={t}>
+          {linked ? (
+            <Link href={`/contacts?tag=${encodeURIComponent(t)}`} className={`inline-flex min-h-11 items-center ${TAG} underline-offset-2 hover:underline`}>{t}</Link>
+          ) : (
+            <span className={TAG}>{t}</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function MergedBadge() {
+  return <span className="rounded bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-800 dark:bg-slate-700 dark:text-slate-100">Merged</span>;
 }

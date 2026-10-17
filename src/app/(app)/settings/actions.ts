@@ -1,10 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import type { FormState } from "@/components/form";
 import { ruleFormSchema, type Rule } from "@/lib/automation";
 import { requireFullSession } from "@/lib/auth/require";
 import { isUuid } from "@/lib/contacts/data";
+import { cleanTag, parseTagName } from "@/lib/contacts/tags";
 import { crossSellRuleSchema, ruleKeyFromName } from "@/lib/cross-sell";
 
 const FIELDS = [
@@ -101,4 +103,17 @@ export async function saveCrossSellRule(_prev: FormState, formData: FormData): P
   revalidatePath("/settings");
   revalidatePath("/renewals");
   return { message: "Rule added." };
+}
+
+/** Rename a tag on every contact, or remove it everywhere (Phase 17). */
+export async function renameTag(formData: FormData): Promise<void> {
+  const { supabase } = await requireFullSession();
+  const from = cleanTag(String(formData.get("from") ?? ""));
+  const remove = formData.get("remove") === "1";
+  const { name, error } = parseTagName(remove ? "" : String(formData.get("to") ?? ""));
+  if (from === "" || error || (!remove && name === "")) redirect(`/settings?tags=invalid#tags`);
+  const { error: dbError } = await supabase.rpc("rename_tag", { p_from: from, p_to: remove ? null : name });
+  if (dbError) redirect(`/settings?tags=error#tags`);
+  revalidatePath("/contacts");
+  redirect(`/settings?tags=${remove ? "removed" : "renamed"}#tags`);
 }
