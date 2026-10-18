@@ -2,6 +2,13 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 21 — Phone polish (2026-10-18, ready for review)
+### Added
+- **Bottom bar on phones:** Today, Contacts, Tasks, Renewals, and More (Intake, Opportunities,
+  Reports, Settings). Computers and tablets keep the sidebar.
+- **Find a contact** from any page: search box at the top.
+- **Call · Text · Log** bar on each contact, pinned to the top while you scroll.
+
 ## Phase 20 — Tag list (2026-10-17, approved)
 ### Changed
 - Tags are now **ticked from a list** on the contact form instead of typed. The list lives in

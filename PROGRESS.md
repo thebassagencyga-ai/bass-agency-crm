@@ -815,3 +815,28 @@ the same commit: migrations 39063733100 / 39091471296 ("Remote database is up to
 2. Deploy database migrations: dry run lists only `20261030120000_tag_options.sql`; then apply
    (verify expects 20 tables, 24 functions, 2 anonymous functions).
 3. Deploy app (Cloudflare). Settings → Tags shows the starter list plus any tags you already used.
+
+## Phase 21 — Phone polish (branch `phase-21-phone-polish`)
+Started 2026-10-18 on the owner's go-ahead ("Yes do 1-3") for the layout review's items 1–3.
+Design in ADR-037. No database changes.
+
+**Completed**
+- Phone bottom bar with More menu (`src/components/bottom-nav.tsx`, `BOTTOM_NAV` / `MORE_NAV` in
+  `src/lib/navigation.ts`); sidebar list now tablet/desktop only; bottom padding on `main`.
+- "Find a contact" header search (`src/components/header-search.tsx`) → `/contacts?q=`.
+- Contact quick actions (`src/lib/contacts/quick-actions.ts`, `src/components/contacts/quick-actions.tsx`):
+  Call · Text · Log, sticky; Text/Log open their sections (also when arriving with the `#…` link).
+
+**Tests (2026-10-18)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build | pass |
+| Local: unit | 439 passed (5 new: bottom bar / More split, current page, quick actions per contact) |
+| Local: database | not re-run (no database changes) |
+| CI | pending |
+| Production | not deployed yet |
+
+**Owner actions after approval**
+1. Merge to `main` (done by Claude).
+2. No migrations. Deploy app (Cloudflare).
+3. On the iPhone: bottom bar and More, Find a contact, Call · Text · Log on a contact.

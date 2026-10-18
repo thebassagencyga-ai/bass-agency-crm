@@ -30,6 +30,8 @@ test("sign in, set up two-step sign-in, use the app, sign out, sign back in with
   await expect(page).toHaveURL(/\/contacts$/);
   await expect(page.getByRole("heading", { name: "Contacts" })).toBeVisible();
 
+  // Phones reach Settings through "More" on the bottom bar (Phase 21).
+  await page.getByRole("button", { name: "More" }).click();
   await page.getByRole("link", { name: "Settings" }).click();
   await expect(page.locator("#main").getByText(user.email)).toBeVisible();
 

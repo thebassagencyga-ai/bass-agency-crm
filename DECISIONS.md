@@ -889,6 +889,32 @@ not text. Tags already on contacts were added to the list by the migration.
 
 ---
 
+## ADR-037 — Phone navigation, search anywhere, contact quick actions
+
+**Status:** Proposed — built in Phase 21 (owner: "Yes do 1-3", 2026-10-18), awaiting approval.
+
+**Decision.** Below tablet width (Tailwind `md`, 768 px) the eight-item scrolling nav strip is
+replaced by a fixed bottom bar with the four pages used daily — Today (dashboard), Contacts, Tasks,
+Renewals — and a "More" button whose menu holds Intake, Opportunities, Reports and Settings
+(closes on navigation, Escape or a tap outside). `main` gets bottom padding (6rem + the iPhone
+safe area) so the bar never covers content. The sidebar on wider screens is unchanged.
+
+The header gets "Find a contact": a plain GET form to `/contacts?q=` (the existing contact
+search, RLS as before), so it works before JavaScript loads. It is hidden on `/contacts`, which
+has its own search and filters.
+
+A contact page gets a Call · Text · Log bar, `position: sticky` at the top (not fixed at the
+bottom, so it doesn't stack on the bottom bar). Call is a `tel:` link (only with a usable US
+number); Text and Log open the existing "Text or email…" and "Log activity…" sections and scroll
+to them (plain anchors without JavaScript). Text is left out for archived contacts (no composer
+there) and contacts with neither a usable phone nor email; merged contacts get no bar. Nothing is
+sent or saved by the bar itself (ADR-030 unchanged).
+
+**Consequences.** No database, API or security changes. Accessible names start with the visible
+label ("Call Robin Example", "Text or email …", "Log a call or visit with …").
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 - **Tabled (owner, 2026-10-16): collecting dates of birth and driver's license numbers on the

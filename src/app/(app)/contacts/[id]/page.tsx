@@ -25,6 +25,8 @@ import { crossSellPrompts } from "@/lib/cross-sell/data";
 import { HouseholdSection, VehiclesSection } from "@/components/contacts/detail-sections";
 import { listHousehold, listVehicles } from "@/lib/contacts/details-data";
 import { MessageComposer } from "@/components/messages/message-composer";
+import { QuickActions } from "@/components/contacts/quick-actions";
+import { quickActions } from "@/lib/contacts/quick-actions";
 import { aiEnabled } from "@/lib/ai/config";
 import { LogActivityWithAi } from "@/components/ai/log-activity-with-ai";
 import { isTemplateKey, TEMPLATE_KEYS, TEMPLATES, templateForOpportunity, valuesFor } from "@/lib/messages/templates";
@@ -192,6 +194,11 @@ export default async function ContactPage({
         </div>}
       </div>
 
+      <QuickActions actions={quickActions({
+        name: contactDisplayName(contact), phone: contact.phone, email: contact.email,
+        archived: Boolean(contact.archived_at), merged: Boolean(merged),
+      })} />
+
       <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-[10rem_1fr]">
         {rows.map(([label, value]) => (
           <div key={label} className="contents">
@@ -303,7 +310,7 @@ export default async function ContactPage({
       </section>
 
       {contact.archived_at ? null : (
-        <details id="message" open={Boolean(query.message)} className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+        <details id="message" open={Boolean(query.message)} className="scroll-mt-20 rounded-md border border-slate-200 p-3 dark:border-slate-700">
           <summary className="min-h-11 cursor-pointer py-2 text-lg font-semibold">Text or email…</summary>
           <MessageComposer
             phone={contact.phone} email={contact.email}
@@ -315,7 +322,7 @@ export default async function ContactPage({
         </details>
       )}
 
-      <details id="log-activity" open={Boolean(logDefaults)} className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+      <details id="log-activity" open={Boolean(logDefaults)} className="scroll-mt-20 rounded-md border border-slate-200 p-3 dark:border-slate-700">
         <summary className="min-h-11 cursor-pointer py-2 text-lg font-semibold">Log activity…</summary>
         <LogForm
           key={logDefaults ? `${logDefaults.activity_type}-${query.about ?? ""}-${aboutOpp?.id ?? ""}` : "log"}

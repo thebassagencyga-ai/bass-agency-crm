@@ -1,3 +1,5 @@
+import { BottomNav } from "@/components/bottom-nav";
+import { HeaderSearch } from "@/components/header-search";
 import { NavLinks } from "@/components/nav-links";
 import { requireFullSession } from "@/lib/auth/require";
 import { signOut } from "../(auth)/actions";
@@ -14,12 +16,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <button type="submit" className="min-h-11 rounded-md px-3 text-sm underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600">Sign out</button>
           </form>
         </div>
-        <nav aria-label="Main">
+        <div className="md:mb-4">
+          <HeaderSearch />
+        </div>
+        {/* Phones use the bottom bar (BottomNav) instead. */}
+        <nav aria-label="Main" className="hidden md:block">
           <NavLinks />
         </nav>
         <p className="mt-4 hidden truncate text-xs text-slate-500 md:block" title={email}>{email}</p>
       </header>
-      <main id="main" className="flex-1 p-4 md:p-8">{children}</main>
+      {/* Bottom padding on phones so the fixed bottom bar never covers the end of a page. */}
+      <main id="main" className="flex-1 p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] md:p-8">{children}</main>
+      <BottomNav />
     </div>
   );
 }

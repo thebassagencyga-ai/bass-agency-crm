@@ -28,6 +28,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 18 | Calendar feed for tasks | 17 | APPROVED (2026-10-17) |
 | 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | APPROVED (2026-10-17) — built, not connected |
 | 20 | Tag list (pick tags from options) — owner request after go-live | 19 | APPROVED (2026-10-17) |
+| 21 | Phone polish (bottom bar, search anywhere, contact quick actions) | 20 | READY FOR REVIEW |
 
 ---
 
@@ -532,6 +533,23 @@ Connecting is a later owner step (runbook §4d).
 - All tests green; phone widths and Lighthouse clean.
 
 **Status 2026-10-18:** built, APPROVED and deployed (migration applied, smoke test 18/18); see PROGRESS.md.
+
+---
+
+## Phase 21 — Phone polish
+**Objective.** Faster one-handed use on the iPhone (owner: "Yes do 1-3", 2026-10-18; ADR-037).
+
+**Acceptance criteria**
+- Phones get a bottom bar: Today, Contacts, Tasks, Renewals, More (Intake, Opportunities,
+  Reports, Settings). Tablet/desktop sidebar unchanged. The bar never covers the end of a page.
+- A "Find a contact" search box in the header on every signed-in page (except the contacts list,
+  which has its own) opens the filtered contacts list.
+- Contact page: Call · Text · Log bar pinned to the top while scrolling; Text and Log open their
+  sections. Call only with a usable phone number; Text only when the contact can be messaged.
+- No database changes. All tests green; phone widths (44 px targets, no sideways scroll) and
+  Lighthouse clean.
+
+**Status 2026-10-18:** READY FOR REVIEW; see PROGRESS.md.
 
 ---
 
