@@ -802,6 +802,14 @@ consistency"); owner chose: new tags only in Settings; load a starter list. Desi
 
 **Approved by the owner 2026-10-17** ("Approved").
 
+**Production deploy (2026-10-17/18, commit d26012f):** migrations dry run 39062241954 listed only
+`20261030120000_tag_options.sql`; apply run 39062302303 applied it and verification passed (20
+tables, 20 two-step policies, 24 Data API functions, exactly 2 anonymous functions, no other
+anonymous access); Deploy app 39063787483 followed. Later repeat runs were no-ops or redeploys of
+the same commit: migrations 39063733100 / 39091471296 ("Remote database is up to date") /
+39098393485 (verification passed again), Deploy app 39098478260 (smoke test 18/18).
+⏳ Owner: Settings → Tags (prune or rename the starter list), tick tags on a contact.
+
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
 2. Deploy database migrations: dry run lists only `20261030120000_tag_options.sql`; then apply

@@ -531,7 +531,7 @@ Connecting is a later owner step (runbook §4d).
   use kept and added to the list.
 - All tests green; phone widths and Lighthouse clean.
 
-**Status 2026-10-17:** built and APPROVED by the owner; see PROGRESS.md. ⏳ Deploy.
+**Status 2026-10-18:** built, APPROVED and deployed (migration applied, smoke test 18/18); see PROGRESS.md.
 
 ---
 
