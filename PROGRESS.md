@@ -1089,6 +1089,15 @@ Started 2026-10-19 after the owner approved the design ("Yes, any mix", "Keep to
 
 **Approved by the owner 2026-10-19** ("Approved").
 
+**Production deploy (2026-10-19, commit cae83eb):** CI on `main` 39301301355 passed; Nightly
+backup run by hand first, 39303713324 (encrypted copy made); migrations dry run 39304043753
+listed only `20261102120000_custom_pipelines.sql`; apply run 39304190847 applied it (the
+migration's own check that every deal was moved passed, or it would have rolled back) and
+verification passed (30 template stages, 23 tables, 23 two-step policies, 25 Data API functions
+incl. `save_pipeline`, exactly 2 anonymous functions, automation engine safe); Deploy app
+39304344818 succeeded, smoke test passed. ⏳ Owner: iPhone check (every deal where it was; add a
+pipeline in Settings → Pipelines).
+
 **Owner actions after approval**
 1. Merge to `main` (Claude).
 2. Run **Nightly backup** by hand first (this migration touches every deal).
