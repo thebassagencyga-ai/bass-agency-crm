@@ -61,13 +61,15 @@ export interface Opportunity {
   loss_reason: LossReason | null;
   loss_reason_detail: string | null;
   closed_at: string | null;
+  /** Entered as a policy the client already had, not a sale made in the CRM (ADR-042). */
+  existing_policy: boolean;
   cycle: number;
   created_at: string;
   updated_at: string;
 }
 
 /** Row returned by search_opportunities: the opportunity plus stage and contact names. */
-export interface OpportunityListRow extends Omit<Opportunity, "loss_reason" | "loss_reason_detail" | "policy_term_months" | "policy_ended_on" | "current_carrier" | "current_policy_renews_on"> {
+export interface OpportunityListRow extends Omit<Opportunity, "existing_policy" | "loss_reason" | "loss_reason_detail" | "policy_term_months" | "policy_ended_on" | "current_carrier" | "current_policy_renews_on"> {
   stage_name: string;
   stage_position: number;
   contact_type: ContactType;

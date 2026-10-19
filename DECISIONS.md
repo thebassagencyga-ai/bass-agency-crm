@@ -1046,3 +1046,27 @@ library (SheetJS, ExcelJS) is far larger and was not needed for reading one shee
 **Safeguards.** Unzipped size capped at 40 MB (zip-bomb guard); only workbook, relationships,
 shared strings, styles and worksheet parts are unzipped; at most 200 columns; the 1,000-client
 limit and every existing validation still apply.
+
+## ADR-042 — Existing policies entered by hand
+**Date:** 2026-10-19. **Status:** proposed (awaiting owner approval).
+
+**Context.** Adding existing clients by hand meant adding an opportunity and moving it to
+Bound. The automation treats that as a sale closed today: onboarding checklist, Google review
+and referral requests, and a "won" in this period's reports. The owner's clients' policies
+started in the past, so these tasks did not apply.
+
+**Decision.**
+- "Add existing policy" (contact page) inserts the opportunity directly as won at the line's
+  Bound stage, as the import does. The won-sale rules fire on the *change* to won, never on
+  insert, so only the renewal review is created; the contact becomes a client (Phase 23).
+- New column `opportunities.existing_policy` (default false) marks these rows. A private
+  trigger allows it only on a row created as won and keeps it unchanged afterwards.
+- `report_summary` excludes them from conversion, and their contacts from new leads, referral
+  sources and referrals received, like imported records.
+- The renewal date: a date already passed moves forward by the term (from the original date,
+  so month ends do not drift); with none, effective date + term.
+- Already-entered policies are not changed: the owner clears those tasks by hand (owner
+  decision 2026-10-19). No existing row is updated by the migration.
+
+**Safeguards.** No new table, grant or public function; RLS and the two-step policy apply as
+before; changes are in the audit log.

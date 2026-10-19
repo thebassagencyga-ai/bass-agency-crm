@@ -968,3 +968,35 @@ old .xls and non-report files get a clear message. No database change.
 
 **Owner actions after approval:** Deploy app (Cloudflare) only — no migrations. Then try the
 real Excel report again on Import.
+
+## Fix — Add existing policy (branch `fix-existing-policy`, 2026-10-19)
+**Owner report:** adding existing clients meant marking them bound today, which added
+onboarding/review/referral tasks that did not apply (their policies started in the past).
+**Fix (ADR-042):** "Add existing policy" on the contact page saves the policy directly as bound
+with its real dates; only the renewal review is scheduled; reports do not count it as a sale.
+Owner decision: tasks already created for earlier entries are cleared by hand (no data change).
+
+- Migration `20261101120000_existing_policies.sql`: `opportunities.existing_policy`, a private
+  guard trigger (set only when created as won, never changed), `report_summary` exclusions.
+- `src/lib/opportunities/existing-policy.ts` (validation, next renewal), `createExistingPolicy`
+  action, `ExistingPolicyForm`, "Add existing policy" link on contacts, switch links on the
+  add page, "Added as: A policy the client already had" on the opportunity page; report
+  definitions updated.
+
+**Tests (2026-10-19)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck | pass |
+| Local: unit | 469 passed (10 new: next renewal incl. month ends, validation, row) |
+| Local: database (PostgreSQL 16) | 447 passed (4 new: only the renewal review and client status; a sale moved to Bound unchanged; marker only on won insert and immutable; excluded from conversion, new leads, referrals) |
+| Local: browser tests against the Cloudflare build | new existing-policy, contacts, opportunities, quote/client, journey, reports, phone polish, responsive: 8 passed |
+| CI | see report |
+| Production | not deployed |
+
+**Owner actions after approval**
+1. Merge to `main` (Claude).
+2. Deploy database migrations: the dry run lists only `20261101120000_existing_policies.sql`;
+   then apply. Verify expects 20 tables, 24 functions, 2 anonymous functions (unchanged).
+3. Deploy app (Cloudflare).
+4. On the iPhone: open a contact → Add existing policy → past effective date → check it shows
+   Bound, the contact is a client, and only a renewal review task was added.

@@ -70,6 +70,7 @@ Many per contact, in any mix of product lines.
 | `outcome` | `open` / `nurture` on active stages; `won` only on the won stage (Bound, or Placed for life); `lost` only on Lost. |
 | `loss_reason`, `loss_reason_detail` | Reason required exactly when the outcome is `lost`. |
 | `closed_at` | Set automatically when won or lost; cleared on reopen. |
+| `existing_policy` | True when entered with "Add existing policy" (a policy the client already had, ADR-042). Only settable when created as won; never changes afterwards. Not counted as a sale in Reports. |
 | `cycle` | Starts at 1; incremented on reopen so a new follow-up sequence gets new task keys. |
 | `quote_sent_on`, `estimated_annual_premium`, `quoted_carrier`, `next_action`, `effective_date`, `renewal_date` | Quote tracking and dates. Renewal must be after effective. Carrier is free text (≤ 100). |
 

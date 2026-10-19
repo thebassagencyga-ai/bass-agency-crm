@@ -2,6 +2,16 @@
 
 All meaningful changes, grouped by milestone.
 
+## Fix — Add existing policy (2026-10-19, ready for review)
+### Added
+- **Add existing policy** on a contact: enter a policy the client already has (line, carrier,
+  premium, a past effective date, renewal date, term). It is saved as bound without
+  onboarding, review or referral tasks; only the renewal review is scheduled. A renewal date
+  already passed moves to the next renewal; with none, it is worked out from the effective date.
+### Changed
+- Reports no longer count these policies as sales, or their contacts as new leads or new
+  referrals (the same as imported clients).
+
 ## Import fix — Excel files (2026-10-19, approved)
 ### Fixed
 - **Import** now reads Excel files (.xlsx) directly. Before, choosing an Excel file showed

@@ -24,6 +24,7 @@ export const metadata: Metadata = { title: "Opportunity · Producr CRM" };
 
 const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   saved: { text: "Opportunity saved.", tone: "ok" },
+  existing: { text: "Policy added. The contact is a client; only the renewal review was scheduled.", tone: "ok" },
   moved: { text: "Stage updated.", tone: "ok" },
   won: { text: "Marked as won. Prospecting tasks were closed and onboarding, review and referral tasks added (per your Settings). The contact is now a client.", tone: "ok" },
   lost: { text: "Marked as lost. Its prospecting tasks were closed. The record is kept and can be reopened later.", tone: "ok" },
@@ -73,7 +74,9 @@ export default async function OpportunityPage({
     ...(opp.outcome === "lost" && opp.loss_reason
       ? [["Loss reason", [LOSS_REASON_LABELS[opp.loss_reason], opp.loss_reason_detail].filter(Boolean).join(" — ")] as [string, React.ReactNode]]
       : []),
-    ...(opp.closed_at ? [["Closed", formatInstantDate(opp.closed_at)] as [string, React.ReactNode]] : []),
+    ...(opp.existing_policy
+      ? [["Added as", "A policy the client already had"] as [string, React.ReactNode]]
+      : opp.closed_at ? [["Closed", formatInstantDate(opp.closed_at)] as [string, React.ReactNode]] : []),
     ...(opp.cycle > 1 ? [["Times reopened", String(opp.cycle - 1)] as [string, React.ReactNode]] : []),
     ["Added", formatInstantDate(opp.created_at)],
     ["Last updated", formatInstantDate(opp.updated_at)],

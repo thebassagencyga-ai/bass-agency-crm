@@ -235,9 +235,14 @@ export default async function ContactPage({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 id="opps-heading" className="text-lg font-semibold">Opportunities</h2>
           {contact.archived_at ? null : (
-            <Link href={`/opportunities/new?contact=${contact.id}`} className="flex min-h-11 items-center rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">
-              Add opportunity
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link href={`/opportunities/new?contact=${contact.id}&existing=1`} className="flex min-h-11 items-center rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">
+                Add existing policy
+              </Link>
+              <Link href={`/opportunities/new?contact=${contact.id}`} className="flex min-h-11 items-center rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">
+                Add opportunity
+              </Link>
+            </div>
           )}
         </div>
         {opportunities.length === 0 ? (
