@@ -866,6 +866,21 @@ looks only, with their answers on dark mode (switch), menu labels (keep), icon (
   (`src/components/brand.tsx`, Inter Bold outlines), stacked producr/CRM lockup, favicon,
   home-screen icons (`scripts/make-icons.mjs`), service worker cache v2.
 
+**Tests (2026-10-19)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, build, Cloudflare build | pass |
+| Local: unit | 447 passed (8 new: brand values, contrast of every pairing in light and dark, both dark blocks identical, no raw palette colours in components, theme choice) |
+| Local: database | not re-run (no database changes) |
+| Local: smoke test against the Cloudflare build (local Supabase stack) | pass |
+| Local: browser tests (iPhone 13) | 23 passed; Lighthouse could not start here (browser missing in this machine), so it ran in CI only |
+| CI run 39198166957 (d9b0077), 39198619384 (abdb836): all 4 jobs | pass — 24 browser tests incl. the new appearance test, phone widths, Lighthouse accessibility 100 on all pages |
+| CI on the final commit | see below |
+| Production | not deployed yet |
+
+Lighthouse flagged "visible text and accessible name differ" on the logo link ("producrCRM" with no
+space); fixed by putting a real space between "producr" and "CRM".
+
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
 2. No migrations. Deploy app (Cloudflare).

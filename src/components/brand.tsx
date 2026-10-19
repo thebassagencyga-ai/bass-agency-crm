@@ -22,6 +22,8 @@ export function Wordmark({ size = "md", tone = "default" }: { size?: "md" | "lg"
       <BrandMark className={big ? "size-12" : "size-9"} />
       <span className="flex flex-col items-start leading-none">
         <span className={`font-bold tracking-tight lowercase ${big ? "text-3xl" : "text-xl"} ${tone === "shell" ? "text-shell-fg" : "text-fg"}`}>producr</span>
+        {/* A real space, so the name reads "producr CRM" (screen readers, accessible-name checks). */}
+        {" "}
         {/* Electric Blue on the Ink shell; the deeper link blue on light backgrounds (contrast). */}
         <span className={`mt-0.5 font-medium tracking-wide ${big ? "text-base" : "text-xs"} ${tone === "shell" ? "text-brand" : "text-link"}`}>CRM</span>
       </span>
