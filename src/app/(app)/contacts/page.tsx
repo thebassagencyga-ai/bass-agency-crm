@@ -82,7 +82,7 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
         <input type="hidden" name="tab" value={params.tab} />
         <label htmlFor="q" className="text-sm font-medium">Search</label>
         <div className="flex gap-2">
-          <input id="q" name="q" type="search" defaultValue={params.q} placeholder="Name, business, phone or email" className={`${CONTROL} flex-1`} maxLength={100} />
+          <input id="q" name="q" type="search" defaultValue={params.q} placeholder="Name, business, phone or email" className={`${CONTROL} min-w-0 flex-1`} maxLength={100} />
           <button type="submit" className="min-h-11 rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">Search</button>
         </div>
         <details open={filtered && !params.q}>
@@ -167,7 +167,8 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
                   </span>
                   <ContactInfo contact={c} compact={Boolean(leads || book)} />
                   <span className="flex gap-1">
-                    <StatusBadge status={c.relationship_status} />
+                    {/* The Leads and Clients tabs already say the status. */}
+                    {leads || book ? null : <StatusBadge status={c.relationship_status} />}
                     {c.merged_into_contact_id ? <MergedBadge /> : c.archived_at ? <ArchivedBadge /> : null}
                   </span>
                 </Link>
