@@ -2,6 +2,14 @@
 
 All meaningful changes, grouped by milestone.
 
+## Import fix — Excel files (2026-10-19, ready for review)
+### Fixed
+- **Import** now reads Excel files (.xlsx) directly. Before, choosing an Excel file showed
+  unreadable text ("PK… [Content_Types].xml"). The first sheet is read on your device; Excel
+  dates come through as dates.
+- An old Excel file (.xls) or a file that is not a report now gets a clear message saying what
+  to do, instead of garbled columns.
+
 ## Phase 23 — Quote dates and client status (2026-10-19, approved)
 ### Changed
 - Moving an opportunity to **Quoted** (commercial: **Proposal Presented**) now records the quote

@@ -7,6 +7,7 @@ import { findImportMatches, runImport } from "@/app/(app)/import/actions";
 import { SelectField } from "@/components/form";
 import { buildImport, distinctLineValues, lineKey, MAX_IMPORT_ROWS, type ImportClient, type ImportIssue, type LineChoices } from "@/lib/import/build";
 import { parseCsv } from "@/lib/import/csv";
+import { readXlsx, sniffFile, XlsxError } from "@/lib/import/xlsx";
 import { guessMapping, IMPORT_FIELDS, type ImportField, type Mapping } from "@/lib/import/fields";
 import { PRODUCT_LINES, PRODUCT_LINE_NAMES } from "@/lib/pipelines";
 
@@ -42,8 +43,18 @@ export function ImportWizard({ ai = false }: { ai?: boolean }) {
     setPreview(null);
     if (!file) return;
     if (file.size > MAX_BYTES) return setError("The file is larger than 2 MB. Split it into smaller files.");
-    const parsed = parseCsv(await file.text());
-    if (parsed.length < 2) return setError("The file has no rows under the heading. Is it a CSV export of your report?");
+    // CSV or Excel (.xlsx), told apart by the file's first bytes rather than its name.
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const kind = sniffFile(bytes);
+    if (kind === "xls") return setError("This is an old Excel file (.xls). Open it in Excel and save it as .xlsx or CSV, then choose it again.");
+    if (kind === "binary") return setError("This doesn't look like a CSV or Excel file. Export your report as Excel (.xlsx) or CSV and try again.");
+    let parsed: string[][];
+    try {
+      parsed = kind === "xlsx" ? readXlsx(bytes) : parseCsv(new TextDecoder("utf-8").decode(bytes));
+    } catch (e) {
+      return setError(e instanceof XlsxError ? e.message : "The file could not be read. Save it as CSV and try again.");
+    }
+    if (parsed.length < 2) return setError("The file has no rows under the heading. Is it an export of your client or policy report?");
     if (parsed.length - 1 > MAX_IMPORT_ROWS) return setError(`The file has more than ${MAX_IMPORT_ROWS.toLocaleString()} rows. Split it into smaller files.`);
     const head = parsed[0]!;
     setFileName(file.name.slice(0, 200));
@@ -122,9 +133,9 @@ export function ImportWizard({ ai = false }: { ai?: boolean }) {
 
       <section aria-labelledby="step1" className="flex flex-col gap-2">
         <h2 id="step1" className="text-lg font-semibold">1. Choose the file</h2>
-        <p className="text-sm text-muted">A CSV export of your client or policy report (save Excel files as CSV). One row per policy or per client; up to 1,000 clients.</p>
-        <label htmlFor="import-file" className="text-sm font-medium">CSV file</label>
-        <input id="import-file" type="file" accept=".csv,text/csv" onChange={(e) => void onFile(e.target.files?.[0])}
+        <p className="text-sm text-muted">Your client or policy report as an Excel file (.xlsx) or CSV. The first sheet is read; one row per policy or per client; up to 1,000 clients. The file is read on this device and nothing is saved until you import.</p>
+        <label htmlFor="import-file" className="text-sm font-medium">Report file (Excel or CSV)</label>
+        <input id="import-file" type="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={(e) => void onFile(e.target.files?.[0])}
           className="min-h-11 w-full rounded-md border border-line-strong p-2 text-base" />
         {headers.length > 0 ? <p role="status" className="text-sm">{fileName}: {rows.length.toLocaleString()} rows, {headers.length} columns.</p> : null}
       </section>

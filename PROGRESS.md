@@ -947,3 +947,22 @@ report. ⏳ Owner: iPhone check (Quoted → date + one follow-up; Bound → Clie
 3. Deploy app (Cloudflare).
 4. On the iPhone: move a test opportunity to Quoted (check the date, the follow-up task), bind it
    (check the contact shows Client).
+
+## Import fix — Excel (.xlsx) files (branch `fix-import-excel`, 2026-10-19)
+**Owner report:** choosing `download (1).xlsx` on Import showed "PK… [Content_Types].xml" as
+78 rows × 1 column. **Cause:** the wizard read every file as CSV text; an .xlsx is a zip.
+**Fix (ADR-041):** the wizard detects the file type from its first bytes; .xlsx is read on the
+device (`src/lib/import/xlsx.ts`, `fflate` 0.8.3) and goes through the unchanged CSV path;
+old .xls and non-report files get a clear message. No database change.
+
+**Tests (2026-10-19)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck | pass |
+| Local: unit | 459 passed (new `tests/unit/xlsx.test.ts`: file sniffing, Excel dates incl. the 1900 quirk and 1904 system, first sheet via relationships, shared/inline strings, numbers, padding, broken file, zip bomb refused) |
+| Local: browser tests against the Cloudflare build | new `import-xlsx.spec.ts` (old .xls refused; .xlsx with dates imported, renewal shows) and existing `import.spec.ts`: 2 passed |
+| CI | see report |
+| Production | not deployed |
+
+**Owner actions after approval:** Deploy app (Cloudflare) only — no migrations. Then try the
+real Excel report again on Import.
