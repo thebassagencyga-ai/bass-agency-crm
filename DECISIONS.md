@@ -1009,7 +1009,7 @@ ProducrIQ Focus; documentation refresh as a separate docs-only task. Stop after 
 
 ## ADR-040 — Leads and Clients; your own pipelines next
 
-**Status:** Accepted (owner, 2026-10-19). Phase 24 built (awaiting approval); Phase 25 not started.
+**Status:** Accepted (owner, 2026-10-19). Phase 24 approved 2026-10-19; Phase 25 not started.
 **Owner:** "Shouldn't the CRM separate the clients from prospects? … I'd prefer to have a pipeline
 of leads separated from the book of clients." Choices: tabs inside Contacts (menu labels
 unchanged); open on Leads; the book shows lines held, total premium, next renewal and cross-sell
@@ -1049,3 +1049,50 @@ presented for approval before building.
 5. ~~No deleting from the app (ADR-010)?~~ Answered: acceptable.
 6. ~~Referral and Google review automation design~~ — answered, see ADR-013.
 7. Confirm with Alfa/compliance whether any referral thank-you of value is permitted (ADR-013).
+
+## ADR-041 — Import reads Excel (.xlsx) on the device
+**Date:** 2026-10-19. **Status:** accepted (owner approved 2026-10-19).
+
+**Context.** The owner exported a report from their agency system as Excel and chose it on the
+Import page. The wizard only read CSV text, so the .xlsx file (a zip) showed as garbled columns.
+Asking the owner to "Save As CSV" every time is error-prone.
+
+**Decision.** The import wizard sniffs the file's first bytes (not its name):
+- .xlsx (zip): read in the browser with `fflate` 0.8.3 (exact pin, ~8 KB, no dependencies) plus a
+  small reader in `src/lib/import/xlsx.ts`: first sheet in tab order, shared/inline strings,
+  numbers, booleans, formula results, and date-styled cells converted to YYYY-MM-DD (1900 and
+  1904 date systems). The rows then go through the existing CSV path (mapping, checks, import).
+- old .xls (OLE) or other binary: a clear message asking for .xlsx or CSV; nothing is parsed.
+- otherwise: text, as before.
+
+**Why.** No server change, no new service, file contents never leave the device until the
+existing import action; the database function and its checks are unchanged. A full spreadsheet
+library (SheetJS, ExcelJS) is far larger and was not needed for reading one sheet's values.
+
+**Safeguards.** Unzipped size capped at 40 MB (zip-bomb guard); only workbook, relationships,
+shared strings, styles and worksheet parts are unzipped; at most 200 columns; the 1,000-client
+limit and every existing validation still apply.
+
+## ADR-042 — Existing policies entered by hand
+**Date:** 2026-10-19. **Status:** accepted (owner approved 2026-10-19).
+
+**Context.** Adding existing clients by hand meant adding an opportunity and moving it to
+Bound. The automation treats that as a sale closed today: onboarding checklist, Google review
+and referral requests, and a "won" in this period's reports. The owner's clients' policies
+started in the past, so these tasks did not apply.
+
+**Decision.**
+- "Add existing policy" (contact page) inserts the opportunity directly as won at the line's
+  Bound stage, as the import does. The won-sale rules fire on the *change* to won, never on
+  insert, so only the renewal review is created; the contact becomes a client (Phase 23).
+- New column `opportunities.existing_policy` (default false) marks these rows. A private
+  trigger allows it only on a row created as won and keeps it unchanged afterwards.
+- `report_summary` excludes them from conversion, and their contacts from new leads, referral
+  sources and referrals received, like imported records.
+- The renewal date: a date already passed moves forward by the term (from the original date,
+  so month ends do not drift); with none, effective date + term.
+- Already-entered policies are not changed: the owner clears those tasks by hand (owner
+  decision 2026-10-19). No existing row is updated by the migration.
+
+**Safeguards.** No new table, grant or public function; RLS and the two-step policy apply as
+before; changes are in the audit log.

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import type { FormState } from "@/components/form";
 import { requireFullSession } from "@/lib/auth/require";
 import { todayInZone } from "@/lib/dates";
+import { EXISTING_POLICY_FIELDS, existingPolicyRow, existingPolicySchema } from "@/lib/opportunities/existing-policy";
 import { resolveQuoteDate, suggestedQuoteDate } from "@/lib/opportunities/quote-date";
 import { getProfile } from "@/lib/tasks/data";
 import { isUuid } from "@/lib/contacts/data";
@@ -81,6 +82,35 @@ export async function createOpportunity(_prev: FormState, formData: FormData): P
   if (error || !row) return { ...friendlyDbError(error?.code), values };
   revalidate(data.contact_id);
   redirect(`/opportunities/${row.id as string}?saved=1`);
+}
+
+/**
+ * A policy the client already has (ADR-042): inserted directly as won at the line's Bound stage,
+ * so the database creates only the renewal review (no onboarding, review or referral tasks) and
+ * reports do not count it as a sale. The contact becomes a client (Phase 23 trigger).
+ */
+export async function createExistingPolicy(_prev: FormState, formData: FormData): Promise<FormState> {
+  const { supabase, userId } = await requireFullSession();
+  const values: Record<string, string> = {};
+  for (const name of EXISTING_POLICY_FIELDS) {
+    const v = formData.get(name);
+    if (typeof v === "string") values[name] = v.slice(0, 1000);
+  }
+  const parsed = existingPolicySchema.safeParse(Object.fromEntries(EXISTING_POLICY_FIELDS.map((f) => [f, formData.get(f)])));
+  if (!parsed.success) return { fieldErrors: fieldErrorsOf(parsed.error.issues), values };
+  const data = parsed.data;
+
+  const { data: wonStage } = await supabase
+    .from("pipeline_stages").select("id").eq("product_line", data.product_line).eq("kind", "won").maybeSingle();
+  if (!wonStage) return { error: "Could not save the policy. Please try again.", values };
+  const today = todayInZone((await getProfile(supabase, userId)).time_zone);
+
+  const { data: row, error } = await supabase
+    .from("opportunities").insert(existingPolicyRow(data, wonStage.id as string, today)).select("id").single();
+  if (error || !row) return { ...friendlyDbError(error?.code), values };
+  revalidate(data.contact_id);
+  revalidatePath("/renewals");
+  redirect(`/opportunities/${row.id as string}?existing=1`);
 }
 
 export async function updateOpportunity(_prev: FormState, formData: FormData): Promise<FormState> {

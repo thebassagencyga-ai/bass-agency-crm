@@ -948,6 +948,72 @@ report. ⏳ Owner: iPhone check (Quoted → date + one follow-up; Bound → Clie
 4. On the iPhone: move a test opportunity to Quoted (check the date, the follow-up task), bind it
    (check the contact shows Client).
 
+## Import fix — Excel (.xlsx) files (branch `fix-import-excel`, 2026-10-19)
+**Owner report:** choosing `download (1).xlsx` on Import showed "PK… [Content_Types].xml" as
+78 rows × 1 column. **Cause:** the wizard read every file as CSV text; an .xlsx is a zip.
+**Fix (ADR-041):** the wizard detects the file type from its first bytes; .xlsx is read on the
+device (`src/lib/import/xlsx.ts`, `fflate` 0.8.3) and goes through the unchanged CSV path;
+old .xls and non-report files get a clear message. No database change.
+
+**Tests (2026-10-19)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck | pass |
+| Local: unit | 459 passed (new `tests/unit/xlsx.test.ts`: file sniffing, Excel dates incl. the 1900 quirk and 1904 system, first sheet via relationships, shared/inline strings, numbers, padding, broken file, zip bomb refused) |
+| Local: browser tests against the Cloudflare build | new `import-xlsx.spec.ts` (old .xls refused; .xlsx with dates imported, renewal shows) and existing `import.spec.ts`: 2 passed |
+| CI run 39268248045 (commit 109a0ff): all 4 jobs | pass |
+| Production | not deployed |
+
+**Approved by the owner 2026-10-19** ("Approved").
+
+**Production deploy (2026-10-19):** CI on `main` 39270171559 (7bf923e) passed; Deploy app
+39274386629 (7bf923e) succeeded. Owner reported the checks done 2026-10-19 ("Done").
+
+**Owner actions after approval:** Deploy app (Cloudflare) only — no migrations. Then try the
+real Excel report again on Import.
+
+## Fix — Add existing policy (branch `fix-existing-policy`, 2026-10-19)
+**Owner report:** adding existing clients meant marking them bound today, which added
+onboarding/review/referral tasks that did not apply (their policies started in the past).
+**Fix (ADR-042):** "Add existing policy" on the contact page saves the policy directly as bound
+with its real dates; only the renewal review is scheduled; reports do not count it as a sale.
+Owner decision: tasks already created for earlier entries are cleared by hand (no data change).
+
+- Migration `20261101120000_existing_policies.sql`: `opportunities.existing_policy`, a private
+  guard trigger (set only when created as won, never changed), `report_summary` exclusions.
+- `src/lib/opportunities/existing-policy.ts` (validation, next renewal), `createExistingPolicy`
+  action, `ExistingPolicyForm`, "Add existing policy" link on contacts, switch links on the
+  add page, "Added as: A policy the client already had" on the opportunity page; report
+  definitions updated.
+
+**Tests (2026-10-19)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck | pass |
+| Local: unit | 469 passed (10 new: next renewal incl. month ends, validation, row) |
+| Local: database (PostgreSQL 16) | 447 passed (4 new: only the renewal review and client status; a sale moved to Bound unchanged; marker only on won insert and immutable; excluded from conversion, new leads, referrals) |
+| Local: browser tests against the Cloudflare build | new existing-policy, contacts, opportunities, quote/client, journey, reports, phone polish, responsive: 8 passed |
+| CI run 39273393644 (commit 27801fb): all 4 jobs | pass |
+| Production | not deployed |
+
+**Approved by the owner 2026-10-19** ("Approved").
+
+**Production deploy (2026-10-19, commit 0bab906):** CI on `main` 39276523568 passed; migrations
+dry run 39278676429 listed only `20261101120000_existing_policies.sql` (target check: CRM tables
+only, 20); apply run 39279640034 applied it and verification passed (30 stages, 20 tables, 20
+two-step policies, 24 Data API functions, exactly 2 anonymous functions, automation engine
+safe); Deploy app 39283210798 succeeded, smoke test 18/18. GitHub showed both migration runs as
+"queued" for about 30 minutes after they had finished (display delay on GitHub's side).
+Owner reported the iPhone check done 2026-10-19 ("Done"), and cleared the earlier tasks by hand.
+
+**Owner actions after approval**
+1. Merge to `main` (Claude).
+2. Deploy database migrations: the dry run lists only `20261101120000_existing_policies.sql`;
+   then apply. Verify expects 20 tables, 24 functions, 2 anonymous functions (unchanged).
+3. Deploy app (Cloudflare).
+4. On the iPhone: open a contact → Add existing policy → past effective date → check it shows
+   Bound, the contact is a client, and only a renewal review task was added.
+
 ## Phase 24 — Leads and Clients (branch `phase-24-leads-clients`)
 Started 2026-10-19 on the owner's request before Step 2 (Web Push). Design in ADR-040. No database
 changes.
@@ -973,6 +1039,9 @@ changes.
 | Local: browser tests against the Cloudflare build | new leads/clients test plus contacts, tags/merge, phone polish, errors, sign-in, phone widths, quote/client: all passed |
 | CI run 39264227897 (commit bbb1029): all 4 jobs | pass — full browser suite incl. phone widths and Lighthouse |
 | Production | not deployed yet |
+
+**Approved by the owner 2026-10-19** ("Phase 24 approved"). Merged with `main` (Excel import and
+existing-policy fixes) before merging; checks re-run on the combined code (see below).
 
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).

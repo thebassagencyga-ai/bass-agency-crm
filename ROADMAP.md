@@ -31,7 +31,9 @@ inherits the standard exit criteria at the bottom of this file.
 | 21 | Phone polish (bottom bar, search anywhere, contact quick actions) | 20 | APPROVED (2026-10-19) |
 | 22 | Producr CRM: new name and brand design | 21 | APPROVED (2026-10-19) |
 | 23 | Workflow audit Step 1: quote dates and client status | 22 | APPROVED (2026-10-19) |
-| 24 | Leads and Clients tabs, book of business view | 23 | READY FOR REVIEW |
+| fix | Import reads Excel (.xlsx) files directly (owner report, 2026-10-19) | 15 | APPROVED, DEPLOYED (2026-10-19) |
+| fix | Add existing policy: enter a client's current policy without new-sale tasks (owner report, 2026-10-19) | 23 | APPROVED, DEPLOYED (2026-10-19) |
+| 24 | Leads and Clients tabs, book of business view | 23 | APPROVED (2026-10-19) |
 | 25 | Your own pipelines (custom stages, routing by line) | 24 | NOT STARTED |
 
 ---
@@ -595,6 +597,13 @@ Owner choices: light and dark with a switch; keep the current menu labels; new P
 
 ---
 
+## Standard exit criteria (every phase)
+1. Lint, typecheck and all existing tests pass (or failures documented with cause).
+2. New logic has tests; fixtures fictional.
+3. Security implications reviewed and noted in SECURITY.md where relevant.
+4. ROADMAP.md, PROGRESS.md, CHANGELOG.md updated.
+5. Phase Report presented; owner approval recorded here before the next phase begins.
+
 ## Phase 24 — Leads and Clients
 **Objective.** Separate the leads being worked from the book of clients (owner, 2026-10-19: "I'd
 prefer to have a pipeline of leads separated from the book of clients"; ADR-040).
@@ -607,7 +616,7 @@ prefer to have a pipeline of leads separated from the book of clients"; ADR-040)
 - Pipeline board and table tag open deals for existing clients ("Client").
 - Read-only; no database changes; all tests green, phone widths and Lighthouse clean.
 
-**Status 2026-10-19:** READY FOR REVIEW; see PROGRESS.md.
+**Status 2026-10-19:** APPROVED (owner, 2026-10-19); see PROGRESS.md.
 
 ---
 
@@ -619,10 +628,3 @@ the fixed per-line pipelines of ADR-006. Design to be presented before building.
 **Status:** NOT STARTED.
 
 ---
-
-## Standard exit criteria (every phase)
-1. Lint, typecheck and all existing tests pass (or failures documented with cause).
-2. New logic has tests; fixtures fictional.
-3. Security implications reviewed and noted in SECURITY.md where relevant.
-4. ROADMAP.md, PROGRESS.md, CHANGELOG.md updated.
-5. Phase Report presented; owner approval recorded here before the next phase begins.

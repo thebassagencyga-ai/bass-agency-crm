@@ -2,12 +2,30 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 24 — Leads and Clients (2026-10-19, ready for review)
+## Phase 24 — Leads and Clients (2026-10-19, approved)
 ### Added
 - **Contacts tabs:** Leads | Clients | Former | All, with counts. Contacts opens on Leads.
   Leads show each open deal's stage, quote date and next task; Clients (your book) show lines
   held, total premium, next renewal and cross-sell gaps.
 - Pipeline cards for existing clients are tagged **Client**.
+
+## Fix — Add existing policy (2026-10-19, approved)
+### Added
+- **Add existing policy** on a contact: enter a policy the client already has (line, carrier,
+  premium, a past effective date, renewal date, term). It is saved as bound without
+  onboarding, review or referral tasks; only the renewal review is scheduled. A renewal date
+  already passed moves to the next renewal; with none, it is worked out from the effective date.
+### Changed
+- Reports no longer count these policies as sales, or their contacts as new leads or new
+  referrals (the same as imported clients).
+
+## Import fix — Excel files (2026-10-19, approved)
+### Fixed
+- **Import** now reads Excel files (.xlsx) directly. Before, choosing an Excel file showed
+  unreadable text ("PK… [Content_Types].xml"). The first sheet is read on your device; Excel
+  dates come through as dates.
+- An old Excel file (.xls) or a file that is not a report now gets a clear message saying what
+  to do, instead of garbled columns.
 
 ## Phase 23 — Quote dates and client status (2026-10-19, approved)
 ### Changed

@@ -30,11 +30,11 @@ export const DEFINITIONS = {
   open_pipeline:
     "Open and nurture opportunities right now, by product line and stage (not limited to the period). Estimated premium is the total of the premiums recorded; opportunities without one add nothing.",
   new_leads:
-    "Contacts added during the period (New York dates), grouped by lead source (capital letters and spaces ignored). \"With an opportunity\" and \"Won\" count those contacts that have any opportunity, or a won one, as of today.",
+    "Contacts added during the period (New York dates), grouped by lead source (capital letters and spaces ignored). \"With an opportunity\" and \"Won\" count those contacts that have any opportunity, or a won one, as of today. Imported clients and clients added with a policy they already had are not counted.",
   quotes:
     "Opportunities whose quote-sent date is in the period, by product line, and where each stands today (open, nurture, won or lost). Premium is the total of the estimates recorded.",
   conversion:
-    "Opportunities closed during the period: conversion = won ÷ (won + lost). Open and nurture opportunities are not counted. The number closed (the denominator) is shown next to each rate. A reopened opportunity counts by its latest close.",
+    "Opportunities closed during the period: conversion = won ÷ (won + lost). Open and nurture opportunities are not counted. The number closed (the denominator) is shown next to each rate. A reopened opportunity counts by its latest close. Imported policies and policies added as already held are not sales and are not counted.",
   tasks:
     "Tasks completed during the period; on time means completed on or before the due date (New York dates). Overdue is open tasks due before today, whatever the period.",
   renewals:
@@ -42,7 +42,7 @@ export const DEFINITIONS = {
   cross_sell:
     "Cross-sell review prompts showing today, by rule (the same list as on Renewals; dismissed prompts excluded), and prompts dismissed during the period.",
   referrals:
-    "Contacts added during the period who were referred by another contact, grouped by who referred them. Won: the referred contact has a won opportunity. Working: an open or nurture one and none won. Top 25 referrers.",
+    "Contacts added during the period who were referred by another contact, grouped by who referred them. Won: the referred contact has a won opportunity. Working: an open or nurture one and none won. Top 25 referrers. Imported clients and clients added with a policy they already had are not counted.",
   asks:
-    "Clients asked for a Google review or a referral during the period (a completed request task or a logged request activity; each client counted once), reviews recorded (the \"Google review left on\" date is in the period), and referrals received (contacts added during the period with a referrer).",
+    "Clients asked for a Google review or a referral during the period (a completed request task or a logged request activity; each client counted once), reviews recorded (the \"Google review left on\" date is in the period), and referrals received (contacts added during the period with a referrer, not imported or added with a policy they already had).",
 } as const;
