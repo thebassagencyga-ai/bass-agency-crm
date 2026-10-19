@@ -1074,3 +1074,24 @@ Started 2026-10-19 after the owner approved the design ("Yes, any mix", "Keep to
   pipeline choice defaulting to the line's route; moving a deal into another pipeline (page and
   board); Settings → Pipelines (list, add, edit stages and lines, archive); "Add existing
   policy" uses the line's pipeline; Reports grouped by pipeline.
+
+**Tests (2026-10-19)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck | pass |
+| Local: unit | 489 passed (new: pipeline editor validation; stage moves across pipelines; params; deploy-check counts updated) |
+| Local: database (PostgreSQL 16) | 471 passed (15 new in `tests/db/pipelines.test.ts`: starting pipelines, P&C routing for new leads/imports/quick intake, quote stage, stage rules, removing/archiving refused while in use, 10-pipeline limit, access, and the migration on a database built at the previous migration with deals in every kind of stage). Helpers and older tests updated for per-agent stages; two tests rewritten for the new rule that deals may move between the agent's own pipelines |
+| Local: integration (real Supabase stack) | 52 passed. First run found that sign-up failed: the commit-time pipeline check ran as Supabase Auth's role; fixed (SECURITY DEFINER, ADR-043) before any deploy |
+| Local: browser tests against the Cloudflare build | 28 of 29 passed, including the new `pipelines.spec.ts`; Lighthouse could not start locally (Chrome binary missing in this container), passes in CI |
+| Local: migration on the Supabase stack holding earlier test data | applied cleanly |
+| CI run 39298530042 (commit 5e0ac7e): all 4 jobs | pass — migrations on the Supabase image, schema/RLS, full browser suite incl. phone widths and Lighthouse |
+| Production | not deployed |
+
+**Owner actions after approval**
+1. Merge to `main` (Claude).
+2. Run **Nightly backup** by hand first (this migration touches every deal).
+3. Deploy database migrations: dry run lists only `20261102120000_custom_pipelines.sql`; then
+   apply. Verify now expects 23 tables, 25 Data API functions, 2 anonymous functions.
+4. Deploy app (Cloudflare).
+5. On the iPhone: Pipeline page shows Auto / Home / Commercial / Life with every deal where it
+   was; Settings → Pipelines → Add a pipeline (e.g. P&C for Auto and Home); add a test lead.
