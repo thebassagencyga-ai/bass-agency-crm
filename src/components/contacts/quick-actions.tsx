@@ -33,7 +33,7 @@ export function QuickActions({ actions }: { actions: QuickAction[] }) {
   return (
     <nav
       aria-label="Quick actions"
-      className="sticky top-0 z-20 -mx-4 border-b border-line bg-card/95 px-4 py-2 backdrop-blur md:mx-0 md:px-0"
+      className="sticky top-0 z-20 -mx-4 border-b border-line bg-canvas/95 px-4 py-2 backdrop-blur md:mx-0 md:px-0"
     >
       <ul className="grid grid-flow-col auto-cols-fr gap-2">
         {actions.map((a) => (
