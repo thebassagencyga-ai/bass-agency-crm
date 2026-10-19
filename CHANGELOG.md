@@ -2,6 +2,11 @@
 
 All meaningful changes, grouped by milestone.
 
+## Fix — Turning alerts on (2026-10-19, ready for review)
+### Fixed
+- "Turn on alerts on this device" showed "Could not turn alerts on" and saved nothing. It now
+  saves the device; turning a device off and on again re-uses it.
+
 ## Phase 26 — New-lead alerts (2026-10-19, approved)
 ### Added
 - **Settings → Alerts:** a notification on your iPhone (and any other device you choose) when

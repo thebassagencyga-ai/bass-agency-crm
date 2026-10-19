@@ -1187,3 +1187,23 @@ a pinned search_path; automation engine safe); Deploy app 39342456997 succeeded,
    §4e) → reload Settings.
 5. iPhone: Home Screen app → Settings → Alerts → Turn on → Allow → Send a test alert; then send
    yourself a test quote request from the public form. ⏳ This iPhone test completes Phase 26.
+
+## Fix — Turning alerts on (branch `fix-alerts-turn-on`, 2026-10-19)
+**Owner report (iPhone screenshot):** "Could not turn alerts on. Please try again." after tapping
+Turn on. **Cause:** saving a new device also sent `disabled_at` (empty), a column the app may not
+write on insert (column privileges, by design), so the database refused the insert. The Phase 26
+tests added devices directly, not through the button, so they did not cover it.
+**Fix:** insert only the permitted columns; clear `disabled_at` only when re-enabling a device.
+No database change.
+
+**Tests (2026-10-19)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, unit | pass |
+| Local: browser tests against the Cloudflare build | new test drives the real Turn on / Turn off buttons with the browser's push system simulated: **reproduced the owner's message without the fix**, passes with it (device saved, off, on again re-uses the same device); both alert tests pass |
+| CI | see report |
+| Production | not deployed |
+
+**Owner actions after approval:** Deploy app (Cloudflare) only — no migrations. Then on the iPhone
+(Home Screen app): Settings → Alerts → Turn on → Send a test alert; then a test quote request.
+

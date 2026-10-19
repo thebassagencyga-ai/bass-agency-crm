@@ -68,3 +68,49 @@ test("a quote request hands out its alert in the background; the request never d
   await page.reload();
   await expect(page.getByText("None yet.")).toBeVisible();
 });
+
+test("turn alerts on and off from Settings (the browser's push system simulated)", async ({ page, context }) => {
+  test.skip(!parsePushKey(process.env.PUSH_KEY), "PUSH_KEY is not set for this run");
+  const owner = await createTestUser("e2e-alerts-on");
+  await context.addCookies(await fullSessionCookies(owner.email, APP_URL));
+  const api = await fullSessionClient(owner.email);
+  // What a phone's browser would hand over: a push address and its keys (fictional device).
+  const ecdh = createECDH("prime256v1");
+  ecdh.generateKeys();
+  const keys = { p256dh: b64urlEncode(ecdh.getPublicKey()), auth: b64urlEncode(randomBytes(16)) };
+  await context.addInitScript((k) => {
+    type Sub = { endpoint: string; options: { applicationServerKey: ArrayBuffer | null }; toJSON(): object; unsubscribe(): Promise<boolean> };
+    let sub: Sub | null = null;
+    const proto = (window as unknown as { PushManager: { prototype: Record<string, unknown> } }).PushManager.prototype;
+    proto.getSubscription = async () => sub;
+    proto.subscribe = async (opts: { applicationServerKey: ArrayBuffer }) => {
+      sub = {
+        endpoint: "https://push.invalid/simulated-device",
+        options: { applicationServerKey: opts.applicationServerKey },
+        toJSON() { return { endpoint: this.endpoint, keys: k }; },
+        unsubscribe: async () => { sub = null; return true; },
+      };
+      return sub;
+    };
+    Object.defineProperty(Notification, "permission", { get: () => "granted" });
+    Notification.requestPermission = async () => "granted";
+  }, keys);
+
+  await page.goto("/settings#alerts");
+  await page.getByRole("button", { name: "Turn on alerts on this device" }).click();
+  await expect(page.getByText("Alerts are on for this device. Send a test alert to check.")).toBeVisible();
+  const { data: rows } = await api.from("push_subscriptions").select("endpoint, p256dh, auth, device_label, disabled_at");
+  expect(rows).toEqual([{ endpoint: "https://push.invalid/simulated-device", p256dh: keys.p256dh, auth: keys.auth, device_label: "iPhone", disabled_at: null }]);
+
+  // Off on this device, then on again: the same device row is turned back on. (No reload in
+  // between: the simulated push system lives in the page, unlike a real phone's.)
+  await page.getByRole("button", { name: "Turn off on this device" }).click();
+  await expect(page.getByText("Alerts are off for this device.")).toBeVisible();
+  expect((await api.from("push_subscriptions").select("disabled_at").single()).data!.disabled_at).not.toBeNull();
+  await page.getByRole("button", { name: "Turn on alerts on this device" }).click();
+  await expect(page.getByText("Alerts are on for this device. Send a test alert to check.")).toBeVisible();
+  const { data: again } = await api.from("push_subscriptions").select("disabled_at");
+  expect(again).toEqual([{ disabled_at: null }]);
+  await page.reload();
+  await expect(page.getByRole("list", { name: "Devices with alerts on" })).toContainText("iPhone");
+});

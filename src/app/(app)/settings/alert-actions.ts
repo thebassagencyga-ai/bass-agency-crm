@@ -30,11 +30,13 @@ export async function enableAlerts(subscriptionJson: string, userAgent: string):
   const proofHash = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(await dispatchProof(key))));
   const row = {
     p256dh: sub.keys.p256dh, auth: sub.keys.auth, device_label: deviceLabel(userAgent.slice(0, 500)),
-    dispatch_hash: `\\x${hex(proofHash)}`, disabled_at: null,
+    dispatch_hash: `\\x${hex(proofHash)}`,
   };
   const { data: existing } = await supabase.from("push_subscriptions").select("id").eq("endpoint", sub.endpoint).maybeSingle();
+  // A new device is inserted with only the columns the app may write (no disabled_at); a device
+  // turned on again is re-enabled by clearing disabled_at.
   const { error } = existing
-    ? await supabase.from("push_subscriptions").update(row).eq("id", existing.id as string)
+    ? await supabase.from("push_subscriptions").update({ ...row, disabled_at: null }).eq("id", existing.id as string)
     : await supabase.from("push_subscriptions").insert({ endpoint: sub.endpoint, ...row });
   if (error) return { error: "Could not turn alerts on. Please try again." };
   revalidatePath("/settings");
