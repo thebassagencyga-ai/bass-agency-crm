@@ -917,7 +917,7 @@ label ("Call Robin Example", "Text or email …", "Log a call or visit with …"
 
 ## ADR-038 — Producr CRM: name and brand system
 
-**Status:** Proposed — built in Phase 22, awaiting approval. **Owner decisions (2026-10-19):** rename
+**Status:** Accepted — built in Phase 22, approved by the owner 2026-10-19. **Owner decisions (2026-10-19):** rename
 "The Bass Agency CRM" in case it is offered to others one day. ZeroLapse was chosen first, then
 replaced the same day: "use Producr CRM as the name", applying a brand brief from ChatGPT but
 "eliminate anything that changes this product structurally or alters anything besides the

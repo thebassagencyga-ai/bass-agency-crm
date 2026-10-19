@@ -881,6 +881,8 @@ looks only, with their answers on dark mode (switch), menu labels (keep), icon (
 Lighthouse flagged "visible text and accessible name differ" on the logo link ("producrCRM" with no
 space); fixed by putting a real space between "producr" and "CRM".
 
+**Approved by the owner 2026-10-19** ("Approved").
+
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
 2. No migrations. Deploy app (Cloudflare).
