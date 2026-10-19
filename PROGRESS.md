@@ -927,6 +927,10 @@ the deploy run's own smoke test.
 | CI run 39250674014 (commit a5a9d61): all 4 jobs | pass — migrations on the Supabase image, schema/RLS, full browser suite incl. phone widths and Lighthouse |
 | Production | not deployed yet |
 
+**Approved by the owner 2026-10-19** ("Approved"). A first "Deploy done" (runs 39253421093,
+39253670774, 39253821694, 39253821399) redeployed f272117 because Phase 23 was not yet merged; no
+change in production.
+
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
 2. Deploy database migrations: dry run lists only `20261031120000_quote_dates_client_status.sql`;

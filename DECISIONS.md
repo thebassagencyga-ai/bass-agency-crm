@@ -960,7 +960,7 @@ label, and the existing authenticator entry, keep their old look until re-added 
 ## ADR-039 — Workflow audit decisions and Step 1 design
 
 **Status:** Accepted — owner decisions of 2026-10-19 on `docs/workflow-audit-2026-10.md`. Step 1
-built in Phase 23 (awaiting approval); later steps not started. **Sequence (owner):** Step 0
+built in Phase 23, approved by the owner 2026-10-19; later steps not started. **Sequence (owner):** Step 0
 verify the Phase 22 deploy; Step 1 quote dates + client status; Step 2 Web Push; Step 3
 ProducrIQ Focus; documentation refresh as a separate docs-only task. Stop after each step.
 

@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 23 — Quote dates and client status (2026-10-19, ready for review)
+## Phase 23 — Quote dates and client status (2026-10-19, approved)
 ### Changed
 - Moving an opportunity to **Quoted** (commercial: **Proposal Presented**) now records the quote
   date (today, or the date you choose), so the "Follow up on quote" task is always scheduled,

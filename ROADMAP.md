@@ -30,7 +30,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 20 | Tag list (pick tags from options) — owner request after go-live | 19 | APPROVED (2026-10-17) |
 | 21 | Phone polish (bottom bar, search anywhere, contact quick actions) | 20 | APPROVED (2026-10-19) |
 | 22 | Producr CRM: new name and brand design | 21 | APPROVED (2026-10-19) |
-| 23 | Workflow audit Step 1: quote dates and client status | 22 | READY FOR REVIEW |
+| 23 | Workflow audit Step 1: quote dates and client status | 22 | APPROVED (2026-10-19) |
 
 ---
 
@@ -589,7 +589,7 @@ Owner choices: light and dark with a switch; keep the current menu labels; new P
 - One-time correction for contacts with an active bound policy, audited and tested.
 - Security (RLS, two-step policy, audit log) unchanged; all tests green.
 
-**Status 2026-10-19:** READY FOR REVIEW; see PROGRESS.md.
+**Status 2026-10-19:** built and APPROVED by the owner; deploy pending (migration + app). See PROGRESS.md.
 
 ---
 
