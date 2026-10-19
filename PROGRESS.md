@@ -1171,6 +1171,13 @@ it"). ADR-044. Implements owner decision 1 of ADR-039.
 
 **Approved by the owner 2026-10-19** ("Approved approved").
 
+**Production deploy (2026-10-19, commit 6331c68):** CI on `main` 39339874564 passed; migrations
+dry run 39341963634 listed only `20261104120000_push_alerts.sql`; apply run 39342161863 applied it
+and verification passed (24 tables, 24 two-step policies, 26 Data API functions, exactly 3
+anonymous functions — calendar_feed, claim_push_alerts, submit_intake — each SECURITY DEFINER with
+a pinned search_path; automation engine safe); Deploy app 39342456997 succeeded, smoke test passed.
+⏳ Owner: create the alert key, add `PUSH_KEY` in Cloudflare, iPhone test (completes Phase 26).
+
 **Owner actions after approval**
 1. Merge to `main` (Claude).
 2. Deploy database migrations: dry run lists only `20261104120000_push_alerts.sql`; then apply.
