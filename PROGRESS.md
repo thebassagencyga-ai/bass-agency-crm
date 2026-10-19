@@ -846,34 +846,29 @@ Design in ADR-037. No database changes.
 2. No migrations. Deploy app (Cloudflare).
 3. On the iPhone: bottom bar and More, Find a contact, Call · Text · Log on a contact.
 
-## Phase 22 — Rename to ZeroLapse CRM (branch `phase-22-zerolapse-name`)
-Started 2026-10-19 on the owner's choice of name ("I like zerolapse"). Design in ADR-038. No
-database changes.
+## Phase 22 — Producr CRM: name and brand design (branch `phase-22-producr-brand`)
+Started 2026-10-19. First built as the ZeroLapse rename (branch `phase-22-zerolapse-name`, CI
+39192559214 green, never merged); the owner then chose "Producr CRM" and a brand brief filtered to
+looks only, with their answers on dark mode (switch), menu labels (keep), icon (new P) and font
+(Inter). Design in ADR-038. No database changes.
 
 **Completed**
-- "ZeroLapse CRM" on the sign-in screen, app header, every page title, offline page, web app
-  manifest and description; "ZeroLapse" as the iPhone home-screen name.
-- New authenticator setups are labelled "ZeroLapse CRM" (TOTP issuer).
-- Calendar feed name "ZeroLapse tasks"; export files `zerolapse-<data>-<date>.csv`.
-- Service worker cache v2 (offline page refresh). Smoke test checks for the new name (sign-in page and manifest).
-- Unchanged on purpose: "The Bass Agency" in all client-facing text; web address, repository,
-  worker, Supabase project.
-
-**Tests (2026-10-19)**
-| Where | Result |
-|---|---|
-| Local: lint, typecheck | pass |
-| Local: unit | 439 passed |
-| Local: database | not re-run (no database changes) |
-| CI run 39192239145 (commit aa065a3) | failed — the smoke test still looked for the old short name "Bass CRM" in the manifest; fixed in 46c4597 (also `applicationName`) |
-| CI run 39192559214 (commit 46c4597): all 4 jobs | pass — smoke test with the new name, 23 browser tests (incl. two-step setup with the new authenticator label, install details, export file name), phone widths, Lighthouse |
-| Production | not deployed yet |
+- Name: "Producr CRM" on the sign-in screen, shell, every page title, offline page and install
+  details; "Producr" under the iPhone icon; authenticator issuer "Producr CRM" for new setups;
+  calendar "Producr tasks"; exports `producr-<data>-<date>.csv`; smoke test checks the new name.
+- Brand tokens in `src/app/globals.css` with semantic utilities; every colour class in the app
+  moved to them (no raw palette colours left); bordered panels are white cards on Cloud White.
+- Shell: Midnight Ink sidebar (tablet/desktop) and top bar (phone) with the producr wordmark,
+  search and an Electric Blue current-page marker; bottom bar restyled; sign-in screen with the
+  wordmark and tagline; dashboard counts highlight overdue (red) and due today (blue).
+- Settings → Appearance (`setTheme`, cookie `producr_theme`, `src/lib/theme.ts`).
+- Inter via `next/font` (self-hosted at build). P symbol (`src/components/brand.tsx`), favicon,
+  home-screen icons (`scripts/make-icons.mjs`), service worker cache v2.
 
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
 2. No migrations. Deploy app (Cloudflare).
-3. Optional: to see "ZeroLapse" under the iPhone icon, delete the home-screen icon and add it
-   again from Safari (Share → Add to Home Screen); you'll sign in once more there. The
-   authenticator entry keeps working under its old name.
+3. Optional: delete the iPhone home-screen icon and add it again from Safari to get the new icon
+   and "Producr" name (you'll sign in once more there). Your authenticator entry keeps working.
 4. Optional: Supabase dashboard → Authentication → Emails: change "Bass Agency CRM" in the
-   password-reset email subject to "ZeroLapse CRM" (the local test config already says so).
+   password-reset email subject to "Producr CRM".

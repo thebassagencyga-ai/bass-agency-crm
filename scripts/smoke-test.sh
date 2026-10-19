@@ -17,7 +17,7 @@ done
 [ "$code" = "200" ] && ok "sign-in page is up" || bad "/login returned $code"
 
 body=$(curl -s "$SITE/login")
-grep -q "ZeroLapse CRM" <<<"$body" && ok "sign-in page is the CRM" || bad "sign-in page title not found"
+grep -q "Producr CRM" <<<"$body" && ok "sign-in page is the CRM" || bad "sign-in page title not found"
 grep -qi "supabase\.co" <<<"$body" && bad "sign-in page mentions the database address" || ok "no database address in the page"
 
 loc=$(curl -s -o /dev/null -w '%{redirect_url}' "$SITE/dashboard")
@@ -52,7 +52,7 @@ check_file() { # path, expected content type fragment, expected text (optional)
   if [ -n "${3:-}" ] && ! grep -q "$3" /tmp/smoke.$$; then bad "$1 does not contain $3"; return; fi
   ok "$1"
 }
-check_file /manifest.webmanifest "json" "ZeroLapse"
+check_file /manifest.webmanifest "json" "Producr"
 check_file /sw.js "javascript" "bass-crm-static"
 check_file /offline.html "text/html" "You're offline"
 check_file /icons/icon-192.png "image/png"

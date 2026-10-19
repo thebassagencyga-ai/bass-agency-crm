@@ -11,10 +11,10 @@ import { OUTCOME_LABELS, type OpportunityListRow, type Stage } from "@/lib/oppor
 import { OPPORTUNITY_OUTCOMES, PRODUCT_LINES, PRODUCT_LINE_NAMES, type ProductLine } from "@/lib/pipelines";
 import { moveFromBoard } from "./actions";
 
-export const metadata: Metadata = { title: "Opportunities · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Opportunities · Producr CRM" };
 
 const CONTROL =
-  "min-h-11 w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100";
+  "min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-card px-3 py-2 text-base text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus";
 
 const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   moved: { text: "Stage updated.", tone: "ok" },
@@ -45,26 +45,26 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
   return (
     <section className="flex flex-col gap-4">
       {notice ? (
-        <p role={notice.tone === "error" ? "alert" : "status"} className={`max-w-4xl rounded-md p-3 text-sm ${notice.tone === "error" ? "bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200" : "bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200"}`}>
+        <p role={notice.tone === "error" ? "alert" : "status"} className={`max-w-4xl rounded-md p-3 text-sm ${notice.tone === "error" ? "bg-bad-soft text-bad" : "bg-good-soft text-good"}`}>
           {notice.text}
         </p>
       ) : null}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-semibold">Opportunities</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Opportunities</h1>
         <nav aria-label="View" className="flex gap-1">
           {(["board", "table"] as const).map((v) => (
             <Link
               key={v}
               href={v === "board" ? `/opportunities?line=${params.line ?? "auto"}` : "/opportunities?view=table"}
               aria-current={params.view === v ? "page" : undefined}
-              className="flex min-h-11 items-center rounded-md border border-slate-300 px-4 text-sm font-medium aria-[current=page]:border-slate-900 aria-[current=page]:bg-slate-900 aria-[current=page]:text-white dark:border-slate-600 dark:aria-[current=page]:bg-slate-100 dark:aria-[current=page]:text-slate-900"
+              className="flex min-h-11 items-center rounded-md border border-line-strong px-4 text-sm font-medium aria-[current=page]:border-brand aria-[current=page]:bg-brand aria-[current=page]:text-on-brand"
             >
               {v === "board" ? "Board" : "Table"}
             </Link>
           ))}
         </nav>
       </div>
-      <p className="max-w-4xl text-sm text-slate-600 dark:text-slate-400">
+      <p className="max-w-4xl text-sm text-muted">
         Add an opportunity from a contact&apos;s page. {params.view === "board" ? "The board shows open and nurture opportunities plus anything won or lost in the last 30 days." : null}
       </p>
       {params.view === "board" ? (
@@ -86,7 +86,7 @@ function Board({ line, q, supabaseStages, rows }: { line: ProductLine; q: string
             key={l}
             href={`/opportunities?line=${l}`}
             aria-current={l === line ? "page" : undefined}
-            className="flex min-h-11 items-center rounded-md px-3 text-sm font-medium underline-offset-4 aria-[current=page]:bg-slate-100 aria-[current=page]:underline dark:aria-[current=page]:bg-slate-800"
+            className="flex min-h-11 items-center rounded-md px-3 text-sm font-medium underline-offset-4 aria-[current=page]:bg-brand-soft aria-[current=page]:underline"
           >
             {PRODUCT_LINE_NAMES[l]}
           </Link>
@@ -96,10 +96,10 @@ function Board({ line, q, supabaseStages, rows }: { line: ProductLine; q: string
         <input type="hidden" name="line" value={line} />
         <label htmlFor="board-q" className="sr-only">Search this pipeline</label>
         <input id="board-q" name="q" type="search" defaultValue={q} placeholder="Search name, description or carrier" maxLength={100} className={`${CONTROL} flex-1`} />
-        <button type="submit" className="min-h-11 rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">Search</button>
+        <button type="submit" className="min-h-11 rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">Search</button>
       </form>
       {rows.truncated ? (
-        <p className="text-sm">Showing the 200 most recently updated. <Link href={`/opportunities?view=table&line=${line}`} className="underline">See all in the table</Link>.</p>
+        <p className="text-sm">Showing the 200 most recently updated. <Link href={`/opportunities?view=table&line=${line}`} className="underline text-link">See all in the table</Link>.</p>
       ) : null}
       {/* Phones: one stage after another. Wider screens: stages side by side, scrolling sideways. */}
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:overflow-x-auto md:pb-2">
@@ -107,18 +107,18 @@ function Board({ line, q, supabaseStages, rows }: { line: ProductLine; q: string
           const cards = rows.rows.filter((r) => r.stage_id === stage.id);
           const headingId = `stage-${stage.id}`;
           return (
-            <section key={stage.id} aria-labelledby={headingId} className="flex flex-col gap-2 rounded-md bg-slate-50 p-2 md:w-72 md:shrink-0 dark:bg-slate-900">
+            <section key={stage.id} aria-labelledby={headingId} className="flex flex-col gap-2 rounded-md bg-subtle p-2 md:w-72 md:shrink-0">
               <h2 id={headingId} className="px-1 text-sm font-semibold">
-                {stage.name} <span className="font-normal text-slate-500">({cards.length})</span>
+                {stage.name} <span className="font-normal text-muted">({cards.length})</span>
               </h2>
               {cards.length === 0 ? (
-                <p className="px-1 text-sm text-slate-500">None</p>
+                <p className="px-1 text-sm text-muted">None</p>
               ) : (
                 <ul className="flex flex-col gap-2">
                   {cards.map((r) => (
-                    <li key={r.id} id={`opp-${r.id}`} className="flex flex-col gap-2 rounded-md border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-950">
+                    <li key={r.id} id={`opp-${r.id}`} className="flex flex-col gap-2 rounded-md border border-line bg-card p-3">
                       <Link href={`/opportunities/${r.id}`} className="flex min-h-11 items-center font-medium underline-offset-2 hover:underline">{rowName(r)}</Link>
-                      {r.description ? <p className="text-sm break-words text-slate-600 dark:text-slate-400">{r.description}</p> : null}
+                      {r.description ? <p className="text-sm break-words text-muted">{r.description}</p> : null}
                       <div className="flex flex-wrap items-center gap-2 text-sm">
                         {r.outcome !== "open" ? <OutcomeBadge outcome={r.outcome} /> : null}
                         {r.estimated_annual_premium !== null ? <span>{formatMoney(r.estimated_annual_premium, { whole: true })}/yr</span> : null}
@@ -135,7 +135,7 @@ function Board({ line, q, supabaseStages, rows }: { line: ProductLine; q: string
                               <option key={s.id} value={s.id}>{s.kind === "won" ? `${s.name} (won)` : s.kind === "lost" ? `${s.name}…` : s.name}</option>
                             ))}
                           </select>
-                          <button type="submit" className="min-h-11 rounded-md border border-slate-900 px-3 text-sm font-medium dark:border-slate-100">Move</button>
+                          <button type="submit" className="min-h-11 rounded-md border border-line-strong bg-card hover:bg-subtle px-3 text-sm font-medium">Move</button>
                         </form>
                       )}
                     </li>
@@ -154,12 +154,12 @@ function Table({ params, result }: { params: OpportunityListParams; result: { ro
   const filtered = Boolean(params.q || params.line || params.outcome || params.closed !== "all");
   return (
     <>
-      <form method="get" action="/opportunities" role="search" className="flex max-w-4xl flex-col gap-2 rounded-md border border-slate-200 p-3 dark:border-slate-700">
+      <form method="get" action="/opportunities" role="search" className="flex max-w-4xl flex-col gap-2 rounded-md border border-line p-3 bg-card">
         <input type="hidden" name="view" value="table" />
         <label htmlFor="q" className="text-sm font-medium">Search</label>
         <div className="flex gap-2">
           <input id="q" name="q" type="search" defaultValue={params.q} placeholder="Name, business, description or carrier" maxLength={100} className={`${CONTROL} flex-1`} />
-          <button type="submit" className="min-h-11 rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">Search</button>
+          <button type="submit" className="min-h-11 rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">Search</button>
         </div>
         <details open={filtered && !params.q}>
           <summary className="min-h-11 cursor-pointer py-2 text-sm font-medium">Filters and sorting</summary>
@@ -192,19 +192,19 @@ function Table({ params, result }: { params: OpportunityListParams; result: { ro
               </select>
             </label>
           </div>
-          <button type="submit" className="mt-2 min-h-11 rounded-md bg-slate-900 px-4 font-medium text-white dark:bg-slate-100 dark:text-slate-900">Apply</button>
+          <button type="submit" className="mt-2 min-h-11 rounded-md bg-brand px-4 font-medium text-on-brand hover:bg-brand-hover">Apply</button>
         </details>
       </form>
 
       {result.rows.length === 0 ? (
-        <p className="text-slate-600 dark:text-slate-400">
+        <p className="text-muted">
           {filtered ? "No opportunities match. Try a different search or clear the filters." : "No opportunities yet. Open a contact and choose “Add opportunity”."}
         </p>
       ) : (
-        <ul aria-label="Opportunities" className="flex max-w-4xl flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+        <ul aria-label="Opportunities" className="flex max-w-4xl flex-col divide-y divide-line rounded-md border border-line bg-card">
           {result.rows.map((r) => (
             <li key={r.id}>
-              <Link href={`/opportunities/${r.id}`} className="flex min-h-11 flex-col gap-1 p-3 hover:bg-slate-50 sm:flex-row sm:items-center sm:gap-4 dark:hover:bg-slate-900">
+              <Link href={`/opportunities/${r.id}`} className="flex min-h-11 flex-col gap-1 p-3 hover:bg-subtle sm:flex-row sm:items-center sm:gap-4">
                 <span className="font-medium sm:w-56 sm:shrink-0">{rowName(r)}</span>
                 <span className="text-sm sm:w-28 sm:shrink-0">{PRODUCT_LINE_NAMES[r.product_line]}</span>
                 <span className="text-sm sm:w-40 sm:shrink-0">{r.stage_name}</span>
@@ -220,8 +220,8 @@ function Table({ params, result }: { params: OpportunityListParams; result: { ro
       )}
       {params.page > 1 || result.hasMore ? (
         <nav aria-label="Pages" className="flex max-w-4xl justify-between">
-          {params.page > 1 ? <Link href={tableHref(params, params.page - 1)} className="min-h-11 py-2 underline">← Previous</Link> : <span />}
-          {result.hasMore ? <Link href={tableHref(params, params.page + 1)} className="min-h-11 py-2 underline">Next →</Link> : null}
+          {params.page > 1 ? <Link href={tableHref(params, params.page - 1)} className="min-h-11 py-2 underline text-link">← Previous</Link> : <span />}
+          {result.hasMore ? <Link href={tableHref(params, params.page + 1)} className="min-h-11 py-2 underline text-link">Next →</Link> : null}
         </nav>
       ) : null}
     </>

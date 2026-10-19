@@ -1,13 +1,13 @@
-# CLAUDE.md — ZeroLapse CRM
+# CLAUDE.md — Producr CRM
 
 Permanent instructions for any Claude session working in this repository. Read this file,
 `ROADMAP.md`, `PROGRESS.md` and `DECISIONS.md` before doing anything else.
 
 ## What this is
 
-**ZeroLapse CRM** (renamed from "The Bass Agency CRM" on 2026-10-19, ADR-038): a private sales and
+**Producr CRM** (renamed from "The Bass Agency CRM" on 2026-10-19, ADR-038): a private sales and
 relationship CRM built for The Bass Agency (insurance, Carrollton, GA). Client-facing text (quote
-form, message sign-offs, consent) still says "The Bass Agency"; the app's own name is ZeroLapse.
+form, message sign-offs, consent) still says "The Bass Agency"; the app's own name is Producr.
 One user today; must support additional agents later without a redesign.
 
 It is **not** a policy administration system, quoting engine, underwriting tool, or a
@@ -95,6 +95,18 @@ Next phase proposed
 - Still out of scope: paid automation platforms, AI prospecting / purchased leads, Alfa
   integrations, file uploads of policy documents, unnecessary third-party services.
 - Dates of birth and driver's license numbers stay excluded (tabled, see DECISIONS).
+
+## Brand and UI (Phase 22, ADR-038)
+
+- The app is **Producr CRM**: wordmark lowercase "producr" + smaller "CRM" (`src/components/brand.tsx`).
+  Client-facing text (quote form, consent, message sign-offs) says "The Bass Agency".
+- Colours live only in `src/app/globals.css`. Use the semantic utilities (`bg-canvas`, `bg-card`,
+  `bg-subtle`, `border-line`, `border-line-strong`, `text-fg`, `text-muted`, `bg-brand` +
+  `text-on-brand`, `text-link`, `outline-focus`, `good`/`caution`/`bad` + `-soft`, `bg-shell`);
+  never raw palette classes or hex values in components. Primary buttons are Ink on Electric
+  Blue, never white on Electric Blue. `tests/unit/brand.test.ts` checks contrast in both themes.
+- Light and dark both stay supported (`dark:` follows the Settings choice or the device).
+- Keep the menu labels and the phone bottom bar; brand work changes looks, not structure.
 
 ## Data minimization
 

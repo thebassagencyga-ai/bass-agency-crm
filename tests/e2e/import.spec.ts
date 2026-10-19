@@ -69,7 +69,7 @@ test("import a 500-client report, undo it, download data", async ({ page, contex
     page.waitForEvent("download"),
     page.getByRole("list", { name: "Downloads" }).getByRole("link", { name: "Contacts" }).click(),
   ]);
-  expect(download.suggestedFilename()).toMatch(/^zerolapse-contacts-\d{4}-\d{2}-\d{2}\.csv$/);
+  expect(download.suggestedFilename()).toMatch(/^producr-contacts-\d{4}-\d{2}-\d{2}\.csv$/);
   const csv = readFileSync((await download.path())!, "utf8");
   expect(csv.startsWith("﻿Name,Type,First name")).toBe(true);
   expect(csv).toContain("Example Bakery LLC");

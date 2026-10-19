@@ -16,7 +16,7 @@ import { termLabel } from "@/lib/renewals";
 import { outcomesFor } from "@/lib/renewals/data";
 import { getProfile } from "@/lib/tasks/data";
 
-export const metadata: Metadata = { title: "Renewal · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Renewal · Producr CRM" };
 
 export default async function RenewalPage({
   params, searchParams,
@@ -40,37 +40,37 @@ export default async function RenewalPage({
   return (
     <section className="flex max-w-3xl flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <Link href="/renewals" className="flex min-h-11 w-fit items-center text-sm underline">← Renewals</Link>
-        <h1 className="text-2xl font-semibold break-words">Renewal · {name}</h1>
+        <Link href="/renewals" className="flex min-h-11 w-fit items-center text-sm underline text-link">← Renewals</Link>
+        <h1 className="text-2xl font-bold tracking-tight break-words">Renewal · {name}</h1>
         <p>
-          <Link href={`/opportunities/${opp.id}`} className="inline-flex min-h-11 min-w-11 items-center underline">{PRODUCT_LINE_NAMES[opp.product_line]} policy</Link>
+          <Link href={`/opportunities/${opp.id}`} className="inline-flex min-h-11 min-w-11 items-center underline text-link">{PRODUCT_LINE_NAMES[opp.product_line]} policy</Link>
           {opp.quoted_carrier ? ` · ${opp.quoted_carrier}` : ""}
         </p>
       </div>
 
       <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-[11rem_1fr]">
         <div className="contents">
-          <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">Renewal date</dt>
+          <dt className="text-sm font-medium text-muted">Renewal date</dt>
           <dd>{formatDateOnly(opp.renewal_date) || "—"}{opp.renewal_date && opp.renewal_date < today && active ? " (passed)" : ""}</dd>
         </div>
         <div className="contents">
-          <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">Term</dt>
+          <dt className="text-sm font-medium text-muted">Term</dt>
           <dd>{termLabel(opp.policy_term_months)}</dd>
         </div>
         <div className="contents">
-          <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">Est. annual premium</dt>
+          <dt className="text-sm font-medium text-muted">Est. annual premium</dt>
           <dd>{formatMoney(opp.estimated_annual_premium) || "—"}</dd>
         </div>
         {contact?.phone ? (
           <div className="contents">
-            <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">Phone</dt>
-            <dd><a href={`tel:${contact.phone}`} className="inline-flex min-h-11 min-w-11 items-center underline">{contact.phone}</a></dd>
+            <dt className="text-sm font-medium text-muted">Phone</dt>
+            <dd><a href={`tel:${contact.phone}`} className="inline-flex min-h-11 min-w-11 items-center underline text-link">{contact.phone}</a></dd>
           </div>
         ) : null}
       </dl>
 
       {active ? (
-        <section aria-labelledby="outcome-heading" className="flex flex-col gap-3 rounded-md border border-slate-200 p-3 dark:border-slate-700">
+        <section aria-labelledby="outcome-heading" className="flex flex-col gap-3 rounded-md border border-line p-3 bg-card">
           <h2 id="outcome-heading" className="text-lg font-semibold">Record the outcome</h2>
           <RenewalOutcomeForm
             opportunityId={opp.id}
@@ -78,7 +78,7 @@ export default async function RenewalPage({
           />
         </section>
       ) : (
-        <p className="rounded-md bg-slate-100 p-3 text-sm dark:bg-slate-800">
+        <p className="rounded-md bg-subtle p-3 text-sm">
           {opp.policy_ended_on
             ? `This policy ended on ${formatDateOnly(opp.policy_ended_on)}. Its history is kept below.`
             : opp.outcome !== "won"

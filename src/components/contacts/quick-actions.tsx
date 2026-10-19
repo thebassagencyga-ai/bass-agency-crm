@@ -33,7 +33,7 @@ export function QuickActions({ actions }: { actions: QuickAction[] }) {
   return (
     <nav
       aria-label="Quick actions"
-      className="sticky top-0 z-20 -mx-4 border-b border-slate-200 bg-white/95 px-4 py-2 backdrop-blur md:mx-0 md:px-0 dark:border-slate-800 dark:bg-slate-950/95"
+      className="sticky top-0 z-20 -mx-4 border-b border-line bg-card/95 px-4 py-2 backdrop-blur md:mx-0 md:px-0"
     >
       <ul className="grid grid-flow-col auto-cols-fr gap-2">
         {actions.map((a) => (
@@ -46,7 +46,7 @@ export function QuickActions({ actions }: { actions: QuickAction[] }) {
                   e.preventDefault();
                 }
               }}
-              className="flex min-h-11 items-center justify-center gap-2 rounded-md bg-slate-900 px-3 font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:bg-slate-100 dark:text-slate-900"
+              className="flex min-h-11 items-center justify-center gap-2 rounded-md bg-brand px-3 font-medium text-on-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus hover:bg-brand-hover"
             >
               <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 {ICONS[a.key]}

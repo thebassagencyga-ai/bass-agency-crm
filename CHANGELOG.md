@@ -2,10 +2,13 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 22 — ZeroLapse CRM (2026-10-19, ready for review)
+## Phase 22 — Producr CRM (2026-10-19, in progress)
 ### Changed
-- The app is now called **ZeroLapse CRM** ("ZeroLapse" under the iPhone icon). Clients still see
+- The app is now **Producr CRM**, with a new look: Midnight Ink menu, Electric Blue buttons and
+  highlights, Cloud White workspace, the Inter font and a new "P" icon. Clients still see
   "The Bass Agency". Same web address; nothing to set up again.
+### Added
+- Settings → Appearance: match the device, light or dark.
 
 ## Phase 21 — Phone polish (2026-10-18, approved 2026-10-19)
 ### Added

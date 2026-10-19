@@ -915,26 +915,44 @@ label ("Call Robin Example", "Text or email …", "Log a call or visit with …"
 
 ---
 
-## ADR-038 — The app is named ZeroLapse CRM
+## ADR-038 — Producr CRM: name and brand system
 
-**Status:** Proposed — built in Phase 22, awaiting approval. **Owner decision (2026-10-19):**
-rename "The Bass Agency CRM" in case it is offered to others one day; wanted something bold, in
-the "(Blank) CRM" form; chose ZeroLapse ("no client, renewal or follow-up ever lapses"). Quick
-web searches found no software by that name (BookIQ, BindIQ, Rainmaker, RenewIQ were taken or
-too close to insurance products). A trademark (USPTO) and domain check is still needed before
-any sale; no domain is bought now (cost guardrail).
+**Status:** Proposed — built in Phase 22, awaiting approval. **Owner decisions (2026-10-19):** rename
+"The Bass Agency CRM" in case it is offered to others one day. ZeroLapse was chosen first, then
+replaced the same day: "use Producr CRM as the name", applying a brand brief from ChatGPT but
+"eliminate anything that changes this product structurally or alters anything besides the
+aesthetics". Asked and answered: dark mode — "Both - user can toggle"; menu labels — keep the
+current ones; new P icon — yes; Inter — yes. A web search found no software named Producr
+(nearest: "Produce Pro" for produce wholesalers). A trademark (USPTO) and domain check is still
+needed before any sale; no domain is bought now (cost guardrail).
 
-**Decision.** The app's own name is "ZeroLapse CRM" ("ZeroLapse" where space is short: iPhone
-icon, calendar name, export file names). The agency the app serves is still "The Bass Agency"
-in everything a client sees — quote form, consent wording, default message sign-off — because
-that is who the client deals with. Infrastructure names stay (`bass-agency-crm` repository,
-Cloudflare worker and workers.dev address, Supabase project, local cache prefix): renaming them
-would break the owner's home-screen app, calendar subscription and printed quote QR code for no
-user-visible gain. They can change with a custom domain if the product is ever sold.
+**Decision.**
+- **Name.** "Producr CRM"; the wordmark is lowercase "producr" with "CRM" as a smaller
+  descriptor; "Producr" where space is short (iPhone icon, calendar name, export file names);
+  new authenticator setups use "Producr CRM" as the issuer. Tagline on the sign-in screen:
+  "Every lead. Every next move." Everything a client sees still says "The Bass Agency" (quote
+  form, consent wording, message sign-off). Infrastructure names stay (`bass-agency-crm`
+  repository, Cloudflare worker and workers.dev address, Supabase project): renaming them would
+  break the owner's home-screen app, calendar subscription and printed quote QR code.
+- **Colours.** The brand sheet's tokens live once in `src/app/globals.css` (Electric Blue
+  #55A7FF, Midnight Ink #111923, Cloud White #F4F6F8, Slate, semantic success/warning/danger).
+  Components use semantic Tailwind utilities (`bg-canvas`, `bg-card`, `text-fg`, `text-muted`,
+  `bg-brand`, `text-on-brand`, `text-link`, `bg-good-soft`, `text-bad`, …), not colour literals.
+  Two contrast fixes, tested in `tests/unit/brand.test.ts`: buttons use Ink text on Electric
+  Blue (white would be 2.5:1), and secondary text / links use deeper shades (#5B6B82, #1D66C2)
+  because Slate is 4.39:1 on Cloud White and Electric Blue is 2.5:1 on white.
+- **Light and dark.** Settings → Appearance: match this device, light or dark — a cookie on the
+  device (no database change). A custom `dark` variant follows the explicit choice or the device.
+- **Shell.** Midnight Ink top bar on phones and sidebar from tablet width, Electric Blue marker on
+  the current page; the Phase 21 bottom bar and search stay. Menu labels unchanged.
+- **Type and icons.** Inter, bundled at build time and served by the app (no runtime request to
+  Google; CSP unchanged). A code-drawn geometric P on an Electric Blue tile for the in-app mark,
+  favicon and home-screen icons (`scripts/make-icons.mjs`).
+- **Left out of the brief** (structural, not looks): new dashboard metrics, renamed menu sections,
+  a navigation drawer, confirmation dialogs, an icon library, a second status file.
 
-**Consequences.** Existing authenticator entries and the iPhone home-screen label keep their old
-name until re-added (both optional). The service worker cache version bumps so the offline page
-shows the new name.
+**Consequences.** No database, route or permission changes. The iPhone home-screen icon and
+label, and the existing authenticator entry, keep their old look until re-added (optional).
 
 ---
 

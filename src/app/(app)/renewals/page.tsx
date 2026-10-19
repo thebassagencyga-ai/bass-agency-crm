@@ -11,7 +11,7 @@ import { RENEWAL_WINDOWS, groupRenewals, parseRenewalParams, renewalsHref, termL
 import { searchRenewals } from "@/lib/renewals/data";
 import { getProfile } from "@/lib/tasks/data";
 
-export const metadata: Metadata = { title: "Renewals · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Renewals · Producr CRM" };
 
 const RECORDED: Record<string, string> = {
   kept: "Renewal recorded. The renewal date moved to the next term and its review task was added.",
@@ -21,7 +21,7 @@ const RECORDED: Record<string, string> = {
 
 const CHIP = "flex min-h-11 items-center rounded-md border px-3 text-sm font-medium";
 const chipClass = (active: boolean) =>
-  `${CHIP} ${active ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900" : "border-slate-300 dark:border-slate-600"}`;
+  `${CHIP} ${active ? "border-brand bg-brand text-on-brand hover:bg-brand-hover" : "border-line-strong"}`;
 
 export default async function RenewalsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const query = await searchParams;
@@ -36,10 +36,10 @@ export default async function RenewalsPage({ searchParams }: { searchParams: Pro
 
   return (
     <section className="flex max-w-4xl flex-col gap-6">
-      {recorded ? <p role="status" className="rounded-md bg-green-50 p-3 text-sm text-green-800 dark:bg-green-950 dark:text-green-200">{recorded}</p> : null}
+      {recorded ? <p role="status" className="rounded-md bg-good-soft p-3 text-sm text-good">{recorded}</p> : null}
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold">Renewals</h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400">Review each client policy before it renews, then record what happened.</p>
+        <h1 className="text-2xl font-bold tracking-tight">Renewals</h1>
+        <p className="text-sm text-muted">Review each client policy before it renews, then record what happened.</p>
       </div>
 
       <nav aria-label="Renewal window" className="flex flex-wrap gap-2">
@@ -85,14 +85,14 @@ function RenewalList({
 }: { id: string; title: string; rows: RenewalRow[]; empty: string; intro?: string; danger?: boolean; prospect?: boolean }) {
   return (
     <section aria-labelledby={`${id}-heading`} className="flex flex-col gap-2">
-      <h2 id={`${id}-heading`} className={`text-lg font-semibold ${danger ? "text-red-800 dark:text-red-300" : ""}`}>
-        {title} <span className="text-sm font-normal text-slate-600 dark:text-slate-400">({rows.length})</span>
+      <h2 id={`${id}-heading`} className={`text-lg font-semibold ${danger ? "text-bad" : ""}`}>
+        {title} <span className="text-sm font-normal text-muted">({rows.length})</span>
       </h2>
-      {intro ? <p className="text-sm text-slate-600 dark:text-slate-400">{intro}</p> : null}
+      {intro ? <p className="text-sm text-muted">{intro}</p> : null}
       {rows.length === 0 ? (
-        <p className="text-sm text-slate-600 dark:text-slate-400">{empty}</p>
+        <p className="text-sm text-muted">{empty}</p>
       ) : (
-        <ul aria-label={title} className="flex flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+        <ul aria-label={title} className="flex flex-col divide-y divide-line rounded-md border border-line bg-card">
           {rows.map((r) => (
             <li key={r.id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 flex-col">
@@ -100,7 +100,7 @@ function RenewalList({
                   {contactDisplayName(r)} · {PRODUCT_LINE_NAMES[r.product_line]}
                 </Link>
                 <span className="text-sm">Renews {formatDateOnly(r.renewal_date)}</span>
-                <span className="text-sm text-slate-600 dark:text-slate-400">
+                <span className="text-sm text-muted">
                   {[
                     prospect ? r.quoted_carrier && `Quoted ${r.quoted_carrier}` : termLabel(r.policy_term_months),
                     formatMoney(r.estimated_annual_premium, { whole: true }) && `${formatMoney(r.estimated_annual_premium, { whole: true })}/yr`,
@@ -112,13 +112,13 @@ function RenewalList({
                 <Link
                   href={`/contacts/${r.contact_id}?message=${prospect ? "xdate" : "renewal"}&opp=${r.id}#message`}
                   aria-label={`Text or email ${contactDisplayName(r)}`}
-                  className="flex min-h-11 flex-1 items-center justify-center rounded-md border border-slate-900 px-3 text-sm font-medium dark:border-slate-100"
+                  className="flex min-h-11 flex-1 items-center justify-center rounded-md border border-line-strong bg-card hover:bg-subtle px-3 text-sm font-medium"
                 >
                   Text or email
                 </Link>
                 <Link
                   href={prospect ? `/opportunities/${r.id}` : `/renewals/${r.id}`}
-                  className={`flex min-h-11 flex-1 items-center justify-center rounded-md px-3 text-sm font-medium ${prospect ? "border border-slate-900 dark:border-slate-100" : "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"}`}
+                  className={`flex min-h-11 flex-1 items-center justify-center rounded-md px-3 text-sm font-medium ${prospect ? "border border-line-strong bg-card hover:bg-subtle" : "bg-brand text-on-brand hover:bg-brand-hover"}`}
                 >
                   {prospect ? "Open opportunity" : "Record outcome"}
                 </Link>

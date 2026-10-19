@@ -2,7 +2,7 @@ import { removeContactDetail } from "@/app/(app)/contacts/details-actions";
 import { RELATIONSHIP_LABELS, type HouseholdMember, type Vehicle } from "@/lib/contacts/details";
 import { HouseholdMemberForm, VehicleForm } from "./detail-forms";
 
-const REMOVE = "min-h-11 rounded-md px-3 text-sm underline";
+const REMOVE = "min-h-11 rounded-md px-3 text-sm underline text-link";
 
 function RemoveButton({ contactId, id, table, label }: { contactId: string; id: string; table: string; label: string }) {
   return (
@@ -20,19 +20,19 @@ export function HouseholdSection({ contactId, members, editable }: { contactId: 
   return (
     <section id="household" aria-labelledby="household-heading" className="flex flex-col gap-2">
       <h2 id="household-heading" className="text-lg font-semibold">Household / other drivers</h2>
-      {members.length === 0 ? <p className="text-sm text-slate-600 dark:text-slate-400">None recorded.</p> : (
-        <ul aria-label="Household members" className="flex flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+      {members.length === 0 ? <p className="text-sm text-muted">None recorded.</p> : (
+        <ul aria-label="Household members" className="flex flex-col divide-y divide-line rounded-md border border-line bg-card">
           {members.map((m) => {
             const name = [m.first_name, m.last_name].filter(Boolean).join(" ");
             return (
               <li key={m.id} className="flex flex-col gap-2 p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span><span className="font-medium">{name}</span> <span className="text-sm text-slate-600 dark:text-slate-400">· {RELATIONSHIP_LABELS[m.relationship]}</span></span>
+                  <span><span className="font-medium">{name}</span> <span className="text-sm text-muted">· {RELATIONSHIP_LABELS[m.relationship]}</span></span>
                   {editable ? <RemoveButton contactId={contactId} id={m.id} table="household_members" label={name} /> : null}
                 </div>
                 {editable ? (
                   <details>
-                    <summary className="min-h-11 cursor-pointer py-2 text-sm underline">Edit {name}</summary>
+                    <summary className="min-h-11 cursor-pointer py-2 text-sm underline text-link">Edit {name}</summary>
                     <HouseholdMemberForm contactId={contactId} member={m} />
                   </details>
                 ) : null}
@@ -42,9 +42,9 @@ export function HouseholdSection({ contactId, members, editable }: { contactId: 
         </ul>
       )}
       {editable ? (
-        <details className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+        <details className="rounded-md border border-line p-3 bg-card">
           <summary className="min-h-11 cursor-pointer py-2 font-medium">Add a person</summary>
-          <p className="mb-2 text-xs text-slate-500">Names only. Never record dates of birth or driver&apos;s license numbers.</p>
+          <p className="mb-2 text-xs text-muted">Names only. Never record dates of birth or driver&apos;s license numbers.</p>
           <HouseholdMemberForm contactId={contactId} />
         </details>
       ) : null}
@@ -57,8 +57,8 @@ export function VehiclesSection({ contactId, vehicles, editable }: { contactId: 
   return (
     <section id="vehicles" aria-labelledby="vehicles-heading" className="flex flex-col gap-2">
       <h2 id="vehicles-heading" className="text-lg font-semibold">Vehicles</h2>
-      {vehicles.length === 0 ? <p className="text-sm text-slate-600 dark:text-slate-400">None recorded.</p> : (
-        <ul aria-label="Vehicles" className="flex flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+      {vehicles.length === 0 ? <p className="text-sm text-muted">None recorded.</p> : (
+        <ul aria-label="Vehicles" className="flex flex-col divide-y divide-line rounded-md border border-line bg-card">
           {vehicles.map((v) => {
             const name = [v.year, v.make, v.model].filter(Boolean).join(" ");
             return (
@@ -69,7 +69,7 @@ export function VehiclesSection({ contactId, vehicles, editable }: { contactId: 
                 </div>
                 {editable ? (
                   <details>
-                    <summary className="min-h-11 cursor-pointer py-2 text-sm underline">Edit {name}</summary>
+                    <summary className="min-h-11 cursor-pointer py-2 text-sm underline text-link">Edit {name}</summary>
                     <VehicleForm contactId={contactId} vehicle={v} />
                   </details>
                 ) : null}
@@ -79,9 +79,9 @@ export function VehiclesSection({ contactId, vehicles, editable }: { contactId: 
         </ul>
       )}
       {editable ? (
-        <details className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+        <details className="rounded-md border border-line p-3 bg-card">
           <summary className="min-h-11 cursor-pointer py-2 font-medium">Add a vehicle</summary>
-          <p className="mb-2 text-xs text-slate-500">Year, make and model only (no VIN).</p>
+          <p className="mb-2 text-xs text-muted">Year, make and model only (no VIN).</p>
           <VehicleForm contactId={contactId} />
         </details>
       ) : null}

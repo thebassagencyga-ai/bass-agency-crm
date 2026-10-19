@@ -8,13 +8,13 @@ export function RenewalHistory({ outcomes }: { outcomes: RenewalOutcomeRecord[] 
     <section aria-labelledby="renewal-history-heading" className="flex flex-col gap-2">
       <h2 id="renewal-history-heading" className="text-lg font-semibold">Renewal history</h2>
       {outcomes.length === 0 ? (
-        <p className="text-sm text-slate-600 dark:text-slate-400">No renewal outcomes recorded yet.</p>
+        <p className="text-sm text-muted">No renewal outcomes recorded yet.</p>
       ) : (
         <ul aria-label="Renewal history" className="flex flex-col gap-3">
           {outcomes.map((o) => (
             <li key={o.id} className="flex flex-col">
               <span className="font-medium">{formatDateOnly(o.renewal_date)} · {RENEWAL_OUTCOME_LABELS[o.outcome]}</span>
-              <span className="text-sm text-slate-600 dark:text-slate-400">
+              <span className="text-sm text-muted">
                 {[
                   o.loss_reason ? RENEWAL_LOSS_REASON_LABELS[o.loss_reason] : null,
                   o.premium !== null ? `${formatMoney(o.premium)}/yr` : null,

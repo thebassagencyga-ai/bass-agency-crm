@@ -64,10 +64,10 @@ export function buildCalendar(tasks: readonly FeedTask[], opts: { appUrl: string
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//ZeroLapse CRM//Tasks//EN",
+    "PRODID:-//Producr CRM//Tasks//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    "X-WR-CALNAME:ZeroLapse tasks",
+    "X-WR-CALNAME:Producr tasks",
     "X-WR-TIMEZONE:America/New_York",
     // Ask calendar apps to check back hourly (many decide for themselves).
     "REFRESH-INTERVAL;VALUE=DURATION:PT1H",

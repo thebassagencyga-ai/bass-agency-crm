@@ -34,7 +34,7 @@ export function CrossSellRuleForm({ rule }: { rule?: CrossSellRule }) {
             </label>
           ))}
         </div>
-        {err.has_any_lines ? <p id={fid("has-error")} className="text-sm text-red-700 dark:text-red-400">{err.has_any_lines}</p> : null}
+        {err.has_any_lines ? <p id={fid("has-error")} className="text-sm text-bad">{err.has_any_lines}</p> : null}
       </fieldset>
       <SelectField
         label="…but nothing in (suggest this line)" name="lacks_line" id={fid("lacks_line")} required

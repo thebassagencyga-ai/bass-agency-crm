@@ -11,8 +11,8 @@ import { guessMapping, IMPORT_FIELDS, type ImportField, type Mapping } from "@/l
 import { PRODUCT_LINES, PRODUCT_LINE_NAMES } from "@/lib/pipelines";
 
 const MAX_BYTES = 2 * 1024 * 1024;
-const BUTTON = "min-h-11 rounded-md bg-slate-900 px-4 py-2 font-medium text-white disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900";
-const SECONDARY = "min-h-11 rounded-md border border-slate-900 px-4 py-2 font-medium dark:border-slate-100";
+const BUTTON = "min-h-11 rounded-md bg-brand px-4 py-2 font-medium text-on-brand disabled:opacity-60 hover:bg-brand-hover";
+const SECONDARY = "min-h-11 rounded-md border border-line-strong bg-card hover:bg-subtle px-4 py-2 font-medium";
 const lineOptions = [...PRODUCT_LINES.map((l) => ({ value: l, label: PRODUCT_LINE_NAMES[l] })), { value: "skip", label: "Skip (contact only, no policy)" }];
 
 type Preview = { clients: ImportClient[]; issues: ImportIssue[]; tooMany: boolean; matches: Record<string, { id: string; label: string }> };
@@ -118,26 +118,26 @@ export function ImportWizard({ ai = false }: { ai?: boolean }) {
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
-      {error ? <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">{error}</p> : null}
+      {error ? <p role="alert" className="rounded-md bg-bad-soft p-3 text-sm text-bad">{error}</p> : null}
 
       <section aria-labelledby="step1" className="flex flex-col gap-2">
         <h2 id="step1" className="text-lg font-semibold">1. Choose the file</h2>
-        <p className="text-sm text-slate-600 dark:text-slate-400">A CSV export of your client or policy report (save Excel files as CSV). One row per policy or per client; up to 1,000 clients.</p>
+        <p className="text-sm text-muted">A CSV export of your client or policy report (save Excel files as CSV). One row per policy or per client; up to 1,000 clients.</p>
         <label htmlFor="import-file" className="text-sm font-medium">CSV file</label>
         <input id="import-file" type="file" accept=".csv,text/csv" onChange={(e) => void onFile(e.target.files?.[0])}
-          className="min-h-11 w-full rounded-md border border-slate-300 p-2 text-base dark:border-slate-600" />
+          className="min-h-11 w-full rounded-md border border-line-strong p-2 text-base" />
         {headers.length > 0 ? <p role="status" className="text-sm">{fileName}: {rows.length.toLocaleString()} rows, {headers.length} columns.</p> : null}
       </section>
 
       {headers.length > 0 ? (
         <section aria-labelledby="step2" className="flex flex-col gap-3">
           <h2 id="step2" className="text-lg font-semibold">2. Match the columns</h2>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Guessed from the headings. Change any that are wrong; leave a field as &quot;Not in file&quot; if the report doesn&apos;t have it.</p>
+          <p className="text-sm text-muted">Guessed from the headings. Change any that are wrong; leave a field as &quot;Not in file&quot; if the report doesn&apos;t have it.</p>
           {ai ? (
             <div className="flex flex-col gap-1">
               <button type="button" className={SECONDARY} disabled={pending} onClick={suggestWithAi}>{pending ? "Asking…" : "Suggest matches with AI"}</button>
-              <p className="text-xs text-slate-500">Sends only the column headings and policy-type names, never client rows.</p>
-              {aiNote ? <p role={aiNote.ok ? "status" : "alert"} className={`text-sm ${aiNote.ok ? "" : "text-red-700 dark:text-red-400"}`}>{aiNote.text}</p> : null}
+              <p className="text-xs text-muted">Sends only the column headings and policy-type names, never client rows.</p>
+              {aiNote ? <p role={aiNote.ok ? "status" : "alert"} className={`text-sm ${aiNote.ok ? "" : "text-bad"}`}>{aiNote.text}</p> : null}
             </div>
           ) : null}
           <div className="grid gap-3 sm:grid-cols-2">
@@ -147,10 +147,10 @@ export function ImportWizard({ ai = false }: { ai?: boolean }) {
                 onChange={(v) => setField(f.key, v)} />
             ))}
           </div>
-          {!nameMapped ? <p role="alert" className="text-sm text-red-700 dark:text-red-400">Match at least one name column.</p> : null}
+          {!nameMapped ? <p role="alert" className="text-sm text-bad">Match at least one name column.</p> : null}
 
           {lineValues.length > 0 ? (
-            <fieldset className="flex flex-col gap-2 rounded-md border border-slate-200 p-3 dark:border-slate-700">
+            <fieldset className="flex flex-col gap-2 rounded-md border border-line p-3 bg-card">
               <legend className="px-1 text-sm font-medium">Policy types in the file</legend>
               {lineValues.map((v) => (
                 <SelectField key={`${aiRound}-${v.value}`} id={`line-${lineKey(v.value)}`} name={`line-${lineKey(v.value)}`}
@@ -163,7 +163,7 @@ export function ImportWizard({ ai = false }: { ai?: boolean }) {
           <button type="button" className={BUTTON} disabled={pending || !nameMapped || unmatchedLines.length > 0} onClick={check}>
             {pending && !preview ? "Checking…" : "Check the file"}
           </button>
-          {unmatchedLines.length > 0 ? <p className="text-sm text-slate-600 dark:text-slate-400">Choose a line for every policy type first.</p> : null}
+          {unmatchedLines.length > 0 ? <p className="text-sm text-muted">Choose a line for every policy type first.</p> : null}
         </section>
       ) : null}
 
@@ -174,17 +174,17 @@ export function ImportWizard({ ai = false }: { ai?: boolean }) {
             {[
               ["Clients", preview.clients.length], ["Already in CRM", matchedCount], ["Policies", policyCount], ["Rows left out", skipped.length],
             ].map(([label, n]) => (
-              <li key={label} className="flex flex-col rounded-md border border-slate-200 p-3 dark:border-slate-700">
-                <span className="text-2xl font-semibold">{Number(n).toLocaleString()}</span><span className="text-sm">{label}</span>
+              <li key={label} className="flex flex-col rounded-md border border-line p-3 bg-card">
+                <span className="text-2xl font-bold tracking-tight">{Number(n).toLocaleString()}</span><span className="text-sm">{label}</span>
               </li>
             ))}
           </ul>
-          {preview.tooMany ? <p role="alert" className="text-sm text-amber-900 dark:text-amber-100">Only the first 1,000 clients will be imported. Import the rest from a second file.</p> : null}
+          {preview.tooMany ? <p role="alert" className="text-sm text-caution">Only the first 1,000 clients will be imported. Import the rest from a second file.</p> : null}
 
           {Object.keys(preview.matches).length > 0 ? (
             <fieldset className="flex flex-col gap-1">
               <legend className="text-sm font-medium">Already in the CRM (same email or phone)</legend>
-              <p className="text-xs text-slate-500">Ticked: the policies are added to your existing contact, which is not changed. Unticked: a new contact is created.</p>
+              <p className="text-xs text-muted">Ticked: the policies are added to your existing contact, which is not changed. Unticked: a new contact is created.</p>
               {preview.clients.filter((c) => preview.matches[c.key]).slice(0, 100).map((c) => (
                 <label key={c.key} className="flex min-h-11 items-center gap-2">
                   <input type="checkbox" checked={useMatch[c.key] ?? false} onChange={(e) => setUseMatch((u) => ({ ...u, [c.key]: e.target.checked }))} className="h-5 w-5" />
@@ -195,7 +195,7 @@ export function ImportWizard({ ai = false }: { ai?: boolean }) {
           ) : null}
 
           {skipped.length + warnings.length > 0 ? (
-            <details className="rounded-md border border-slate-200 p-3 dark:border-slate-700" open={skipped.length > 0}>
+            <details className="rounded-md border border-line p-3 bg-card" open={skipped.length > 0}>
               <summary className="min-h-11 cursor-pointer py-2 font-medium">Problems ({skipped.length} left out, {warnings.length} imported with a field left empty)</summary>
               <ul aria-label="Import problems" className="flex flex-col gap-1 text-sm">
                 {[...skipped, ...warnings].slice(0, 200).map((i, n) => (
@@ -205,7 +205,7 @@ export function ImportWizard({ ai = false }: { ai?: boolean }) {
             </details>
           ) : null}
 
-          <p className="text-sm text-slate-600 dark:text-slate-400">
+          <p className="text-sm text-muted">
             Policies are added as current (won) policies; renewal dates already passed are moved to the next renewal. You can undo the
             import for 7 days, as long as you haven&apos;t changed any of its records.
           </p>

@@ -23,7 +23,7 @@ export function ReviewForm({
         hint={referredByName ? `They wrote "${referredByName}". Find that contact to record the referral, or leave empty.` : undefined}
       />
       <SubmitButton pendingText="Adding…" pending={pending}>Accept and add to CRM</SubmitButton>
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-muted">
         Creates a New lead opportunity for each line and a quote task before any renewal month given. The request&apos;s details are then
         erased from the inbox.
       </p>

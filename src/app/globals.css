@@ -1,5 +1,125 @@
 @import "tailwindcss";
 
+/*
+ * Producr CRM brand system (Phase 22, ADR-038). All colours live here; components use the
+ * semantic utilities below (bg-canvas, bg-card, text-fg, text-muted, bg-brand, …), never raw
+ * colour literals. tests/unit/brand.test.ts checks every text/background pairing for contrast in
+ * both themes, and that the light brand values match the brand sheet.
+ *
+ * Theme: <html class="light"> or <html class="dark"> when the user picked one in Settings;
+ * no class follows the device setting.
+ */
+@custom-variant dark {
+  &:where(.dark, .dark *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:not(.light, .light *)) {
+      @slot;
+    }
+  }
+}
+
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+
+  /* Brand sheet (light theme = source of truth). */
+  --color-brand-primary: #55a7ff; /* Electric Blue */
+  --color-brand-primary-hover: #3694f5;
+  --color-brand-primary-soft: #eaf4ff;
+  --color-brand-ink: #111923; /* Midnight Ink */
+  --color-brand-cloud: #f4f6f8; /* Cloud White */
+  --color-brand-slate: #64748b; /* Slate: icons and borders */
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+  --color-text-primary: #111923;
+  /* Secondary text: brand Slate is 4.39:1 on Cloud White (below 4.5:1), so text uses a slightly deeper slate. */
+  --color-text-secondary: #5b6b82;
+  --color-success: #15803d;
+  --color-warning: #b45309;
+  --color-danger: #b91c1c;
+
+  /* Additions the brand sheet does not cover. */
+  --ui-canvas: var(--color-brand-cloud);
+  --ui-subtle: #eef2f6;
+  --ui-border-strong: #cbd5e1;
+  /* Electric Blue is 2.5:1 on white, too light for link text; links and focus rings use a deeper blue. */
+  --ui-link: #1d66c2;
+  --ui-success-soft: #ecfdf3;
+  --ui-warning-soft: #fff7ed;
+  --ui-danger-soft: #fef2f2;
+  --ui-shell: var(--color-brand-ink);
+  --ui-shell-text: #e8eef5;
+  --ui-shell-muted: #9aa8ba;
+}
+
+/* Dark theme. Kept identical in both blocks (checked by the unit test). */
+:root.dark {
+  color-scheme: dark;
+  --color-brand-primary-hover: #78b9ff;
+  --color-brand-primary-soft: #13304f;
+  --color-surface: #111923;
+  --color-border: #243142;
+  --color-text-primary: #e8eef5;
+  --color-text-secondary: #9aa8ba;
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+  --ui-canvas: #0b1118;
+  --ui-subtle: #1b2633;
+  --ui-border-strong: #3a4a5e;
+  --ui-link: #7dbbff;
+  --ui-success-soft: #0f2a1a;
+  --ui-warning-soft: #2d1f08;
+  --ui-danger-soft: #2e1212;
+  --ui-shell: #070b10;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    color-scheme: dark;
+    --color-brand-primary-hover: #78b9ff;
+    --color-brand-primary-soft: #13304f;
+    --color-surface: #111923;
+    --color-border: #243142;
+    --color-text-primary: #e8eef5;
+    --color-text-secondary: #9aa8ba;
+    --color-success: #4ade80;
+    --color-warning: #fbbf24;
+    --color-danger: #f87171;
+    --ui-canvas: #0b1118;
+    --ui-subtle: #1b2633;
+    --ui-border-strong: #3a4a5e;
+    --ui-link: #7dbbff;
+    --ui-success-soft: #0f2a1a;
+    --ui-warning-soft: #2d1f08;
+    --ui-danger-soft: #2e1212;
+    --ui-shell: #070b10;
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-canvas: var(--ui-canvas); /* workspace background */
+  --color-card: var(--color-surface); /* cards, inputs, panels */
+  --color-subtle: var(--ui-subtle); /* hover and quiet fills */
+  --color-line: var(--color-border);
+  --color-line-strong: var(--ui-border-strong); /* input borders */
+  --color-fg: var(--color-text-primary);
+  --color-muted: var(--color-text-secondary);
+  --color-brand: var(--color-brand-primary);
+  --color-brand-hover: var(--color-brand-primary-hover);
+  --color-brand-soft: var(--color-brand-primary-soft);
+  --color-on-brand: var(--color-brand-ink); /* text on Electric Blue */
+  --color-link: var(--ui-link);
+  --color-focus: var(--ui-link);
+  --color-good: var(--color-success);
+  --color-good-soft: var(--ui-success-soft);
+  --color-caution: var(--color-warning);
+  --color-caution-soft: var(--ui-warning-soft);
+  --color-bad: var(--color-danger);
+  --color-bad-soft: var(--ui-danger-soft);
+  --color-shell: var(--ui-shell); /* navigation shell */
+  --color-shell-fg: var(--ui-shell-text);
+  --color-shell-muted: var(--ui-shell-muted);
 }

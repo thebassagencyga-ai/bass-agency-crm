@@ -12,7 +12,7 @@ export function PublicIntakeForm({ token }: { token: string }) {
 
   if (state.message === "sent") {
     return (
-      <div role="status" className="flex flex-col gap-2 rounded-md bg-green-50 p-4 text-green-900 dark:bg-green-950 dark:text-green-100">
+      <div role="status" className="flex flex-col gap-2 rounded-md bg-good-soft p-4 text-good">
         <h2 className="text-lg font-semibold">Thank you — we have your request.</h2>
         <p>The Bass Agency will contact you soon about your quote.</p>
       </div>
@@ -23,7 +23,7 @@ export function PublicIntakeForm({ token }: { token: string }) {
     <form action={formAction} onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
       <input type="hidden" name="token" value={token} />
       {Object.keys(errors).length > 0 ? (
-        <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">Please check the highlighted fields.</p>
+        <p role="alert" className="rounded-md bg-bad-soft p-3 text-sm text-bad">Please check the highlighted fields.</p>
       ) : (
         <FormAlert state={state} />
       )}
@@ -41,9 +41,9 @@ export function PublicIntakeForm({ token }: { token: string }) {
             aria-invalid={errors.consent ? true : undefined} aria-describedby={errors.consent ? "consent-error" : undefined} />
           <span className="text-sm">{CONSENT_TEXT}</span>
         </label>
-        {errors.consent ? <p id="consent-error" className="text-sm text-red-700 dark:text-red-400">{errors.consent}</p> : null}
+        {errors.consent ? <p id="consent-error" className="text-sm text-bad">{errors.consent}</p> : null}
       </div>
-      <p className="text-xs text-slate-600 dark:text-slate-400">
+      <p className="text-xs text-muted">
         Please don&apos;t include Social Security numbers, driver&apos;s license numbers, payment or bank details, or health information.
         We&apos;ll ask for anything else we need when we talk.
       </p>

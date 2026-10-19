@@ -11,13 +11,13 @@ import {
 import { getReport } from "@/lib/reports/data";
 import { getProfile } from "@/lib/tasks/data";
 
-export const metadata: Metadata = { title: "Reports · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Reports · Producr CRM" };
 
 const CHIP = "flex min-h-11 items-center rounded-md border px-3 text-sm font-medium";
 const TABLE = "w-full min-w-0 border-collapse text-sm";
-const TH = "border-b border-slate-200 py-2 pr-3 text-left font-medium text-slate-600 dark:border-slate-700 dark:text-slate-400";
+const TH = "border-b border-line py-2 pr-3 text-left font-medium text-muted";
 const THN = `${TH} text-right`;
-const TD = "border-b border-slate-100 py-2 pr-3 align-top dark:border-slate-800";
+const TD = "border-b border-line py-2 pr-3 align-top";
 const TDN = `${TD} text-right tabular-nums`;
 const money = (v: number) => formatMoney(v, { whole: true });
 
@@ -36,8 +36,8 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
   return (
     <section className="flex max-w-4xl flex-col gap-8">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold">Reports</h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <h1 className="text-2xl font-bold tracking-tight">Reports</h1>
+        <p className="text-sm text-muted">
           {formatDateOnly(period.start)} – {formatDateOnly(period.end)} · New York time. Premiums are estimates you recorded; no commission figures.
         </p>
       </div>
@@ -46,7 +46,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
         {PERIODS.map((p) => (
           <Link
             key={p} href={`/reports?period=${p}`} aria-current={period.key === p ? "page" : undefined}
-            className={`${CHIP} ${period.key === p ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900" : "border-slate-300 dark:border-slate-600"}`}
+            className={`${CHIP} ${period.key === p ? "border-brand bg-brand text-on-brand hover:bg-brand-hover" : "border-line-strong"}`}
           >
             {PERIOD_LABELS[p]}
           </Link>
@@ -54,7 +54,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
       </nav>
 
       <Report id="conversion" title="Conversion rate" definition={DEFINITIONS.conversion}>
-        <p className="text-2xl font-semibold">{formatConversion(closedWon, closedLost)}</p>
+        <p className="text-2xl font-bold tracking-tight">{formatConversion(closedWon, closedLost)}</p>
         {r.conversion.length === 0 ? null : (
           <Table caption="Conversion by product line" head={["Line", "Won", "Lost", "Conversion", "Won premium"]}>
             {r.conversion.map((x) => (
@@ -75,7 +75,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
           <Table caption="New leads by source" head={["Source", "Contacts", "With an opportunity", "Won"]}>
             {r.new_leads.map((x) => (
               <tr key={x.source ?? "(none)"}>
-                <td className={TD}>{x.source ?? <span className="text-slate-500">Not recorded</span>}</td>
+                <td className={TD}>{x.source ?? <span className="text-muted">Not recorded</span>}</td>
                 <td className={TDN}>{num(x.contacts)}</td>
                 <td className={TDN}>{num(x.with_opportunity)}</td>
                 <td className={TDN}>{num(x.won)}</td>
@@ -169,7 +169,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
           <Table caption="Referral sources" head={["Referred by", "Referred", "Won", "Working"]}>
             {r.referrals.map((x) => (
               <tr key={x.referrer_id}>
-                <td className={TD}><Link href={`/contacts/${x.referrer_id}`} className="inline-flex min-h-11 min-w-11 items-center underline">{contactDisplayName(x)}</Link></td>
+                <td className={TD}><Link href={`/contacts/${x.referrer_id}`} className="inline-flex min-h-11 min-w-11 items-center underline text-link">{contactDisplayName(x)}</Link></td>
                 <td className={TDN}>{num(x.referred)}</td>
                 <td className={TDN}>{num(x.won)}</td>
                 <td className={TDN}>{num(x.working)}</td>
@@ -199,7 +199,7 @@ function Report({ id, title, definition, children }: { id: string; title: string
     <section aria-labelledby={`${id}-heading`} className="flex flex-col gap-3">
       <h2 id={`${id}-heading`} className="text-lg font-semibold">{title}</h2>
       {children}
-      <p className="text-xs text-slate-600 dark:text-slate-400"><span className="font-medium">How it&apos;s counted:</span> {definition}</p>
+      <p className="text-xs text-muted"><span className="font-medium">How it&apos;s counted:</span> {definition}</p>
     </section>
   );
 }
@@ -222,9 +222,9 @@ function Stats({ label, items }: { label: string; items: [string, number][] }) {
   return (
     <dl aria-label={label} className="grid grid-cols-2 gap-2 sm:grid-cols-4">
       {items.map(([name, value]) => (
-        <div key={name} className="flex flex-col rounded-md border border-slate-200 p-3 dark:border-slate-700">
-          <dt className="order-2 text-sm text-slate-600 dark:text-slate-400">{name}</dt>
-          <dd className="order-1 text-2xl font-semibold tabular-nums">{value}</dd>
+        <div key={name} className="flex flex-col rounded-md border border-line p-3 bg-card">
+          <dt className="order-2 text-sm text-muted">{name}</dt>
+          <dd className="order-1 text-2xl font-bold tracking-tight tabular-nums">{value}</dd>
         </div>
       ))}
     </dl>
@@ -232,5 +232,5 @@ function Stats({ label, items }: { label: string; items: [string, number][] }) {
 }
 
 function Empty({ text = "Nothing in this period." }: { text?: string }) {
-  return <p className="text-sm text-slate-600 dark:text-slate-400">{text}</p>;
+  return <p className="text-sm text-muted">{text}</p>;
 }

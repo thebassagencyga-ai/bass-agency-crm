@@ -15,16 +15,16 @@ export function CrossSellPromptList({
     <section aria-labelledby="cross-sell-heading" className="flex flex-col gap-2">
       <h2 id="cross-sell-heading" className="text-lg font-semibold">Cross-sell reviews</h2>
       {notice === "dismissed" ? (
-        <p role="status" className="rounded-md bg-green-50 p-3 text-sm text-green-800 dark:bg-green-950 dark:text-green-200">Hidden for 12 months.</p>
+        <p role="status" className="rounded-md bg-good-soft p-3 text-sm text-good">Hidden for 12 months.</p>
       ) : notice === "dismisserror" ? (
-        <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">That didn&apos;t work. Please try again.</p>
+        <p role="alert" className="rounded-md bg-bad-soft p-3 text-sm text-bad">That didn&apos;t work. Please try again.</p>
       ) : null}
       {prompts.length === 0 ? (
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-muted">
           Nothing to review. Suggestions appear here when a client has a policy in one line but not another (rules are in Settings).
         </p>
       ) : (
-        <ul aria-label="Cross-sell reviews" className="flex flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+        <ul aria-label="Cross-sell reviews" className="flex flex-col divide-y divide-line rounded-md border border-line bg-card">
           {prompts.map((p) => (
             <li key={`${p.contact_id}-${p.rule_id}`} className="flex flex-col gap-2 p-3">
               <div className="flex min-w-0 flex-col">
@@ -32,12 +32,12 @@ export function CrossSellPromptList({
                   <Link href={`/contacts/${p.contact_id}`} className="flex min-h-11 items-center font-medium break-words underline-offset-2 hover:underline">{contactDisplayName(p)}</Link>
                 ) : null}
                 <span className={showContact ? "text-sm" : "font-medium"}>Review {PRODUCT_LINE_NAMES[p.lacks_line]}</span>
-                <span className="text-sm text-slate-600 dark:text-slate-400">{p.reason}</span>
+                <span className="text-sm text-muted">{p.reason}</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Link
                   href={`/opportunities/new?contact=${p.contact_id}&line=${p.lacks_line}`}
-                  className="flex min-h-11 items-center rounded-md border border-slate-900 px-3 text-sm font-medium dark:border-slate-100"
+                  className="flex min-h-11 items-center rounded-md border border-line-strong bg-card hover:bg-subtle px-3 text-sm font-medium"
                 >
                   Start {PRODUCT_LINE_NAMES[p.lacks_line]} opportunity
                 </Link>
@@ -48,7 +48,7 @@ export function CrossSellPromptList({
                   <button
                     type="submit"
                     aria-label={`Not now: ${PRODUCT_LINE_NAMES[p.lacks_line]} for ${contactDisplayName(p)} (hide for 12 months)`}
-                    className="min-h-11 rounded-md px-3 text-sm underline"
+                    className="min-h-11 rounded-md px-3 text-sm underline text-link"
                   >
                     Not now
                   </button>

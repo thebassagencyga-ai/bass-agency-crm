@@ -5,7 +5,7 @@ import { requireFullSession } from "@/lib/auth/require";
 import { getContact, knownTags, leadSourceOptions, summarize } from "@/lib/contacts/data";
 import { contactDisplayName } from "@/lib/contacts/format";
 
-export const metadata: Metadata = { title: "Edit contact · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Edit contact · Producr CRM" };
 
 export default async function EditContactPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,7 +21,7 @@ export default async function EditContactPage({ params }: { params: Promise<{ id
   ]);
   return (
     <section className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold break-words">Edit {contactDisplayName(contact)}</h1>
+      <h1 className="text-2xl font-bold tracking-tight break-words">Edit {contactDisplayName(contact)}</h1>
       <ContactForm contact={contact} referrer={referrer ? summarize(referrer) : null} leadSources={sources} knownTags={tags.map((t) => t.tag)} />
     </section>
   );

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { FormState } from "@/components/form";
 import { ruleFormSchema, type Rule } from "@/lib/automation";
@@ -8,6 +9,8 @@ import { requireFullSession } from "@/lib/auth/require";
 import { isUuid } from "@/lib/contacts/data";
 import { cleanTag, parseTagName } from "@/lib/contacts/tags";
 import { crossSellRuleSchema, ruleKeyFromName } from "@/lib/cross-sell";
+import { SESSION_COOKIE_OPTIONS } from "@/lib/supabase/cookies";
+import { parseTheme, THEME_COOKIE, THEME_COOKIE_MAX_AGE } from "@/lib/theme";
 
 const FIELDS = [
   "enabled", "days", "day_count", "task_title_template", "task_priority", "completion_window_days", "cooldown_days",
@@ -127,4 +130,14 @@ export async function addTag(formData: FormData): Promise<void> {
   if (dbError) redirect(`/settings?tags=${dbError.code === "23505" ? "exists" : "error"}#tags`);
   revalidatePath("/contacts");
   redirect(`/settings?tags=added#tags`);
+}
+
+/** Light / dark / device (Phase 22). Kept in a cookie on this device; nothing is stored in the database. */
+export async function setTheme(formData: FormData): Promise<void> {
+  await requireFullSession();
+  const theme = parseTheme(String(formData.get("theme") ?? ""));
+  (await cookies()).set(THEME_COOKIE, theme, {
+    path: "/", sameSite: "lax", httpOnly: true, secure: SESSION_COOKIE_OPTIONS.secure ?? true, maxAge: THEME_COOKIE_MAX_AGE,
+  });
+  redirect("/settings?theme=saved#appearance");
 }

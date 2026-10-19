@@ -16,7 +16,7 @@ import { templateForTaskCategory } from "@/lib/messages/templates";
 import { notStartedYet, taskView } from "@/lib/tasks/schedule";
 import { CATEGORY_LABELS, PRIORITY_LABELS } from "@/lib/tasks/types";
 
-export const metadata: Metadata = { title: "Task · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Task · Producr CRM" };
 
 const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   saved: { text: "Task saved.", tone: "ok" },
@@ -55,29 +55,29 @@ export default async function TaskPage({
     : view === "overdue" ? "Overdue" : view === "today" ? "Due today" : "Upcoming";
 
   const rows: [string, React.ReactNode][] = [
-    ["Contact", contact ? <Link href={`/contacts/${contact.id}`} className="inline-flex min-h-11 min-w-11 items-center underline">{contactDisplayName(contact)}</Link> : "—"],
+    ["Contact", contact ? <Link href={`/contacts/${contact.id}`} className="inline-flex min-h-11 min-w-11 items-center underline text-link">{contactDisplayName(contact)}</Link> : "—"],
     ["Due", formatDateOnly(task.due_date)],
     ...(task.start_date ? [["Don't show before", formatDateOnly(task.start_date)] as [string, React.ReactNode]] : []),
     ["Priority", PRIORITY_LABELS[task.priority]],
     ["Type", CATEGORY_LABELS[task.category]],
-    ...(opportunity ? [["Opportunity", <Link key="o" href={`/opportunities/${opportunity.id}`} className="inline-flex min-h-11 min-w-11 items-center underline">{PRODUCT_LINE_NAMES[opportunity.product_line]}</Link>] as [string, React.ReactNode]] : []),
+    ...(opportunity ? [["Opportunity", <Link key="o" href={`/opportunities/${opportunity.id}`} className="inline-flex min-h-11 min-w-11 items-center underline text-link">{PRODUCT_LINE_NAMES[opportunity.product_line]}</Link>] as [string, React.ReactNode]] : []),
     ["Created", `${formatInstantDate(task.created_at)}${task.origin === "automation" ? " (automatic)" : ""}`],
   ];
 
   return (
     <section className="flex max-w-3xl flex-col gap-6">
       {notice ? (
-        <p role={notice.tone === "error" ? "alert" : "status"} className={`rounded-md p-3 text-sm ${notice.tone === "error" ? "bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200" : "bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200"}`}>
+        <p role={notice.tone === "error" ? "alert" : "status"} className={`rounded-md p-3 text-sm ${notice.tone === "error" ? "bg-bad-soft text-bad" : "bg-good-soft text-good"}`}>
           {notice.text}
         </p>
       ) : null}
       <div className="flex flex-col gap-2">
-        <Link href="/tasks" className="flex min-h-11 w-fit items-center text-sm underline">← Tasks</Link>
-        <h1 className={`text-2xl font-semibold break-words ${task.status !== "open" ? "text-slate-500 line-through" : ""}`}>{task.title}</h1>
-        <p className={`text-sm font-medium ${view === "overdue" ? "text-red-700 dark:text-red-400" : ""}`}>{statusText}</p>
+        <Link href="/tasks" className="flex min-h-11 w-fit items-center text-sm underline text-link">← Tasks</Link>
+        <h1 className={`text-2xl font-bold tracking-tight break-words ${task.status !== "open" ? "text-muted line-through" : ""}`}>{task.title}</h1>
+        <p className={`text-sm font-medium ${view === "overdue" ? "text-bad" : ""}`}>{statusText}</p>
         <div className="flex flex-wrap gap-2">
           <TaskStatusButtons id={task.id} status={task.status} />
-          <Link href={`/tasks/${task.id}/edit`} className="flex min-h-11 items-center rounded-md border border-slate-400 px-4 font-medium">Edit</Link>
+          <Link href={`/tasks/${task.id}/edit`} className="flex min-h-11 items-center rounded-md border border-line-strong px-4 font-medium">Edit</Link>
         </div>
       </div>
       {message ? (
@@ -85,7 +85,7 @@ export default async function TaskPage({
       ) : contact && !contact.archived_at && task.status === "open" ? (
         <Link
           href={`/contacts/${contact.id}?message=${templateForTaskCategory(task.category)}${opportunity ? `&opp=${opportunity.id}` : ""}#message`}
-          className="flex min-h-11 w-fit items-center rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100"
+          className="flex min-h-11 w-fit items-center rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium"
         >
           Text or email {contactDisplayName(contact)}
         </Link>
@@ -93,7 +93,7 @@ export default async function TaskPage({
       <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-[10rem_1fr]">
         {rows.map(([label, value]) => (
           <div key={label} className="contents">
-            <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">{label}</dt>
+            <dt className="text-sm font-medium text-muted">{label}</dt>
             <dd className="break-words">{value}</dd>
           </div>
         ))}

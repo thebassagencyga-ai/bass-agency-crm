@@ -10,7 +10,7 @@ import { mergedFields } from "@/lib/contacts/merge";
 import { CONTACT_METHOD_LABELS, RELATIONSHIP_LABELS, type Contact } from "@/lib/contacts/types";
 import { formatDateOnly } from "@/lib/dates";
 
-export const metadata: Metadata = { title: "Merge contacts · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Merge contacts · Producr CRM" };
 
 const ERRORS: Record<string, string> = {
   already: "That contact was already merged into another one.",
@@ -38,12 +38,12 @@ export default async function MergePage({
       searchForMerge(supabase, q, contact.id),
     ]);
     const pick = (list: typeof suggested, label: string) => (
-      <ul aria-label={label} className="flex flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+      <ul aria-label={label} className="flex flex-col divide-y divide-line rounded-md border border-line bg-card">
         {list.map((d) => (
           <li key={d.id}>
-            <Link href={`/contacts/${id}/merge?with=${d.id}`} className="flex min-h-11 flex-col justify-center px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-900">
+            <Link href={`/contacts/${id}/merge?with=${d.id}`} className="flex min-h-11 flex-col justify-center px-3 py-2 hover:bg-subtle">
               <span className="font-medium">{d.label}</span>
-              {d.detail ? <span className="text-sm text-slate-600 dark:text-slate-400">{d.detail}</span> : null}
+              {d.detail ? <span className="text-sm text-muted">{d.detail}</span> : null}
             </Link>
           </li>
         ))}
@@ -51,9 +51,9 @@ export default async function MergePage({
     );
     return (
       <section className="flex max-w-xl flex-col gap-4">
-        <Link href={`/contacts/${id}`} className="flex min-h-11 w-fit items-center text-sm underline">← {name}</Link>
-        <h1 className="text-2xl font-semibold break-words">Merge {name} with…</h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400">Choose the duplicate. You&apos;ll see what the merged contact looks like before anything changes.</p>
+        <Link href={`/contacts/${id}`} className="flex min-h-11 w-fit items-center text-sm underline text-link">← {name}</Link>
+        <h1 className="text-2xl font-bold tracking-tight break-words">Merge {name} with…</h1>
+        <p className="text-sm text-muted">Choose the duplicate. You&apos;ll see what the merged contact looks like before anything changes.</p>
         {suggested.filter((d) => !d.archived).length > 0 ? (
           <>
             <h2 className="text-lg font-semibold">Same email or phone</h2>
@@ -64,8 +64,8 @@ export default async function MergePage({
           <label htmlFor="merge-q" className="text-sm font-medium">Find the other contact</label>
           <div className="flex gap-2">
             <input id="merge-q" name="q" type="search" defaultValue={q} maxLength={100} placeholder="Name, phone or email"
-              className="min-h-11 min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-base dark:border-slate-600 dark:bg-slate-900" />
-            <button type="submit" className="min-h-11 rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">Search</button>
+              className="min-h-11 min-w-0 flex-1 rounded-md border border-line-strong bg-card px-3 py-2 text-base" />
+            <button type="submit" className="min-h-11 rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">Search</button>
           </div>
         </form>
         {q.length >= 2 ? (found.length > 0 ? pick(found, "Search results") : <p className="text-sm">No other contact matches &quot;{q}&quot;.</p>) : null}
@@ -105,21 +105,21 @@ export default async function MergePage({
 
   return (
     <section className="flex max-w-xl flex-col gap-4">
-      <Link href={`/contacts/${id}/merge`} className="flex min-h-11 w-fit items-center text-sm underline">← Choose another contact</Link>
-      <h1 className="text-2xl font-semibold break-words">Merge duplicates</h1>
-      {error ? <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">{error}</p> : null}
+      <Link href={`/contacts/${id}/merge`} className="flex min-h-11 w-fit items-center text-sm underline text-link">← Choose another contact</Link>
+      <h1 className="text-2xl font-bold tracking-tight break-words">Merge duplicates</h1>
+      {error ? <p role="alert" className="rounded-md bg-bad-soft p-3 text-sm text-bad">{error}</p> : null}
 
       <fieldset className="flex flex-col gap-2">
         <legend className="text-sm font-medium">Which contact do you keep?</legend>
         <div className="flex gap-2">
           {[contact, other].map((c) => (
             <Link key={c.id} href={`/contacts/${id}/merge?with=${other.id}&keep=${c.id}`} aria-current={keep.id === c.id ? "true" : undefined}
-              className={`${CHOICE} ${keep.id === c.id ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900" : "border-slate-300 dark:border-slate-600"}`}>
+              className={`${CHOICE} ${keep.id === c.id ? "border-brand bg-brand text-on-brand hover:bg-brand-hover" : "border-line-strong"}`}>
               Keep {contactDisplayName(c)}{c.archived_at ? " (archived)" : ""}
             </Link>
           ))}
         </div>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-muted">
           The kept contact&apos;s details win; its empty details are filled from {contactDisplayName(dup)}.
         </p>
       </fieldset>
@@ -128,15 +128,15 @@ export default async function MergePage({
       <dl aria-label="Merged contact" className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2">
         {rows.map(([label, value, changed]) => (
           <div key={label} className="contents">
-            <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">{label}</dt>
-            <dd className="break-words">{value}{changed ? <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-900 dark:bg-amber-900 dark:text-amber-100">from the duplicate</span> : null}</dd>
+            <dt className="text-sm font-medium text-muted">{label}</dt>
+            <dd className="break-words">{value}{changed ? <span className="ml-2 rounded bg-caution-soft px-1.5 py-0.5 text-xs text-caution">from the duplicate</span> : null}</dd>
           </div>
         ))}
       </dl>
       <p className="text-sm">
         {moveText.length > 0 ? <>Moves to {contactDisplayName(keep)}: {moveText.join(", ")}.</> : <>{contactDisplayName(dup)} has no opportunities, tasks or history to move.</>}
       </p>
-      <p className="text-sm text-slate-600 dark:text-slate-400">
+      <p className="text-sm text-muted">
         {contactDisplayName(dup)} is then archived and marked &quot;merged&quot;, with a link here. Nothing is deleted, but a merge can&apos;t be undone.
       </p>
       <form action={mergeContacts} className="flex flex-col gap-2 sm:flex-row">
@@ -144,12 +144,12 @@ export default async function MergePage({
         <input type="hidden" name="merge" value={dup.id} />
         <input type="hidden" name="from" value={id} />
         <button type="submit" disabled={keep.archived_at !== null}
-          className="min-h-11 rounded-md bg-slate-900 px-4 font-medium text-white disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900">
+          className="min-h-11 rounded-md bg-brand px-4 font-medium text-on-brand disabled:opacity-60 hover:bg-brand-hover">
           Merge into {contactDisplayName(keep)}
         </button>
-        <Link href={`/contacts/${id}`} className="flex min-h-11 items-center justify-center px-3 underline">Cancel</Link>
+        <Link href={`/contacts/${id}`} className="flex min-h-11 items-center justify-center px-3 underline text-link">Cancel</Link>
       </form>
-      {keep.archived_at ? <p className="text-sm text-amber-800 dark:text-amber-200">{ERRORS.archived}</p> : null}
+      {keep.archived_at ? <p className="text-sm text-caution">{ERRORS.archived}</p> : null}
     </section>
   );
 }

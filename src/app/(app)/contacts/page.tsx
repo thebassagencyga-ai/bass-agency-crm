@@ -7,10 +7,10 @@ import { knownTags, leadSourceOptions, listContacts } from "@/lib/contacts/data"
 import { parseContactListParams, type ContactListParams } from "@/lib/contacts/params";
 import { RELATIONSHIP_LABELS, RELATIONSHIP_STATUSES } from "@/lib/contacts/types";
 
-export const metadata: Metadata = { title: "Contacts · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Contacts · Producr CRM" };
 
 const CONTROL =
-  "min-h-11 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100";
+  "min-h-11 rounded-md border border-line-strong bg-card px-3 py-2 text-base text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus";
 
 function pageHref(p: ContactListParams, page: number): string {
   const qs = new URLSearchParams();
@@ -35,20 +35,20 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
   return (
     <section className="flex max-w-4xl flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-semibold">Contacts</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Contacts</h1>
         <div className="flex flex-wrap gap-2">
-          <Link href="/import" className="flex min-h-11 items-center rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">Import</Link>
-          <Link href="/contacts/new" className="flex min-h-11 items-center rounded-md bg-slate-900 px-4 font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900">
+          <Link href="/import" className="flex min-h-11 items-center rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">Import</Link>
+          <Link href="/contacts/new" className="flex min-h-11 items-center rounded-md bg-brand px-4 font-medium text-on-brand hover:bg-brand-hover">
             Add contact
           </Link>
         </div>
       </div>
 
-      <form method="get" action="/contacts" role="search" className="flex flex-col gap-2 rounded-md border border-slate-200 p-3 dark:border-slate-700">
+      <form method="get" action="/contacts" role="search" className="flex flex-col gap-2 rounded-md border border-line p-3 bg-card">
         <label htmlFor="q" className="text-sm font-medium">Search</label>
         <div className="flex gap-2">
           <input id="q" name="q" type="search" defaultValue={params.q} placeholder="Name, business, phone or email" className={`${CONTROL} flex-1`} maxLength={100} />
-          <button type="submit" className="min-h-11 rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">Search</button>
+          <button type="submit" className="min-h-11 rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">Search</button>
         </div>
         <details open={filtered && !params.q}>
           <summary className="min-h-11 cursor-pointer py-2 text-sm font-medium">Filters and sorting</summary>
@@ -90,8 +90,8 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
               </select>
             </label>
             <div className="flex items-end gap-2">
-              <button type="submit" className="min-h-11 flex-1 rounded-md bg-slate-900 px-4 font-medium text-white dark:bg-slate-100 dark:text-slate-900">Apply</button>
-              {filtered ? <Link href="/contacts" className="flex min-h-11 items-center px-2 text-sm underline">Clear</Link> : null}
+              <button type="submit" className="min-h-11 flex-1 rounded-md bg-brand px-4 font-medium text-on-brand hover:bg-brand-hover">Apply</button>
+              {filtered ? <Link href="/contacts" className="flex min-h-11 items-center px-2 text-sm underline text-link">Clear</Link> : null}
             </div>
           </div>
         </details>
@@ -99,33 +99,33 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
 
       {params.tag ? (
         <p className="flex flex-wrap items-center gap-2 text-sm" role="status">
-          Tagged <span className="rounded-full bg-sky-100 px-2 py-0.5 font-medium text-sky-900 dark:bg-sky-900 dark:text-sky-100">{params.tag}</span>
-          <Link href={pageHref({ ...params, tag: null }, 1)} className="inline-flex min-h-11 items-center underline">Show all tags</Link>
+          Tagged <span className="rounded-full bg-brand-soft px-2 py-0.5 font-medium text-fg">{params.tag}</span>
+          <Link href={pageHref({ ...params, tag: null }, 1)} className="inline-flex min-h-11 items-center underline text-link">Show all tags</Link>
         </p>
       ) : null}
 
       {rows.length === 0 ? (
-        <div className="rounded-md border border-dashed border-slate-300 p-6 text-center dark:border-slate-600">
+        <div className="rounded-md border border-dashed border-line-strong p-6 text-center">
           {filtered || params.page > 1 ? (
-            <p>No contacts match. <Link href="/contacts" className="underline">Clear search and filters</Link></p>
+            <p>No contacts match. <Link href="/contacts" className="underline text-link">Clear search and filters</Link></p>
           ) : (
-            <p>No contacts yet. <Link href="/contacts/new" className="underline">Add your first contact</Link>, or <Link href="/import" className="underline">import your client list</Link>.</p>
+            <p>No contacts yet. <Link href="/contacts/new" className="underline text-link">Add your first contact</Link>, or <Link href="/import" className="underline text-link">import your client list</Link>.</p>
           )}
         </div>
       ) : (
-        <ul className="divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700" aria-label="Contacts">
+        <ul className="divide-y divide-line rounded-md border border-line bg-card" aria-label="Contacts">
           {rows.map((c) => {
             const person = contactPersonName(c);
             return (
               <li key={c.id}>
-                <Link href={`/contacts/${c.id}`} className="flex min-h-11 flex-col gap-1 px-3 py-3 hover:bg-slate-50 sm:flex-row sm:items-center sm:gap-4 dark:hover:bg-slate-900">
+                <Link href={`/contacts/${c.id}`} className="flex min-h-11 flex-col gap-1 px-3 py-3 hover:bg-subtle sm:flex-row sm:items-center sm:gap-4">
                   <span className="flex flex-1 flex-col">
                     <span className="font-medium">{contactDisplayName(c)}</span>
-                    {person ? <span className="text-sm text-slate-600 dark:text-slate-400">{person}</span> : null}
+                    {person ? <span className="text-sm text-muted">{person}</span> : null}
                     {c.tags.length > 0 ? <TagList tags={c.tags} /> : null}
                   </span>
-                  <span className="text-sm text-slate-600 sm:w-40 dark:text-slate-400">{c.phone ?? ""}</span>
-                  <span className="truncate text-sm text-slate-600 sm:w-56 dark:text-slate-400">{c.email ?? ""}</span>
+                  <span className="text-sm text-muted sm:w-40">{c.phone ?? ""}</span>
+                  <span className="truncate text-sm text-muted sm:w-56">{c.email ?? ""}</span>
                   <span className="flex gap-1">
                     <StatusBadge status={c.relationship_status} />
                     {c.merged_into_contact_id ? <MergedBadge /> : c.archived_at ? <ArchivedBadge /> : null}
@@ -139,9 +139,9 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
 
       {params.page > 1 || hasMore ? (
         <nav aria-label="Pages" className="flex items-center justify-between">
-          {params.page > 1 ? <Link href={pageHref(params, params.page - 1)} className="min-h-11 py-2 underline">← Previous</Link> : <span />}
-          <span className="text-sm text-slate-500">Page {params.page}</span>
-          {hasMore ? <Link href={pageHref(params, params.page + 1)} className="min-h-11 py-2 underline">Next →</Link> : <span />}
+          {params.page > 1 ? <Link href={pageHref(params, params.page - 1)} className="min-h-11 py-2 underline text-link">← Previous</Link> : <span />}
+          <span className="text-sm text-muted">Page {params.page}</span>
+          {hasMore ? <Link href={pageHref(params, params.page + 1)} className="min-h-11 py-2 underline text-link">Next →</Link> : <span />}
         </nav>
       ) : null}
     </section>

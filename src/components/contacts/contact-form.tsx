@@ -38,13 +38,13 @@ export function ContactForm({
       <FormAlert state={state} />
 
       {state.duplicates && state.duplicates.length > 0 ? (
-        <div role="alert" className="flex flex-col gap-2 rounded-md border border-amber-400 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">
+        <div role="alert" className="flex flex-col gap-2 rounded-md border border-caution bg-caution-soft p-3 text-sm text-caution">
           <p className="font-medium">You may already have this contact (same email or phone):</p>
           <ul className="list-disc pl-5">
             {state.duplicates.map((d) => (
               <li key={d.id}>
-                <Link href={`/contacts/${d.id}`} className="inline-flex min-h-11 min-w-11 items-center underline" target="_blank">{d.label}</Link>
-                {d.detail ? <span className="text-amber-800 dark:text-amber-200"> — {d.detail}</span> : null}
+                <Link href={`/contacts/${d.id}`} className="inline-flex min-h-11 min-w-11 items-center underline text-link" target="_blank">{d.label}</Link>
+                {d.detail ? <span className="text-caution"> — {d.detail}</span> : null}
               </li>
             ))}
           </ul>
@@ -57,7 +57,7 @@ export function ContactForm({
         <legend className="text-sm font-medium">Contact type</legend>
         <div className="flex gap-2">
           {(["individual", "business"] as const).map((t) => (
-            <label key={t} className="flex min-h-11 flex-1 cursor-pointer items-center gap-2 rounded-md border border-slate-300 px-3 has-[:checked]:border-slate-900 has-[:checked]:bg-slate-100 dark:border-slate-600 dark:has-[:checked]:border-slate-100 dark:has-[:checked]:bg-slate-800">
+            <label key={t} className="flex min-h-11 flex-1 cursor-pointer items-center gap-2 rounded-md border border-line-strong px-3 has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
               {/* defaultChecked, not checked: React 19 resets the form after each action, and only
                   the default (kept in step with `type`) survives that reset. */}
               <input type="radio" name="contact_type" value={t} defaultChecked={type === t} onChange={() => setType(t)} />
@@ -65,7 +65,7 @@ export function ContactForm({
             </label>
           ))}
         </div>
-        {err.contact_type ? <p className="text-sm text-red-700">{err.contact_type}</p> : null}
+        {err.contact_type ? <p className="text-sm text-bad">{err.contact_type}</p> : null}
       </fieldset>
 
       {type === "business" ? (
@@ -92,7 +92,7 @@ export function ContactForm({
         {leadSources.map((s) => <option key={s} value={s} />)}
       </datalist>
 
-      <details open={detailsOpen} className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+      <details open={detailsOpen} className="rounded-md border border-line p-3 bg-card">
         <summary className="min-h-11 cursor-pointer py-2 font-medium">More details</summary>
         <div className="mt-3 flex flex-col gap-4">
           <Field label="Other phone" name="alt_phone" type="tel" inputMode="tel" required={false} defaultValue={v("alt_phone")} error={err.alt_phone} />
@@ -111,7 +111,7 @@ export function ContactForm({
       </details>
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
-        <Link href={isEdit ? `/contacts/${contact.id}` : "/contacts"} className="min-h-11 px-3 py-2 text-center underline">Cancel</Link>
+        <Link href={isEdit ? `/contacts/${contact.id}` : "/contacts"} className="min-h-11 px-3 py-2 text-center underline text-link">Cancel</Link>
         <div className="sm:ml-auto sm:w-48">
           <SubmitButton pendingText="Saving…" pending={pending}>{state.duplicates?.length ? "Save anyway" : isEdit ? "Save changes" : "Save contact"}</SubmitButton>
         </div>

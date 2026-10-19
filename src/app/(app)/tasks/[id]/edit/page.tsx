@@ -8,7 +8,7 @@ import { listForContact } from "@/lib/opportunities/data";
 import { PRODUCT_LINE_NAMES } from "@/lib/pipelines";
 import { getTask } from "@/lib/tasks/data";
 
-export const metadata: Metadata = { title: "Edit task · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Edit task · Producr CRM" };
 
 export default async function EditTaskPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -18,7 +18,7 @@ export default async function EditTaskPage({ params }: { params: Promise<{ id: s
   const [contact, opportunities] = await Promise.all([getContact(supabase, task.contact_id), listForContact(supabase, task.contact_id)]);
   return (
     <section className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold">Edit task</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Edit task</h1>
       <TaskForm
         task={task}
         contact={{ id: task.contact_id, name: contact ? contactDisplayName(contact) : "Contact" }}

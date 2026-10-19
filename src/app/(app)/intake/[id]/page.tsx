@@ -13,7 +13,7 @@ import { RELATIONSHIP_LABELS } from "@/lib/contacts/details";
 import { MessageComposer } from "@/components/messages/message-composer";
 import { getProfile } from "@/lib/tasks/data";
 
-export const metadata: Metadata = { title: "Review request · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Review request · Producr CRM" };
 
 export default async function ReviewIntakePage({
   params, searchParams,
@@ -41,9 +41,9 @@ export default async function ReviewIntakePage({
 
   return (
     <section className="flex max-w-xl flex-col gap-4">
-      <Link href="/intake" className="flex min-h-11 items-center text-sm underline">← Intake</Link>
-      {query.error ? <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">Could not discard. Please try again.</p> : null}
-      <h1 className="text-2xl font-semibold">{s.first_name} {s.last_name}</h1>
+      <Link href="/intake" className="flex min-h-11 items-center text-sm underline text-link">← Intake</Link>
+      {query.error ? <p role="alert" className="rounded-md bg-bad-soft p-3 text-sm text-bad">Could not discard. Please try again.</p> : null}
+      <h1 className="text-2xl font-bold tracking-tight">{s.first_name} {s.last_name}</h1>
       <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2">
         {rows.filter(([, v]) => v).map(([k, v]) => (
           <div key={k} className="contents">
@@ -52,8 +52,8 @@ export default async function ReviewIntakePage({
           </div>
         ))}
       </dl>
-      <p className="text-xs text-slate-500">Agreed to be contacted by phone, text or email on {formatInstantDateTime(s.consent_at)}.</p>
-      <details className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+      <p className="text-xs text-muted">Agreed to be contacted by phone, text or email on {formatInstantDateTime(s.consent_at)}.</p>
+      <details className="rounded-md border border-line p-3 bg-card">
         <summary className="min-h-11 cursor-pointer py-2 font-semibold">Reply by text or email…</summary>
         <MessageComposer
           phone={s.phone} email={s.email}
@@ -62,9 +62,9 @@ export default async function ReviewIntakePage({
         />
       </details>
       <ReviewForm id={s.id} duplicates={duplicates} referredByName={s.referred_by_name} />
-      <form action={discardIntake} className="border-t border-slate-200 pt-4 dark:border-slate-700">
+      <form action={discardIntake} className="border-t border-line pt-4">
         <input type="hidden" name="id" value={s.id} />
-        <button type="submit" className="min-h-11 w-full rounded-md border border-red-700 px-4 py-2 font-medium text-red-800 hover:bg-red-50 dark:border-red-400 dark:text-red-300 dark:hover:bg-red-950">
+        <button type="submit" className="min-h-11 w-full rounded-md border border-bad px-4 py-2 font-medium text-bad hover:bg-bad-soft">
           Discard (spam or not a real request)
         </button>
       </form>

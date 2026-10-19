@@ -251,7 +251,7 @@ otp_expiry = 3600
 # Password reset links go to /auth/confirm (token_hash flow, works without a browser client).
 # The hosted project needs the same template: Dashboard → Authentication → Emails → Reset password.
 [auth.email.template.recovery]
-subject = "Reset your ZeroLapse CRM password"
+subject = "Reset your Producr CRM password"
 content_path = "./supabase/templates/recovery.html"
 
 # Uncomment to customize notification email template

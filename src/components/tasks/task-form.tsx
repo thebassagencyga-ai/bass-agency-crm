@@ -50,7 +50,7 @@ export function TaskForm({ task, contact, opportunities, defaultDueDate }: Props
       {opportunities.length > 0 ? (
         <SelectField label="Opportunity" name="opportunity_id" options={opportunities.map((o) => ({ value: o.id, label: o.label }))} defaultValue={v("opportunity_id")} error={err.opportunity_id} placeholder="None" />
       ) : null}
-      <details open={Boolean(task?.description || task?.start_date || err.start_date || err.description)} className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+      <details open={Boolean(task?.description || task?.start_date || err.start_date || err.description)} className="rounded-md border border-line p-3 bg-card">
         <summary className="min-h-11 cursor-pointer py-2 font-medium">More details</summary>
         <div className="mt-3 flex flex-col gap-4">
           <Field label="Don't show before" name="start_date" type="date" required={false} defaultValue={v("start_date")} error={err.start_date} hint="Keeps the task off Today until this date." />
@@ -58,7 +58,7 @@ export function TaskForm({ task, contact, opportunities, defaultDueDate }: Props
         </div>
       </details>
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
-        <Link href={cancelHref} className="min-h-11 px-3 py-2 text-center underline">Cancel</Link>
+        <Link href={cancelHref} className="min-h-11 px-3 py-2 text-center underline text-link">Cancel</Link>
         <div className="sm:ml-auto sm:w-48">
           <SubmitButton pendingText="Saving…" pending={pending}>{task ? "Save changes" : "Add task"}</SubmitButton>
         </div>

@@ -37,27 +37,27 @@ export function LogActivityWithAi(props: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <details className="rounded-md border border-dashed border-slate-300 p-2 dark:border-slate-600">
+      <details className="rounded-md border border-dashed border-line-strong p-2">
         <summary className="min-h-11 cursor-pointer py-2 text-sm font-medium">Fill in from my notes (AI)…</summary>
         <div className="flex flex-col gap-2">
           <label htmlFor="ai-notes" className="text-sm font-medium">Rough notes</label>
           <textarea
             id="ai-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={4} maxLength={3000}
             placeholder="e.g. called, left vm. she called back, wants auto quote compared, call her back thurs after 3"
-            className="min-h-11 w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base dark:border-slate-600 dark:bg-slate-900"
+            className="min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-card px-3 py-2 text-base"
           />
           <button
             type="button" onClick={fill} disabled={pending || notes.trim().length < 10}
-            className="min-h-11 rounded-md border border-slate-900 px-4 font-medium disabled:opacity-60 dark:border-slate-100"
+            className="min-h-11 rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium disabled:opacity-60"
           >
             {pending ? "Reading…" : "Fill in the form"}
           </button>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-muted">
             Sends only these notes and today&apos;s date to the AI. Notes that look like an SSN, card, bank, license or health detail are refused.
           </p>
         </div>
       </details>
-      {message ? <p role={message.ok ? "status" : "alert"} className={`text-sm ${message.ok ? "" : "text-red-700 dark:text-red-400"}`}>{message.text}</p> : null}
+      {message ? <p role={message.ok ? "status" : "alert"} className={`text-sm ${message.ok ? "" : "text-bad"}`}>{message.text}</p> : null}
       <LogActivityForm key={round} {...props} defaults={defaults} />
     </div>
   );

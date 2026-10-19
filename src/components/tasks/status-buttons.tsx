@@ -19,10 +19,10 @@ export function TaskStatusButtons({ id, status, back, compact = false }: { id: s
   if (status === "open") {
     return (
       <div className="flex flex-wrap gap-2">
-        {form("completed", compact ? "Done" : "Mark complete", "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900", compact ? "Done – mark complete" : undefined)}
-        {compact ? null : form("cancelled", "Cancel task", "border border-slate-400")}
+        {form("completed", compact ? "Done" : "Mark complete", "bg-brand text-on-brand hover:bg-brand-hover", compact ? "Done – mark complete" : undefined)}
+        {compact ? null : form("cancelled", "Cancel task", "border border-line-strong")}
       </div>
     );
   }
-  return form("open", "Reopen", "border border-slate-900 dark:border-slate-100");
+  return form("open", "Reopen", "border border-line-strong bg-card hover:bg-subtle");
 }

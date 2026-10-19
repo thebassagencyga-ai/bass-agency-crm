@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { isCurrentPath, NAV_ITEMS } from "@/lib/navigation";
 
+// Sidebar navigation on the Midnight Ink shell; the current page gets an Electric Blue marker.
 export function NavLinks() {
   const pathname = usePathname();
   return (
@@ -13,7 +14,7 @@ export function NavLinks() {
           <Link
             href={item.href}
             aria-current={isCurrentPath(pathname, item.href) ? "page" : undefined}
-            className="flex min-h-11 items-center rounded-md px-3 text-base hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 aria-[current=page]:bg-slate-900 aria-[current=page]:text-white dark:hover:bg-slate-800 dark:aria-[current=page]:bg-slate-100 dark:aria-[current=page]:text-slate-900"
+            className="flex min-h-11 items-center rounded-md px-3 text-base text-shell-muted hover:bg-white/5 hover:text-shell-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand aria-[current=page]:bg-white/10 aria-[current=page]:font-semibold aria-[current=page]:text-shell-fg aria-[current=page]:shadow-[inset_3px_0_0_var(--color-brand-primary)]"
           >
             {item.label}
           </Link>

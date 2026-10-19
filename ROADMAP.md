@@ -1,4 +1,4 @@
-# Roadmap — ZeroLapse CRM
+# Roadmap — Producr CRM
 
 Status values: `NOT STARTED` · `IN PROGRESS` · `READY FOR REVIEW` · `APPROVED`.
 A phase is complete only when every acceptance criterion is met, checks have run, docs are
@@ -29,7 +29,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | APPROVED (2026-10-17) — built, not connected |
 | 20 | Tag list (pick tags from options) — owner request after go-live | 19 | APPROVED (2026-10-17) |
 | 21 | Phone polish (bottom bar, search anywhere, contact quick actions) | 20 | APPROVED (2026-10-19) |
-| 22 | Rename the app to ZeroLapse CRM | 21 | READY FOR REVIEW |
+| 22 | Producr CRM: new name and brand design | 21 | IN PROGRESS |
 
 ---
 
@@ -554,19 +554,24 @@ Connecting is a later owner step (runbook §4d).
 
 ---
 
-## Phase 22 — Rename to ZeroLapse CRM
-**Objective.** Give the app its own name, separate from the agency, in case it is ever offered to
-other agents (owner, 2026-10-19: "I like zerolapse"; ADR-038).
+## Phase 22 — Producr CRM: name and brand design
+**Objective.** Give the app its own name and a cohesive brand look, in case it is ever offered to
+other agents (ADR-038). Owner, 2026-10-19: "use Producr CRM as the name", with ChatGPT's brand
+brief filtered to looks only ("eliminate anything that changes this product structurally").
+Owner choices: light and dark with a switch; keep the current menu labels; new P icon; Inter.
 
 **Acceptance criteria**
-- The app is called "ZeroLapse CRM" on the sign-in screen, header, page titles, offline page and
-  install details; "ZeroLapse" under the iPhone icon; new authenticator setups say "ZeroLapse CRM".
-- Everything clients see still says "The Bass Agency" (quote form, consent, message sign-offs).
-- Web address, repository, worker, database and Supabase project names unchanged; nothing the
-  owner set up (home-screen app, calendar subscription, quote link/QR, two-step sign-in) breaks.
-- No database changes. All tests green.
+- Name "Producr CRM" (wordmark "producr" + "CRM"; "Producr" under the iPhone icon; new
+  authenticator setups "Producr CRM"). Clients still see "The Bass Agency".
+- Brand colours defined once (src/app/globals.css) and used through semantic utilities; light
+  values match the brand sheet; all text pairings ≥ 4.5:1 in light and dark (unit tested).
+- Midnight Ink shell (sidebar on wider screens, top bar on phones), Electric Blue current-page
+  marker, Cloud White workspace; Inter; P symbol in the app, favicon and home-screen icons.
+- Settings → Appearance: match the device, light or dark (cookie on this device; no database).
+- No changes to routes, data, sign-in, database or menu labels; no new pages or metrics.
+- All tests green; phone widths and Lighthouse clean.
 
-**Status 2026-10-19:** READY FOR REVIEW; see PROGRESS.md.
+**Status 2026-10-19:** IN PROGRESS; see PROGRESS.md.
 
 ---
 

@@ -11,24 +11,24 @@ export function TagPicker({ options, checked, error }: { options: readonly strin
   const all = [...options, ...extra];
   return (
     <fieldset className="flex flex-col gap-2" aria-describedby={error ? "tags-error" : undefined}>
-      <legend className="text-sm font-medium">Tags <span className="font-normal text-slate-500">(optional)</span></legend>
+      <legend className="text-sm font-medium">Tags <span className="font-normal text-muted">(optional)</span></legend>
       {all.length === 0 ? (
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          No tags yet. <Link href="/settings#tags" className="underline">Add tags in Settings</Link>.
+        <p className="text-sm text-muted">
+          No tags yet. <Link href="/settings#tags" className="underline text-link">Add tags in Settings</Link>.
         </p>
       ) : (
         <div className="flex flex-wrap gap-2">
           {all.map((t, i) => (
             <label key={t}
-              className="flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-slate-300 px-3 has-[:checked]:border-sky-700 has-[:checked]:bg-sky-100 has-[:checked]:text-sky-900 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-blue-600 dark:border-slate-600 dark:has-[:checked]:bg-sky-900 dark:has-[:checked]:text-sky-100">
+              className="flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-line-strong px-3 has-[:checked]:border-brand has-[:checked]:bg-brand-soft has-[:checked]:text-fg has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-focus">
               <input id={`tag-${i}`} type="checkbox" name="tags" value={t} defaultChecked={on.has(t.toLowerCase())} className="h-4 w-4" />
               {t}
             </label>
           ))}
         </div>
       )}
-      {all.length > 0 ? <p className="text-xs text-slate-500">Change the list in <Link href="/settings#tags" className="underline">Settings → Tags</Link>.</p> : null}
-      {error ? <p id="tags-error" className="text-sm text-red-700">{error}</p> : null}
+      {all.length > 0 ? <p className="text-xs text-muted">Change the list in <Link href="/settings#tags" className="underline text-link">Settings → Tags</Link>.</p> : null}
+      {error ? <p id="tags-error" className="text-sm text-bad">{error}</p> : null}
     </fieldset>
   );
 }

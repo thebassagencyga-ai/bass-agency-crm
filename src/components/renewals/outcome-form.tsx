@@ -19,13 +19,13 @@ export function RenewalOutcomeForm({ opportunityId, nextRenewalLabel }: { opport
       <fieldset className="flex flex-col gap-2" aria-describedby={err.outcome ? "outcome-error" : undefined}>
         <legend className="mb-1 text-sm font-medium">What happened at renewal?</legend>
         {RENEWAL_OUTCOMES.map((o) => (
-          <label key={o} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-slate-300 px-3 has-[:checked]:border-slate-900 has-[:checked]:bg-slate-100 dark:border-slate-600 dark:has-[:checked]:border-slate-100 dark:has-[:checked]:bg-slate-800">
+          <label key={o} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-line-strong px-3 has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
             {/* defaultChecked: see useActionForm on why forms are not reset. */}
             <input type="radio" name="outcome" value={o} defaultChecked={outcome === o} onChange={() => setOutcome(o)} />
             {RENEWAL_OUTCOME_LABELS[o]}
           </label>
         ))}
-        {err.outcome ? <p id="outcome-error" className="text-sm text-red-700 dark:text-red-400">{err.outcome}</p> : null}
+        {err.outcome ? <p id="outcome-error" className="text-sm text-bad">{err.outcome}</p> : null}
       </fieldset>
 
       {outcome === "lost" ? (
@@ -36,7 +36,7 @@ export function RenewalOutcomeForm({ opportunityId, nextRenewalLabel }: { opport
         />
       ) : outcome ? (
         <>
-          <p className="text-sm text-slate-600 dark:text-slate-400">{nextRenewalLabel}</p>
+          <p className="text-sm text-muted">{nextRenewalLabel}</p>
           <Field
             label="New annual premium" name="premium" inputMode="decimal" required={false} maxLength={20}
             hint="Only if it changed, e.g. 1,250. Leave blank to keep the current estimate."

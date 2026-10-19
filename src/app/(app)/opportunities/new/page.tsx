@@ -7,7 +7,7 @@ import { contactDisplayName } from "@/lib/contacts/format";
 import { getStages } from "@/lib/opportunities/data";
 import { PRODUCT_LINES, type ProductLine } from "@/lib/pipelines";
 
-export const metadata: Metadata = { title: "Add opportunity · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Add opportunity · Producr CRM" };
 
 export default async function NewOpportunityPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const { contact: contactId, line } = await searchParams;
@@ -16,16 +16,16 @@ export default async function NewOpportunityPage({ searchParams }: { searchParam
   if (!contact) {
     return (
       <section className="flex max-w-xl flex-col gap-2">
-        <h1 className="text-2xl font-semibold">Add opportunity</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Add opportunity</h1>
         <p>Opportunities are added from a contact. Open the contact, then choose &quot;Add opportunity&quot;.</p>
-        <Link href="/contacts" className="min-h-11 py-2 underline">Go to contacts</Link>
+        <Link href="/contacts" className="min-h-11 py-2 underline text-link">Go to contacts</Link>
       </section>
     );
   }
   const stages = await getStages(supabase);
   return (
     <section className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold">Add opportunity</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Add opportunity</h1>
       <OpportunityForm
         mode="create" contactId={contact.id} contactName={contactDisplayName(contact)} stages={stages}
         defaultLine={(PRODUCT_LINES as readonly string[]).includes(line ?? "") ? (line as ProductLine) : undefined}

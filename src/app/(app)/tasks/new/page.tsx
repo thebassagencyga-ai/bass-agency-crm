@@ -8,7 +8,7 @@ import { listForContact } from "@/lib/opportunities/data";
 import { PRODUCT_LINE_NAMES } from "@/lib/pipelines";
 import { getProfile } from "@/lib/tasks/data";
 
-export const metadata: Metadata = { title: "Add task · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Add task · Producr CRM" };
 
 export default async function NewTaskPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const { contact: contactId } = await searchParams;
@@ -17,7 +17,7 @@ export default async function NewTaskPage({ searchParams }: { searchParams: Prom
   const opportunities = contact ? await listForContact(supabase, contact.id) : [];
   return (
     <section className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold">Add task</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Add task</h1>
       <TaskForm
         contact={contact ? { id: contact.id, name: contactDisplayName(contact) } : null}
         opportunities={opportunities.map((o) => ({ id: o.id, label: [PRODUCT_LINE_NAMES[o.product_line], o.description].filter(Boolean).join(" · ") }))}

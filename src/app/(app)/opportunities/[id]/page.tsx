@@ -20,7 +20,7 @@ import { CATEGORY_LABELS } from "@/lib/tasks/types";
 import { setNurture } from "../actions";
 import { templateForOpportunity } from "@/lib/messages/templates";
 
-export const metadata: Metadata = { title: "Opportunity · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Opportunity · Producr CRM" };
 
 const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   saved: { text: "Opportunity saved.", tone: "ok" },
@@ -53,7 +53,7 @@ export default async function OpportunityPage({
   const name = contact ? contactDisplayName(contact) : "Contact";
 
   const rows: [string, React.ReactNode][] = [
-    ["Contact", contact ? <Link href={`/contacts/${contact.id}`} className="inline-flex min-h-11 min-w-11 items-center underline">{name}</Link> : "—"],
+    ["Contact", contact ? <Link href={`/contacts/${contact.id}`} className="inline-flex min-h-11 min-w-11 items-center underline text-link">{name}</Link> : "—"],
     ["Product line", PRODUCT_LINE_NAMES[opp.product_line]],
     ["Stage", stage?.name ?? "—"],
     ["Description", opp.description ?? "—"],
@@ -80,22 +80,22 @@ export default async function OpportunityPage({
   return (
     <section className="flex max-w-3xl flex-col gap-6">
       {notice ? (
-        <p role={notice.tone === "error" ? "alert" : "status"} className={`rounded-md p-3 text-sm ${notice.tone === "error" ? "bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200" : "bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200"}`}>
+        <p role={notice.tone === "error" ? "alert" : "status"} className={`rounded-md p-3 text-sm ${notice.tone === "error" ? "bg-bad-soft text-bad" : "bg-good-soft text-good"}`}>
           {notice.text}
         </p>
       ) : null}
 
       <div className="flex flex-col gap-2">
-        <Link href={`/opportunities?line=${opp.product_line}`} className="flex min-h-11 w-fit items-center text-sm underline">← {PRODUCT_LINE_NAMES[opp.product_line]} pipeline</Link>
-        <h1 className="text-2xl font-semibold break-words">{PRODUCT_LINE_NAMES[opp.product_line]} · {name}</h1>
+        <Link href={`/opportunities?line=${opp.product_line}`} className="flex min-h-11 w-fit items-center text-sm underline text-link">← {PRODUCT_LINE_NAMES[opp.product_line]} pipeline</Link>
+        <h1 className="text-2xl font-bold tracking-tight break-words">{PRODUCT_LINE_NAMES[opp.product_line]} · {name}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <OutcomeBadge outcome={opp.outcome} />
-          <span className="text-sm text-slate-600 dark:text-slate-400">{stage?.name}</span>
+          <span className="text-sm text-muted">{stage?.name}</span>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href={`/opportunities/${opp.id}/edit`} className="flex min-h-11 items-center rounded-md bg-slate-900 px-4 font-medium text-white dark:bg-slate-100 dark:text-slate-900">Edit details</Link>
+          <Link href={`/opportunities/${opp.id}/edit`} className="flex min-h-11 items-center rounded-md bg-brand px-4 font-medium text-on-brand hover:bg-brand-hover">Edit details</Link>
           {contact && !contact.archived_at ? (
-            <Link href={`/contacts/${contact.id}?message=${templateForOpportunity(opp)}&opp=${opp.id}#message`} className="flex min-h-11 items-center rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">
+            <Link href={`/contacts/${contact.id}?message=${templateForOpportunity(opp)}&opp=${opp.id}#message`} className="flex min-h-11 items-center rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">
               Text or email
             </Link>
           ) : null}
@@ -103,7 +103,7 @@ export default async function OpportunityPage({
             <form action={setNurture}>
               <input type="hidden" name="id" value={opp.id} />
               <input type="hidden" name="nurture" value={opp.outcome === "nurture" ? "0" : "1"} />
-              <button type="submit" className="min-h-11 rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">
+              <button type="submit" className="min-h-11 rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">
                 {opp.outcome === "nurture" ? "Back to open" : "Move to nurture"}
               </button>
             </form>
@@ -114,14 +114,14 @@ export default async function OpportunityPage({
       <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-[11rem_1fr]">
         {rows.map(([label, value]) => (
           <div key={label} className="contents">
-            <dt className="text-sm font-medium text-slate-600 dark:text-slate-400">{label}</dt>
+            <dt className="text-sm font-medium text-muted">{label}</dt>
             <dd className="break-words">{value}</dd>
           </div>
         ))}
       </dl>
 
       {activePolicy && opp.renewal_date ? (
-        <Link href={`/renewals/${opp.id}`} className="flex min-h-11 w-fit items-center rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">
+        <Link href={`/renewals/${opp.id}`} className="flex min-h-11 w-fit items-center rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">
           Record renewal outcome
         </Link>
       ) : null}
@@ -130,16 +130,16 @@ export default async function OpportunityPage({
       <section aria-labelledby="opp-tasks-heading" className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 id="opp-tasks-heading" className="text-lg font-semibold">Tasks</h2>
-          <Link href={`/tasks/new?contact=${opp.contact_id}`} className="flex min-h-11 items-center underline">Add task</Link>
+          <Link href={`/tasks/new?contact=${opp.contact_id}`} className="flex min-h-11 items-center underline text-link">Add task</Link>
         </div>
         {tasks.length === 0 ? (
-          <p className="text-sm text-slate-600 dark:text-slate-400">No tasks for this opportunity.</p>
+          <p className="text-sm text-muted">No tasks for this opportunity.</p>
         ) : (
-          <ul aria-label="Tasks for this opportunity" className="flex flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+          <ul aria-label="Tasks for this opportunity" className="flex flex-col divide-y divide-line rounded-md border border-line bg-card">
             {tasks.map((t) => (
               <li key={t.id} className="flex flex-col p-3">
-                <Link href={`/tasks/${t.id}`} className={`flex min-h-11 items-center font-medium break-words underline-offset-2 hover:underline ${t.status !== "open" ? "text-slate-500 line-through" : ""}`}>{t.title}</Link>
-                <span className="text-sm text-slate-600 dark:text-slate-400">
+                <Link href={`/tasks/${t.id}`} className={`flex min-h-11 items-center font-medium break-words underline-offset-2 hover:underline ${t.status !== "open" ? "text-muted line-through" : ""}`}>{t.title}</Link>
+                <span className="text-sm text-muted">
                   {t.status === "open" ? `Due ${formatDateOnly(t.due_date)}` : t.status === "completed" ? "Completed" : "Closed"} · {CATEGORY_LABELS[t.category]}{t.origin === "automation" ? " · automatic" : ""}
                 </span>
               </li>
@@ -148,13 +148,13 @@ export default async function OpportunityPage({
         )}
       </section>
 
-      <section aria-labelledby="stage-heading" className="flex flex-col gap-3 rounded-md border border-slate-200 p-3 dark:border-slate-700">
+      <section aria-labelledby="stage-heading" className="flex flex-col gap-3 rounded-md border border-line p-3 bg-card">
         <h2 id="stage-heading" className="text-lg font-semibold">{opp.outcome === "won" || opp.outcome === "lost" ? "Reopen" : "Change stage"}</h2>
         <MoveStageForm id={opp.id} stages={stages} currentStageId={opp.stage_id} outcome={opp.outcome} />
       </section>
 
       {opp.outcome !== "lost" && lostStage ? (
-        <details id="mark-lost" open={query.mark === "lost"} className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+        <details id="mark-lost" open={query.mark === "lost"} className="rounded-md border border-line p-3 bg-card">
           <summary className="min-h-11 cursor-pointer py-2 text-lg font-semibold">Mark as lost…</summary>
           <MarkLostForm id={opp.id} lostStageId={lostStage.id} />
         </details>

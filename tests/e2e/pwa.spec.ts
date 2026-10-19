@@ -9,7 +9,7 @@ test("manifest, icons and home-screen tags; files load without signing in", asyn
   const manifest = await request.get("/manifest.webmanifest");
   expect(manifest.status()).toBe(200);
   const m = await manifest.json();
-  expect(m).toEqual(expect.objectContaining({ name: "ZeroLapse CRM", short_name: "ZeroLapse", start_url: "/dashboard", display: "standalone" }));
+  expect(m).toEqual(expect.objectContaining({ name: "Producr CRM", short_name: "Producr", start_url: "/dashboard", display: "standalone" }));
   for (const icon of [...m.icons, { src: "/icons/apple-touch-icon.png" }]) {
     const res = await request.get(icon.src);
     expect(res.status(), icon.src).toBe(200);
@@ -23,7 +23,7 @@ test("manifest, icons and home-screen tags; files load without signing in", asyn
   await page.goto("/login");
   await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/manifest.webmanifest");
   await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute("href", /apple-touch-icon\.png/);
-  await expect(page.locator('meta[name="apple-mobile-web-app-title"]')).toHaveAttribute("content", "ZeroLapse");
+  await expect(page.locator('meta[name="apple-mobile-web-app-title"]')).toHaveAttribute("content", "Producr");
 });
 
 test("the service worker keeps only static files and shows the offline notice", async ({ page, context }) => {

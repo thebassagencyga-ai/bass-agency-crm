@@ -41,7 +41,7 @@ export function SubmitButton({ children, pendingText, pending: pendingProp }: { 
       type="submit"
       disabled={pending}
       aria-disabled={pending}
-      className="min-h-11 w-full rounded-md bg-slate-900 px-4 py-2 text-base font-medium text-white hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900"
+      className="min-h-11 w-full rounded-md bg-brand px-4 py-2 text-base font-medium text-on-brand hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:opacity-60"
     >
       {pending ? pendingText : children}
     </button>
@@ -49,7 +49,7 @@ export function SubmitButton({ children, pendingText, pending: pendingProp }: { 
 }
 
 const INPUT_CLASS =
-  "min-h-11 w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 aria-[invalid=true]:border-red-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100";
+  "min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-card px-3 py-2 text-base text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus aria-[invalid=true]:border-bad";
 
 export function Field({
   label, name, id, type = "text", autoComplete, error, inputMode, required = true, defaultValue, list, hint, maxLength,
@@ -68,9 +68,9 @@ export function Field({
     <div className="flex flex-col gap-1">
       <label htmlFor={inputId} className="text-sm font-medium">
         {label}
-        {required ? null : <span className="font-normal text-slate-500"> (optional)</span>}
+        {required ? null : <span className="font-normal text-muted"> (optional)</span>}
       </label>
-      {hint ? <p id={hintId} className="text-xs text-slate-500">{hint}</p> : null}
+      {hint ? <p id={hintId} className="text-xs text-muted">{hint}</p> : null}
       <input
         id={inputId} name={name} type={type} autoComplete={autoComplete} inputMode={inputMode}
         required={required} defaultValue={defaultValue} list={list} maxLength={maxLength}
@@ -79,7 +79,7 @@ export function Field({
         // the native appearance is removed.
         className={type === "date" ? `${INPUT_CLASS} appearance-none [&::-webkit-date-and-time-value]:text-left` : INPUT_CLASS}
       />
-      {error ? <p id={errorId} className="text-sm text-red-700 dark:text-red-400">{error}</p> : null}
+      {error ? <p id={errorId} className="text-sm text-bad">{error}</p> : null}
     </div>
   );
 }
@@ -98,7 +98,7 @@ export function SelectField({
     <div className="flex flex-col gap-1">
       <label htmlFor={inputId} className="text-sm font-medium">
         {label}
-        {required ? null : <span className="font-normal text-slate-500"> (optional)</span>}
+        {required ? null : <span className="font-normal text-muted"> (optional)</span>}
       </label>
       <select
         id={inputId} name={name} defaultValue={defaultValue ?? ""} required={required}
@@ -109,7 +109,7 @@ export function SelectField({
         {placeholder !== undefined ? <option value="">{placeholder}</option> : null}
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
-      {error ? <p id={errorId} className="text-sm text-red-700 dark:text-red-400">{error}</p> : null}
+      {error ? <p id={errorId} className="text-sm text-bad">{error}</p> : null}
     </div>
   );
 }
@@ -125,25 +125,25 @@ export function TextAreaField({
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={inputId} className="text-sm font-medium">
-        {label} <span className="font-normal text-slate-500">(optional)</span>
+        {label} <span className="font-normal text-muted">(optional)</span>
       </label>
-      {hint ? <p id={hintId} className="text-xs text-slate-500">{hint}</p> : null}
+      {hint ? <p id={hintId} className="text-xs text-muted">{hint}</p> : null}
       <textarea
         id={inputId} name={name} rows={4} defaultValue={defaultValue} maxLength={maxLength}
         aria-invalid={error ? true : undefined} aria-describedby={describedBy}
         className={`${INPUT_CLASS} min-h-24`}
       />
-      {error ? <p id={errorId} className="text-sm text-red-700 dark:text-red-400">{error}</p> : null}
+      {error ? <p id={errorId} className="text-sm text-bad">{error}</p> : null}
     </div>
   );
 }
 
 export function FormAlert({ state }: { state: FormState }) {
   if (state.error) {
-    return <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">{state.error}</p>;
+    return <p role="alert" className="rounded-md bg-bad-soft p-3 text-sm text-bad">{state.error}</p>;
   }
   if (state.message) {
-    return <p role="status" className="rounded-md bg-green-50 p-3 text-sm text-green-800 dark:bg-green-950 dark:text-green-200">{state.message}</p>;
+    return <p role="status" className="rounded-md bg-good-soft p-3 text-sm text-good">{state.message}</p>;
   }
   return null;
 }

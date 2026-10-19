@@ -36,10 +36,10 @@ export function LogActivityForm({ contactId, now, opportunities, openTasks, defa
         <Field label="When" name="occurred_at" type="datetime-local" defaultValue={v("occurred_at") ?? now} error={err.occurred_at} />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="outcome" className="text-sm font-medium">Outcome <span className="font-normal text-slate-500">(optional)</span></label>
+        <label htmlFor="outcome" className="text-sm font-medium">Outcome <span className="font-normal text-muted">(optional)</span></label>
         <select
           id="outcome" name="outcome" value={outcome} onChange={(e) => setOutcome(e.target.value)}
-          className="min-h-11 w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+          className="min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-card px-3 py-2 text-base text-fg"
         >
           <option value="">None</option>
           {ACTIVITY_OUTCOMES.map((o) => <option key={o} value={o}>{ACTIVITY_OUTCOME_LABELS[o]}</option>)}

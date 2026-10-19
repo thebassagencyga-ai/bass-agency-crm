@@ -8,7 +8,7 @@ import { isUuid } from "@/lib/contacts/data";
 import { formatInstantDateTime } from "@/lib/dates";
 import { listImports } from "@/lib/import/data";
 
-export const metadata: Metadata = { title: "Import clients · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Import clients · Producr CRM" };
 
 const UNDO: Record<string, { text: string; ok: boolean }> = {
   done: { text: "Import undone: everything it added was removed.", ok: true },
@@ -26,28 +26,28 @@ export default async function ImportPage({ searchParams }: { searchParams: Promi
 
   return (
     <section className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Import clients</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Import clients</h1>
       {done ? (
-        <p role="status" className="rounded-md bg-green-50 p-3 text-sm text-green-800 dark:bg-green-950 dark:text-green-200">
+        <p role="status" className="rounded-md bg-good-soft p-3 text-sm text-good">
           Imported {done.file_name}: {done.contacts_created} new contacts, {done.contacts_matched} existing contacts updated with policies,{" "}
-          {done.policies_created} policies. <Link href="/contacts" className="underline">See contacts</Link> · <Link href="/renewals" className="underline">Renewals</Link>
+          {done.policies_created} policies. <Link href="/contacts" className="underline text-link">See contacts</Link> · <Link href="/renewals" className="underline text-link">Renewals</Link>
         </p>
       ) : null}
       {undo ? (
-        <p role={undo.ok ? "status" : "alert"} className={`rounded-md p-3 text-sm ${undo.ok ? "bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200" : "bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200"}`}>{undo.text}</p>
+        <p role={undo.ok ? "status" : "alert"} className={`rounded-md p-3 text-sm ${undo.ok ? "bg-good-soft text-good" : "bg-bad-soft text-bad"}`}>{undo.text}</p>
       ) : null}
 
       <ImportWizard ai={aiEnabled()} />
 
       <section aria-labelledby="recent-heading" className="flex max-w-2xl flex-col gap-2">
         <h2 id="recent-heading" className="text-lg font-semibold">Recent imports</h2>
-        {batches.length === 0 ? <p className="text-sm text-slate-600 dark:text-slate-400">None yet.</p> : (
-          <ul aria-label="Recent imports" className="flex flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+        {batches.length === 0 ? <p className="text-sm text-muted">None yet.</p> : (
+          <ul aria-label="Recent imports" className="flex flex-col divide-y divide-line rounded-md border border-line bg-card">
             {batches.map((b) => (
               <li key={b.id} className="flex flex-wrap items-center justify-between gap-2 p-3">
                 <span className="min-w-0 break-words">
                   <span className="font-medium">{b.file_name}</span>
-                  <span className="block text-sm text-slate-600 dark:text-slate-400">
+                  <span className="block text-sm text-muted">
                     {formatInstantDateTime(b.created_at)} · {b.contacts_created} new, {b.contacts_matched} matched, {b.policies_created} policies
                     {b.status === "undone" ? " · undone" : ""}
                   </span>
@@ -55,7 +55,7 @@ export default async function ImportPage({ searchParams }: { searchParams: Promi
                 {b.undoable ? (
                   <form action={undoImport}>
                     <input type="hidden" name="id" value={b.id} />
-                    <button type="submit" className="min-h-11 rounded-md border border-red-700 px-3 text-sm font-medium text-red-800 dark:border-red-400 dark:text-red-300" aria-label={`Undo import of ${b.file_name}`}>Undo</button>
+                    <button type="submit" className="min-h-11 rounded-md border border-bad px-3 text-sm font-medium text-bad" aria-label={`Undo import of ${b.file_name}`}>Undo</button>
                   </form>
                 ) : null}
               </li>

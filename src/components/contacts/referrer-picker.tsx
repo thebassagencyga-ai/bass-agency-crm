@@ -41,17 +41,17 @@ export function ReferrerPicker({
     <div className="flex flex-col gap-1">
       <input type="hidden" name={name} value={selected?.id ?? ""} />
       <label htmlFor={`${id}-search`} className="text-sm font-medium">
-        {label} {optional ? <span className="font-normal text-slate-500">(optional)</span> : null}
+        {label} {optional ? <span className="font-normal text-muted">(optional)</span> : null}
       </label>
       {selected ? null : (
-        <p id={`${id}-hint`} className="text-xs text-slate-500">
+        <p id={`${id}-hint`} className="text-xs text-muted">
           {hint}
         </p>
       )}
       {selected ? (
-        <div className="flex min-h-11 items-center justify-between gap-2 rounded-md border border-slate-300 px-3 dark:border-slate-600">
+        <div className="flex min-h-11 items-center justify-between gap-2 rounded-md border border-line-strong px-3">
           <span>{selected.label}</span>
-          <button type="button" onClick={() => setSelected(null)} className="min-h-11 px-2 text-sm underline">
+          <button type="button" onClick={() => setSelected(null)} className="min-h-11 px-2 text-sm underline text-link">
             Remove
           </button>
         </div>
@@ -66,15 +66,15 @@ export function ReferrerPicker({
             placeholder="Search contacts by name, phone or email"
             autoComplete="off"
             aria-describedby={`${id}-hint ${id}-status`}
-            className="min-h-11 w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+            className="min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-card px-3 py-2 text-base text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus"
           />
-          <p id={`${id}-status`} aria-live="polite" className="text-xs text-slate-500">
+          <p id={`${id}-status`} aria-live="polite" className="text-xs text-muted">
             {pending ? "Searching…" : query.trim().length >= 2 && results.length === 0
               ? "No matching contacts. Add the person as a contact first, then pick them here."
               : ""}
           </p>
           {results.length > 0 ? (
-            <ul className="divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+            <ul className="divide-y divide-line rounded-md border border-line bg-card">
               {results.map((r) => (
                 <li key={r.id}>
                   <button
@@ -84,10 +84,10 @@ export function ReferrerPicker({
                       setQuery("");
                       setResults([]);
                     }}
-                    className="flex min-h-11 w-full flex-col items-start px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800"
+                    className="flex min-h-11 w-full flex-col items-start px-3 py-2 text-left hover:bg-subtle"
                   >
                     <span>{r.label}</span>
-                    {r.detail ? <span className="text-xs text-slate-500">{r.detail}</span> : null}
+                    {r.detail ? <span className="text-xs text-muted">{r.detail}</span> : null}
                   </button>
                 </li>
               ))}
@@ -95,7 +95,7 @@ export function ReferrerPicker({
           ) : null}
         </>
       )}
-      {error ? <p className="text-sm text-red-700 dark:text-red-400">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </div>
   );
 }

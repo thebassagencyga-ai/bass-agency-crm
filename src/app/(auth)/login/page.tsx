@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { safeNextPath } from "@/lib/auth/routing";
 import { LoginForm } from "./login-form";
 
-export const metadata: Metadata = { title: "Sign in · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Sign in · Producr CRM" };
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const params = await searchParams;

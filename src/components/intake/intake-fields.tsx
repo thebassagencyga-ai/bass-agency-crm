@@ -20,7 +20,7 @@ const filledRows = (values: Record<string, string>, prefixes: string[], max: num
 };
 
 const CHOICE =
-  "flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-slate-300 px-3 has-[:checked]:border-slate-900 has-[:checked]:bg-slate-100 dark:border-slate-600 dark:has-[:checked]:border-slate-100 dark:has-[:checked]:bg-slate-800";
+  "flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-line-strong px-3 has-[:checked]:border-brand has-[:checked]:bg-brand-soft";
 
 /**
  * The intake questions, shared by the public form (/quote/…) and the agent's quick intake.
@@ -73,13 +73,13 @@ export function IntakeFields({
             </label>
           ))}
         </div>
-        {errors.lines ? <p id="lines-error" className="text-sm text-red-700 dark:text-red-400">{errors.lines}</p> : null}
+        {errors.lines ? <p id="lines-error" className="text-sm text-bad">{errors.lines}</p> : null}
       </fieldset>
 
       {lines.length > 0 ? (
-        <fieldset className="flex flex-col gap-3 rounded-md border border-slate-200 p-3 dark:border-slate-700">
+        <fieldset className="flex flex-col gap-3 rounded-md border border-line p-3 bg-card">
           <legend className="px-1 text-sm font-medium">{you ? "Your current coverage (optional)" : "Current coverage (optional)"}</legend>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-muted">
             {you ? "If you have insurance now, who is it with and when does it renew? This helps us quote in time." : "Helps time the quote: a task is set 30 days before the renewal month."}
           </p>
           {INTAKE_LINES.filter((l) => lines.includes(l)).map((line) => (
@@ -93,9 +93,9 @@ export function IntakeFields({
       ) : null}
 
       {lines.includes("auto") ? (
-        <fieldset className="flex flex-col gap-3 rounded-md border border-slate-200 p-3 dark:border-slate-700">
+        <fieldset className="flex flex-col gap-3 rounded-md border border-line p-3 bg-card">
           <legend className="px-1 text-sm font-medium">Vehicles (optional)</legend>
-          <p className="text-xs text-slate-500">Year, make and model only{you ? " — we'll ask for anything else when we talk" : ""}.</p>
+          <p className="text-xs text-muted">Year, make and model only{you ? " — we'll ask for anything else when we talk" : ""}.</p>
           {Array.from({ length: cars }, (_, i) => (
             <div key={i} className="flex flex-col gap-1">
               <div className="grid grid-cols-[5rem_minmax(0,1fr)_minmax(0,1fr)] gap-2">
@@ -103,18 +103,18 @@ export function IntakeFields({
                 <Field label="Make" name={`veh_make_${i}`} id={`veh_make_${i}`} required={false} maxLength={50} defaultValue={values[`veh_make_${i}`]} />
                 <Field label="Model" name={`veh_model_${i}`} id={`veh_model_${i}`} required={false} maxLength={50} defaultValue={values[`veh_model_${i}`]} />
               </div>
-              {errors[`vehicle_${i}`] ? <p className="text-sm text-red-700 dark:text-red-400">{errors[`vehicle_${i}`]}</p> : null}
+              {errors[`vehicle_${i}`] ? <p className="text-sm text-bad">{errors[`vehicle_${i}`]}</p> : null}
             </div>
           ))}
           {cars < MAX_VEHICLES ? (
-            <button type="button" onClick={() => setCars(cars + 1)} className="min-h-11 self-start rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">Add another vehicle</button>
+            <button type="button" onClick={() => setCars(cars + 1)} className="min-h-11 self-start rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">Add another vehicle</button>
           ) : null}
         </fieldset>
       ) : null}
 
-      <fieldset className="flex flex-col gap-3 rounded-md border border-slate-200 p-3 dark:border-slate-700">
+      <fieldset className="flex flex-col gap-3 rounded-md border border-line p-3 bg-card">
         <legend className="px-1 text-sm font-medium">{you ? "Others in your household or on the policy (optional)" : "Household / other drivers (optional)"}</legend>
-        <p className="text-xs text-slate-500">Names only. Please don&apos;t include dates of birth or driver&apos;s license numbers.</p>
+        <p className="text-xs text-muted">Names only. Please don&apos;t include dates of birth or driver&apos;s license numbers.</p>
         {Array.from({ length: people }, (_, i) => (
           <div key={i} className="flex flex-col gap-1">
             <div className="grid gap-2 sm:grid-cols-3">
@@ -122,11 +122,11 @@ export function IntakeFields({
               <Field label="Last name" name={`hh_last_${i}`} id={`hh_last_${i}`} required={false} maxLength={100} defaultValue={values[`hh_last_${i}`]} />
               <SelectField label="Relationship" name={`hh_rel_${i}`} id={`hh_rel_${i}`} options={relationshipOptions} defaultValue={values[`hh_rel_${i}`] || "spouse"} required />
             </div>
-            {errors[`household_${i}`] ? <p className="text-sm text-red-700 dark:text-red-400">{errors[`household_${i}`]}</p> : null}
+            {errors[`household_${i}`] ? <p className="text-sm text-bad">{errors[`household_${i}`]}</p> : null}
           </div>
         ))}
         {people < MAX_HOUSEHOLD ? (
-          <button type="button" onClick={() => setPeople(people + 1)} className="min-h-11 self-start rounded-md border border-slate-900 px-4 font-medium dark:border-slate-100">
+          <button type="button" onClick={() => setPeople(people + 1)} className="min-h-11 self-start rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">
             {people === 0 ? "Add a person" : "Add another person"}
           </button>
         ) : null}

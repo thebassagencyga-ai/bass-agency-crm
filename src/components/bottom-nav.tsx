@@ -25,7 +25,7 @@ function Icon({ name }: { name: string }) {
 }
 
 const ITEM =
-  "flex min-h-14 w-full flex-col items-center justify-center gap-0.5 rounded-md text-xs font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 aria-[current=page]:text-blue-700 dark:aria-[current=page]:text-blue-300";
+  "flex min-h-14 w-full flex-col items-center justify-center gap-0.5 rounded-md text-xs font-medium text-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus aria-[current=page]:font-semibold aria-[current=page]:text-link aria-[current=page]:shadow-[inset_0_3px_0_var(--color-brand-primary)]";
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -49,7 +49,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden dark:border-slate-800 dark:bg-slate-950/95"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
     >
       <ul className="mx-auto grid max-w-lg grid-cols-5 gap-1 px-1">
         {BOTTOM_NAV.map((item) => (
@@ -72,14 +72,14 @@ export function BottomNav() {
             {open ? (
               <ul
                 id="more-menu"
-                className="absolute bottom-full right-0 mb-2 flex w-52 flex-col gap-1 rounded-md border border-slate-200 bg-white p-1 shadow-lg dark:border-slate-700 dark:bg-slate-900"
+                className="absolute bottom-full right-0 mb-2 flex w-52 flex-col gap-1 rounded-md border border-line bg-card p-1 shadow-lg"
               >
                 {MORE_NAV.map((item) => (
                   <li key={item.href}>
                     <Link
                       href={item.href}
                       aria-current={isCurrentPath(pathname, item.href) ? "page" : undefined}
-                      className="flex min-h-11 items-center rounded-md px-3 text-base hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 aria-[current=page]:bg-slate-900 aria-[current=page]:text-white dark:hover:bg-slate-800 dark:aria-[current=page]:bg-slate-100 dark:aria-[current=page]:text-slate-900"
+                      className="flex min-h-11 items-center rounded-md px-3 text-base hover:bg-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus aria-[current=page]:bg-brand aria-[current=page]:text-on-brand"
                     >
                       {item.label}
                     </Link>

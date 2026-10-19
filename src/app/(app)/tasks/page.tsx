@@ -10,10 +10,10 @@ import { parseTaskListParams, type TaskListParams } from "@/lib/tasks/params";
 import { notStartedYet } from "@/lib/tasks/schedule";
 import { CATEGORY_LABELS, PRIORITY_LABELS, TASK_CATEGORIES, TASK_PRIORITIES, TASK_VIEWS, VIEW_LABELS, type TaskListRow, type TaskView } from "@/lib/tasks/types";
 
-export const metadata: Metadata = { title: "Tasks · ZeroLapse CRM" };
+export const metadata: Metadata = { title: "Tasks · Producr CRM" };
 
 const CONTROL =
-  "min-h-11 w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100";
+  "min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-card px-3 py-2 text-base text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus";
 
 const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   completed: { text: "Task completed.", tone: "ok" },
@@ -54,15 +54,15 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
   return (
     <section className="flex max-w-4xl flex-col gap-4">
       {notice ? (
-        <p role={notice.tone === "error" ? "alert" : "status"} className={`rounded-md p-3 text-sm ${notice.tone === "error" ? "bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200" : "bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200"}`}>
+        <p role={notice.tone === "error" ? "alert" : "status"} className={`rounded-md p-3 text-sm ${notice.tone === "error" ? "bg-bad-soft text-bad" : "bg-good-soft text-good"}`}>
           {notice.text}
         </p>
       ) : null}
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-semibold">Tasks</h1>
-        <Link href="/tasks/new" className="flex min-h-11 items-center rounded-md bg-slate-900 px-4 font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900">Add task</Link>
+        <h1 className="text-2xl font-bold tracking-tight">Tasks</h1>
+        <Link href="/tasks/new" className="flex min-h-11 items-center rounded-md bg-brand px-4 font-medium text-on-brand hover:bg-brand-hover">Add task</Link>
       </div>
-      <p className="text-sm text-slate-600 dark:text-slate-400">Today is {formatDateOnly(today)} (New York time).</p>
+      <p className="text-sm text-muted">Today is {formatDateOnly(today)} (New York time).</p>
 
       <nav aria-label="Task views" className="grid grid-cols-2 gap-1 sm:grid-cols-4">
         {TASK_VIEWS.map((v) => (
@@ -70,7 +70,7 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
             key={v}
             href={href(params, { view: v, page: 1 })}
             aria-current={params.view === v ? "page" : undefined}
-            className={`flex min-h-11 items-center justify-center gap-1 rounded-md border px-3 text-sm font-medium aria-[current=page]:border-slate-900 aria-[current=page]:bg-slate-900 aria-[current=page]:text-white dark:aria-[current=page]:bg-slate-100 dark:aria-[current=page]:text-slate-900 ${v === "overdue" && counts.overdue > 0 ? "border-red-300 text-red-800 dark:text-red-300" : "border-slate-300 dark:border-slate-600"}`}
+            className={`flex min-h-11 items-center justify-center gap-1 rounded-md border px-3 text-sm font-medium aria-[current=page]:border-brand aria-[current=page]:bg-brand aria-[current=page]:text-on-brand ${v === "overdue" && counts.overdue > 0 ? "border-bad text-bad" : "border-line-strong"}`}
           >
             {VIEW_LABELS[v]}
             {countFor[v] !== undefined ? <span>({countFor[v]})</span> : null}
@@ -78,7 +78,7 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
         ))}
       </nav>
 
-      <form method="get" action="/tasks" className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
+      <form method="get" action="/tasks" className="rounded-md border border-line p-3 bg-card">
         <input type="hidden" name="view" value={params.view} />
         <details open={filtered}>
           <summary className="min-h-11 cursor-pointer py-2 text-sm font-medium">Filters{filtered ? " (on)" : ""}</summary>
@@ -103,23 +103,23 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
             </label>
           </div>
           <div className="mt-2 flex gap-2">
-            <button type="submit" className="min-h-11 rounded-md bg-slate-900 px-4 font-medium text-white dark:bg-slate-100 dark:text-slate-900">Apply</button>
-            {filtered ? <Link href={`/tasks?view=${params.view}`} className="flex min-h-11 items-center px-3 underline">Clear</Link> : null}
+            <button type="submit" className="min-h-11 rounded-md bg-brand px-4 font-medium text-on-brand hover:bg-brand-hover">Apply</button>
+            {filtered ? <Link href={`/tasks?view=${params.view}`} className="flex min-h-11 items-center px-3 underline text-link">Clear</Link> : null}
           </div>
         </details>
       </form>
 
       {rows.length === 0 ? (
-        <p className="text-slate-600 dark:text-slate-400">{filtered ? "No tasks match these filters." : EMPTY[params.view]}</p>
+        <p className="text-muted">{filtered ? "No tasks match these filters." : EMPTY[params.view]}</p>
       ) : (
-        <ul aria-label={`${VIEW_LABELS[params.view]} tasks`} className="flex flex-col divide-y divide-slate-200 rounded-md border border-slate-200 dark:divide-slate-700 dark:border-slate-700">
+        <ul aria-label={`${VIEW_LABELS[params.view]} tasks`} className="flex flex-col divide-y divide-line rounded-md border border-line bg-card">
           {rows.map((t) => <TaskRow key={t.id} task={t} today={today} back={back} />)}
         </ul>
       )}
       {params.page > 1 || hasMore ? (
         <nav aria-label="Pages" className="flex justify-between">
-          {params.page > 1 ? <Link href={href(params, { page: params.page - 1 })} className="min-h-11 py-2 underline">← Previous</Link> : <span />}
-          {hasMore ? <Link href={href(params, { page: params.page + 1 })} className="min-h-11 py-2 underline">Next →</Link> : null}
+          {params.page > 1 ? <Link href={href(params, { page: params.page - 1 })} className="min-h-11 py-2 underline text-link">← Previous</Link> : <span />}
+          {hasMore ? <Link href={href(params, { page: params.page + 1 })} className="min-h-11 py-2 underline text-link">Next →</Link> : null}
         </nav>
       ) : null}
     </section>
@@ -136,9 +136,9 @@ function TaskRow({ task, today, back }: { task: TaskListRow; today: string; back
     <li className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 flex-col gap-1">
         <Link href={`/tasks/${task.id}`} className={`flex min-h-11 items-center font-medium break-words underline-offset-2 hover:underline ${task.status === "cancelled" ? "line-through" : ""}`}>{task.title}</Link>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-muted">
           {contactDisplayName(task)} · {when}
-          {task.priority === "high" ? <span className="ml-2 rounded bg-red-50 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-950 dark:text-red-200">High</span> : null}
+          {task.priority === "high" ? <span className="ml-2 rounded bg-bad-soft px-2 py-0.5 text-xs font-medium text-bad">High</span> : null}
           {task.product_line ? <span className="ml-2">{PRODUCT_LINE_NAMES[task.product_line]}</span> : null}
         </p>
       </div>
