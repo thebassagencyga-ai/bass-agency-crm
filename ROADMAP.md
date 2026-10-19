@@ -28,7 +28,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 18 | Calendar feed for tasks | 17 | APPROVED (2026-10-17) |
 | 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | APPROVED (2026-10-17) — built, not connected |
 | 20 | Tag list (pick tags from options) — owner request after go-live | 19 | APPROVED (2026-10-17) |
-| 21 | Phone polish (bottom bar, search anywhere, contact quick actions) | 20 | READY FOR REVIEW |
+| 21 | Phone polish (bottom bar, search anywhere, contact quick actions) | 20 | APPROVED (2026-10-19) |
 
 ---
 
@@ -549,7 +549,7 @@ Connecting is a later owner step (runbook §4d).
 - No database changes. All tests green; phone widths (44 px targets, no sideways scroll) and
   Lighthouse clean.
 
-**Status 2026-10-18:** READY FOR REVIEW; see PROGRESS.md.
+**Status 2026-10-19:** built and APPROVED by the owner; deploy pending (app only, no migrations). See PROGRESS.md.
 
 ---
 

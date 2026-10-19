@@ -891,7 +891,7 @@ not text. Tags already on contacts were added to the list by the migration.
 
 ## ADR-037 — Phone navigation, search anywhere, contact quick actions
 
-**Status:** Proposed — built in Phase 21 (owner: "Yes do 1-3", 2026-10-18), awaiting approval.
+**Status:** Accepted — built in Phase 21 (owner: "Yes do 1-3", 2026-10-18), approved by the owner 2026-10-19.
 
 **Decision.** Below tablet width (Tailwind `md`, 768 px) the eight-item scrolling nav strip is
 replaced by a fixed bottom bar with the four pages used daily — Today (dashboard), Contacts, Tasks,

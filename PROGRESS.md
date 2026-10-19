@@ -836,6 +836,8 @@ Design in ADR-037. No database changes.
 | CI run 39178068885 (commit ba49f0f): all 4 jobs | pass — 23 browser tests incl. the new phone test (bottom bar, More, search anywhere, Call · Text · Log), phone widths 375/390/430 (44 px targets, no sideways scroll), Lighthouse accessibility 100 on all 23 pages |
 | Production | not deployed yet |
 
+**Approved by the owner 2026-10-19** ("Approved").
+
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
 2. No migrations. Deploy app (Cloudflare).

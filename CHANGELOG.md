@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 21 — Phone polish (2026-10-18, ready for review)
+## Phase 21 — Phone polish (2026-10-18, approved 2026-10-19)
 ### Added
 - **Bottom bar on phones:** Today, Contacts, Tasks, Renewals, and More (Intake, Opportunities,
   Reports, Settings). Computers and tablets keep the sidebar.
