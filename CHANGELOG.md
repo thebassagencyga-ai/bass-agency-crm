@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Fix — Pipeline board on a computer (2026-10-19, ready for review)
+## Fix — Pipeline board on a computer (2026-10-19, approved)
 ### Changed
 - The board fits the window, so its sideways scrollbar is always in view; each stage scrolls on
   its own.

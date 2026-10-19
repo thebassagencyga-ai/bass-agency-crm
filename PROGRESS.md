@@ -1123,8 +1123,10 @@ listed every policy imported or added as existing in the last 30 days, making th
 | Local: lint, typecheck, unit | pass (489) |
 | Local: database | 472 passed (1 new: board leaves out imported and existing policies; table keeps them) |
 | Local: browser tests against the Cloudflare build | new `board-layout.spec.ts` (1280×720: board ends inside the window; Won shows 5 of 7 with "See all 7"; existing policy not on the board) plus opportunities, pipelines, phone widths: 4 passed |
-| CI | see report |
+| CI run 39314019531 (commit 78f7e32): all 4 jobs | pass |
 | Production | not deployed |
+
+**Approved by the owner 2026-10-19** ("Approved").
 
 **Owner actions after approval:** Deploy database migrations (dry run lists only
 `20261103120000_board_excludes_existing.sql`; then apply; verify unchanged: 23 tables, 25
