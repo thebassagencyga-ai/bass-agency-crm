@@ -961,8 +961,10 @@ old .xls and non-report files get a clear message. No database change.
 | Local: lint, typecheck | pass |
 | Local: unit | 459 passed (new `tests/unit/xlsx.test.ts`: file sniffing, Excel dates incl. the 1900 quirk and 1904 system, first sheet via relationships, shared/inline strings, numbers, padding, broken file, zip bomb refused) |
 | Local: browser tests against the Cloudflare build | new `import-xlsx.spec.ts` (old .xls refused; .xlsx with dates imported, renewal shows) and existing `import.spec.ts`: 2 passed |
-| CI | see report |
+| CI run 39268248045 (commit 109a0ff): all 4 jobs | pass |
 | Production | not deployed |
+
+**Approved by the owner 2026-10-19** ("Approved").
 
 **Owner actions after approval:** Deploy app (Cloudflare) only — no migrations. Then try the
 real Excel report again on Import.

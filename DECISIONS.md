@@ -1025,7 +1025,7 @@ ProducrIQ Focus; documentation refresh as a separate docs-only task. Stop after 
 7. Confirm with Alfa/compliance whether any referral thank-you of value is permitted (ADR-013).
 
 ## ADR-041 — Import reads Excel (.xlsx) on the device
-**Date:** 2026-10-19. **Status:** proposed (awaiting owner approval).
+**Date:** 2026-10-19. **Status:** accepted (owner approved 2026-10-19).
 
 **Context.** The owner exported a report from their agency system as Excel and chose it on the
 Import page. The wizard only read CSV text, so the .xlsx file (a zip) showed as garbled columns.

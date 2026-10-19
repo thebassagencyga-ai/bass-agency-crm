@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Import fix — Excel files (2026-10-19, ready for review)
+## Import fix — Excel files (2026-10-19, approved)
 ### Fixed
 - **Import** now reads Excel files (.xlsx) directly. Before, choosing an Excel file showed
   unreadable text ("PK… [Content_Types].xml"). The first sheet is read on your device; Excel
