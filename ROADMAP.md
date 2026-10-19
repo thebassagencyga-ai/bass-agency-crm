@@ -35,7 +35,7 @@ inherits the standard exit criteria at the bottom of this file.
 | fix | Add existing policy: enter a client's current policy without new-sale tasks (owner report, 2026-10-19) | 23 | APPROVED, DEPLOYED (2026-10-19) |
 | 24 | Leads and Clients tabs, book of business view | 23 | APPROVED, DEPLOYED (2026-10-19) |
 | 25 | Your own pipelines (custom stages, routing by line) | 24 | APPROVED, DEPLOYED (2026-10-19) |
-| fix | Board fits the window; Won/Lost capped; imported and existing policies off the board (owner report, 2026-10-19) | 25 | APPROVED (2026-10-19) |
+| fix | Board fits the window; Won/Lost capped; imported and existing policies off the board (owner report, 2026-10-19) | 25 | APPROVED, DEPLOYED (2026-10-19) |
 
 ---
 

@@ -1128,6 +1128,12 @@ listed every policy imported or added as existing in the last 30 days, making th
 
 **Approved by the owner 2026-10-19** ("Approved").
 
+**Production deploy (2026-10-19, commit 793a866):** CI on `main` 39316588328 passed; migrations
+dry run 39319147879 listed only `20261103120000_board_excludes_existing.sql`; apply run
+39319448155 applied it and verification passed (23 tables, 23 two-step policies, 25 Data API
+functions, exactly 2 anonymous functions); Deploy app 39319801784 succeeded, smoke test passed.
+⏳ Owner: check the board on the computer.
+
 **Owner actions after approval:** Deploy database migrations (dry run lists only
 `20261103120000_board_excludes_existing.sql`; then apply; verify unchanged: 23 tables, 25
 functions), then Deploy app (Cloudflare).
