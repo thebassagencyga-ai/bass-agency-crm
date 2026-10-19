@@ -966,6 +966,9 @@ old .xls and non-report files get a clear message. No database change.
 
 **Approved by the owner 2026-10-19** ("Approved").
 
+**Production deploy (2026-10-19):** CI on `main` 39270171559 (7bf923e) passed; Deploy app
+39274386629 (7bf923e) succeeded. ⏳ Owner: try the real Excel report on Import.
+
 **Owner actions after approval:** Deploy app (Cloudflare) only — no migrations. Then try the
 real Excel report again on Import.
 
@@ -994,6 +997,14 @@ Owner decision: tasks already created for earlier entries are cleared by hand (n
 | Production | not deployed |
 
 **Approved by the owner 2026-10-19** ("Approved").
+
+**Production deploy (2026-10-19, commit 0bab906):** CI on `main` 39276523568 passed; migrations
+dry run 39278676429 listed only `20261101120000_existing_policies.sql` (target check: CRM tables
+only, 20); apply run 39279640034 applied it and verification passed (30 stages, 20 tables, 20
+two-step policies, 24 Data API functions, exactly 2 anonymous functions, automation engine
+safe); Deploy app 39283210798 succeeded, smoke test 18/18. GitHub showed both migration runs as
+"queued" for about 30 minutes after they had finished (display delay on GitHub's side).
+⏳ Owner: iPhone check (Add existing policy → Bound, client, only a renewal review).
 
 **Owner actions after approval**
 1. Merge to `main` (Claude).

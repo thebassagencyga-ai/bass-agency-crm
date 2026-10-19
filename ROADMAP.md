@@ -31,8 +31,8 @@ inherits the standard exit criteria at the bottom of this file.
 | 21 | Phone polish (bottom bar, search anywhere, contact quick actions) | 20 | APPROVED (2026-10-19) |
 | 22 | Producr CRM: new name and brand design | 21 | APPROVED (2026-10-19) |
 | 23 | Workflow audit Step 1: quote dates and client status | 22 | APPROVED (2026-10-19) |
-| fix | Import reads Excel (.xlsx) files directly (owner report, 2026-10-19) | 15 | APPROVED (2026-10-19) |
-| fix | Add existing policy: enter a client's current policy without new-sale tasks (owner report, 2026-10-19) | 23 | APPROVED (2026-10-19) |
+| fix | Import reads Excel (.xlsx) files directly (owner report, 2026-10-19) | 15 | APPROVED, DEPLOYED (2026-10-19) |
+| fix | Add existing policy: enter a client's current policy without new-sale tasks (owner report, 2026-10-19) | 23 | APPROVED, DEPLOYED (2026-10-19) |
 
 ---
 
