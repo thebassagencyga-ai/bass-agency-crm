@@ -52,7 +52,7 @@ check_file() { # path, expected content type fragment, expected text (optional)
   if [ -n "${3:-}" ] && ! grep -q "$3" /tmp/smoke.$$; then bad "$1 does not contain $3"; return; fi
   ok "$1"
 }
-check_file /manifest.webmanifest "json" "Bass CRM"
+check_file /manifest.webmanifest "json" "ZeroLapse"
 check_file /sw.js "javascript" "bass-crm-static"
 check_file /offline.html "text/html" "You're offline"
 check_file /icons/icon-192.png "image/png"

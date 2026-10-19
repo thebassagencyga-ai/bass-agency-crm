@@ -855,7 +855,7 @@ database changes.
   manifest and description; "ZeroLapse" as the iPhone home-screen name.
 - New authenticator setups are labelled "ZeroLapse CRM" (TOTP issuer).
 - Calendar feed name "ZeroLapse tasks"; export files `zerolapse-<data>-<date>.csv`.
-- Service worker cache v2 (offline page refresh). Smoke test checks for the new name.
+- Service worker cache v2 (offline page refresh). Smoke test checks for the new name (sign-in page and manifest).
 - Unchanged on purpose: "The Bass Agency" in all client-facing text; web address, repository,
   worker, Supabase project.
 

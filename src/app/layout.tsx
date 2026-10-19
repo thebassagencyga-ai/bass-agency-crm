@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "ZeroLapse CRM",
   description: "ZeroLapse CRM: the sales and relationship CRM for insurance agents. Private to The Bass Agency.",
   robots: { index: false, follow: false },
-  applicationName: "Bass CRM",
+  applicationName: "ZeroLapse",
   manifest: "/manifest.webmanifest",
   // Add to Home Screen on iPhone: full-screen app with its own icon and name.
   appleWebApp: { capable: true, title: "ZeroLapse", statusBarStyle: "default" },
