@@ -917,6 +917,16 @@ the deploy run's own smoke test.
   recorded this round), editable, not in the future (`src/lib/opportunities/quote-date.ts`).
 - "Marked as won" notice now says the contact is a client.
 
+**Tests (2026-10-19)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck | pass |
+| Local: unit | 453 passed (6 new: suggested and saved quote date) |
+| Local: database (PostgreSQL 16) | 443 passed (13 new: quote stages, date kept/overridden/never on life, one follow-up re-dated not duplicated, client on bind, never downgraded, audit entry, correction scope, not callable by the app). Two older tests updated for the intended behaviour change (opportunity created at Quoted now gets a quote date; imported policy makes a prospect a client) |
+| Local: browser tests against the Cloudflare build | new quote/client test, opportunities, journey: 3 passed |
+| CI run 39250674014 (commit a5a9d61): all 4 jobs | pass — migrations on the Supabase image, schema/RLS, full browser suite incl. phone widths and Lighthouse |
+| Production | not deployed yet |
+
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
 2. Deploy database migrations: dry run lists only `20261031120000_quote_dates_client_status.sql`;
