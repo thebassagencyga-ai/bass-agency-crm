@@ -931,11 +931,19 @@ the deploy run's own smoke test.
 39253670774, 39253821694, 39253821399) redeployed f272117 because Phase 23 was not yet merged; no
 change in production.
 
+**Production deploy (2026-10-19, commit cbe5c86):** CI on `main` 39254482502 passed; migrations
+dry run 39254595630 listed only `20261031120000_quote_dates_client_status.sql`; apply run
+39254723358 applied it and verification passed (20 tables, 20 two-step policies, 24 Data API
+functions, exactly 2 anonymous functions); Deploy app 39255433194 succeeded, smoke test 18/18.
+`supabase db push` does not print database notices, so the correction's count is not in the log:
+it can be read from the audit log (correction rows have no actor), see the query in the Phase 23
+report. ⏳ Owner: iPhone check (Quoted → date + one follow-up; Bound → Client).
+
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
 2. Deploy database migrations: dry run lists only `20261031120000_quote_dates_client_status.sql`;
-   then apply. The apply log line "Phase 23: N contact(s) … marked as client" is the correction's
-   count. Verify expects 20 tables, 24 functions, 2 anonymous functions (unchanged).
+   then apply. (The correction's count is not printed by `supabase db push`; read it from the
+   audit log — rows changed with no actor at apply time.) Verify expects 20 tables, 24 functions, 2 anonymous functions (unchanged).
 3. Deploy app (Cloudflare).
 4. On the iPhone: move a test opportunity to Quoted (check the date, the follow-up task), bind it
    (check the contact shows Client).

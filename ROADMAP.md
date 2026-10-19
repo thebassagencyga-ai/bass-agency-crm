@@ -589,7 +589,7 @@ Owner choices: light and dark with a switch; keep the current menu labels; new P
 - One-time correction for contacts with an active bound policy, audited and tested.
 - Security (RLS, two-step policy, audit log) unchanged; all tests green.
 
-**Status 2026-10-19:** built and APPROVED by the owner; deploy pending (migration + app). See PROGRESS.md.
+**Status 2026-10-19:** built, APPROVED and deployed (migration applied, verify passed, smoke 18/18); see PROGRESS.md.
 
 ---
 
