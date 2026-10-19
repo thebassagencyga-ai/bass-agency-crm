@@ -990,8 +990,10 @@ Owner decision: tasks already created for earlier entries are cleared by hand (n
 | Local: unit | 469 passed (10 new: next renewal incl. month ends, validation, row) |
 | Local: database (PostgreSQL 16) | 447 passed (4 new: only the renewal review and client status; a sale moved to Bound unchanged; marker only on won insert and immutable; excluded from conversion, new leads, referrals) |
 | Local: browser tests against the Cloudflare build | new existing-policy, contacts, opportunities, quote/client, journey, reports, phone polish, responsive: 8 passed |
-| CI | see report |
+| CI run 39273393644 (commit 27801fb): all 4 jobs | pass |
 | Production | not deployed |
+
+**Approved by the owner 2026-10-19** ("Approved").
 
 **Owner actions after approval**
 1. Merge to `main` (Claude).

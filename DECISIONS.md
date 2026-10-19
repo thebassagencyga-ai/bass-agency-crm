@@ -1048,7 +1048,7 @@ shared strings, styles and worksheet parts are unzipped; at most 200 columns; th
 limit and every existing validation still apply.
 
 ## ADR-042 — Existing policies entered by hand
-**Date:** 2026-10-19. **Status:** proposed (awaiting owner approval).
+**Date:** 2026-10-19. **Status:** accepted (owner approved 2026-10-19).
 
 **Context.** Adding existing clients by hand meant adding an opportunity and moving it to
 Bound. The automation treats that as a sale closed today: onboarding checklist, Google review

@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Fix — Add existing policy (2026-10-19, ready for review)
+## Fix — Add existing policy (2026-10-19, approved)
 ### Added
 - **Add existing policy** on a contact: enter a policy the client already has (line, carrier,
   premium, a past effective date, renewal date, term). It is saved as bound without
