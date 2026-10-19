@@ -11,11 +11,15 @@ erDiagram
     PROFILES ||--o{ CONTACTS : owns
     PROFILES ||--o{ AUTOMATION_RULES : owns
     PROFILES ||--o{ AUDIT_LOG : "owner of logged rows"
-    PRODUCT_LINES ||--o{ PIPELINE_STAGES : has
+    PRODUCT_LINES ||--o{ PIPELINE_STAGES : "stage templates"
+    PROFILES ||--o{ PIPELINES : owns
+    PIPELINES ||--o{ STAGES : has
+    PROFILES ||--o{ PIPELINE_ROUTES : "one per line"
+    PIPELINES ||--o{ PIPELINE_ROUTES : "receives new leads"
     CONTACTS ||--o{ OPPORTUNITIES : has
     CONTACTS ||--o{ TASKS : has
     CONTACTS ||--o{ ACTIVITIES : has
-    PIPELINE_STAGES ||--o{ OPPORTUNITIES : "current stage"
+    STAGES ||--o{ OPPORTUNITIES : "current stage"
     OPPORTUNITIES ||--o{ TASKS : "optional"
     OPPORTUNITIES ||--o{ ACTIVITIES : "optional"
     AUTOMATION_RULES ||--o{ TASKS : "created by (automation only)"
@@ -43,12 +47,25 @@ automation rules. Every table also has a restrictive policy requiring a two-step
 session (ADR-016).
 
 ### product_lines / pipeline_stages (reference data)
-Four product lines: auto, home, commercial, life. Stages per line with `position` and
-`kind` (`active` | `won` | `lost`), seeded exactly as spec §9 and mirrored in
-`src/lib/pipelines.ts`. Read-only for users; changed only by migrations. `is_quote_stage`
-(Phase 23) marks auto/home "Quoted" and commercial "Proposal Presented": entering one records the
-opportunity's quote date if missing (trigger `opportunities_default_quote_date`). Binding an
-opportunity makes a prospect or former client a client (trigger `opportunities_promote_contact`).
+Four product lines: auto, home, commercial, life. `pipeline_stages` holds the built-in stages
+per line (spec §9, mirrored in `src/lib/pipelines.ts`), read-only, changed only by migrations.
+Since Phase 25 they are only the **templates** each agent's starting pipelines are copied from;
+opportunities use the agent's own `stages`.
+
+### pipelines / stages / pipeline_routes (Phase 25, ADR-043)
+Each agent's own pipelines. `pipelines`: name (unique among those in use), `position`,
+`archived_at` (archive, never delete; refused while the pipeline receives a line or holds open
+deals; at most 10 in use). `stages`: per pipeline, `name`, `position`, `kind`
+(`active` | `won` | `lost`), `is_quote_stage` (entering it records the quote date if missing and
+schedules the quote follow-up, Phase 23), `template_code` (the built-in stage it was copied
+from), `archived_at` (a removed stage; refused while deals sit in it). Rules checked at commit:
+3–12 stages numbered 1..n, at least one working stage, then exactly one Won (n−1) and one Lost
+(n); a stage keeps its kind. `pipeline_routes`: for each product line, the one pipeline its new
+leads go to (quote form, quick intake, imports, "Add existing policy", the default for "Add
+opportunity"). Every agent starts with four pipelines (Auto, Home, Commercial, Life) copied
+from the templates, each line routed to its own. Edited through `save_pipeline` (name, stages in
+order, lines received) in one transaction. Binding an opportunity makes a prospect or former
+client a client (trigger `opportunities_promote_contact`).
 
 ### contacts
 Individuals and businesses. Name rule: an individual needs a first or last name; a business
@@ -65,7 +82,8 @@ Many per contact, in any mix of product lines.
 
 | Column | Meaning |
 |---|---|
-| `product_line`, `stage_id` | Stage must belong to the same product line (composite FK). |
+| `product_line` | What is being sold; fixed once created (renewals, cross-sell, policy term and reports use it). |
+| `stage_id`, `pipeline_id` | One of the agent's own stages; `pipeline_id` and `stage_kind` are copied from it by trigger and checked by a composite FK (stage, pipeline, kind, owner). A deal may move to another of the agent's pipelines; it cannot move into a removed stage. |
 | `stage_kind` | Copied from the stage by trigger; used by the consistency check. |
 | `outcome` | `open` / `nurture` on active stages; `won` only on the won stage (Bound, or Placed for life); `lost` only on Lost. |
 | `loss_reason`, `loss_reason_detail` | Reason required exactly when the outcome is `lost`. |

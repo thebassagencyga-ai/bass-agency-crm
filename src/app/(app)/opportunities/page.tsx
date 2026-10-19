@@ -4,11 +4,11 @@ import { OutcomeBadge } from "@/components/opportunities/badges";
 import { requireFullSession } from "@/lib/auth/require";
 import { contactDisplayName } from "@/lib/contacts/format";
 import { formatDateOnly } from "@/lib/dates";
-import { clientIdsAmong, getStages, listBoard, listOpportunities, stagesFor } from "@/lib/opportunities/data";
+import { clientIdsAmong, getPipelines, listBoard, listOpportunities, routedPipeline } from "@/lib/opportunities/data";
 import { formatMoney } from "@/lib/opportunities/format";
 import { parseOpportunityListParams, type OpportunityListParams } from "@/lib/opportunities/params";
-import { OUTCOME_LABELS, type OpportunityListRow, type Stage } from "@/lib/opportunities/types";
-import { OPPORTUNITY_OUTCOMES, PRODUCT_LINES, PRODUCT_LINE_NAMES, type ProductLine } from "@/lib/pipelines";
+import { OUTCOME_LABELS, type OpportunityListRow, type Pipeline } from "@/lib/opportunities/types";
+import { OPPORTUNITY_OUTCOMES, PRODUCT_LINES, PRODUCT_LINE_NAMES } from "@/lib/pipelines";
 import { moveFromBoard } from "./actions";
 
 export const metadata: Metadata = { title: "Opportunities · Producr CRM" };
@@ -25,6 +25,7 @@ const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
 function tableHref(p: OpportunityListParams, page: number): string {
   const qs = new URLSearchParams({ view: "table" });
   if (p.q) qs.set("q", p.q);
+  if (p.pipeline) qs.set("pipeline", p.pipeline);
   if (p.line) qs.set("line", p.line);
   if (p.outcome) qs.set("outcome", p.outcome);
   if (p.closed !== "all") qs.set("closed", p.closed);
@@ -39,9 +40,13 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
   const raw = await searchParams;
   const params = parseOpportunityListParams(raw);
   const { supabase } = await requireFullSession();
-  const [stages, board, table] = params.view === "board"
-    ? await Promise.all([getStages(supabase), listBoard(supabase, params.line ?? "auto", params.q), null])
-    : [null, null, await listOpportunities(supabase, params)];
+  const pipelines = await getPipelines(supabase);
+  // Board: the pipeline asked for, else the one an old ?line= link routes to, else the first.
+  const shown = pipelines.find((p) => p.id === params.pipeline)
+    ?? (params.line ? routedPipeline(pipelines, params.line) : undefined) ?? pipelines[0];
+  const [board, table] = params.view === "board"
+    ? [shown ? await listBoard(supabase, shown.id, params.q) : { rows: [], truncated: false }, null]
+    : [null, await listOpportunities(supabase, params)];
   const clients = await clientIdsAmong(supabase, (board ?? table)!.rows.map((r) => r.contact_id));
   const noticeKey = Object.keys(NOTICES).find((k) => raw[k]);
   const notice = noticeKey ? NOTICES[noticeKey] : undefined;
@@ -59,7 +64,7 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
           {(["board", "table"] as const).map((v) => (
             <Link
               key={v}
-              href={v === "board" ? `/opportunities?line=${params.line ?? "auto"}` : "/opportunities?view=table"}
+              href={v === "board" ? (shown ? `/opportunities?pipeline=${shown.id}` : "/opportunities") : "/opportunities?view=table"}
               aria-current={params.view === v ? "page" : undefined}
               className="flex min-h-11 items-center rounded-md border border-line-strong px-4 text-sm font-medium aria-[current=page]:border-brand aria-[current=page]:bg-brand aria-[current=page]:text-on-brand"
             >
@@ -72,9 +77,9 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
         Add an opportunity from a contact&apos;s page. {params.view === "board" ? "The board shows open and nurture opportunities plus anything won or lost in the last 30 days." : null}
       </p>
       {params.view === "board" ? (
-        <Board line={params.line ?? "auto"} q={params.q} supabaseStages={stages!} rows={board!} clients={clients} />
+        shown ? <Board pipeline={shown} pipelines={pipelines} q={params.q} rows={board!} clients={clients} /> : <p className="text-muted">No pipelines yet. Add one in Settings → Pipelines.</p>
       ) : (
-        <Table params={params} result={table!} clients={clients} />
+        <Table params={params} pipelines={pipelines} result={table!} clients={clients} />
       )}
     </section>
   );
@@ -86,30 +91,34 @@ function ClientTag({ row, clients }: { row: OpportunityListRow; clients: Set<str
   return <span className="rounded bg-good-soft px-2 py-0.5 text-xs font-medium text-good">Client</span>;
 }
 
-function Board({ line, q, supabaseStages, rows, clients }: { line: ProductLine; q: string; supabaseStages: Stage[]; rows: { rows: OpportunityListRow[]; truncated: boolean }; clients: Set<string> }) {
-  const stages = stagesFor(supabaseStages, line);
+function Board({ pipeline, pipelines, q, rows, clients }: { pipeline: Pipeline; pipelines: Pipeline[]; q: string; rows: { rows: OpportunityListRow[]; truncated: boolean }; clients: Set<string> }) {
+  const stages = pipeline.stages;
+  // A deal can be moved into another pipeline's working stages (Phase 25).
+  const elsewhere = pipelines.filter((p) => p.id !== pipeline.id);
+  const showLine = new Set(rows.rows.map((r) => r.product_line)).size > 1 || pipeline.lines.length !== 1;
   return (
     <>
-      <nav aria-label="Product line" className="flex flex-wrap gap-1">
-        {PRODUCT_LINES.map((l) => (
+      <nav aria-label="Pipelines" className="flex flex-wrap items-center gap-1">
+        {pipelines.map((p) => (
           <Link
-            key={l}
-            href={`/opportunities?line=${l}`}
-            aria-current={l === line ? "page" : undefined}
+            key={p.id}
+            href={`/opportunities?pipeline=${p.id}`}
+            aria-current={p.id === pipeline.id ? "page" : undefined}
             className="flex min-h-11 items-center rounded-md px-3 text-sm font-medium underline-offset-4 aria-[current=page]:bg-brand-soft aria-[current=page]:underline"
           >
-            {PRODUCT_LINE_NAMES[l]}
+            {p.name}
           </Link>
         ))}
+        <Link href="/settings/pipelines" className="flex min-h-11 items-center px-3 text-sm underline text-link">Edit pipelines</Link>
       </nav>
       <form method="get" action="/opportunities" role="search" className="flex max-w-xl gap-2">
-        <input type="hidden" name="line" value={line} />
+        <input type="hidden" name="pipeline" value={pipeline.id} />
         <label htmlFor="board-q" className="sr-only">Search this pipeline</label>
         <input id="board-q" name="q" type="search" defaultValue={q} placeholder="Search name, description or carrier" maxLength={100} className={`${CONTROL} flex-1`} />
         <button type="submit" className="min-h-11 rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">Search</button>
       </form>
       {rows.truncated ? (
-        <p className="text-sm">Showing the 200 most recently updated. <Link href={`/opportunities?view=table&line=${line}`} className="underline text-link">See all in the table</Link>.</p>
+        <p className="text-sm">Showing the 200 most recently updated. <Link href={`/opportunities?view=table&pipeline=${pipeline.id}`} className="underline text-link">See all in the table</Link>.</p>
       ) : null}
       {/* Phones: one stage after another. Wider screens: stages side by side, scrolling sideways. */}
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:overflow-x-auto md:pb-2">
@@ -130,6 +139,7 @@ function Board({ line, q, supabaseStages, rows, clients }: { line: ProductLine; 
                       <Link href={`/opportunities/${r.id}`} className="flex min-h-11 items-center font-medium underline-offset-2 hover:underline">{rowName(r)}</Link>
                       {r.description ? <p className="text-sm break-words text-muted">{r.description}</p> : null}
                       <div className="flex flex-wrap items-center gap-2 text-sm">
+                        {showLine ? <span className="rounded bg-subtle px-2 py-0.5 text-xs font-medium">{PRODUCT_LINE_NAMES[r.product_line]}</span> : null}
                         <ClientTag row={r} clients={clients} />
                         {r.outcome !== "open" ? <OutcomeBadge outcome={r.outcome} /> : null}
                         {r.estimated_annual_premium !== null ? <span>{formatMoney(r.estimated_annual_premium, { whole: true })}/yr</span> : null}
@@ -144,6 +154,11 @@ function Board({ line, q, supabaseStages, rows, clients }: { line: ProductLine; 
                             <option value="" disabled>Move to…</option>
                             {stages.filter((s) => s.id !== stage.id).map((s) => (
                               <option key={s.id} value={s.id}>{s.kind === "won" ? `${s.name} (won)` : s.kind === "lost" ? `${s.name}…` : s.name}</option>
+                            ))}
+                            {elsewhere.map((p) => (
+                              <optgroup key={p.id} label={`Move to ${p.name}`}>
+                                {p.stages.filter((s) => s.kind === "active").map((s) => <option key={s.id} value={s.id}>{p.name}: {s.name}</option>)}
+                              </optgroup>
                             ))}
                           </select>
                           <button type="submit" className="min-h-11 rounded-md border border-line-strong bg-card hover:bg-subtle px-3 text-sm font-medium">Move</button>
@@ -161,8 +176,9 @@ function Board({ line, q, supabaseStages, rows, clients }: { line: ProductLine; 
   );
 }
 
-function Table({ params, result, clients }: { params: OpportunityListParams; result: { rows: OpportunityListRow[]; hasMore: boolean }; clients: Set<string> }) {
-  const filtered = Boolean(params.q || params.line || params.outcome || params.closed !== "all");
+function Table({ params, pipelines, result, clients }: { params: OpportunityListParams; pipelines: Pipeline[]; result: { rows: OpportunityListRow[]; hasMore: boolean }; clients: Set<string> }) {
+  const filtered = Boolean(params.q || params.pipeline || params.line || params.outcome || params.closed !== "all");
+  const pipelineName = new Map(pipelines.map((p) => [p.id, p.name]));
   return (
     <>
       <form method="get" action="/opportunities" role="search" className="flex max-w-4xl flex-col gap-2 rounded-md border border-line p-3 bg-card">
@@ -174,7 +190,13 @@ function Table({ params, result, clients }: { params: OpportunityListParams; res
         </div>
         <details open={filtered && !params.q}>
           <summary className="min-h-11 cursor-pointer py-2 text-sm font-medium">Filters and sorting</summary>
-          <div className="grid gap-2 sm:grid-cols-4">
+          <div className="grid gap-2 sm:grid-cols-5">
+            <label className="flex flex-col gap-1 text-sm">Pipeline
+              <select name="pipeline" defaultValue={params.pipeline ?? ""} className={CONTROL}>
+                <option value="">All</option>
+                {pipelines.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+            </label>
             <label className="flex flex-col gap-1 text-sm">Product line
               <select name="line" defaultValue={params.line ?? ""} className={CONTROL}>
                 <option value="">All</option>
@@ -218,7 +240,7 @@ function Table({ params, result, clients }: { params: OpportunityListParams; res
               <Link href={`/opportunities/${r.id}`} className="flex min-h-11 flex-col gap-1 p-3 hover:bg-subtle sm:flex-row sm:items-center sm:gap-4">
                 <span className="font-medium sm:w-56 sm:shrink-0">{rowName(r)}</span>
                 <span className="text-sm sm:w-28 sm:shrink-0">{PRODUCT_LINE_NAMES[r.product_line]}</span>
-                <span className="text-sm sm:w-40 sm:shrink-0">{r.stage_name}</span>
+                <span className="text-sm sm:w-48 sm:shrink-0">{pipelineName.get(r.pipeline_id) ? `${pipelineName.get(r.pipeline_id)}: ${r.stage_name}` : r.stage_name}</span>
                 <span className="flex flex-wrap items-center gap-2 text-sm">
                   <ClientTag row={r} clients={clients} />
                   <OutcomeBadge outcome={r.outcome} />

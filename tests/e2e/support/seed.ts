@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { anonClient, createTestUser, fullSessionClient, fullSessionCookies } from "../../support/supabase";
+import { anonClient, createTestUser, fullSessionClient, fullSessionCookies, ownStage } from "../../support/supabase";
 
 // A signed-in owner with a little of everything (fictional data), so pages render their
 // full layouts for the responsive, touch-target and accessibility audits (Phase 10).
@@ -7,11 +7,7 @@ import { anonClient, createTestUser, fullSessionClient, fullSessionCookies } fro
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 const inDays = (n: number) => iso(new Date(Date.now() + n * 86_400_000));
 
-async function stage(client: SupabaseClient, line: string, code: string): Promise<string> {
-  const { data, error } = await client.from("pipeline_stages").select("id").eq("product_line", line).eq("code", code).single();
-  if (error || !data) throw error ?? new Error(`No stage ${line}/${code}`);
-  return data.id as string;
-}
+const stage = (client: SupabaseClient, line: string, code: string): Promise<string> => ownStage(client, line, code);
 
 export interface SeededOwner {
   email: string;

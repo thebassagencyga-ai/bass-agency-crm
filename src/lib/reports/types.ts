@@ -6,7 +6,7 @@ type N = number | string;
 /** Shape returned by report_summary (see supabase/migrations/*_reports.sql). */
 export interface ReportSummary {
   period: { start: string; end: string; today: string };
-  open_pipeline: { product_line: ProductLine; stage_name: string; stage_position: number; open_count: N; nurture_count: N; premium: N; with_premium: N }[];
+  open_pipeline: { pipeline_id: string; pipeline_name: string; pipeline_position: N; stage_name: string; stage_position: number; open_count: N; nurture_count: N; premium: N; with_premium: N }[];
   new_leads: { source: string | null; contacts: N; with_opportunity: N; won: N }[];
   quotes: { product_line: ProductLine; quoted: N; open_count: N; nurture_count: N; won: N; lost: N; premium: N; with_premium: N }[];
   conversion: { product_line: ProductLine; won: N; lost: N; won_premium: N; won_with_premium: N }[];

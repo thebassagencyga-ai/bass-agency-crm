@@ -28,7 +28,7 @@ export function premiumNote(withPremium: number, of: number): string {
 
 export const DEFINITIONS = {
   open_pipeline:
-    "Open and nurture opportunities right now, by product line and stage (not limited to the period). Estimated premium is the total of the premiums recorded; opportunities without one add nothing.",
+    "Open and nurture opportunities right now, by your pipelines and their stages (not limited to the period). Estimated premium is the total of the premiums recorded; opportunities without one add nothing.",
   new_leads:
     "Contacts added during the period (New York dates), grouped by lead source (capital letters and spaces ignored). \"With an opportunity\" and \"Won\" count those contacts that have any opportunity, or a won one, as of today. Imported clients and clients added with a policy they already had are not counted.",
   quotes:

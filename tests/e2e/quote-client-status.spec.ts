@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { addDays, todayInZone } from "../../src/lib/dates";
-import { createTestUser, fullSessionClient, fullSessionCookies } from "../support/supabase";
+import { createTestUser, fullSessionClient, fullSessionCookies, ownStage } from "../support/supabase";
 
 // Phase 23 (ADR-039): moving into a quote stage records the quote date (editable on the
 // opportunity page, today from the board) and schedules exactly one quote follow-up; binding
@@ -16,7 +16,7 @@ test("quote date on quote stages, one follow-up, client on bind", async ({ page,
 
   const { data: contact } = await api.from("contacts").insert({ contact_type: "individual", first_name: "Robin", last_name: "Example" }).select("id").single();
   const stage = async (line: string, code: string) =>
-    (await api.from("pipeline_stages").select("id").eq("product_line", line).eq("code", code).single()).data!.id as string;
+    ownStage(api, line, code);
   const { data: auto } = await api.from("opportunities")
     .insert({ contact_id: contact!.id, product_line: "auto", stage_id: await stage("auto", "contacted") }).select("id").single();
   const { data: home } = await api.from("opportunities")

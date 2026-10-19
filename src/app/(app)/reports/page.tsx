@@ -103,12 +103,12 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
         )}
       </Report>
 
-      <Report id="pipeline" title="Open opportunities by line and stage" definition={DEFINITIONS.open_pipeline}>
+      <Report id="pipeline" title="Open opportunities by pipeline and stage" definition={DEFINITIONS.open_pipeline}>
         {r.open_pipeline.length === 0 ? <Empty text="No open opportunities." /> : (
-          <Table caption="Open opportunities by line and stage" head={["Line", "Stage", "Open", "Nurture", "Est. premium"]}>
+          <Table caption="Open opportunities by pipeline and stage" head={["Pipeline", "Stage", "Open", "Nurture", "Est. premium"]}>
             {r.open_pipeline.map((x) => (
-              <tr key={`${x.product_line}-${x.stage_name}`}>
-                <td className={TD}>{PRODUCT_LINE_NAMES[x.product_line]}</td>
+              <tr key={`${x.pipeline_id}-${x.stage_position}-${x.stage_name}`}>
+                <td className={TD}>{x.pipeline_name}</td>
                 <td className={TD}>{x.stage_name}</td>
                 <td className={TDN}>{num(x.open_count)}</td>
                 <td className={TDN}>{num(x.nurture_count)}</td>

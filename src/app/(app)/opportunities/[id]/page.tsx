@@ -7,7 +7,7 @@ import { requireFullSession } from "@/lib/auth/require";
 import { getContact } from "@/lib/contacts/data";
 import { contactDisplayName } from "@/lib/contacts/format";
 import { formatDateOnly, formatInstantDate, todayInZone } from "@/lib/dates";
-import { getOpportunity, getStages, stagesFor } from "@/lib/opportunities/data";
+import { getOpportunity, getPipelines, getStages, stagesFor } from "@/lib/opportunities/data";
 import { formatMoney } from "@/lib/opportunities/format";
 import { canToggleNurture } from "@/lib/opportunities/transitions";
 import { LOSS_REASON_LABELS } from "@/lib/opportunities/types";
@@ -42,15 +42,20 @@ export default async function OpportunityPage({
   const { supabase, userId } = await requireFullSession();
   const opp = await getOpportunity(supabase, id);
   if (!opp) notFound();
-  const [contact, allStages, tasks, renewals, profile] = await Promise.all([
-    getContact(supabase, opp.contact_id), getStages(supabase), tasksForOpportunity(supabase, opp.id), outcomesFor(supabase, opp.id),
+  const [contact, allStages, pipelines, tasks, renewals, profile, pipelineRow] = await Promise.all([
+    getContact(supabase, opp.contact_id), getStages(supabase), getPipelines(supabase), tasksForOpportunity(supabase, opp.id), outcomesFor(supabase, opp.id),
     getProfile(supabase, userId),
+    // Its own pipeline, even if archived since (a won policy keeps its history there).
+    supabase.from("pipelines").select("name, archived_at").eq("id", opp.pipeline_id).maybeSingle(),
   ]);
+  const pipelineName = (pipelineRow.data?.name as string | undefined) ?? "Pipeline";
+  const pipelineArchived = Boolean(pipelineRow.data?.archived_at);
   const today = todayInZone(profile.time_zone);
   const activePolicy = opp.outcome === "won" && opp.policy_ended_on === null;
-  const stages = stagesFor(allStages, opp.product_line);
-  const stage = stages.find((s) => s.id === opp.stage_id);
+  const stages = stagesFor(allStages, opp.pipeline_id).filter((s) => !s.archived_at);
+  const stage = allStages.find((s) => s.id === opp.stage_id);
   const lostStage = stages.find((s) => s.kind === "lost");
+  const otherPipelines = pipelines.filter((p) => p.id !== opp.pipeline_id);
   const noticeKey = Object.keys(NOTICES).find((k) => query[k]);
   const notice = noticeKey ? NOTICES[noticeKey] : undefined;
   const name = contact ? contactDisplayName(contact) : "Contact";
@@ -58,6 +63,7 @@ export default async function OpportunityPage({
   const rows: [string, React.ReactNode][] = [
     ["Contact", contact ? <Link href={`/contacts/${contact.id}`} className="inline-flex min-h-11 min-w-11 items-center underline text-link">{name}</Link> : "—"],
     ["Product line", PRODUCT_LINE_NAMES[opp.product_line]],
+    ["Pipeline", pipelineArchived ? `${pipelineName} (archived)` : pipelineName],
     ["Stage", stage?.name ?? "—"],
     ["Description", opp.description ?? "—"],
     ["Next action", opp.next_action ?? "—"],
@@ -91,7 +97,7 @@ export default async function OpportunityPage({
       ) : null}
 
       <div className="flex flex-col gap-2">
-        <Link href={`/opportunities?line=${opp.product_line}`} className="flex min-h-11 w-fit items-center text-sm underline text-link">← {PRODUCT_LINE_NAMES[opp.product_line]} pipeline</Link>
+        <Link href={pipelineArchived ? "/opportunities" : `/opportunities?pipeline=${opp.pipeline_id}`} className="flex min-h-11 w-fit items-center text-sm underline text-link">← {pipelineArchived ? "Pipelines" : pipelineName}</Link>
         <h1 className="text-2xl font-bold tracking-tight break-words">{PRODUCT_LINE_NAMES[opp.product_line]} · {name}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <OutcomeBadge outcome={opp.outcome} />
@@ -155,7 +161,7 @@ export default async function OpportunityPage({
 
       <section aria-labelledby="stage-heading" className="flex flex-col gap-3 rounded-md border border-line p-3 bg-card">
         <h2 id="stage-heading" className="text-lg font-semibold">{opp.outcome === "won" || opp.outcome === "lost" ? "Reopen" : "Change stage"}</h2>
-        <MoveStageForm id={opp.id} stages={stages} currentStageId={opp.stage_id} outcome={opp.outcome} quoteSentOn={opp.quote_sent_on} today={today} />
+        <MoveStageForm id={opp.id} stages={stages} otherPipelines={otherPipelines} currentStageId={opp.stage_id} outcome={opp.outcome} quoteSentOn={opp.quote_sent_on} today={today} />
       </section>
 
       {opp.outcome !== "lost" && lostStage ? (

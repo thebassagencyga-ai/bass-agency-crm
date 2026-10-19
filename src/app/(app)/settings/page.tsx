@@ -84,6 +84,11 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           lastUsed: calendar.last_fetched_at ? formatInstantDateTime(calendar.last_fetched_at, profile.time_zone) : null,
         } : null}
       />
+      <section id="pipelines" aria-labelledby="pipelines-heading" className="flex flex-col gap-2">
+        <h2 id="pipelines-heading" className="text-lg font-semibold">Pipelines</h2>
+        <p className="text-sm text-muted">Your pipelines, their stages, and which lines send new leads to each.</p>
+        <Link href="/settings/pipelines" className="flex min-h-11 w-fit items-center rounded-md border border-line-strong bg-card px-4 font-medium hover:bg-subtle">Edit pipelines</Link>
+      </section>
       <section aria-labelledby="data-heading" className="flex flex-col gap-2">
         <h2 id="data-heading" className="text-lg font-semibold">Your data</h2>
         <p className="text-sm text-muted">

@@ -80,10 +80,10 @@ describe("opportunity details validation", () => {
 });
 
 describe("planStageChange", () => {
-  const current = { productLine: "auto", outcome: "open" as const, stageId: "s-new" };
-  const active = { id: "s-quoted", productLine: "auto", kind: "active" as const };
-  const won = { id: "s-bound", productLine: "auto", kind: "won" as const };
-  const lost = { id: "s-lost", productLine: "auto", kind: "lost" as const };
+  const current = { pipelineId: "p-auto", outcome: "open" as const, stageId: "s-new" };
+  const active = { id: "s-quoted", pipelineId: "p-auto", kind: "active" as const };
+  const won = { id: "s-bound", pipelineId: "p-auto", kind: "won" as const };
+  const lost = { id: "s-lost", pipelineId: "p-auto", kind: "lost" as const };
 
   it("moves between active stages and stays open", () => {
     expect(planStageChange({ current, target: active })).toEqual({
@@ -108,8 +108,14 @@ describe("planStageChange", () => {
     expect(r.ok && r.update).toEqual({ stage_id: "s-lost", outcome: "lost", loss_reason: "price", loss_reason_detail: "Fictional" });
   });
 
-  it("refuses a stage from another pipeline", () => {
-    expect(planStageChange({ current, target: { ...active, productLine: "home" } })).toMatchObject({ ok: false, field: "stage_id" });
+  it("moves to another pipeline's working stage, but wins or loses only in its own (Phase 25)", () => {
+    expect(planStageChange({ current, target: { ...active, pipelineId: "p-pnc" } })).toMatchObject({ ok: true, update: { outcome: "open" } });
+    expect(planStageChange({ current, target: { ...won, pipelineId: "p-pnc" } })).toMatchObject({ ok: false, field: "stage_id" });
+    expect(planStageChange({ current, target: { ...lost, pipelineId: "p-pnc" }, lossReason: "price" })).toMatchObject({ ok: false, field: "stage_id" });
+  });
+
+  it("refuses a removed stage", () => {
+    expect(planStageChange({ current, target: { ...active, archived: true } })).toMatchObject({ ok: false, field: "stage_id" });
   });
 
   it("refuses moving to the stage it is already at", () => {
@@ -132,8 +138,14 @@ describe("planStageChange", () => {
 });
 
 describe("parseOpportunityListParams", () => {
-  it("defaults to the auto board", () => {
-    expect(parseOpportunityListParams({})).toMatchObject({ view: "board", line: "auto", sort: "updated", page: 1 });
+  it("defaults to the board; the page picks the pipeline (Phase 25)", () => {
+    expect(parseOpportunityListParams({})).toMatchObject({ view: "board", pipeline: null, line: null, sort: "updated", page: 1 });
+  });
+
+  it("reads a pipeline id and an old ?line= link; anything else is ignored", () => {
+    const id = "0f8fad5b-d9cb-469f-a165-70867728950e";
+    expect(parseOpportunityListParams({ pipeline: id.toUpperCase() })).toMatchObject({ pipeline: id });
+    expect(parseOpportunityListParams({ pipeline: "drop table", line: "home" })).toMatchObject({ pipeline: null, line: "home" });
   });
 
   it("table may show all product lines; bad values fall back", () => {

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createTestUser, fullSessionClient, fullSessionCookies } from "../support/supabase";
+import { createTestUser, fullSessionClient, fullSessionCookies, ownStage } from "../support/supabase";
 
 // Phase 17: tags (add, filter, rename in Settings) and merging a duplicate contact on a
 // phone-sized screen. Fictional data only.
@@ -15,7 +15,7 @@ test("tag contacts, filter by tag, merge a duplicate, rename a tag", async ({ pa
   const robin = await insert({ contact_type: "individual", first_name: "Robin", last_name: "Example", phone: "404-555-0101" });
   const dup = await insert({ contact_type: "individual", first_name: "Rob", last_name: "Example", phone: "(404) 555-0101", email: "robin@example.com", tags: ["Church"] });
   await insert({ contact_type: "individual", first_name: "Other", last_name: "Example" });
-  const { data: stage } = await api.from("pipeline_stages").select("id").eq("product_line", "auto").eq("code", "new_lead").single();
+  const stage = { id: await ownStage(api, "auto", "new_lead") };
   await api.from("opportunities").insert({ contact_id: dup, product_line: "auto", stage_id: stage!.id });
 
   // Tag Robin by ticking options from the list (Phase 20); there is no free-text tag box.

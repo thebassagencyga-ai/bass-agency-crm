@@ -125,9 +125,13 @@ $$;
 --    Won (n-1) and Lost (n); at most 10 pipelines in use; a stage keeps its kind; a stage or
 --    pipeline that still holds deals cannot be archived; routes point at pipelines in use.
 -- ---------------------------------------------------------------------------
+-- SECURITY DEFINER: it also runs at the commit of a sign-up (starting pipelines are created
+-- by the profile trigger), where the session role is Supabase Auth's, not the agent's. It only
+-- reads the one pipeline being checked and its owner's pipeline count.
 create function crm_private.check_pipeline()
 returns trigger
 language plpgsql
+security definer
 set search_path = ''
 as $$
 declare

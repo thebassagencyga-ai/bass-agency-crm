@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PASSWORD, anonClient, createTestUser, fullSessionClient } from "../support/supabase";
+import { PASSWORD, anonClient, createTestUser, fullSessionClient, ownStage } from "../support/supabase";
 
 // Renewals, retention outcomes and cross-sell through the real Data API (Phase 8).
 
@@ -17,7 +17,7 @@ describe("renewals and cross-sell via the Data API", () => {
     const t = today();
     const { data: contact } = await client
       .from("contacts").insert({ contact_type: "individual", first_name: "Rory", relationship_status: "client" }).select("id").single();
-    const { data: stage } = await client.from("pipeline_stages").select("id").eq("product_line", "auto").eq("code", "bound").single();
+    const stage = { id: await ownStage(client, "auto", "bound") };
     const renewal = addDays(t, 20);
     const { data: policy, error: insertError } = await client
       .from("opportunities")

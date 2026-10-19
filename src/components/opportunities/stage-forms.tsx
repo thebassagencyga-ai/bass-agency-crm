@@ -3,24 +3,29 @@
 import { useState } from "react";
 import { changeStage } from "@/app/(app)/opportunities/actions";
 import { FormAlert, SubmitButton, useActionForm } from "@/components/form";
-import { LOSS_REASONS, LOSS_REASON_LABELS, type Stage } from "@/lib/opportunities/types";
+import { LOSS_REASONS, LOSS_REASON_LABELS, type Pipeline, type Stage } from "@/lib/opportunities/types";
 import { suggestedQuoteDate } from "@/lib/opportunities/quote-date";
 import type { OpportunityOutcome } from "@/lib/pipelines";
 
 const SELECT =
   "min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-card px-3 py-2 text-base text-fg";
 
-/** Move to another stage of the same pipeline; for a won or lost opportunity this reopens it. */
-export function MoveStageForm({ id, stages, currentStageId, outcome, quoteSentOn, today }: {
-  id: string; stages: Stage[]; currentStageId: string; outcome: OpportunityOutcome; quoteSentOn: string | null; today: string;
+/**
+ * Move to another stage of the same pipeline; for a won or lost opportunity this reopens it.
+ * Phase 25: another pipeline's working stages are offered too.
+ */
+export function MoveStageForm({ id, stages, otherPipelines = [], currentStageId, outcome, quoteSentOn, today }: {
+  id: string; stages: Stage[]; otherPipelines?: Pipeline[]; currentStageId: string; outcome: OpportunityOutcome; quoteSentOn: string | null; today: string;
 }) {
   const { state, formAction, pending, onSubmit } = useActionForm(changeStage);
   const closed = outcome === "won" || outcome === "lost";
   // Closed: reopen at any active stage. Open: any other active stage, or the won stage.
   const choices = stages.filter((s) => s.kind !== "lost" && s.id !== currentStageId && (!closed || s.kind === "active"));
-  const [selected, setSelected] = useState(state.values?.stage_id ?? choices[0]?.id ?? "");
+  const elsewhere = otherPipelines.map((p) => ({ ...p, stages: p.stages.filter((s) => s.kind === "active") })).filter((p) => p.stages.length > 0);
+  const all = [...choices, ...elsewhere.flatMap((p) => p.stages)];
+  const [selected, setSelected] = useState(state.values?.stage_id ?? choices[0]?.id ?? all[0]?.id ?? "");
   // A quote stage asks for the quote date (Phase 23): today unless already recorded this round.
-  const quoteStage = choices.find((s) => s.id === selected)?.is_quote_stage ?? false;
+  const quoteStage = all.find((s) => s.id === selected)?.is_quote_stage ?? false;
   const err = state.fieldErrors ?? {};
   return (
     <form action={formAction} onSubmit={onSubmit} className="flex flex-col gap-2">
@@ -32,6 +37,11 @@ export function MoveStageForm({ id, stages, currentStageId, outcome, quoteSentOn
         aria-invalid={err.stage_id ? true : undefined} className={SELECT}
       >
         {choices.map((s) => <option key={s.id} value={s.id}>{s.kind === "won" ? `${s.name} (won)` : s.name}</option>)}
+        {elsewhere.map((p) => (
+          <optgroup key={p.id} label={`Move to ${p.name}`}>
+            {p.stages.map((s) => <option key={s.id} value={s.id}>{p.name}: {s.name}</option>)}
+          </optgroup>
+        ))}
       </select>
       {err.stage_id ? <p className="text-sm text-bad">{err.stage_id}</p> : null}
       {quoteStage ? (

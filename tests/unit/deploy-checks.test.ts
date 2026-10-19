@@ -43,8 +43,8 @@ describe("checkTargetProject", () => {
 
 describe("checkVerification", () => {
   const good = {
-    stages: 30, product_lines: 4, tables_without_rls: 0, anon_grants: 0, crm_tables: 20,
-    mfa_policies: 20, profile_trigger: 1, public_functions: 24, definer_or_anon_functions: 0,
+    stages: 30, product_lines: 4, tables_without_rls: 0, anon_grants: 0, crm_tables: 23,
+    mfa_policies: 23, profile_trigger: 1, public_functions: 25, definer_or_anon_functions: 0,
     public_anon_functions: 2, unexpected_trigger_functions: 0, engine_unsafe: 0,
   };
 
@@ -55,8 +55,8 @@ describe("checkVerification", () => {
   it("accepts numbers returned as strings by the API", () => {
     expect(
       checkVerification({
-        stages: "30", product_lines: "4", tables_without_rls: "0", anon_grants: "0", crm_tables: "20",
-        mfa_policies: "20", profile_trigger: "1", public_functions: "24", definer_or_anon_functions: "0",
+        stages: "30", product_lines: "4", tables_without_rls: "0", anon_grants: "0", crm_tables: "23",
+        mfa_policies: "23", profile_trigger: "1", public_functions: "25", definer_or_anon_functions: "0",
         public_anon_functions: "2", unexpected_trigger_functions: "0", engine_unsafe: "0",
       }),
     ).toEqual([]);

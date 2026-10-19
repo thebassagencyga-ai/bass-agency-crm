@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { addDays, todayInZone } from "../../src/lib/dates";
-import { createTestUser, fullSessionClient, fullSessionCookies } from "../support/supabase";
+import { createTestUser, fullSessionClient, fullSessionCookies, ownStage } from "../support/supabase";
 
 // Phase 16: text or email from the CRM through the phone's own apps, then log it; and the
 // 7-day inactivity sign-out. Fictional data only.
@@ -10,7 +10,7 @@ test("renewal check-in by text: composer, device links, log the text", async ({ 
   const owner = await createTestUser("e2e-messages");
   await context.addCookies(await fullSessionCookies(owner.email, APP_URL));
   const api = await fullSessionClient(owner.email);
-  const { data: stage } = await api.from("pipeline_stages").select("id").eq("product_line", "auto").eq("kind", "won").limit(1).single();
+  const stage = { id: await ownStage(api, "auto", "bound") };
   const { data: contact } = await api.from("contacts")
     .insert({ contact_type: "individual", first_name: "Robin", last_name: "Example", phone: "404-555-0101", email: "robin@example.com" })
     .select("id").single();

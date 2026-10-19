@@ -1052,3 +1052,25 @@ tabs; search a client from the top bar).
 1. Merge to `main` (done by Claude).
 2. No migrations. Deploy app (Cloudflare).
 3. On the iPhone: Contacts → Leads / Clients tabs; search a client from the top bar.
+
+## Phase 25 — Your own pipelines (branch `phase-25-pipelines`)
+Started 2026-10-19 after the owner approved the design ("Yes, any mix", "Keep today's four",
+"Approved, build it"). ADR-043.
+
+**Completed**
+- Migration `20261102120000_custom_pipelines.sql`:
+  - `pipelines`, `stages`, `pipeline_routes` (owner-only RLS, two-step policy, no DELETE, audit
+    log, column-level grants); commit-time rules (3–12 stages, Won and Lost last, ≤ 10 pipelines),
+    guards (stage kind fixed; no removing a stage with deals; no archiving a pipeline with lines
+    or open deals; routes only to pipelines in use)
+  - every agent (existing and new) starts with Auto, Home, Commercial and Life copied from the
+    built-in stages; every deal moved to the same-named stage (quote-date and touch triggers
+    paused for that update; audit log records it); `opportunities.pipeline_id` + composite FK
+  - `save_pipeline` (one-step edit); routing helpers `crm_engine.route_pipeline / entry_stage /
+    won_stage`; intake, import, automation, quote date, `search_opportunities` (pipeline filter)
+    and `report_summary` (open pipeline by pipeline and stage) read the agent's own stages
+- App: Pipeline page picker for your pipelines (old `?line=` links still open the routed one),
+  line shown on cards when a pipeline holds several; table filter by pipeline; "Add opportunity"
+  pipeline choice defaulting to the line's route; moving a deal into another pipeline (page and
+  board); Settings → Pipelines (list, add, edit stages and lines, archive); "Add existing
+  policy" uses the line's pipeline; Reports grouped by pipeline.

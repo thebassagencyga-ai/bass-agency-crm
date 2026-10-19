@@ -2,6 +2,20 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 25 — Your own pipelines (2026-10-19, ready for review)
+### Added
+- **Settings → Pipelines:** create, rename and archive pipelines; give each its own stages
+  (rename, reorder, add, remove empty ones) and choose which lines send their new leads there.
+  One pipeline can take several lines, for example **P&C** for Auto and Home.
+- Mark any working stage as the **quote stage**: moving a deal there records the quote date and
+  schedules the quote follow-up.
+- A deal can be moved into another pipeline from its page or the board.
+### Changed
+- The Pipeline page has a picker for your pipelines instead of the Auto / Home / Commercial / Life
+  tabs; cards show the line when a pipeline holds more than one. Reports group open deals by
+  your pipelines.
+- You start with your four current pipelines, unchanged; every deal stays in its stage.
+
 ## Phase 24 — Leads and Clients (2026-10-19, approved)
 ### Added
 - **Contacts tabs:** Leads | Clients | Former | All, with counts. Contacts opens on Leads.

@@ -5,7 +5,7 @@ import { OpportunityForm } from "@/components/opportunities/opportunity-form";
 import { requireFullSession } from "@/lib/auth/require";
 import { getContact } from "@/lib/contacts/data";
 import { contactDisplayName } from "@/lib/contacts/format";
-import { getStages } from "@/lib/opportunities/data";
+import { getPipelines } from "@/lib/opportunities/data";
 import { PRODUCT_LINES, type ProductLine } from "@/lib/pipelines";
 
 export const metadata: Metadata = { title: "Add opportunity · Producr CRM" };
@@ -41,12 +41,12 @@ export default async function NewOpportunityPage({ searchParams }: { searchParam
       </section>
     );
   }
-  const stages = await getStages(supabase);
+  const pipelines = await getPipelines(supabase);
   return (
     <section className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold tracking-tight">Add opportunity</h1>
       {switchLink}
-      <OpportunityForm mode="create" contactId={contact.id} contactName={contactDisplayName(contact)} stages={stages} defaultLine={defaultLine} />
+      <OpportunityForm mode="create" contactId={contact.id} contactName={contactDisplayName(contact)} pipelines={pipelines} defaultLine={defaultLine} />
     </section>
   );
 }

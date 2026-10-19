@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { anonClient, createTestUser, fullSessionClient } from "../support/supabase";
+import { anonClient, createTestUser, fullSessionClient, ownStages } from "../support/supabase";
 
 // The automation engine through the real Data API (Phase 6): changes made with the user's
 // own session create and close tasks in the same request.
@@ -13,8 +13,7 @@ beforeAll(async () => {
   const owner = await createTestUser("auto-owner");
   ownerEmail = owner.email;
   const client = await fullSessionClient(owner.email);
-  const { data: stages } = await client.from("pipeline_stages").select("id, product_line, code");
-  for (const s of (stages ?? []) as { id: string; product_line: string; code: string }[]) stage[`${s.product_line}/${s.code}`] = s.id;
+  Object.assign(stage, await ownStages(client));
   const { data: contact, error } = await client.from("contacts").insert({ contact_type: "individual", first_name: "Robin", last_name: "Example" }).select("id").single();
   if (error) throw error;
   contactId = contact.id;

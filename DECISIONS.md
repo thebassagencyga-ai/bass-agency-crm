@@ -1096,3 +1096,37 @@ started in the past, so these tasks did not apply.
 
 **Safeguards.** No new table, grant or public function; RLS and the two-step policy apply as
 before; changes are in the audit log.
+
+## ADR-043 — Your own pipelines (Phase 25)
+**Date:** 2026-10-19. **Status:** proposed (design approved by the owner 2026-10-19; build
+awaiting approval). Supersedes the fixed per-line pipelines of ADR-006 (stage kinds and the
+separate outcome column stay).
+
+**Owner choices.** Each pipeline has its own stages; new leads are routed by line, set per
+pipeline; "Yes, any mix" (one pipeline may take several lines, e.g. P&C = Auto + Home); "Keep
+today's four" as the starting pipelines.
+
+**Decision.**
+- Owner-scoped `pipelines`, `stages` and `pipeline_routes` (one route per line). The product
+  line stays on every deal; the pipeline only describes how it is worked. `opportunities.pipeline_id`
+  and `stage_kind` are copied from the stage by trigger and checked by a composite FK
+  (stage, pipeline, kind, owner).
+- Stage meaning is carried by data, not codes: the first stage starts the new-lead task, the
+  stage marked `is_quote_stage` records the quote date, Won/Lost are kinds. Automation rules,
+  renewals, cross-sell and reports by line are unchanged.
+- Rules checked at commit (deferred constraint triggers): 3–12 stages, working stages first, then
+  one Won and one Lost; at most 10 pipelines in use; a stage keeps its kind; removing a stage or
+  archiving a pipeline is refused while it is still in use. Edits go through one function,
+  `save_pipeline`, so a pipeline is never saved half-edited. No DELETE anywhere (archive).
+- Deals may move into another pipeline's working stages; they are won or lost in the pipeline
+  they are in.
+- Migration: every agent gets four pipelines copied from the old reference stages (kept as
+  templates for new agents) and every deal moves to the same-named stage. The quote-date and
+  "last updated" triggers are paused for that one update so nothing else about a deal changes;
+  the audit log records each move.
+- The commit-time check runs as SECURITY DEFINER (crm_private, closed to API roles): it also
+  fires when a sign-up creates the starting pipelines, where the session role is Supabase Auth's.
+  Found by the integration tests against the real local Supabase stack.
+
+**Not included.** Routing by lead source, a Won stage per line inside one pipeline, per-stage
+automations beyond the quote stage.

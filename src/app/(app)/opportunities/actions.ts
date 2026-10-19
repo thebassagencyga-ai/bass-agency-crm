@@ -50,7 +50,7 @@ function friendlyDbError(code: string | undefined): FormState {
 
 async function getStage(supabase: SupabaseClient, id: string): Promise<Stage | null> {
   if (!isUuid(id)) return null;
-  const { data } = await supabase.from("pipeline_stages").select("id, product_line, code, name, position, kind, is_quote_stage").eq("id", id).maybeSingle();
+  const { data } = await supabase.from("stages").select("id, pipeline_id, name, position, kind, is_quote_stage, archived_at").eq("id", id).maybeSingle();
   return (data as Stage | null) ?? null;
 }
 
@@ -73,9 +73,10 @@ export async function createOpportunity(_prev: FormState, formData: FormData): P
   if (!parsed.success) return { fieldErrors: fieldErrorsOf(parsed.error.issues), values };
   const data = parsed.data;
 
+  // Phase 25: any working stage of any of the agent's pipelines (RLS limits it to their own).
   const stage = await getStage(supabase, data.stage_id);
-  if (!stage || stage.product_line !== data.product_line || stage.kind !== "active") {
-    return { fieldErrors: { stage_id: "Choose a starting stage from this product line." }, values };
+  if (!stage || stage.kind !== "active" || stage.archived_at) {
+    return { fieldErrors: { stage_id: "Choose a starting stage." }, values };
   }
 
   const { data: row, error } = await supabase.from("opportunities").insert(termForLine(data, data.product_line)).select("id").single();
@@ -100,8 +101,11 @@ export async function createExistingPolicy(_prev: FormState, formData: FormData)
   if (!parsed.success) return { fieldErrors: fieldErrorsOf(parsed.error.issues), values };
   const data = parsed.data;
 
-  const { data: wonStage } = await supabase
-    .from("pipeline_stages").select("id").eq("product_line", data.product_line).eq("kind", "won").maybeSingle();
+  // The Won stage of the pipeline this line's new leads go to (Phase 25).
+  const { data: route } = await supabase.from("pipeline_routes").select("pipeline_id").eq("product_line", data.product_line).maybeSingle();
+  const { data: wonStage } = route
+    ? await supabase.from("stages").select("id").eq("pipeline_id", route.pipeline_id as string).eq("kind", "won").is("archived_at", null).maybeSingle()
+    : { data: null };
   if (!wonStage) return { error: "Could not save the policy. Please try again.", values };
   const today = todayInZone((await getProfile(supabase, userId)).time_zone);
 
@@ -156,8 +160,8 @@ export async function changeStage(_prev: FormState, formData: FormData): Promise
   if (!stage) return { fieldErrors: { stage_id: "Choose a stage." }, values };
 
   const plan = planStageChange({
-    current: { productLine: opp.product_line, outcome: opp.outcome, stageId: opp.stage_id },
-    target: { id: stage.id, productLine: stage.product_line, kind: stage.kind },
+    current: { pipelineId: opp.pipeline_id, outcome: opp.outcome, stageId: opp.stage_id },
+    target: { id: stage.id, pipelineId: stage.pipeline_id, kind: stage.kind, archived: stage.archived_at !== null },
     lossReason: parsed.data.loss_reason,
     lossReasonDetail: parsed.data.loss_reason_detail,
   });
@@ -191,7 +195,8 @@ export async function moveFromBoard(formData: FormData): Promise<void> {
   const [opp, stage] = await Promise.all([loadOpportunity(supabase, id), getStage(supabase, stageId)]);
   if (!opp) redirect("/opportunities?error=move");
   const back = (flag: string) => {
-    const qs = new URLSearchParams({ line: opp.product_line, [flag]: "1" });
+    // Back to the pipeline the deal is now in (a move can cross pipelines, Phase 25).
+    const qs = new URLSearchParams({ pipeline: stage?.pipeline_id ?? opp.pipeline_id, [flag]: "1" });
     if (q) qs.set("q", q);
     return `/opportunities?${qs.toString()}#opp-${opp.id}`;
   };
@@ -199,8 +204,8 @@ export async function moveFromBoard(formData: FormData): Promise<void> {
   if (stage.kind === "lost") redirect(`/opportunities/${opp.id}?mark=lost#mark-lost`);
 
   const plan = planStageChange({
-    current: { productLine: opp.product_line, outcome: opp.outcome, stageId: opp.stage_id },
-    target: { id: stage.id, productLine: stage.product_line, kind: stage.kind },
+    current: { pipelineId: opp.pipeline_id, outcome: opp.outcome, stageId: opp.stage_id },
+    target: { id: stage.id, pipelineId: stage.pipeline_id, kind: stage.kind, archived: stage.archived_at !== null },
   });
   if (!plan.ok) redirect(back("error"));
   const { error } = await supabase.from("opportunities").update(plan.update).eq("id", opp.id);

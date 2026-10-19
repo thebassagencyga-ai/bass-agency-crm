@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { PASSWORD, anonClient, createTestUser, fullSessionClient } from "../support/supabase";
+import { PASSWORD, anonClient, createTestUser, fullSessionClient, ownStages } from "../support/supabase";
 
 // Opportunities through the real Data API (Phase 4): ownership, lifecycle rules, search.
 
@@ -16,9 +16,7 @@ beforeAll(async () => {
   const owner = await createTestUser("opps-owner");
   ownerEmail = owner.email;
   const client = await fullSessionClient(owner.email);
-  const { data: stages, error: stageError } = await client.from("pipeline_stages").select("id, product_line, code");
-  if (stageError) throw stageError;
-  for (const s of stages as { id: string; product_line: string; code: string }[]) stage[`${s.product_line}/${s.code}`] = s.id;
+  Object.assign(stage, await ownStages(client));
 
   const { data: contact, error } = await client
     .from("contacts").insert({ contact_type: "individual", first_name: "Quinn", last_name: "Example" }).select("id").single();
@@ -39,9 +37,10 @@ describe("opportunities via the Data API", () => {
     expect(data).toEqual([expect.objectContaining({ id: oppId, stage_name: "Quoted", first_name: "Quinn", quoted_carrier: "Example Mutual" })]);
   });
 
-  it("refuses a stage from another pipeline and a product line change", async () => {
+  it("refuses a stage that is not the agent's own and a product line change", async () => {
     const client = await fullSessionClient(ownerEmail);
-    const wrongStage = await client.from("opportunities").update({ stage_id: stage["auto/quoted"] }).eq("id", oppId);
+    // Phase 25: deals may move between the agent's own pipelines; any other stage is refused.
+    const wrongStage = await client.from("opportunities").update({ stage_id: "0f8fad5b-d9cb-469f-a165-70867728950e" }).eq("id", oppId);
     expect(wrongStage.error?.code).toBe("23503");
     const wrongLine = await client.from("opportunities").update({ product_line: "auto", stage_id: stage["auto/quoted"] }).eq("id", oppId);
     expect(wrongLine.error?.code).toBe("23514");

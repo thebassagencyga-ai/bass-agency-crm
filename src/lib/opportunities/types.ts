@@ -25,22 +25,34 @@ export const OUTCOME_LABELS: Readonly<Record<OpportunityOutcome, string>> = {
   nurture: "Nurture",
 };
 
-/** A pipeline stage as stored in the database (ids differ per environment). */
+/** One of the agent's own pipeline stages (Phase 25; ids differ per agent). */
 export interface Stage {
   id: string;
-  product_line: ProductLine;
-  code: string;
+  pipeline_id: string;
   name: string;
   position: number;
   kind: StageKind;
   /** Phase 23: entering this stage means the quote was delivered (quote date recorded). */
   is_quote_stage: boolean;
+  /** Set when the stage was removed; deals can no longer move into it. */
+  archived_at: string | null;
+}
+
+/** An agent's pipeline (Phase 25): its stages in order and the lines whose new leads it receives. */
+export interface Pipeline {
+  id: string;
+  name: string;
+  position: number;
+  stages: Stage[];
+  lines: ProductLine[];
 }
 
 export interface Opportunity {
   id: string;
   contact_id: string;
   product_line: ProductLine;
+  /** Phase 25: the pipeline of the current stage. */
+  pipeline_id: string;
   stage_id: string;
   stage_kind: StageKind;
   outcome: OpportunityOutcome;

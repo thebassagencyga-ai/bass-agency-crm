@@ -4,8 +4,8 @@ import type { OpportunityOutcome, StageKind } from "@/lib/pipelines";
 import type { LossReason } from "./types";
 
 export interface StageChangeInput {
-  current: { productLine: string; outcome: OpportunityOutcome; stageId: string };
-  target: { id: string; productLine: string; kind: StageKind };
+  current: { pipelineId: string; outcome: OpportunityOutcome; stageId: string };
+  target: { id: string; pipelineId: string; kind: StageKind; archived?: boolean };
   lossReason?: LossReason | null;
   lossReasonDetail?: string | null;
 }
@@ -23,11 +23,17 @@ export const isClosed = (outcome: OpportunityOutcome) => outcome === "won" || ou
 /**
  * Moving to the won stage wins the opportunity; to Lost needs a reason; to an active stage
  * keeps it open (or in nurture). Moving a closed opportunity to an active stage reopens it.
+ * Another pipeline's working stages are allowed too (Phase 25).
  */
 export function planStageChange(input: StageChangeInput): StageChangeResult {
   const { current, target } = input;
-  if (target.productLine !== current.productLine) {
-    return { ok: false, field: "stage_id", message: "Choose a stage from this opportunity's pipeline." };
+  if (target.archived) {
+    return { ok: false, field: "stage_id", message: "That stage has been removed. Choose another." };
+  }
+  // Phase 25: a deal can move to another pipeline, into one of its working stages; it is won
+  // or lost in the pipeline it is in.
+  if (target.pipelineId !== current.pipelineId && target.kind !== "active") {
+    return { ok: false, field: "stage_id", message: "Move it into a working stage of the other pipeline first." };
   }
   if (target.id === current.stageId && target.kind !== "lost") {
     return { ok: false, field: "stage_id", message: "The opportunity is already at that stage." };

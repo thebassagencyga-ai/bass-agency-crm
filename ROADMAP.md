@@ -34,7 +34,7 @@ inherits the standard exit criteria at the bottom of this file.
 | fix | Import reads Excel (.xlsx) files directly (owner report, 2026-10-19) | 15 | APPROVED, DEPLOYED (2026-10-19) |
 | fix | Add existing policy: enter a client's current policy without new-sale tasks (owner report, 2026-10-19) | 23 | APPROVED, DEPLOYED (2026-10-19) |
 | 24 | Leads and Clients tabs, book of business view | 23 | APPROVED, DEPLOYED (2026-10-19) |
-| 25 | Your own pipelines (custom stages, routing by line) | 24 | NOT STARTED |
+| 25 | Your own pipelines (custom stages, routing by line) | 24 | READY FOR REVIEW |
 
 ---
 
@@ -623,8 +623,23 @@ prefer to have a pipeline of leads separated from the book of clients"; ADR-040)
 ## Phase 25 — Your own pipelines
 **Objective.** Pipelines the owner creates and manages (e.g. P&C, Commercial), each with its own
 stages, deals routed by line (owner choices 2026-10-19, ADR-040). Planned after Phase 24; replaces
-the fixed per-line pipelines of ADR-006. Design to be presented before building.
+the fixed per-line pipelines of ADR-006. Design approved by the owner 2026-10-19 (ADR-043): one
+pipeline may take any mix of lines; every agent starts with today's four pipelines.
 
-**Status:** NOT STARTED.
+**Acceptance**
+- ✅ After the migration every deal sits in the same-named stage of the matching starting
+  pipeline; no date, task or "last updated" changes (`tests/db/pipelines.test.ts`, migration test
+  on a database built at the previous migration; also applied to the local Supabase stack with data).
+- ✅ A P&C pipeline for Auto and Home receives their new leads (quote form/quick intake, imports,
+  existing policies, "Add opportunity" default).
+- ✅ The stage marked as the quote stage records the quote date and schedules one follow-up; the
+  first stage starts the new-lead task; Won makes the contact a client.
+- ✅ Stage rules (3–12 stages, Won and Lost last, one each), no removing a stage with deals, no
+  archiving a pipeline with lines or open deals, at most 10 pipelines.
+- ✅ New tables: RLS, two-step policy, no DELETE, owner-only, in the catalog and RLS tests;
+  deploy verification updated (23 tables, 25 functions).
+- ⏳ Owner: iPhone check after deploy.
+
+**Status:** READY FOR REVIEW (2026-10-19); see PROGRESS.md.
 
 ---

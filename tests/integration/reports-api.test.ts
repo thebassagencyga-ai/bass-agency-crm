@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PASSWORD, anonClient, createTestUser, fullSessionClient } from "../support/supabase";
+import { PASSWORD, anonClient, createTestUser, fullSessionClient, ownStage } from "../support/supabase";
 
 // Reports through the real Data API (Phase 9).
 
@@ -12,7 +12,7 @@ describe("report_summary via the Data API", () => {
     const t = today();
     const { data: contact } = await client
       .from("contacts").insert({ contact_type: "individual", first_name: "Sky", lead_source: "Website" }).select("id").single();
-    const { data: stage } = await client.from("pipeline_stages").select("id").eq("product_line", "home").eq("code", "bound").single();
+    const stage = { id: await ownStage(client, "home", "bound") };
     const { error: oppError } = await client
       .from("opportunities").insert({ contact_id: contact!.id, product_line: "home", stage_id: stage!.id, outcome: "won", quote_sent_on: t, estimated_annual_premium: 1500 });
     expect(oppError).toBeNull();

@@ -4,12 +4,15 @@ import Link from "next/link";
 import { useState } from "react";
 import { createOpportunity, updateOpportunity } from "@/app/(app)/opportunities/actions";
 import { Field, FormAlert, SelectField, SubmitButton, useActionForm } from "@/components/form";
-import type { Opportunity, Stage } from "@/lib/opportunities/types";
+import type { Opportunity, Pipeline } from "@/lib/opportunities/types";
 import { PRODUCT_LINES, PRODUCT_LINE_NAMES, type ProductLine } from "@/lib/pipelines";
 
 type Props =
-  | { mode: "create"; contactId: string; contactName: string; stages: Stage[]; defaultLine?: ProductLine; opportunity?: undefined }
-  | { mode: "edit"; opportunity: Opportunity; contactId?: undefined; contactName?: undefined; stages?: undefined; defaultLine?: undefined };
+  | { mode: "create"; contactId: string; contactName: string; pipelines: Pipeline[]; defaultLine?: ProductLine; opportunity?: undefined }
+  | { mode: "edit"; opportunity: Opportunity; contactId?: undefined; contactName?: undefined; pipelines?: undefined; defaultLine?: undefined };
+
+/** Where a line's new leads go (Phase 25): its pipeline, else the first one. */
+const routeFor = (pipelines: Pipeline[], line: ProductLine) => (pipelines.find((p) => p.lines.includes(line)) ?? pipelines[0])?.id ?? "";
 
 const PREMIUM_HINT = "Estimated yearly premium in dollars, e.g. 1,250.";
 
@@ -25,7 +28,12 @@ export function OpportunityForm(props: Props) {
   const [line, setLine] = useState<ProductLine>((v("product_line") as ProductLine | undefined) ?? props.defaultLine ?? "auto");
   const err = state.fieldErrors ?? {};
   const isAuto = (props.mode === "create" ? line : existing!.product_line) === "auto";
-  const startStages = props.mode === "create" ? props.stages.filter((s) => s.product_line === line && s.kind === "active") : [];
+  const pipelines = props.mode === "create" ? props.pipelines : [];
+  const submittedStage = v("stage_id");
+  const [pipelineId, setPipelineId] = useState(
+    pipelines.find((p) => p.stages.some((s) => s.id === submittedStage))?.id ?? routeFor(pipelines, line),
+  );
+  const startStages = pipelines.find((p) => p.id === pipelineId)?.stages.filter((s) => s.kind === "active") ?? [];
 
   return (
     <form action={formAction} onSubmit={onSubmit} className="flex max-w-xl flex-col gap-4" noValidate>
@@ -40,17 +48,29 @@ export function OpportunityForm(props: Props) {
               {PRODUCT_LINES.map((l) => (
                 <label key={l} className="flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-line-strong px-3 has-[:checked]:border-brand has-[:checked]:bg-brand-soft">
                   {/* defaultChecked: React 19 resets the form after each action (see contact form). */}
-                  <input type="radio" name="product_line" value={l} defaultChecked={line === l} onChange={() => setLine(l)} />
+                  <input type="radio" name="product_line" value={l} defaultChecked={line === l} onChange={() => { setLine(l); setPipelineId(routeFor(pipelines, l)); }} />
                   {PRODUCT_LINE_NAMES[l]}
                 </label>
               ))}
             </div>
             {err.product_line ? <p className="text-sm text-bad">{err.product_line}</p> : null}
           </fieldset>
+          {pipelines.length > 1 ? (
+            <div className="flex flex-col gap-1">
+              <label htmlFor="pipeline_id" className="text-sm font-medium">Pipeline</label>
+              <select
+                id="pipeline_id" value={pipelineId} onChange={(e) => setPipelineId(e.target.value)} aria-describedby="pipeline_id-hint"
+                className="min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-card px-3 py-2 text-base text-fg"
+              >
+                {pipelines.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              <p id="pipeline_id-hint" className="text-xs text-muted">Set to where {PRODUCT_LINE_NAMES[line]} leads go; change it if this one belongs elsewhere.</p>
+            </div>
+          ) : null}
           <div className="flex flex-col gap-1">
             <label htmlFor="stage_id" className="text-sm font-medium">Starting stage</label>
             <select
-              id="stage_id" name="stage_id" key={line}
+              id="stage_id" name="stage_id" key={pipelineId}
               defaultValue={startStages.some((s) => s.id === v("stage_id")) ? v("stage_id") : startStages[0]?.id}
               aria-invalid={err.stage_id ? true : undefined}
               className="min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-card px-3 py-2 text-base text-fg"

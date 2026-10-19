@@ -129,3 +129,28 @@ export async function fullSessionCookies(email: string, appUrl: string) {
     name, value, domain: hostname, path: "/", httpOnly: true, secure: false, sameSite: "Lax" as const,
   }));
 }
+
+/**
+ * The signed-in user's own starting stages (Phase 25), keyed "line/code" (e.g. "auto/bound"):
+ * the stages of the pipeline each line routes to, by the built-in stage they were copied from.
+ */
+export async function ownStages(client: SupabaseClient): Promise<Record<string, string>> {
+  const [routes, stages] = await Promise.all([
+    client.from("pipeline_routes").select("product_line, pipeline_id"),
+    client.from("stages").select("id, pipeline_id, template_code").is("archived_at", null),
+  ]);
+  if (routes.error || stages.error) throw routes.error ?? stages.error;
+  const map: Record<string, string> = {};
+  for (const r of routes.data as { product_line: string; pipeline_id: string }[]) {
+    for (const s of stages.data as { id: string; pipeline_id: string; template_code: string | null }[]) {
+      if (s.pipeline_id === r.pipeline_id && s.template_code) map[`${r.product_line}/${s.template_code}`] = s.id;
+    }
+  }
+  return map;
+}
+
+export async function ownStage(client: SupabaseClient, line: string, code: string): Promise<string> {
+  const id = (await ownStages(client))[`${line}/${code}`];
+  if (!id) throw new Error(`No stage ${line}/${code}`);
+  return id;
+}

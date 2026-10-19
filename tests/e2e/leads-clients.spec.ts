@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { addDays, formatDateOnly, todayInZone } from "../../src/lib/dates";
-import { createTestUser, fullSessionClient, fullSessionCookies } from "../support/supabase";
+import { createTestUser, fullSessionClient, fullSessionCookies, ownStage } from "../support/supabase";
 
 // Phase 24 (ADR-040): Contacts opens on Leads; Clients is the book (lines, premium, next renewal,
 // cross-sell gap); search from anywhere still finds everyone; open deals for clients are tagged on
@@ -13,7 +13,7 @@ test("leads and clients tabs, book view, client tag on the pipeline", async ({ p
   const api = await fullSessionClient(owner.email);
   const today = todayInZone("America/New_York");
   const stage = async (line: string, code: string) =>
-    (await api.from("pipeline_stages").select("id").eq("product_line", line).eq("code", code).single()).data!.id as string;
+    ownStage(api, line, code);
   const contact = async (first: string, status = "prospect") =>
     (await api.from("contacts").insert({ contact_type: "individual", first_name: first, last_name: "Example", relationship_status: status }).select("id").single()).data!.id as string;
 
