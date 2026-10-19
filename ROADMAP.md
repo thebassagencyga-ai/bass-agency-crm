@@ -36,7 +36,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 24 | Leads and Clients tabs, book of business view | 23 | APPROVED, DEPLOYED (2026-10-19) |
 | 25 | Your own pipelines (custom stages, routing by line) | 24 | APPROVED, DEPLOYED (2026-10-19) |
 | fix | Board fits the window; Won/Lost capped; imported and existing policies off the board (owner report, 2026-10-19) | 25 | APPROVED, DEPLOYED (2026-10-19) |
-| 26 | Workflow audit Step 2: new-lead alerts on your phone (Web Push) | 25 | READY FOR REVIEW |
+| 26 | Workflow audit Step 2: new-lead alerts on your phone (Web Push) | 25 | APPROVED (2026-10-19) — iPhone test pending |
 
 ---
 
@@ -668,5 +668,5 @@ request".
 - ⏳ Owner: create the key, add it in Cloudflare, turn alerts on on the iPhone, test alert and a
   real form submission (the iPhone test completes this phase).
 
-**Status:** READY FOR REVIEW (2026-10-19); see PROGRESS.md.
+**Status:** APPROVED (owner, 2026-10-19); the owner's iPhone test completes it. See PROGRESS.md.
 

@@ -1131,8 +1131,8 @@ today's four" as the starting pipelines.
 automations beyond the quote stage.
 
 ## ADR-044 — New-lead alerts by Web Push (Phase 26)
-**Date:** 2026-10-19. **Status:** proposed (design approved by the owner 2026-10-19; build
-awaiting approval). Implements owner decision 1 of ADR-039.
+**Date:** 2026-10-19. **Status:** accepted (design and build approved by the owner 2026-10-19).
+Implements owner decision 1 of ADR-039.
 
 **Decision.**
 - Standard Web Push (RFC 8030/8291/8292) to the devices the agent turns alerts on for; on iPhone

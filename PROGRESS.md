@@ -1166,8 +1166,10 @@ it"). ADR-044. Implements owner decision 1 of ADR-039.
 | Local: integration (real Supabase stack) | 52 passed |
 | Local: browser tests against the Cloudflare build | 30 of 31 passed incl. new `alerts.spec.ts` (request saved and thanked, alert handed out in the background, unreachable device reported by the test alert, key not in the page); the service-worker test was updated for cache v3; Lighthouse cannot start locally (no Chrome binary), runs in CI |
 | Local: bundle check with the alert key | clean |
-| CI | see report |
+| CI run 39336018770 (commit acb27f6): all 4 jobs | pass — incl. full browser suite and Lighthouse |
 | Production | not deployed |
+
+**Approved by the owner 2026-10-19** ("Approved approved").
 
 **Owner actions after approval**
 1. Merge to `main` (Claude).

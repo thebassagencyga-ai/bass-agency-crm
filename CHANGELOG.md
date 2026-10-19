@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 26 — New-lead alerts (2026-10-19, ready for review)
+## Phase 26 — New-lead alerts (2026-10-19, approved)
 ### Added
 - **Settings → Alerts:** a notification on your iPhone (and any other device you choose) when
   someone sends your quote form: "New quote request — Open Producr CRM to review it." It never
