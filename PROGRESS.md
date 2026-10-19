@@ -833,7 +833,7 @@ Design in ADR-037. No database changes.
 | Local: lint, typecheck, build | pass |
 | Local: unit | 439 passed (5 new: bottom bar / More split, current page, quick actions per contact) |
 | Local: database | not re-run (no database changes) |
-| CI | pending |
+| CI run 39178068885 (commit ba49f0f): all 4 jobs | pass — 23 browser tests incl. the new phone test (bottom bar, More, search anywhere, Call · Text · Log), phone widths 375/390/430 (44 px targets, no sideways scroll), Lighthouse accessibility 100 on all 23 pages |
 | Production | not deployed yet |
 
 **Owner actions after approval**
