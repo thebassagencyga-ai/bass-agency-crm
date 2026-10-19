@@ -1,4 +1,4 @@
-# Maintenance runbook — The Bass Agency CRM
+# Maintenance runbook — ZeroLapse CRM
 
 Plain-language steps for running the CRM after go-live. Everything here is done from a web
 browser: GitHub (code and the buttons that deploy), Cloudflare (where the app runs) and

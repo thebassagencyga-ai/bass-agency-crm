@@ -4,7 +4,7 @@ import { requireFullSession } from "@/lib/auth/require";
 import { isoToZonedLocal } from "@/lib/dates";
 import { getProfile } from "@/lib/tasks/data";
 
-export const metadata: Metadata = { title: "Log activity · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Log activity · ZeroLapse CRM" };
 
 /** Dashboard quick action: pick a contact, then log what happened. */
 export default async function LogActivityPage() {

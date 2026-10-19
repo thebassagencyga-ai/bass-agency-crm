@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { QuickIntakeForm } from "@/components/intake/quick-form";
 import { requireFullSession } from "@/lib/auth/require";
 
-export const metadata: Metadata = { title: "Quick intake · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Quick intake · ZeroLapse CRM" };
 
 export default async function QuickIntakePage() {
   await requireFullSession();

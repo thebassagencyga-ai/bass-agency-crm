@@ -1,6 +1,7 @@
-# The Bass Agency CRM
+# ZeroLapse CRM
 
-Private sales and relationship CRM for The Bass Agency (Carrollton, GA): contacts,
+Private sales and relationship CRM (formerly "The Bass Agency CRM", ADR-038), built for The Bass
+Agency (Carrollton, GA): contacts,
 home/auto/commercial/life opportunity pipelines, follow-up tasks, renewals, cross-sell
 prompts and basic reports.
 

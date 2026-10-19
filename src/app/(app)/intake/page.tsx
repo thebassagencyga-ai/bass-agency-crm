@@ -6,7 +6,7 @@ import { listNewSubmissions } from "@/lib/intake/data";
 import { INTAKE_LINE_LABELS } from "@/lib/intake/types";
 import { isUuid } from "@/lib/contacts/data";
 
-export const metadata: Metadata = { title: "Intake · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Intake · ZeroLapse CRM" };
 
 export default async function IntakeInboxPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const query = await searchParams;

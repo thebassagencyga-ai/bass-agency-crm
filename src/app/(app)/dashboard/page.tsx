@@ -14,7 +14,7 @@ import type { TaskListRow } from "@/lib/tasks/types";
 import { BriefingPanel } from "@/components/ai/briefing";
 import { aiEnabled } from "@/lib/ai/config";
 
-export const metadata: Metadata = { title: "Dashboard · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Dashboard · ZeroLapse CRM" };
 
 const NOTICES: Record<string, string> = { completed: "Task completed.", reopened: "Task reopened." };
 const ACTION = "flex min-h-11 items-center justify-center rounded-md px-3 text-center font-medium";

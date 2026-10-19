@@ -5,7 +5,7 @@ import { requireFullSession } from "@/lib/auth/require";
 import { getContact, knownTags, leadSourceOptions, summarize } from "@/lib/contacts/data";
 import { contactDisplayName } from "@/lib/contacts/format";
 
-export const metadata: Metadata = { title: "Edit contact · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Edit contact · ZeroLapse CRM" };
 
 export default async function EditContactPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

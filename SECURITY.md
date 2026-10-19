@@ -1,4 +1,4 @@
-# Security — The Bass Agency CRM
+# Security — ZeroLapse CRM
 
 Status: **Phase 2 — authentication implemented; database authorization live in production
 (Phase 1 schema).** Items move to "Verified" only with test evidence or a recorded manual

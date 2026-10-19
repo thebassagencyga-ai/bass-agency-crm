@@ -11,7 +11,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:m-2 focus:rounded focus:bg-white focus:p-2">Skip to content</a>
       <header className="border-b border-slate-200 p-3 md:w-60 md:shrink-0 md:border-b-0 md:border-r dark:border-slate-800">
         <div className="mb-2 flex items-center justify-between gap-2 md:mb-4 md:flex-col md:items-start">
-          <p className="font-semibold">The Bass Agency CRM</p>
+          <p className="font-semibold">ZeroLapse CRM</p>
           <form action={signOut}>
             <button type="submit" className="min-h-11 rounded-md px-3 text-sm underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600">Sign out</button>
           </form>

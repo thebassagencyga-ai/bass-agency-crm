@@ -8,7 +8,7 @@ import { listForContact } from "@/lib/opportunities/data";
 import { PRODUCT_LINE_NAMES } from "@/lib/pipelines";
 import { getProfile } from "@/lib/tasks/data";
 
-export const metadata: Metadata = { title: "Add task · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Add task · ZeroLapse CRM" };
 
 export default async function NewTaskPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const { contact: contactId } = await searchParams;

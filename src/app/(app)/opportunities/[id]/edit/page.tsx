@@ -5,7 +5,7 @@ import { requireFullSession } from "@/lib/auth/require";
 import { getOpportunity } from "@/lib/opportunities/data";
 import { PRODUCT_LINE_NAMES } from "@/lib/pipelines";
 
-export const metadata: Metadata = { title: "Edit opportunity · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Edit opportunity · ZeroLapse CRM" };
 
 export default async function EditOpportunityPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

@@ -845,3 +845,34 @@ Design in ADR-037. No database changes.
 1. Merge to `main` (done by Claude).
 2. No migrations. Deploy app (Cloudflare).
 3. On the iPhone: bottom bar and More, Find a contact, Call · Text · Log on a contact.
+
+## Phase 22 — Rename to ZeroLapse CRM (branch `phase-22-zerolapse-name`)
+Started 2026-10-19 on the owner's choice of name ("I like zerolapse"). Design in ADR-038. No
+database changes.
+
+**Completed**
+- "ZeroLapse CRM" on the sign-in screen, app header, every page title, offline page, web app
+  manifest and description; "ZeroLapse" as the iPhone home-screen name.
+- New authenticator setups are labelled "ZeroLapse CRM" (TOTP issuer).
+- Calendar feed name "ZeroLapse tasks"; export files `zerolapse-<data>-<date>.csv`.
+- Service worker cache v2 (offline page refresh). Smoke test checks for the new name.
+- Unchanged on purpose: "The Bass Agency" in all client-facing text; web address, repository,
+  worker, Supabase project.
+
+**Tests (2026-10-19)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck | pass |
+| Local: unit | 439 passed |
+| Local: database | not re-run (no database changes) |
+| CI | pending |
+| Production | not deployed yet |
+
+**Owner actions after approval**
+1. Merge to `main` (done by Claude).
+2. No migrations. Deploy app (Cloudflare).
+3. Optional: to see "ZeroLapse" under the iPhone icon, delete the home-screen icon and add it
+   again from Safari (Share → Add to Home Screen); you'll sign in once more there. The
+   authenticator entry keeps working under its old name.
+4. Optional: Supabase dashboard → Authentication → Emails: change "Bass Agency CRM" in the
+   password-reset email subject to "ZeroLapse CRM" (the local test config already says so).

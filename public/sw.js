@@ -1,11 +1,11 @@
-// Service worker for The Bass Agency CRM (Phase 10, ADR-025).
+// Service worker for ZeroLapse CRM (Phase 10, ADR-025).
 //
 // It caches ONLY static files: the app's hashed build assets (/_next/static/), its icons and
 // the offline notice page. Pages, server actions, data requests and anything else always go
 // to the network and are never stored, so no client record is ever kept on the device.
 // When a page cannot load because the device is offline, the offline notice is shown.
 
-const VERSION = "v1";
+const VERSION = "v2"; // v2: ZeroLapse name on the offline page (Phase 22)
 const CACHE_PREFIX = "bass-crm-static-";
 const CACHE = `${CACHE_PREFIX}${VERSION}`;
 const OFFLINE_URL = "/offline.html";

@@ -13,7 +13,7 @@ import { RELATIONSHIP_LABELS } from "@/lib/contacts/details";
 import { MessageComposer } from "@/components/messages/message-composer";
 import { getProfile } from "@/lib/tasks/data";
 
-export const metadata: Metadata = { title: "Review request · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Review request · ZeroLapse CRM" };
 
 export default async function ReviewIntakePage({
   params, searchParams,

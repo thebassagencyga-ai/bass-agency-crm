@@ -915,6 +915,29 @@ label ("Call Robin Example", "Text or email …", "Log a call or visit with …"
 
 ---
 
+## ADR-038 — The app is named ZeroLapse CRM
+
+**Status:** Proposed — built in Phase 22, awaiting approval. **Owner decision (2026-10-19):**
+rename "The Bass Agency CRM" in case it is offered to others one day; wanted something bold, in
+the "(Blank) CRM" form; chose ZeroLapse ("no client, renewal or follow-up ever lapses"). Quick
+web searches found no software by that name (BookIQ, BindIQ, Rainmaker, RenewIQ were taken or
+too close to insurance products). A trademark (USPTO) and domain check is still needed before
+any sale; no domain is bought now (cost guardrail).
+
+**Decision.** The app's own name is "ZeroLapse CRM" ("ZeroLapse" where space is short: iPhone
+icon, calendar name, export file names). The agency the app serves is still "The Bass Agency"
+in everything a client sees — quote form, consent wording, default message sign-off — because
+that is who the client deals with. Infrastructure names stay (`bass-agency-crm` repository,
+Cloudflare worker and workers.dev address, Supabase project, local cache prefix): renaming them
+would break the owner's home-screen app, calendar subscription and printed quote QR code for no
+user-visible gain. They can change with a custom domain if the product is ever sold.
+
+**Consequences.** Existing authenticator entries and the iPhone home-screen label keep their old
+name until re-added (both optional). The service worker cache version bumps so the offline page
+shows the new name.
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 - **Tabled (owner, 2026-10-16): collecting dates of birth and driver's license numbers on the

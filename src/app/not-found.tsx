@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = { title: "Page not found · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Page not found · ZeroLapse CRM" };
 
 // Any address that doesn't exist (a mistyped link, an old bookmark). Says nothing about
 // whether a record exists for someone else.

@@ -16,7 +16,7 @@ import { termLabel } from "@/lib/renewals";
 import { outcomesFor } from "@/lib/renewals/data";
 import { getProfile } from "@/lib/tasks/data";
 
-export const metadata: Metadata = { title: "Renewal · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Renewal · ZeroLapse CRM" };
 
 export default async function RenewalPage({
   params, searchParams,

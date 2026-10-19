@@ -8,7 +8,7 @@ import { isUuid } from "@/lib/contacts/data";
 import { formatInstantDateTime } from "@/lib/dates";
 import { listImports } from "@/lib/import/data";
 
-export const metadata: Metadata = { title: "Import clients · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Import clients · ZeroLapse CRM" };
 
 const UNDO: Record<string, { text: string; ok: boolean }> = {
   done: { text: "Import undone: everything it added was removed.", ok: true },

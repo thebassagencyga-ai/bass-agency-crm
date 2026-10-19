@@ -4,13 +4,13 @@ import { ServiceWorkerRegistration } from "@/components/service-worker";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "The Bass Agency CRM",
-  description: "Private CRM for The Bass Agency.",
+  title: "ZeroLapse CRM",
+  description: "ZeroLapse CRM: the sales and relationship CRM for insurance agents. Private to The Bass Agency.",
   robots: { index: false, follow: false },
   applicationName: "Bass CRM",
   manifest: "/manifest.webmanifest",
   // Add to Home Screen on iPhone: full-screen app with its own icon and name.
-  appleWebApp: { capable: true, title: "Bass CRM", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "ZeroLapse", statusBarStyle: "default" },
   icons: { apple: "/icons/apple-touch-icon.png" },
   formatDetection: { telephone: false },
 };

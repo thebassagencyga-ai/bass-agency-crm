@@ -11,7 +11,7 @@ import { OUTCOME_LABELS, type OpportunityListRow, type Stage } from "@/lib/oppor
 import { OPPORTUNITY_OUTCOMES, PRODUCT_LINES, PRODUCT_LINE_NAMES, type ProductLine } from "@/lib/pipelines";
 import { moveFromBoard } from "./actions";
 
-export const metadata: Metadata = { title: "Opportunities · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Opportunities · ZeroLapse CRM" };
 
 const CONTROL =
   "min-h-11 w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100";

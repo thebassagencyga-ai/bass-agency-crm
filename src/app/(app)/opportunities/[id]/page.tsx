@@ -20,7 +20,7 @@ import { CATEGORY_LABELS } from "@/lib/tasks/types";
 import { setNurture } from "../actions";
 import { templateForOpportunity } from "@/lib/messages/templates";
 
-export const metadata: Metadata = { title: "Opportunity · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Opportunity · ZeroLapse CRM" };
 
 const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   saved: { text: "Opportunity saved.", tone: "ok" },

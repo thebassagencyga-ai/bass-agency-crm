@@ -45,7 +45,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ dat
   return new Response(toCsv(def.columns, rows), {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="bass-crm-${dataset}-${todayInZone()}.csv"`,
+      "Content-Disposition": `attachment; filename="zerolapse-${dataset}-${todayInZone()}.csv"`,
       "Cache-Control": "private, no-store",
     },
   });

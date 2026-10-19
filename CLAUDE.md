@@ -1,11 +1,13 @@
-# CLAUDE.md — The Bass Agency CRM
+# CLAUDE.md — ZeroLapse CRM
 
 Permanent instructions for any Claude session working in this repository. Read this file,
 `ROADMAP.md`, `PROGRESS.md` and `DECISIONS.md` before doing anything else.
 
 ## What this is
 
-A private sales and relationship CRM for The Bass Agency (insurance, Carrollton, GA).
+**ZeroLapse CRM** (renamed from "The Bass Agency CRM" on 2026-10-19, ADR-038): a private sales and
+relationship CRM built for The Bass Agency (insurance, Carrollton, GA). Client-facing text (quote
+form, message sign-offs, consent) still says "The Bass Agency"; the app's own name is ZeroLapse.
 One user today; must support additional agents later without a redesign.
 
 It is **not** a policy administration system, quoting engine, underwriting tool, or a

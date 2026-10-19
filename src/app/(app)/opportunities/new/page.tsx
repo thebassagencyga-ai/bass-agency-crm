@@ -7,7 +7,7 @@ import { contactDisplayName } from "@/lib/contacts/format";
 import { getStages } from "@/lib/opportunities/data";
 import { PRODUCT_LINES, type ProductLine } from "@/lib/pipelines";
 
-export const metadata: Metadata = { title: "Add opportunity · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Add opportunity · ZeroLapse CRM" };
 
 export default async function NewOpportunityPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const { contact: contactId, line } = await searchParams;

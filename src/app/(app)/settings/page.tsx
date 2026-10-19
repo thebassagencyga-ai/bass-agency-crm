@@ -23,7 +23,7 @@ import { monthSpendUsd } from "@/lib/ai/run";
 import { getCalendarFeed } from "@/lib/calendar/data";
 import { formatInstantDate, formatInstantDateTime } from "@/lib/dates";
 
-export const metadata: Metadata = { title: "Settings · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Settings · ZeroLapse CRM" };
 
 const TAG_NOTICES: Record<string, { text: string; ok: boolean }> = {
   added: { text: "Tag added. Tick it on any contact.", ok: true },

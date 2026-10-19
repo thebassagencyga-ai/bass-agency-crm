@@ -5,7 +5,7 @@ import { safeNextPath } from "@/lib/auth/routing";
 import { createClient } from "@/lib/supabase/server";
 import { SetupForm } from "./setup-form";
 
-export const metadata: Metadata = { title: "Set up two-step sign-in · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Set up two-step sign-in · ZeroLapse CRM" };
 
 export default async function MfaSetupPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const params = await searchParams;
@@ -19,7 +19,7 @@ export default async function MfaSetupPage({ searchParams }: { searchParams: Pro
   for (const factor of factors?.all ?? []) {
     if (factor.status === "unverified") await supabase.auth.mfa.unenroll({ factorId: factor.id });
   }
-  const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: "Authenticator app" });
+  const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: "Authenticator app", issuer: "ZeroLapse CRM" });
   if (error || !data) {
     return <p role="alert" className="text-red-700">Could not start setup. Reload the page to try again.</p>;
   }

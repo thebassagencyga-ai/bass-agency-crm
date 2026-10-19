@@ -10,7 +10,7 @@ import { mergedFields } from "@/lib/contacts/merge";
 import { CONTACT_METHOD_LABELS, RELATIONSHIP_LABELS, type Contact } from "@/lib/contacts/types";
 import { formatDateOnly } from "@/lib/dates";
 
-export const metadata: Metadata = { title: "Merge contacts · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Merge contacts · ZeroLapse CRM" };
 
 const ERRORS: Record<string, string> = {
   already: "That contact was already merged into another one.",

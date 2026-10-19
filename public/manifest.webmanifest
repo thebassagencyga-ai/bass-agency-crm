@@ -1,7 +1,7 @@
 {
-  "name": "The Bass Agency CRM",
-  "short_name": "Bass CRM",
-  "description": "Private CRM for The Bass Agency.",
+  "name": "ZeroLapse CRM",
+  "short_name": "ZeroLapse",
+  "description": "ZeroLapse CRM: the sales and relationship CRM for insurance agents. Private to The Bass Agency.",
   "id": "/dashboard",
   "start_url": "/dashboard",
   "scope": "/",

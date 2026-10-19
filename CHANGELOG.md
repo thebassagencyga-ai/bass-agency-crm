@@ -2,6 +2,11 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 22 — ZeroLapse CRM (2026-10-19, ready for review)
+### Changed
+- The app is now called **ZeroLapse CRM** ("ZeroLapse" under the iPhone icon). Clients still see
+  "The Bass Agency". Same web address; nothing to set up again.
+
 ## Phase 21 — Phone polish (2026-10-18, approved 2026-10-19)
 ### Added
 - **Bottom bar on phones:** Today, Contacts, Tasks, Renewals, and More (Intake, Opportunities,

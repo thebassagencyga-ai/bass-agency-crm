@@ -10,7 +10,7 @@ import { parseTaskListParams, type TaskListParams } from "@/lib/tasks/params";
 import { notStartedYet } from "@/lib/tasks/schedule";
 import { CATEGORY_LABELS, PRIORITY_LABELS, TASK_CATEGORIES, TASK_PRIORITIES, TASK_VIEWS, VIEW_LABELS, type TaskListRow, type TaskView } from "@/lib/tasks/types";
 
-export const metadata: Metadata = { title: "Tasks · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Tasks · ZeroLapse CRM" };
 
 const CONTROL =
   "min-h-11 w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100";

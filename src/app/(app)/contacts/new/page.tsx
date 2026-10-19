@@ -3,7 +3,7 @@ import { ContactForm } from "@/components/contacts/contact-form";
 import { requireFullSession } from "@/lib/auth/require";
 import { knownTags, leadSourceOptions } from "@/lib/contacts/data";
 
-export const metadata: Metadata = { title: "Add contact · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Add contact · ZeroLapse CRM" };
 
 export default async function NewContactPage() {
   const { supabase } = await requireFullSession();

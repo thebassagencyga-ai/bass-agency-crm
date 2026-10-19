@@ -17,7 +17,7 @@ done
 [ "$code" = "200" ] && ok "sign-in page is up" || bad "/login returned $code"
 
 body=$(curl -s "$SITE/login")
-grep -q "The Bass Agency CRM" <<<"$body" && ok "sign-in page is the CRM" || bad "sign-in page title not found"
+grep -q "ZeroLapse CRM" <<<"$body" && ok "sign-in page is the CRM" || bad "sign-in page title not found"
 grep -qi "supabase\.co" <<<"$body" && bad "sign-in page mentions the database address" || ok "no database address in the page"
 
 loc=$(curl -s -o /dev/null -w '%{redirect_url}' "$SITE/dashboard")

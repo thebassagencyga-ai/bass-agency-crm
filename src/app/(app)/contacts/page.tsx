@@ -7,7 +7,7 @@ import { knownTags, leadSourceOptions, listContacts } from "@/lib/contacts/data"
 import { parseContactListParams, type ContactListParams } from "@/lib/contacts/params";
 import { RELATIONSHIP_LABELS, RELATIONSHIP_STATUSES } from "@/lib/contacts/types";
 
-export const metadata: Metadata = { title: "Contacts · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Contacts · ZeroLapse CRM" };
 
 const CONTROL =
   "min-h-11 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100";

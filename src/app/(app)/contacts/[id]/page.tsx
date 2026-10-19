@@ -31,7 +31,7 @@ import { aiEnabled } from "@/lib/ai/config";
 import { LogActivityWithAi } from "@/components/ai/log-activity-with-ai";
 import { isTemplateKey, TEMPLATE_KEYS, TEMPLATES, templateForOpportunity, valuesFor } from "@/lib/messages/templates";
 
-export const metadata: Metadata = { title: "Contact · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Contact · ZeroLapse CRM" };
 
 const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   saved: { text: "Contact saved.", tone: "ok" },

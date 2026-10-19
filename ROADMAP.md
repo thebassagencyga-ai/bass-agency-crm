@@ -1,4 +1,4 @@
-# Roadmap — The Bass Agency CRM
+# Roadmap — ZeroLapse CRM
 
 Status values: `NOT STARTED` · `IN PROGRESS` · `READY FOR REVIEW` · `APPROVED`.
 A phase is complete only when every acceptance criterion is met, checks have run, docs are
@@ -29,6 +29,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | APPROVED (2026-10-17) — built, not connected |
 | 20 | Tag list (pick tags from options) — owner request after go-live | 19 | APPROVED (2026-10-17) |
 | 21 | Phone polish (bottom bar, search anywhere, contact quick actions) | 20 | APPROVED (2026-10-19) |
+| 22 | Rename the app to ZeroLapse CRM | 21 | READY FOR REVIEW |
 
 ---
 
@@ -550,6 +551,22 @@ Connecting is a later owner step (runbook §4d).
   Lighthouse clean.
 
 **Status 2026-10-19:** built, APPROVED and deployed (app only, smoke test 18/18); see PROGRESS.md.
+
+---
+
+## Phase 22 — Rename to ZeroLapse CRM
+**Objective.** Give the app its own name, separate from the agency, in case it is ever offered to
+other agents (owner, 2026-10-19: "I like zerolapse"; ADR-038).
+
+**Acceptance criteria**
+- The app is called "ZeroLapse CRM" on the sign-in screen, header, page titles, offline page and
+  install details; "ZeroLapse" under the iPhone icon; new authenticator setups say "ZeroLapse CRM".
+- Everything clients see still says "The Bass Agency" (quote form, consent, message sign-offs).
+- Web address, repository, worker, database and Supabase project names unchanged; nothing the
+  owner set up (home-screen app, calendar subscription, quote link/QR, two-step sign-in) breaks.
+- No database changes. All tests green.
+
+**Status 2026-10-19:** READY FOR REVIEW; see PROGRESS.md.
 
 ---
 

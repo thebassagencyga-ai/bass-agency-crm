@@ -8,7 +8,7 @@ import { listForContact } from "@/lib/opportunities/data";
 import { PRODUCT_LINE_NAMES } from "@/lib/pipelines";
 import { getTask } from "@/lib/tasks/data";
 
-export const metadata: Metadata = { title: "Edit task · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Edit task · ZeroLapse CRM" };
 
 export default async function EditTaskPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

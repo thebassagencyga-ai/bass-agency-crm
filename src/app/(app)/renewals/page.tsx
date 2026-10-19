@@ -11,7 +11,7 @@ import { RENEWAL_WINDOWS, groupRenewals, parseRenewalParams, renewalsHref, termL
 import { searchRenewals } from "@/lib/renewals/data";
 import { getProfile } from "@/lib/tasks/data";
 
-export const metadata: Metadata = { title: "Renewals · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Renewals · ZeroLapse CRM" };
 
 const RECORDED: Record<string, string> = {
   kept: "Renewal recorded. The renewal date moved to the next term and its review task was added.",

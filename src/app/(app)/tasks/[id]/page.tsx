@@ -16,7 +16,7 @@ import { templateForTaskCategory } from "@/lib/messages/templates";
 import { notStartedYet, taskView } from "@/lib/tasks/schedule";
 import { CATEGORY_LABELS, PRIORITY_LABELS } from "@/lib/tasks/types";
 
-export const metadata: Metadata = { title: "Task · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Task · ZeroLapse CRM" };
 
 const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   saved: { text: "Task saved.", tone: "ok" },

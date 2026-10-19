@@ -11,7 +11,7 @@ import {
 import { getReport } from "@/lib/reports/data";
 import { getProfile } from "@/lib/tasks/data";
 
-export const metadata: Metadata = { title: "Reports · The Bass Agency CRM" };
+export const metadata: Metadata = { title: "Reports · ZeroLapse CRM" };
 
 const CHIP = "flex min-h-11 items-center rounded-md border px-3 text-sm font-medium";
 const TABLE = "w-full min-w-0 border-collapse text-sm";
