@@ -1137,3 +1137,44 @@ functions, exactly 2 anonymous functions); Deploy app 39319801784 succeeded, smo
 **Owner actions after approval:** Deploy database migrations (dry run lists only
 `20261103120000_board_excludes_existing.sql`; then apply; verify unchanged: 23 tables, 25
 functions), then Deploy app (Cloudflare).
+
+## Phase 26 — New-lead alerts (branch `phase-26-alerts`)
+Started 2026-10-19 after the owner approved the design ("New quote request", "Approved, build
+it"). ADR-044. Implements owner decision 1 of ADR-039.
+
+**Completed**
+- `src/lib/push/webpush.ts`: Web Push encryption (RFC 8291 aes128gcm) and VAPID (RFC 8292) on
+  WebCrypto; push key made in the browser; dispatch proof. `dispatch.ts` (delivery, 5 s per
+  device, never throws), `send.ts` (server-only: owed alerts after a submission; test alert).
+- Migration `20261104120000_push_alerts.sql`: `push_subscriptions` (owner-only, two-step, no
+  DELETE, audit), outbox `crm_private.push_alerts` (one row per submission, unique), anonymous
+  `claim_push_alerts(proof)` (hands out devices once; stale > 1 day dropped; records
+  `last_alert_at`), `submit_intake` adds the outbox row when the owner has a device on.
+- Quote form action: sends owed alerts in `after()`; the submission never waits for it.
+- Settings → Alerts: create the alert key (shown once); turn on/off per device; devices list with
+  last alert; send a test alert (unsubscribed devices turned off). Service worker v3 shows the
+  alert and opens the inbox.
+- CI: a throwaway key per run, given to the app and added to the bundle check (the key must never
+  be in the browser bundle). Runbook §4e, `.env.example`, deploy workflow note.
+
+**Tests (2026-10-19)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck | pass |
+| Local: unit | 514 passed (25 new: encryption decrypted by http_ece, VAPID verified, key/proof, delivery outcomes, subscription checks, device names; deploy-check counts updated) |
+| Local: database (PostgreSQL 16) | 478 passed (6 new: no alert without devices; one alert per request, handed out once, proof required, turned-off devices skipped, coalesced; stale; other keys; anonymous-only claim; device checks and access). Catalog tests updated for the new table and anonymous function |
+| Local: integration (real Supabase stack) | 52 passed |
+| Local: browser tests against the Cloudflare build | 30 of 31 passed incl. new `alerts.spec.ts` (request saved and thanked, alert handed out in the background, unreachable device reported by the test alert, key not in the page); the service-worker test was updated for cache v3; Lighthouse cannot start locally (no Chrome binary), runs in CI |
+| Local: bundle check with the alert key | clean |
+| CI | see report |
+| Production | not deployed |
+
+**Owner actions after approval**
+1. Merge to `main` (Claude).
+2. Deploy database migrations: dry run lists only `20261104120000_push_alerts.sql`; then apply.
+   Verify expects 24 tables, 26 Data API functions, 3 anonymous functions.
+3. Deploy app (Cloudflare).
+4. Settings → Alerts → Create alert key → add it in Cloudflare as the secret `PUSH_KEY` (runbook
+   §4e) → reload Settings.
+5. iPhone: Home Screen app → Settings → Alerts → Turn on → Allow → Send a test alert; then send
+   yourself a test quote request from the public form. ⏳ This iPhone test completes Phase 26.

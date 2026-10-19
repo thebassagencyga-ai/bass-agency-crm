@@ -45,7 +45,7 @@ test("the service worker keeps only static files and shows the offline notice", 
     }
     return { names: await caches.keys(), urls };
   });
-  expect(cached.names).toEqual(["bass-crm-static-v2"]);
+  expect(cached.names).toEqual(["bass-crm-static-v3"]); // v3: new-lead alerts (Phase 26)
   expect(cached.urls).toContain("/offline.html");
   const notStatic = cached.urls.filter((u) => !(u.startsWith("/_next/static/") || u.startsWith("/icons/") || u === "/offline.html"));
   expect(notStatic).toEqual([]);
