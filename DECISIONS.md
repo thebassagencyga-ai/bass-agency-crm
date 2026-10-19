@@ -946,7 +946,8 @@ needed before any sale; no domain is bought now (cost guardrail).
 - **Shell.** Midnight Ink top bar on phones and sidebar from tablet width, Electric Blue marker on
   the current page; the Phase 21 bottom bar and search stay. Menu labels unchanged.
 - **Type and icons.** Inter, bundled at build time and served by the app (no runtime request to
-  Google; CSP unchanged). A code-drawn geometric P on an Electric Blue tile for the in-app mark,
+  Google; CSP unchanged). The mark is "P." (Inter Bold outlines, owner reference 2026-10-19) in Midnight Ink on an
+  Electric Blue tile, with "producr" over a blue "CRM", for the in-app lockup,
   favicon and home-screen icons (`scripts/make-icons.mjs`).
 - **Left out of the brief** (structural, not looks): new dashboard metrics, renamed menu sections,
   a navigation drawer, confirmation dialogs, an icon library, a second status file.

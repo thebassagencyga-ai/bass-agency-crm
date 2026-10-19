@@ -862,7 +862,8 @@ looks only, with their answers on dark mode (switch), menu labels (keep), icon (
   search and an Electric Blue current-page marker; bottom bar restyled; sign-in screen with the
   wordmark and tagline; dashboard counts highlight overdue (red) and due today (blue).
 - Settings → Appearance (`setTheme`, cookie `producr_theme`, `src/lib/theme.ts`).
-- Inter via `next/font` (self-hosted at build). P symbol (`src/components/brand.tsx`), favicon,
+- Inter via `next/font` (self-hosted at build). "P." mark per the owner's reference image
+  (`src/components/brand.tsx`, Inter Bold outlines), stacked producr/CRM lockup, favicon,
   home-screen icons (`scripts/make-icons.mjs`), service worker cache v2.
 
 **Owner actions after approval**
