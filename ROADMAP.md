@@ -31,6 +31,8 @@ inherits the standard exit criteria at the bottom of this file.
 | 21 | Phone polish (bottom bar, search anywhere, contact quick actions) | 20 | APPROVED (2026-10-19) |
 | 22 | Producr CRM: new name and brand design | 21 | APPROVED (2026-10-19) |
 | 23 | Workflow audit Step 1: quote dates and client status | 22 | APPROVED (2026-10-19) |
+| 24 | Leads and Clients tabs, book of business view | 23 | READY FOR REVIEW |
+| 25 | Your own pipelines (custom stages, routing by line) | 24 | NOT STARTED |
 
 ---
 
@@ -590,6 +592,31 @@ Owner choices: light and dark with a switch; keep the current menu labels; new P
 - Security (RLS, two-step policy, audit log) unchanged; all tests green.
 
 **Status 2026-10-19:** built, APPROVED and deployed (migration applied, verify passed, smoke 18/18); see PROGRESS.md.
+
+---
+
+## Phase 24 — Leads and Clients
+**Objective.** Separate the leads being worked from the book of clients (owner, 2026-10-19: "I'd
+prefer to have a pipeline of leads separated from the book of clients"; ADR-040).
+
+**Acceptance criteria**
+- Contacts has tabs Leads | Clients | Former | All with counts and opens on Leads; a search or
+  filter without a tab (e.g. search from the header, a tag link) looks across everyone.
+- Leads rows: each open deal's line and stage (quote date when quoted) and the next open task.
+- Clients rows: lines held, total annual premium on active policies, next renewal, cross-sell gaps.
+- Pipeline board and table tag open deals for existing clients ("Client").
+- Read-only; no database changes; all tests green, phone widths and Lighthouse clean.
+
+**Status 2026-10-19:** READY FOR REVIEW; see PROGRESS.md.
+
+---
+
+## Phase 25 — Your own pipelines
+**Objective.** Pipelines the owner creates and manages (e.g. P&C, Commercial), each with its own
+stages, deals routed by line (owner choices 2026-10-19, ADR-040). Planned after Phase 24; replaces
+the fixed per-line pipelines of ADR-006. Design to be presented before building.
+
+**Status:** NOT STARTED.
 
 ---
 

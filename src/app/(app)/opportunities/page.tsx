@@ -4,7 +4,7 @@ import { OutcomeBadge } from "@/components/opportunities/badges";
 import { requireFullSession } from "@/lib/auth/require";
 import { contactDisplayName } from "@/lib/contacts/format";
 import { formatDateOnly } from "@/lib/dates";
-import { getStages, listBoard, listOpportunities, stagesFor } from "@/lib/opportunities/data";
+import { clientIdsAmong, getStages, listBoard, listOpportunities, stagesFor } from "@/lib/opportunities/data";
 import { formatMoney } from "@/lib/opportunities/format";
 import { parseOpportunityListParams, type OpportunityListParams } from "@/lib/opportunities/params";
 import { OUTCOME_LABELS, type OpportunityListRow, type Stage } from "@/lib/opportunities/types";
@@ -39,6 +39,10 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
   const raw = await searchParams;
   const params = parseOpportunityListParams(raw);
   const { supabase } = await requireFullSession();
+  const [stages, board, table] = params.view === "board"
+    ? await Promise.all([getStages(supabase), listBoard(supabase, params.line ?? "auto", params.q), null])
+    : [null, null, await listOpportunities(supabase, params)];
+  const clients = await clientIdsAmong(supabase, (board ?? table)!.rows.map((r) => r.contact_id));
   const noticeKey = Object.keys(NOTICES).find((k) => raw[k]);
   const notice = noticeKey ? NOTICES[noticeKey] : undefined;
 
@@ -68,15 +72,21 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
         Add an opportunity from a contact&apos;s page. {params.view === "board" ? "The board shows open and nurture opportunities plus anything won or lost in the last 30 days." : null}
       </p>
       {params.view === "board" ? (
-        <Board line={params.line ?? "auto"} q={params.q} supabaseStages={await getStages(supabase)} rows={await listBoard(supabase, params.line ?? "auto", params.q)} />
+        <Board line={params.line ?? "auto"} q={params.q} supabaseStages={stages!} rows={board!} clients={clients} />
       ) : (
-        <Table params={params} result={await listOpportunities(supabase, params)} />
+        <Table params={params} result={table!} clients={clients} />
       )}
     </section>
   );
 }
 
-function Board({ line, q, supabaseStages, rows }: { line: ProductLine; q: string; supabaseStages: Stage[]; rows: { rows: OpportunityListRow[]; truncated: boolean } }) {
+/** Open deals for existing clients are account rounding: tagged so new business stands out (Phase 24). */
+function ClientTag({ row, clients }: { row: OpportunityListRow; clients: Set<string> }) {
+  if (!clients.has(row.contact_id) || (row.outcome !== "open" && row.outcome !== "nurture")) return null;
+  return <span className="rounded bg-good-soft px-2 py-0.5 text-xs font-medium text-good">Client</span>;
+}
+
+function Board({ line, q, supabaseStages, rows, clients }: { line: ProductLine; q: string; supabaseStages: Stage[]; rows: { rows: OpportunityListRow[]; truncated: boolean }; clients: Set<string> }) {
   const stages = stagesFor(supabaseStages, line);
   return (
     <>
@@ -120,6 +130,7 @@ function Board({ line, q, supabaseStages, rows }: { line: ProductLine; q: string
                       <Link href={`/opportunities/${r.id}`} className="flex min-h-11 items-center font-medium underline-offset-2 hover:underline">{rowName(r)}</Link>
                       {r.description ? <p className="text-sm break-words text-muted">{r.description}</p> : null}
                       <div className="flex flex-wrap items-center gap-2 text-sm">
+                        <ClientTag row={r} clients={clients} />
                         {r.outcome !== "open" ? <OutcomeBadge outcome={r.outcome} /> : null}
                         {r.estimated_annual_premium !== null ? <span>{formatMoney(r.estimated_annual_premium, { whole: true })}/yr</span> : null}
                       </div>
@@ -150,7 +161,7 @@ function Board({ line, q, supabaseStages, rows }: { line: ProductLine; q: string
   );
 }
 
-function Table({ params, result }: { params: OpportunityListParams; result: { rows: OpportunityListRow[]; hasMore: boolean } }) {
+function Table({ params, result, clients }: { params: OpportunityListParams; result: { rows: OpportunityListRow[]; hasMore: boolean }; clients: Set<string> }) {
   const filtered = Boolean(params.q || params.line || params.outcome || params.closed !== "all");
   return (
     <>
@@ -209,6 +220,7 @@ function Table({ params, result }: { params: OpportunityListParams; result: { ro
                 <span className="text-sm sm:w-28 sm:shrink-0">{PRODUCT_LINE_NAMES[r.product_line]}</span>
                 <span className="text-sm sm:w-40 sm:shrink-0">{r.stage_name}</span>
                 <span className="flex flex-wrap items-center gap-2 text-sm">
+                  <ClientTag row={r} clients={clients} />
                   <OutcomeBadge outcome={r.outcome} />
                   {r.estimated_annual_premium !== null ? <span>{formatMoney(r.estimated_annual_premium, { whole: true })}/yr</span> : null}
                   {r.renewal_date ? <span>Renews {formatDateOnly(r.renewal_date)}</span> : null}

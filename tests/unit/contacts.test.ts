@@ -90,19 +90,19 @@ describe("contactDisplayName", () => {
 });
 
 describe("parseContactListParams", () => {
-  it("defaults to active contacts sorted by name, first page", () => {
+  it("defaults to active leads sorted by name, first page (Phase 24: Contacts opens on Leads)", () => {
     expect(parseContactListParams({})).toEqual({
-      q: "", type: null, status: null, leadSource: null, tag: null, archived: "active", sort: "name", page: 1,
+      q: "", tab: "leads", type: null, status: "prospect", leadSource: null, tag: null, archived: "active", sort: "name", page: 1,
     });
   });
 
   it("accepts valid values and ignores invalid ones instead of failing", () => {
     expect(
       parseContactListParams({ q: "  pat  ", type: "business", status: "client", source: "Referral", tag: " VIP ", archived: "all", sort: "recent", page: "3" }),
-    ).toEqual({ q: "pat", type: "business", status: "client", leadSource: "Referral", tag: "VIP", archived: "all", sort: "recent", page: 3 });
+    ).toEqual({ q: "pat", tab: "clients", type: "business", status: "client", leadSource: "Referral", tag: "VIP", archived: "all", sort: "recent", page: 3 });
     expect(
-      parseContactListParams({ type: "robot", status: "x", archived: "sometimes", sort: "drop table", page: "-4" }),
-    ).toEqual({ q: "", type: null, status: null, leadSource: null, tag: null, archived: "active", sort: "name", page: 1 });
+      parseContactListParams({ type: "robot", status: "x", archived: "sometimes", sort: "drop table", page: "-4", tab: "vip" }),
+    ).toEqual({ q: "", tab: "leads", type: null, status: "prospect", leadSource: null, tag: null, archived: "active", sort: "name", page: 1 });
   });
 
   it("limits the search text length", () => {

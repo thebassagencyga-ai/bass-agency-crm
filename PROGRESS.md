@@ -947,3 +947,22 @@ report. ⏳ Owner: iPhone check (Quoted → date + one follow-up; Bound → Clie
 3. Deploy app (Cloudflare).
 4. On the iPhone: move a test opportunity to Quoted (check the date, the follow-up task), bind it
    (check the contact shows Client).
+
+## Phase 24 — Leads and Clients (branch `phase-24-leads-clients`)
+Started 2026-10-19 on the owner's request before Step 2 (Web Push). Design in ADR-040. No database
+changes.
+
+**Completed**
+- Contacts tabs Leads | Clients | Former | All with counts (`src/lib/contacts/tabs.ts`); opens on
+  Leads; search or filters without a tab look across everyone; the Status filter is replaced by
+  the tabs (old `?status=` links still work).
+- Leads rows: open deals (line, stage, quote date) and next open task, overdue in red, "No next
+  task" flagged. Clients rows: lines held, total annual premium ("+" when a policy has none
+  recorded), next renewal, cross-sell gaps (`src/lib/contacts/summaries.ts`,
+  `src/lib/contacts/list-extras.ts`).
+- Pipeline board and table: "Client" tag on open deals for existing clients.
+
+**Owner actions after approval**
+1. Merge to `main` (done by Claude).
+2. No migrations. Deploy app (Cloudflare).
+3. On the iPhone: Contacts → Leads / Clients tabs; search a client from the top bar.

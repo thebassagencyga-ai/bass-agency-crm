@@ -2,6 +2,13 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 24 — Leads and Clients (2026-10-19, ready for review)
+### Added
+- **Contacts tabs:** Leads | Clients | Former | All, with counts. Contacts opens on Leads.
+  Leads show each open deal's stage, quote date and next task; Clients (your book) show lines
+  held, total premium, next renewal and cross-sell gaps.
+- Pipeline cards for existing clients are tagged **Client**.
+
 ## Phase 23 — Quote dates and client status (2026-10-19, approved)
 ### Changed
 - Moving an opportunity to **Quoted** (commercial: **Proposal Presented**) now records the quote

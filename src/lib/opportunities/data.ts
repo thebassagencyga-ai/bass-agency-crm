@@ -70,3 +70,15 @@ export async function listForContact(supabase: SupabaseClient, contactId: string
   if (error) throw new Error(`Could not load opportunities (${error.code ?? "unknown"}).`);
   return (data ?? []) as Opportunity[];
 }
+
+/**
+ * Which of these contacts are clients (Phase 24): open deals for them are account rounding, not
+ * new business, and get a "Client" tag on the pipeline.
+ */
+export async function clientIdsAmong(supabase: SupabaseClient, contactIds: string[]): Promise<Set<string>> {
+  const ids = [...new Set(contactIds)];
+  if (ids.length === 0) return new Set();
+  const { data, error } = await supabase.from("contacts").select("id").in("id", ids).eq("relationship_status", "client");
+  if (error) throw new Error(`Could not load contact statuses (${error.code ?? "unknown"}).`);
+  return new Set((data ?? []).map((r) => (r as { id: string }).id));
+}

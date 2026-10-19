@@ -1007,6 +1007,32 @@ ProducrIQ Focus; documentation refresh as a separate docs-only task. Stop after 
 
 ---
 
+## ADR-040 — Leads and Clients; your own pipelines next
+
+**Status:** Accepted (owner, 2026-10-19). Phase 24 built (awaiting approval); Phase 25 not started.
+**Owner:** "Shouldn't the CRM separate the clients from prospects? … I'd prefer to have a pipeline
+of leads separated from the book of clients." Choices: tabs inside Contacts (menu labels
+unchanged); open on Leads; the book shows lines held, total premium, next renewal and cross-sell
+gap; then "multiple lead pipelines … my choice when I add various pipelines": each pipeline has
+its own stages, deals routed by line set per pipeline; tabs first, pipelines next, Web Push after.
+
+**Decision (Phase 24).** Contacts are split by relationship status, which Phase 23 keeps
+accurate (bound → client): Leads = prospects, Clients = clients (the book), Former, All. A tab is
+part of the URL; with no tab, Contacts opens on Leads unless a search or filter is given, in which
+case it looks across everyone, so search from the header and tag links still find clients. Row
+details are read-only queries over the visible page only (open deals, next open task; active
+policies; cross-sell gaps from the shared matcher, read in pages of 200). Open deals for clients are
+tagged "Client" on the pipeline, so account rounding stands apart from new business. No database
+change; RLS applies to every query.
+
+**Decision (Phase 25, planned).** Owner-managed pipelines with their own stage lists replace the
+fixed per-line pipelines (ADR-006). The line of business stays on every deal (renewals, cross-sell,
+reports depend on it); each pipeline lists the lines it takes and new deals route there. Detailed
+design, migration of existing deals and effects on automation, quote stages and reports to be
+presented for approval before building.
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 - **Tabled (owner, 2026-10-16): collecting dates of birth and driver's license numbers on the
