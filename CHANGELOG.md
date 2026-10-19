@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 22 — Producr CRM (2026-10-19, in progress)
+## Phase 22 — Producr CRM (2026-10-19, ready for review)
 ### Changed
 - The app is now **Producr CRM**, with a new look: Midnight Ink menu, Electric Blue buttons and
   highlights, Cloud White workspace, the Inter font and a new "P" icon. Clients still see

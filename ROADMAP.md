@@ -29,7 +29,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 19 | AI workers (drafts, notes → activity, daily briefing, import clean-up) | 18 | APPROVED (2026-10-17) — built, not connected |
 | 20 | Tag list (pick tags from options) — owner request after go-live | 19 | APPROVED (2026-10-17) |
 | 21 | Phone polish (bottom bar, search anywhere, contact quick actions) | 20 | APPROVED (2026-10-19) |
-| 22 | Producr CRM: new name and brand design | 21 | IN PROGRESS |
+| 22 | Producr CRM: new name and brand design | 21 | READY FOR REVIEW |
 
 ---
 
@@ -571,7 +571,7 @@ Owner choices: light and dark with a switch; keep the current menu labels; new P
 - No changes to routes, data, sign-in, database or menu labels; no new pages or metrics.
 - All tests green; phone widths and Lighthouse clean.
 
-**Status 2026-10-19:** IN PROGRESS; see PROGRESS.md.
+**Status 2026-10-19:** READY FOR REVIEW; see PROGRESS.md.
 
 ---
 
