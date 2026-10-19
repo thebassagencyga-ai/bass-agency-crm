@@ -1129,3 +1129,30 @@ today's four" as the starting pipelines.
 
 **Not included.** Routing by lead source, a Won stage per line inside one pipeline, per-stage
 automations beyond the quote stage.
+
+## ADR-044 — New-lead alerts by Web Push (Phase 26)
+**Date:** 2026-10-19. **Status:** proposed (design approved by the owner 2026-10-19; build
+awaiting approval). Implements owner decision 1 of ADR-039.
+
+**Decision.**
+- Standard Web Push (RFC 8030/8291/8292) to the devices the agent turns alerts on for; on iPhone
+  this needs the Home Screen app (iOS 16.4+). No outside service or cost: messages go through the
+  device makers' push services. Encryption and VAPID signing are ~150 lines on WebCrypto
+  (`src/lib/push/webpush.ts`), checked in tests against `http_ece` (the library behind the Node
+  `web-push` package; dev dependency only). No runtime dependency added.
+- The alert never carries customer details: "New quote request — Open Producr CRM to review it."
+  (owner's wording), opening the inbox.
+- The app's push key (a P-256 key) is made in the owner's browser (Settings → Alerts), shown once
+  and stored only as the Cloudflare secret `PUSH_KEY`. Without it alerts are off.
+- No service-role key in the app. `submit_intake` adds an outbox row (crm_private, same
+  transaction) when the owner has a device on. After the response, the public form's action
+  calls `claim_push_alerts(proof)` (anonymous, SECURITY DEFINER, search_path pinned), which hands
+  out the devices once per owed alert, only for devices registered with the matching proof hash
+  (SHA-256 of a value derived from the key). Duplicates are impossible (claimed once); alerts over
+  a day old are dropped; many requests before one send give one alert per device.
+- Sending runs in `after()` (Cloudflare `waitUntil`), 5-second limit per device, errors ignored:
+  the submission never waits for or depends on the alert. Devices that unsubscribed (404/410) are
+  turned off when the agent sends a test alert.
+- Deploy verification: 24 tables, 26 Data API functions, 3 anonymous functions (the new one
+  listed with the intake form and calendar feed).
+

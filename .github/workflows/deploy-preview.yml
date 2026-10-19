@@ -9,7 +9,8 @@ name: Deploy app (Cloudflare)
 # be public; RLS protects the data) and the site address, as plain variables. The real
 # secrets below live only in GitHub's encrypted secrets. One optional exception (Phase 19,
 # ADR-035): ANTHROPIC_API_KEY, which turns the AI helpers on, is set by the owner as an
-# encrypted Worker secret in the Cloudflare dashboard (runbook §4d); deploys keep it as is.
+# encrypted Worker secret in the Cloudflare dashboard (runbook §4d); deploys keep it as is. The
+# same applies to PUSH_KEY (Phase 26, ADR-044), which turns new-lead alerts on (runbook §4e).
 #
 # Required repository secrets (Settings → Secrets and variables → Actions):
 #   CLOUDFLARE_API_TOKEN          Cloudflare token from the "Edit Cloudflare Workers" template

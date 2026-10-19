@@ -67,6 +67,15 @@ from the templates, each line routed to its own. Edited through `save_pipeline` 
 order, lines received) in one transaction. Binding an opportunity makes a prospect or former
 client a client (trigger `opportunities_promote_contact`).
 
+### push_subscriptions (Phase 26, ADR-044)
+A device an agent turned new-lead alerts on for: the browser's push `endpoint` (https), its
+`p256dh`/`auth` keys, a plain `device_label` (e.g. "iPhone"), `dispatch_hash` (SHA-256 of a proof
+derived from the app's push key; the key itself is only in the hosting provider's secret store),
+`last_alert_at`, `disabled_at` (turned off; never deleted). Owner-only. The outbox
+`crm_private.push_alerts` (one row per quote request owed an alert, claimed once) is not
+reachable through the API; `public.submit_intake` adds to it and `public.claim_push_alerts`
+(anonymous, needs the proof) hands out the devices to alert.
+
 ### contacts
 Individuals and businesses. Name rule: an individual needs a first or last name; a business
 needs a business name. Email, phone, address (2-letter state, US ZIP), preferred contact

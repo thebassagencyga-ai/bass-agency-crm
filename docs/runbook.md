@@ -113,6 +113,22 @@ The helpers are built but not connected (ADR-035). To turn them on later:
   Anthropic console). Everything AI disappears; nothing else changes.
 - **Lower the cap:** add a plain variable `AI_MONTHLY_BUDGET_USD` (e.g. 5). It can't go above 10.
 
+## 4e. New-lead alerts (Phase 26)
+A notification on your devices when someone sends the quote form; it never shows who (ADR-044).
+1. **Once:** Settings → Alerts → **Create alert key**. Copy it (it is shown once and saved nowhere).
+2. Cloudflare dashboard → Workers & Pages → `bass-agency-crm` → Settings → Variables and Secrets
+   → Add → type **Secret**, name `PUSH_KEY`, paste the key → Deploy. Never put it in GitHub, a
+   file, or a chat. Deploys keep it as it is.
+3. **iPhone (iOS 16.4 or later):** open the CRM in Safari → Share → **Add to Home Screen**; open
+   Producr from the Home Screen icon → Settings → Alerts → **Turn on alerts on this device** →
+   Allow. Then **Send a test alert**.
+- Each device has its own switch; Settings lists them with the last alert sent. **Turn off** a
+  device there, or everywhere by deleting the `PUSH_KEY` secret.
+- **New key** (if it may have leaked): delete the secret, create a new key (step 1–2), then turn
+  alerts on again on each device; old devices stop getting alerts.
+- No alert? Check the device is in the list, notifications are allowed for Producr in the
+  phone's settings, and Focus / Do Not Disturb. The quote request is in the inbox either way.
+
 ## 5. Access problems
 - **Lost phone / authenticator:** Supabase → Authentication → Users → your user → remove the
   MFA factor. Sign in with your password; the app asks you to set up a new authenticator.
@@ -137,6 +153,7 @@ The helpers are built but not connected (ADR-035). To turn them on later:
 | `SUPABASE_DB_PASSWORD` | Supabase → Project Settings → Database → Reset password | Update the GitHub secret. |
 | `BACKUP_PASSPHRASE` | A new 30+ character password from your password manager | Update the GitHub secret, keep the **old** one too until its backups expire (30 days) — older backups only open with it. |
 | `CRM_SUPABASE_PUBLISHABLE_KEY` | Supabase → Project Settings → API Keys → new publishable key | Update the GitHub secret, run **Deploy app**, then disable the old key. |
+| `PUSH_KEY` (Cloudflare secret) | Settings → Alerts → Create alert key (after deleting the old secret) | Paste as the Cloudflare secret, then turn alerts on again on each device (§4e). |
 
 Never paste secrets into chat, email or the code. Never use the secret (service-role) key in
 the app.

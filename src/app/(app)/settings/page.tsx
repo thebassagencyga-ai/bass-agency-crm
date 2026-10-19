@@ -24,6 +24,9 @@ import { aiEnabled, monthlyBudgetUsd } from "@/lib/ai/config";
 import { monthSpendUsd } from "@/lib/ai/run";
 import { getCalendarFeed } from "@/lib/calendar/data";
 import { formatInstantDate, formatInstantDateTime } from "@/lib/dates";
+import { AlertKeyMaker, AlertsPanel } from "@/components/alerts/alerts-panel";
+import { pushKey } from "@/lib/push/send";
+import { b64urlEncode } from "@/lib/push/webpush";
 
 export const metadata: Metadata = { title: "Settings · Producr CRM" };
 
@@ -43,6 +46,10 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     getProfile(supabase, userId), getRules(supabase), getCrossSellRules(supabase), getIntakeLink(supabase), knownTags(supabase),
     getCalendarFeed(supabase),
   ]);
+  // Phase 26: new-lead alerts. The public key is not secret; the key itself stays on the server.
+  const alertKey = pushKey();
+  const { data: alertDevices } = await supabase
+    .from("push_subscriptions").select("id, device_label, created_at, last_alert_at").is("disabled_at", null).order("created_at");
   const aiConnected = aiEnabled();
   const aiSpent = aiConnected ? await monthSpendUsd(supabase) : 0;
   const tagNotice = query.tags ? TAG_NOTICES[query.tags] : undefined;
@@ -84,6 +91,21 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           lastUsed: calendar.last_fetched_at ? formatInstantDateTime(calendar.last_fetched_at, profile.time_zone) : null,
         } : null}
       />
+      <section id="alerts" aria-labelledby="alerts-heading" className="flex flex-col gap-2">
+        <h2 id="alerts-heading" className="text-lg font-semibold">Alerts</h2>
+        <p className="text-sm text-muted">A notification on your phone when someone sends your quote form. It never shows the person&apos;s name or details.</p>
+        {alertKey ? (
+          <AlertsPanel
+            publicKey={b64urlEncode(alertKey.publicKey)}
+            devices={((alertDevices ?? []) as { id: string; device_label: string; created_at: string; last_alert_at: string | null }[]).map((d) => ({
+              id: d.id, label: d.device_label, since: formatInstantDate(d.created_at),
+              lastAlert: d.last_alert_at ? formatInstantDateTime(d.last_alert_at) : null,
+            }))}
+          />
+        ) : (
+          <AlertKeyMaker />
+        )}
+      </section>
       <section id="pipelines" aria-labelledby="pipelines-heading" className="flex flex-col gap-2">
         <h2 id="pipelines-heading" className="text-lg font-semibold">Pipelines</h2>
         <p className="text-sm text-muted">Your pipelines, their stages, and which lines send new leads to each.</p>

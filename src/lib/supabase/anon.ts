@@ -4,8 +4,8 @@ import { supabaseEnv } from "@/lib/env";
 
 /**
  * A Supabase client with NO session: every call runs as the `anon` role. Used only by the
- * public intake form (ADR-028) and the calendar feed (ADR-034), whose only permitted calls are
- * public.submit_intake and public.calendar_feed. It never
+ * public intake form (ADR-028), the calendar feed (ADR-034) and new-lead alerts (ADR-044), whose
+ * only permitted calls are public.submit_intake, public.calendar_feed and public.claim_push_alerts. It never
  * reads or sets cookies, so a signed-in visitor's session is not used either.
  */
 export function createAnonClient() {

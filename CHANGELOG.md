@@ -2,6 +2,13 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 26 — New-lead alerts (2026-10-19, ready for review)
+### Added
+- **Settings → Alerts:** a notification on your iPhone (and any other device you choose) when
+  someone sends your quote form: "New quote request — Open Producr CRM to review it." It never
+  shows who. Turn it on or off per device, send a test alert, see when the last alert went out.
+- One-time setup: create the alert key in Settings and add it in Cloudflare (runbook §4e).
+
 ## Fix — Pipeline board on a computer (2026-10-19, approved)
 ### Changed
 - The board fits the window, so its sideways scrollbar is always in view; each stage scrolls on

@@ -36,6 +36,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 24 | Leads and Clients tabs, book of business view | 23 | APPROVED, DEPLOYED (2026-10-19) |
 | 25 | Your own pipelines (custom stages, routing by line) | 24 | APPROVED, DEPLOYED (2026-10-19) |
 | fix | Board fits the window; Won/Lost capped; imported and existing policies off the board (owner report, 2026-10-19) | 25 | APPROVED, DEPLOYED (2026-10-19) |
+| 26 | Workflow audit Step 2: new-lead alerts on your phone (Web Push) | 25 | READY FOR REVIEW |
 
 ---
 
@@ -644,3 +645,28 @@ pipeline may take any mix of lines; every agent starts with today's four pipelin
 **Status:** APPROVED (owner, 2026-10-19); see PROGRESS.md.
 
 ---
+
+---
+
+## Phase 26 — New-lead alerts (workflow audit Step 2)
+**Objective.** A notification on the owner's iPhone when the public quote form is submitted, with no
+customer details, switchable per device in Settings; a failed alert never affects the submission;
+no duplicates (owner decision 1, ADR-039). Design approved 2026-10-19 (ADR-044), wording "New quote
+request".
+
+**Acceptance**
+- ✅ One alert per submission, handed out once (`claim_push_alerts`), to the devices with alerts
+  on; none for devices turned off; none when no device is on.
+- ✅ No customer details: the alert is "New quote request — Open Producr CRM to review it."
+- ✅ The submission is saved and thanked first; the alert is sent afterwards in the background;
+  an unreachable device changes nothing (browser test on the Cloudflare build).
+- ✅ Encryption and signature checked against an independent implementation (http_ece); the key
+  is never in the browser bundle (CI check) and never stored in the database (only a hash of a
+  proof derived from it).
+- ✅ New table and function: RLS, two-step policy, no DELETE, owner-only; anonymous functions now 3
+  (deploy verification updated).
+- ⏳ Owner: create the key, add it in Cloudflare, turn alerts on on the iPhone, test alert and a
+  real form submission (the iPhone test completes this phase).
+
+**Status:** READY FOR REVIEW (2026-10-19); see PROGRESS.md.
+

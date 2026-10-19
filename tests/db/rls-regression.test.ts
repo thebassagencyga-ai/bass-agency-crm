@@ -31,6 +31,8 @@ const insertable = (ids: Record<string, string>): Record<string, Record<string, 
   // Phase 25: a pipeline (its stages are checked at commit; these inserts are rolled back first).
   pipelines: { name: "Spoof pipeline", position: 9 },
   stages: { pipeline_id: ids.homePipeline, name: "Spoof stage", position: 50, kind: "active" },
+  // Phase 26: a device for new-lead alerts.
+  push_subscriptions: { endpoint: "https://push.example.com/spoof", p256dh: "B".repeat(87), auth: "A".repeat(22), dispatch_hash: "\\x" + "cd".repeat(32) },
   calendar_feeds: { token_hash: "\\x" + "ab".repeat(32), enabled: false, disabled_at: "2026-10-16T12:00:00Z" },
 });
 let ids: Record<string, string>;
@@ -86,6 +88,8 @@ beforeAll(async () => {
   await asUser(db, alice, (q) => q.query("insert into public.ai_usage (job, model, input_tokens, output_tokens, cost_usd) values ('draft_message', 'claude-opus-5-5', 10, 5, 0.0001)"));
   // Phase 18: a calendar link.
   await asUser(db, alice, (q) => q.query("select public.rotate_calendar_link()"));
+  // Phase 26: a device with alerts on.
+  await asUser(db, alice, (q) => q.query("insert into public.push_subscriptions (endpoint, p256dh, auth, dispatch_hash) values ('https://push.example.com/alice', $1, $2, $3)", ["B".repeat(87), "A".repeat(22), Buffer.alloc(32, 1)]));
   ids = { contact, policy, homeStage, homePipeline, rule: rule.r, rule2: rule.r2 };
 });
 afterAll(async () => {
@@ -208,7 +212,7 @@ describe("every function", () => {
          from pg_proc p join pg_namespace n on n.oid = p.pronamespace
         where n.nspname in ('public', 'crm_engine')
           and p.prorettype not in ('trigger'::regtype, 'event_trigger'::regtype)
-          and not (n.nspname = 'public' and p.proname in ('submit_intake', 'calendar_feed'))
+          and not (n.nspname = 'public' and p.proname in ('submit_intake', 'calendar_feed', 'claim_push_alerts'))
           and (p.prosecdef
                or has_function_privilege('anon', p.oid, 'execute')
                or not exists (select 1 from unnest(coalesce(p.proconfig, '{}')) c where c like 'search_path=%'))`,
@@ -216,7 +220,7 @@ describe("every function", () => {
     expect(rows.map((r) => r.f)).toEqual([]);
   });
 
-  it("anonymous callers can run exactly two functions: the intake form and the calendar feed", async () => {
+  it("anonymous callers can run exactly three functions: the intake form, the calendar feed and the alert dispatch", async () => {
     const { rows } = await db.query<{ f: string; definer: boolean; pinned: boolean }>(
       `select n.nspname || '.' || p.proname as f, p.prosecdef as definer,
               exists (select 1 from unnest(coalesce(p.proconfig, '{}')) c where c = 'search_path=""') as pinned
@@ -228,6 +232,7 @@ describe("every function", () => {
     );
     expect(rows.sort((a, b) => (a.f < b.f ? -1 : 1))).toEqual([
       { f: "public.calendar_feed", definer: true, pinned: true },
+      { f: "public.claim_push_alerts", definer: true, pinned: true },
       { f: "public.submit_intake", definer: true, pinned: true },
     ]);
   });

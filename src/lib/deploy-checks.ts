@@ -21,6 +21,7 @@ export const CRM_TABLES = [
   "pipelines",
   "product_lines",
   "profiles",
+  "push_subscriptions",
   "renewal_outcomes",
   "stages",
   "tag_options",
@@ -75,6 +76,7 @@ export interface VerificationRow {
 export const PUBLIC_FUNCTIONS = [
   "accept_intake",
   "calendar_feed",
+  "claim_push_alerts",
   "confirm_no_response_follow_up",
   "contact_lead_sources",
   "contact_tags",
@@ -103,10 +105,11 @@ export const PUBLIC_FUNCTIONS = [
 /**
  * The only functions anonymous callers may run, each SECURITY DEFINER with a pinned
  * search_path and closed to signed-in users: the public intake form (Phase 13, ADR-028), which
- * can only add a submission to an inbox, and the calendar feed (Phase 18, ADR-034), which only
- * returns the open tasks of the owner of an enabled link.
+ * can only add a submission to an inbox, the calendar feed (Phase 18, ADR-034), which only
+ * returns the open tasks of the owner of an enabled link, and the new-lead alert dispatch
+ * (Phase 26, ADR-044), which only hands out device push addresses to a holder of the push key.
  */
-export const PUBLIC_ANON_FUNCTIONS = ["calendar_feed", "submit_intake"] as const;
+export const PUBLIC_ANON_FUNCTIONS = ["calendar_feed", "claim_push_alerts", "submit_intake"] as const;
 
 /**
  * Trigger-only functions Supabase itself adds to `public` on hosted projects. They return

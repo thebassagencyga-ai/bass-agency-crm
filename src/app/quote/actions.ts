@@ -1,12 +1,16 @@
 "use server";
 
+import { after } from "next/server";
 import type { FormState } from "@/components/form";
 import { echoIntakeValues, intakeDbError, isIntakeToken, parseIntakeForm } from "@/lib/intake/schema";
+import { sendOwedAlerts } from "@/lib/push/send";
 import { createAnonClient } from "@/lib/supabase/anon";
 
 // The public intake form's only action (ADR-028). It runs WITHOUT a session (anon role), so
 // all it can do is call public.submit_intake, which adds one submission to the link owner's
 // review inbox. The database validates everything again and rate-limits each link.
+// Phase 26: after the response, any new-lead alert owed is sent in the background
+// (public.claim_push_alerts); the submission never waits for it or depends on it.
 
 export async function submitQuoteRequest(_prev: FormState, formData: FormData): Promise<FormState> {
   const values = echoIntakeValues(formData);
@@ -25,5 +29,6 @@ export async function submitQuoteRequest(_prev: FormState, formData: FormData): 
     p_token: token, p_form: parsed.payload, p_consent: parsed.consent,
   });
   if (error) return { ...intakeDbError(error.message), values };
+  after(() => sendOwedAlerts());
   return { message: "sent" };
 }

@@ -117,17 +117,21 @@ jobs:
             echo "SUPABASE_SECRET_KEY=$SERVICE_ROLE_KEY"
             echo "APP_URL=http://127.0.0.1:8787"
           } >> "$GITHUB_ENV"
+          # Phase 26: a throwaway alert key for this run only (production keys never pass through CI).
+          PUSH_KEY=$(node scripts/make-test-push-key.mjs)
+          echo "::add-mask::$PUSH_KEY"
+          echo "PUSH_KEY=$PUSH_KEY" >> "$GITHUB_ENV"
 
       - name: Build for Cloudflare
         run: npx opennextjs-cloudflare build
 
       - name: Browser bundle contains no keys, secrets or Supabase URL
-        run: FORBIDDEN_VALUES="$SUPABASE_SECRET_KEY,$SUPABASE_PUBLISHABLE_KEY,$SUPABASE_URL" node scripts/check-client-bundle.mjs
+        run: FORBIDDEN_VALUES="$SUPABASE_SECRET_KEY,$SUPABASE_PUBLISHABLE_KEY,$SUPABASE_URL,$PUSH_KEY" node scripts/check-client-bundle.mjs
 
       - name: Start the app in workerd
         run: |
-          printf 'SUPABASE_URL=%s\nSUPABASE_PUBLISHABLE_KEY=%s\nSITE_URL=%s\nINSECURE_COOKIES_FOR_LOCAL_TESTS=1\n' \
-            "$SUPABASE_URL" "$SUPABASE_PUBLISHABLE_KEY" "$APP_URL" > .dev.vars
+          printf 'SUPABASE_URL=%s\nSUPABASE_PUBLISHABLE_KEY=%s\nSITE_URL=%s\nINSECURE_COOKIES_FOR_LOCAL_TESTS=1\nPUSH_KEY=%s\n' \
+            "$SUPABASE_URL" "$SUPABASE_PUBLISHABLE_KEY" "$APP_URL" "$PUSH_KEY" > .dev.vars
           nohup npx wrangler dev --port 8787 --ip 127.0.0.1 > "$RUNNER_TEMP/wrangler.log" 2>&1 &
           for i in $(seq 1 60); do curl -sf -o /dev/null "$APP_URL/login" && exit 0; sleep 2; done
           tail -50 "$RUNNER_TEMP/wrangler.log"; exit 1
