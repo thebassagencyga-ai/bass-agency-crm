@@ -838,6 +838,9 @@ Design in ADR-037. No database changes.
 
 **Approved by the owner 2026-10-19** ("Approved").
 
+**Production deploy (2026-10-19, commit d747bd0):** CI on `main` 39188658228 passed; Deploy app
+39190426659 succeeded with smoke test 18/18. No migrations. Owner saw it live ("Very clean").
+
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
 2. No migrations. Deploy app (Cloudflare).

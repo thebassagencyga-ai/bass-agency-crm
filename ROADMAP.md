@@ -549,7 +549,7 @@ Connecting is a later owner step (runbook §4d).
 - No database changes. All tests green; phone widths (44 px targets, no sideways scroll) and
   Lighthouse clean.
 
-**Status 2026-10-19:** built and APPROVED by the owner; deploy pending (app only, no migrations). See PROGRESS.md.
+**Status 2026-10-19:** built, APPROVED and deployed (app only, smoke test 18/18); see PROGRESS.md.
 
 ---
 
