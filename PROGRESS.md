@@ -865,7 +865,8 @@ database changes.
 | Local: lint, typecheck | pass |
 | Local: unit | 439 passed |
 | Local: database | not re-run (no database changes) |
-| CI | pending |
+| CI run 39192239145 (commit aa065a3) | failed — the smoke test still looked for the old short name "Bass CRM" in the manifest; fixed in 46c4597 (also `applicationName`) |
+| CI run 39192559214 (commit 46c4597): all 4 jobs | pass — smoke test with the new name, 23 browser tests (incl. two-step setup with the new authenticator label, install details, export file name), phone widths, Lighthouse |
 | Production | not deployed yet |
 
 **Owner actions after approval**
