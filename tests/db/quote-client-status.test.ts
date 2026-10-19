@@ -29,7 +29,7 @@ const update = (id: string, set: Record<string, unknown>) =>
     );
   });
 const moveTo = async (id: string, line: string, code: string, extra: Record<string, unknown> = {}) =>
-  update(id, { stage_id: await stageId(db, line, code), ...extra });
+  update(id, { stage_id: await stageId(db, line, code, agent), ...extra });
 const quoteTasks = (id: string) =>
   asUser(db, agent, async (q) =>
     (await q.query<{ status: string; due: string }>(

@@ -65,12 +65,12 @@ describe("opportunity lifecycle", () => {
     expect(await errorCode(update(agent, opp, "quoted_carrier = $2", ["x".repeat(101)]))).toBe(CHECK);
   });
 
-  it("never lets the product line change, so stages stay in the same pipeline", async () => {
+  it("never lets the product line change, even when the deal moves to another pipeline", async () => {
     const opp = await insertOpportunity(db, agent, contact, "auto");
-    const homeLead = await stageId(db, "home", "new_lead");
+    const homeLead = await stageId(db, "home", "new_lead", agent);
     expect(await errorCode(update(agent, opp, "product_line = 'home', stage_id = $2", [homeLead]))).toBe(CHECK);
-    // A stage from another pipeline is refused by the composite foreign key.
-    expect(await errorCode(update(agent, opp, "stage_id = $2", [homeLead]))).toBe("23503");
+    // Phase 25: moving to a stage of another pipeline is allowed; the line stays auto.
+    await update(agent, opp, "stage_id = $2", [homeLead]);
     expect((await row(opp)).product_line).toBe("auto");
   });
 
@@ -83,8 +83,8 @@ describe("opportunity lifecycle", () => {
 
   it("reopening a lost opportunity starts a new cycle and clears the loss reason; history is audited", async () => {
     const opp = await insertOpportunity(db, agent, contact, "home", "quoted", { quote_sent_on: "2026-10-01" });
-    const lost = await stageId(db, "home", "lost");
-    const followUp = await stageId(db, "home", "follow_up");
+    const lost = await stageId(db, "home", "lost", agent);
+    const followUp = await stageId(db, "home", "follow_up", agent);
     await update(agent, opp, "stage_id = $2, outcome = 'lost', loss_reason = 'price', loss_reason_detail = 'Fictional'", [lost]);
     expect(await row(opp)).toMatchObject({ outcome: "lost", loss_reason: "price", cycle: 1 });
 
@@ -103,7 +103,7 @@ describe("opportunity lifecycle", () => {
 
   it("does not bump the cycle for moves between active stages or into nurture", async () => {
     const opp = await insertOpportunity(db, agent, contact, "life", "contacted");
-    await update(agent, opp, "stage_id = $2", [await stageId(db, "life", "appointment_set")]);
+    await update(agent, opp, "stage_id = $2", [await stageId(db, "life", "appointment_set", agent)]);
     await update(agent, opp, "outcome = 'nurture'");
     await update(agent, opp, "outcome = 'open'");
     expect((await row(opp)).cycle).toBe(1);
@@ -112,9 +112,9 @@ describe("opportunity lifecycle", () => {
   it("life: Application Process and Decision Pending can never be won; Placed is won", async () => {
     const opp = await insertOpportunity(db, agent, contact, "life", "application_process");
     expect(await errorCode(update(agent, opp, "outcome = 'won'"))).toBe(CHECK);
-    await update(agent, opp, "stage_id = $2", [await stageId(db, "life", "decision_pending")]);
+    await update(agent, opp, "stage_id = $2", [await stageId(db, "life", "decision_pending", agent)]);
     expect(await errorCode(update(agent, opp, "outcome = 'won'"))).toBe(CHECK);
-    await update(agent, opp, "stage_id = $2, outcome = 'won'", [await stageId(db, "life", "placed")]);
+    await update(agent, opp, "stage_id = $2, outcome = 'won'", [await stageId(db, "life", "placed", agent)]);
     expect((await row(opp)).outcome).toBe("won");
   });
 
@@ -169,7 +169,7 @@ describe("search_opportunities", () => {
   it("filters by product line, outcome and stage", async () => {
     expect((await search(user, { p_product_line: "auto" })).map((r) => r.id).sort()).toEqual([ids.auto, ids.wonOld].sort());
     expect((await search(user, { p_outcome: "lost" })).map((r) => r.id)).toEqual([ids.lostRecent]);
-    const quoted = await stageId(db, "auto", "quoted");
+    const quoted = await stageId(db, "auto", "quoted", user);
     expect((await search(user, { p_stage_id: quoted })).map((r) => r.id)).toEqual([ids.auto]);
   });
 

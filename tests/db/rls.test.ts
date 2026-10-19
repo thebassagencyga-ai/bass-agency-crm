@@ -8,7 +8,7 @@ import {
 const BUSINESS_TABLES = [
   "contacts", "opportunities", "tasks", "activities", "automation_rules",
   "renewal_outcomes", "cross_sell_rules", "cross_sell_dismissals", "intake_links", "intake_submissions",
-  "household_members", "vehicles", "import_batches",
+  "household_members", "vehicles", "import_batches", "pipelines", "stages", "pipeline_routes",
 ] as const;
 
 let db: Db;
@@ -175,7 +175,7 @@ describe("cross-account isolation", () => {
   });
 
   it("bob cannot attach his opportunity to alice's contact", async () => {
-    const sid = await stageId(db, "home", "new_lead");
+    const sid = await stageId(db, "home", "new_lead", bob);
     const code = await errorCode(
       asUser(db, bob, (q) =>
         q.query("insert into public.opportunities (contact_id, product_line, stage_id) values ($1, 'home', $2)", [aliceContact, sid]),

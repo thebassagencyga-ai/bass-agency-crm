@@ -197,7 +197,7 @@ describe("review inbox", () => {
 
     const opps = (await db.query(
       `select o.product_line, o.current_carrier, o.current_policy_renews_on::text as renews, o.outcome, s.position
-         from public.opportunities o join public.pipeline_stages s on s.id = o.stage_id
+         from public.opportunities o join public.stages s on s.id = o.stage_id
         where o.contact_id = $1 order by o.product_line`, [cid])).rows;
     const today = todayInZone("America/New_York");
     const [y, m] = today.split("-").map(Number) as [number, number];

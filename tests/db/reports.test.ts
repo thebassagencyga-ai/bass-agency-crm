@@ -15,7 +15,7 @@ let report: Report;
 
 type Report = {
   period: { start: string; end: string; today: string };
-  open_pipeline: { product_line: string; stage_name: string; open_count: number; nurture_count: number; premium: number; with_premium: number }[];
+  open_pipeline: { pipeline_id: string; pipeline_name: string; pipeline_position: number; stage_name: string; open_count: number; nurture_count: number; premium: number; with_premium: number }[];
   new_leads: { source: string | null; contacts: number; with_opportunity: number; won: number }[];
   quotes: { product_line: string; quoted: number; open_count: number; nurture_count: number; won: number; lost: number; premium: number; with_premium: number }[];
   conversion: { product_line: string; won: number; lost: number; won_premium: number; won_with_premium: number }[];
@@ -121,11 +121,11 @@ afterAll(async () => {
 });
 
 describe("report_summary for September 2026", () => {
-  it("open pipeline now: open and nurture by line and stage; premium only where recorded", () => {
-    expect(report.open_pipeline.map((r) => [r.product_line, r.stage_name, r.open_count, r.nurture_count, Number(r.premium), r.with_premium])).toEqual([
-      ["auto", "Quoted", 1, 0, 800, 1],
-      ["home", "Follow Up", 0, 1, 500, 1],
-      ["life", "New Lead", 1, 0, 0, 0],
+  it("open pipeline now: open and nurture by pipeline and stage; premium only where recorded", () => {
+    expect(report.open_pipeline.map((r) => [r.pipeline_name, r.stage_name, r.open_count, r.nurture_count, Number(r.premium), r.with_premium])).toEqual([
+      ["Auto", "Quoted", 1, 0, 800, 1],
+      ["Home", "Follow Up", 0, 1, 500, 1],
+      ["Life", "New Lead", 1, 0, 0, 0],
     ]);
   });
 

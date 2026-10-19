@@ -41,7 +41,7 @@ describe("audit log", () => {
   it("records an opportunity outcome change", async () => {
     const contact = await insertContact(db, agent);
     const opp = await insertOpportunity(db, agent, contact, "auto", "quoted");
-    const lost = await stageId(db, "auto", "lost");
+    const lost = await stageId(db, "auto", "lost", agent);
     await asUser(db, agent, (q) =>
       q.query("update public.opportunities set stage_id = $1, outcome = 'lost', loss_reason = 'price' where id = $2", [lost, opp]),
     );

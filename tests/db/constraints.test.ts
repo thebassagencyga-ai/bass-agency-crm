@@ -93,25 +93,27 @@ describe("opportunities", () => {
     expect(contacts.rows[0].n).toBe(1);
   });
 
-  it("rejects a stage that belongs to a different product line", async () => {
+  it("rejects another agent's stage (Phase 25: stages are each agent's own)", async () => {
     const contact = await insertContact(db, agent);
-    const lifeStage = await stageId(db, "life", "appointment_set");
+    const someoneElse = await createUser(db, "stage-owner");
+    const theirStage = await stageId(db, "auto", "new_lead", someoneElse);
     const code = await errorCode(
       asUser(db, agent, (q) =>
-        q.query("insert into public.opportunities (contact_id, product_line, stage_id) values ($1, 'auto', $2)", [contact, lifeStage]),
+        q.query("insert into public.opportunities (contact_id, product_line, stage_id) values ($1, 'auto', $2)", [contact, theirStage]),
       ),
     );
     expect(code).toBe(FK);
   });
 
-  it("rejects moving an existing opportunity to another line's stage", async () => {
+  it("lets a deal move to another of the agent's pipelines; its product line stays (Phase 25)", async () => {
     const contact = await insertContact(db, agent);
     const opp = await insertOpportunity(db, agent, contact, "home");
-    const commercialStage = await stageId(db, "commercial", "discovery");
-    const code = await errorCode(
-      asUser(db, agent, (q) => q.query("update public.opportunities set stage_id = $1 where id = $2", [commercialStage, opp])),
+    const commercialStage = await stageId(db, "commercial", "discovery", agent);
+    await asUser(db, agent, (q) => q.query("update public.opportunities set stage_id = $1 where id = $2", [commercialStage, opp]));
+    const { rows } = await db.query(
+      `select o.product_line, p.name as pipeline from public.opportunities o join public.pipelines p on p.id = o.pipeline_id where o.id = $1`, [opp],
     );
-    expect(code).toBe(FK);
+    expect(rows[0]).toEqual({ product_line: "home", pipeline: "Commercial" });
   });
 
   it("rejects an unknown stage", async () => {
@@ -121,7 +123,7 @@ describe("opportunities", () => {
         q.query("insert into public.opportunities (contact_id, product_line, stage_id) values ($1, 'auto', gen_random_uuid())", [contact]),
       ),
     );
-    expect(code).toBe(NOT_NULL);
+    expect(code).toBe(FK);
   });
 
   it.each([
@@ -155,8 +157,8 @@ describe("opportunities", () => {
   it("stamps closed_at when won, keeps the record, and clears closed_at on reopen", async () => {
     const contact = await insertContact(db, agent);
     const opp = await insertOpportunity(db, agent, contact, "home", "quoted", { quote_sent_on: "2026-10-01", estimated_annual_premium: 1234.5 });
-    const bound = await stageId(db, "home", "bound");
-    const followUp = await stageId(db, "home", "follow_up");
+    const bound = await stageId(db, "home", "bound", agent);
+    const followUp = await stageId(db, "home", "follow_up", agent);
 
     await asUser(db, agent, (q) => q.query("update public.opportunities set stage_id = $1, outcome = 'won' where id = $2", [bound, opp]));
     let row = (await db.query("select outcome, closed_at, stage_kind from public.opportunities where id = $1", [opp])).rows[0];

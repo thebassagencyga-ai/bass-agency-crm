@@ -142,7 +142,7 @@ describe("restored database", () => {
     try {
       await restored.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: alice, role: "authenticated", aal: "aal2" })]);
       await restored.query("set local role authenticated");
-      const stage = (await restored.query("select id from public.pipeline_stages where product_line = 'life' and code = 'new_lead'")).rows[0].id;
+      const stage = (await restored.query("select s.id from public.stages s join public.pipeline_routes r on r.pipeline_id = s.pipeline_id where r.product_line = 'life' and s.position = 1 and s.archived_at is null")).rows[0].id;
       const opp = (await restored.query("insert into public.opportunities (contact_id, product_line, stage_id) values ($1, 'life', $2) returning id", [aliceContact, stage])).rows[0].id;
       const tasks = (await restored.query("select title from public.tasks where opportunity_id = $1", [opp])).rows;
       expect(tasks).toEqual([{ title: "Make initial contact" }]);

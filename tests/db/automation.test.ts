@@ -170,7 +170,7 @@ describe("won and lost", () => {
         [c, opp, today],
       ),
     );
-    await update("opportunities", opp, "stage_id = $2, outcome = 'won'", [await stageId(db, "auto", "bound")]);
+    await update("opportunities", opp, "stage_id = $2, outcome = 'won'", [await stageId(db, "auto", "bound", agent)]);
     const tasks = await tasksOf(c);
     const status = (title: string) => tasks.filter((t) => t.title === title).map((t) => t.status);
 
@@ -190,7 +190,7 @@ describe("won and lost", () => {
 
   it("review and referral requests are per contact: a second win within 365 days adds none", async () => {
     const c = await insertContact(db, agent);
-    const bound = await stageId(db, "auto", "bound");
+    const bound = await stageId(db, "auto", "bound", agent);
     const first = await insertOpportunity(db, agent, c, "auto");
     await update("opportunities", first, "stage_id = $2, outcome = 'won'", [bound]);
     const second = await insertOpportunity(db, agent, c, "auto");
@@ -204,7 +204,7 @@ describe("won and lost", () => {
   it("no review request once a Google review is recorded (the referral request still comes)", async () => {
     const c = await insertContact(db, agent, { google_review_left_on: "2026-01-15" });
     const opp = await insertOpportunity(db, agent, c, "life", "contacted");
-    await update("opportunities", opp, "stage_id = $2, outcome = 'won'", [await stageId(db, "life", "placed")]);
+    await update("opportunities", opp, "stage_id = $2, outcome = 'won'", [await stageId(db, "life", "placed", agent)]);
     const categories = (await tasksOf(c)).map((t) => t.category);
     expect(categories).not.toContain("review_request");
     expect(categories).toContain("referral_request");
@@ -213,7 +213,7 @@ describe("won and lost", () => {
   it("lost: prospecting tasks closed, nothing new created; a loss reason is still required", async () => {
     const c = await insertContact(db, agent);
     const opp = await insertOpportunity(db, agent, c, "home");
-    const lost = await stageId(db, "home", "lost");
+    const lost = await stageId(db, "home", "lost", agent);
     expect(await errorCode(update("opportunities", opp, "stage_id = $2, outcome = 'lost'", [lost]))).toBe("23514");
     await update("opportunities", opp, "stage_id = $2, outcome = 'lost', loss_reason = 'price'", [lost]);
     expect((await tasksOf(c)).map((t) => [t.title, t.status])).toEqual([["Make initial contact", "cancelled"]]);
@@ -223,7 +223,7 @@ describe("won and lost", () => {
     const c = await insertContact(db, agent);
     // Starts at Contacted: since Phase 23 a Quoted start would record a quote date (and its follow-up) up front.
     const opp = await insertOpportunity(db, agent, c, "home", "contacted");
-    await update("opportunities", opp, "stage_id = $2, outcome = 'lost', loss_reason = 'timing'", [await stageId(db, "home", "lost")]);
+    await update("opportunities", opp, "stage_id = $2, outcome = 'lost', loss_reason = 'timing'", [await stageId(db, "home", "lost", agent)]);
     await update("opportunities", opp, "quote_sent_on = $2", [today]);
     await logActivity(c, { opportunity_id: opp, outcome: "requested_follow_up", requested_follow_up_on: addDays(today, 7) });
     expect(await tasksOf(c)).toEqual([]);
@@ -232,8 +232,8 @@ describe("won and lost", () => {
   it("reopen: a new 'Re-engage' task in a new cycle; earlier tasks are kept", async () => {
     const c = await insertContact(db, agent);
     const opp = await insertOpportunity(db, agent, c, "commercial");
-    await update("opportunities", opp, "stage_id = $2, outcome = 'lost', loss_reason = 'price'", [await stageId(db, "commercial", "lost")]);
-    await update("opportunities", opp, "stage_id = $2, outcome = 'open'", [await stageId(db, "commercial", "follow_up")]);
+    await update("opportunities", opp, "stage_id = $2, outcome = 'lost', loss_reason = 'price'", [await stageId(db, "commercial", "lost", agent)]);
+    await update("opportunities", opp, "stage_id = $2, outcome = 'open'", [await stageId(db, "commercial", "follow_up", agent)]);
     const tasks = await tasksOf(c);
     expect(tasks.map((t) => [t.title, t.status])).toEqual([
       ["Make initial contact", "cancelled"],
@@ -289,7 +289,7 @@ describe("rule settings and safety", () => {
     await setRule("won_close_prospecting", "enabled = false", user);
     const c = await insertContact(db, user);
     const opp = await insertOpportunity(db, user, c, "auto");
-    await update("opportunities", opp, "stage_id = $2, outcome = 'won'", [await stageId(db, "auto", "bound")], user);
+    await update("opportunities", opp, "stage_id = $2, outcome = 'won'", [await stageId(db, "auto", "bound", user)], user);
     expect((await tasksOf(c, user)).find((t) => t.title === "Make initial contact")!.status).toBe("open");
   });
 

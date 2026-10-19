@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { asAnon, asPasswordOnlyUser, asUser, connect, createUser, errorCode, insertContact, insertOpportunity, type Db } from "./helpers";
+import { asAnon, asPasswordOnlyUser, asUser, connect, createUser, errorCode, insertContact, insertOpportunity, stageId, type Db } from "./helpers";
 
 // Phase 8: renewals view and retention workflow (ROADMAP Phase 8, ADR-023).
 
@@ -187,7 +187,7 @@ describe("retention workflow", () => {
     const c = await insertContact(db, agent, { first_name: "Quinn" });
     const id = await policy(c, "home", addDays(today, 30));
     await record(id, "lost", { reason: "moved_away" });
-    const sid = (await db.query("select id from public.pipeline_stages where product_line = 'home' and code = 'quoted'")).rows[0].id;
+    const sid = await stageId(db, "home", "quoted", agent);
     await asUser(db, agent, (q) => q.query("update public.opportunities set stage_id = $2, outcome = 'open' where id = $1", [id, sid]));
     expect((await opp(id)).policy_ended_on).toBeNull();
   });

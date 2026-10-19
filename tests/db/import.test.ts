@@ -61,7 +61,7 @@ describe("import_book", () => {
     const opps = (await db.query(
       `select o.product_line, o.outcome, s.kind, o.quoted_carrier, o.estimated_annual_premium::text as premium,
               o.effective_date::text as eff, o.renewal_date::text as ren, o.policy_term_months as term, o.closed_at is not null as closed
-         from public.opportunities o join public.pipeline_stages s on s.id = o.stage_id
+         from public.opportunities o join public.stages s on s.id = o.stage_id
         where o.import_batch_id = $1 order by o.product_line`, [r.batch_id])).rows;
     expect(opps[0]).toMatchObject({ product_line: "auto", outcome: "won", kind: "won", quoted_carrier: "Example Mutual", premium: "1200.50", ren: soon, term: 6, closed: true });
     // A renewal date already passed is moved forward by the term until it is in the future.
@@ -156,7 +156,7 @@ describe("undo", () => {
     ["a contact was edited", "update public.contacts set notes = 'Called' where import_batch_id = $1"],
     ["an activity was logged", "insert into public.activities (contact_id, activity_type) select id, 'call' from public.contacts where import_batch_id = $1 limit 1"],
     ["a task was completed", "update public.tasks set status = 'completed', completed_at = now() where opportunity_id in (select id from public.opportunities where import_batch_id = $1)"],
-    ["a new opportunity was added", "insert into public.opportunities (contact_id, product_line, stage_id) select c.id, 'life', s.id from public.contacts c, public.pipeline_stages s where c.import_batch_id = $1 and s.product_line = 'life' and s.position = 1 limit 1"],
+    ["a new opportunity was added", "insert into public.opportunities (contact_id, product_line, stage_id) select c.id, 'life', s.id from public.contacts c, public.stages s where c.import_batch_id = $1 and s.template_code = 'new_lead' limit 1"],
   ])("is refused, changing nothing, when %s", async (_label, sql) => {
     const r = await importBook(alice, [{ ...person("Keep"), policies: [{ line: "auto", renewal_date: addDays(today, 15) }] }]);
     await asUser(db, alice, (q) => q.query(sql, [r.batch_id]));

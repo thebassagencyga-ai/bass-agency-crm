@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { asAnon, asPasswordOnlyUser, asUser, connect, createUser, errorCode, insertContact, insertOpportunity, type Db } from "./helpers";
+import { asAnon, asPasswordOnlyUser, asUser, connect, createUser, errorCode, insertContact, insertOpportunity, stageId, type Db } from "./helpers";
 
 // Phase 11 RLS regression suite. Driven by the database catalog, so every table and function
 // added later is covered automatically: a new table without RLS, without the two-step
@@ -28,6 +28,9 @@ const insertable = (ids: Record<string, string>): Record<string, Record<string, 
   import_batches: { file_name: "clients.csv" },
   ai_usage: { job: "daily_briefing", model: "claude-opus-5-5", input_tokens: 100, output_tokens: 50, cost_usd: 0.0014 },
   tag_options: { name: "Spoof tag" },
+  // Phase 25: a pipeline (its stages are checked at commit; these inserts are rolled back first).
+  pipelines: { name: "Spoof pipeline", position: 9 },
+  stages: { pipeline_id: ids.homePipeline, name: "Spoof stage", position: 50, kind: "active" },
   calendar_feeds: { token_hash: "\\x" + "ab".repeat(32), enabled: false, disabled_at: "2026-10-16T12:00:00Z" },
 });
 let ids: Record<string, string>;
@@ -56,7 +59,8 @@ beforeAll(async () => {
   // Alice has a row in every owner table (audit_log rows come from the triggers).
   const contact = await insertContact(db, alice, { first_name: "Alex", relationship_status: "client" });
   const policy = await insertOpportunity(db, alice, contact, "auto", "bound", { outcome: "won", renewal_date: "2027-01-01" });
-  const homeStage = (await db.query("select id from public.pipeline_stages where product_line = 'home' and code = 'new_lead'")).rows[0].id;
+  const homeStage = await stageId(db, "home", "new_lead", alice);
+  const homePipeline = (await db.query("select pipeline_id from public.pipeline_routes where owner_id = $1 and product_line = 'home'", [alice])).rows[0].pipeline_id as string;
   const rule = await asUser(db, alice, async (q) => {
     await q.query("insert into public.tasks (contact_id, title, due_date) values ($1, 'Call', '2026-10-16')", [contact]);
     await q.query("insert into public.activities (contact_id, activity_type) values ($1, 'call')", [contact]);
@@ -82,7 +86,7 @@ beforeAll(async () => {
   await asUser(db, alice, (q) => q.query("insert into public.ai_usage (job, model, input_tokens, output_tokens, cost_usd) values ('draft_message', 'claude-opus-5-5', 10, 5, 0.0001)"));
   // Phase 18: a calendar link.
   await asUser(db, alice, (q) => q.query("select public.rotate_calendar_link()"));
-  ids = { contact, policy, homeStage, rule: rule.r, rule2: rule.r2 };
+  ids = { contact, policy, homeStage, homePipeline, rule: rule.r, rule2: rule.r2 };
 });
 afterAll(async () => {
   await db.end();
@@ -169,7 +173,7 @@ describe("every owner table", () => {
       const asOwner = await errorCode(asUser(db, bob, (q) => q.query(spoofOwner.sql, spoofOwner.params)));
       if (!asOwner) accepted.push(`${t}: owner_id = alice`);
       // Rows that point at alice's records (contact, policy, rule) must not be accepted for bob either.
-      if (["opportunities", "tasks", "activities", "renewal_outcomes", "cross_sell_dismissals", "household_members", "vehicles"].includes(t)) {
+      if (["opportunities", "tasks", "activities", "renewal_outcomes", "cross_sell_dismissals", "household_members", "vehicles", "stages"].includes(t)) {
         const own = insertSql(t, row);
         const attach = await errorCode(asUser(db, bob, (q) => q.query(own.sql, own.params)));
         if (!attach) accepted.push(`${t}: linked to alice's record`);

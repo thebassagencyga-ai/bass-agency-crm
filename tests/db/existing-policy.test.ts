@@ -49,7 +49,7 @@ describe("existing policies (ADR-042)", () => {
     const c = await insertContact(db, agent);
     const o = await insertOpportunity(db, agent, c, "home", "contacted");
     await asUser(db, agent, async (q) =>
-      q.query("update public.opportunities set stage_id = (select id from public.pipeline_stages where product_line = 'home' and code = 'bound'), outcome = 'won' where id = $1", [o]),
+      q.query("update public.opportunities set stage_id = (select s.id from public.stages s join public.pipeline_routes r on r.pipeline_id = s.pipeline_id where r.product_line = 'home' and s.template_code = 'bound'), outcome = 'won' where id = $1", [o]),
     );
     const rules = (await tasksFor(c)).map((t) => t.rule);
     expect(rules).toContain("won_onboarding_checklist");
@@ -67,7 +67,7 @@ describe("existing policies (ADR-042)", () => {
     expect(await existingOf(o)).toBe(true);
     // Reopened and won again: still the same existing policy.
     await asUser(db, agent, (q) =>
-      q.query("update public.opportunities set stage_id = (select id from public.pipeline_stages where product_line = 'home' and code = 'follow_up'), outcome = 'open' where id = $1", [o]),
+      q.query("update public.opportunities set stage_id = (select s.id from public.stages s join public.pipeline_routes r on r.pipeline_id = s.pipeline_id where r.product_line = 'home' and s.template_code = 'follow_up'), outcome = 'open' where id = $1", [o]),
     );
     expect(await existingOf(o)).toBe(true);
 

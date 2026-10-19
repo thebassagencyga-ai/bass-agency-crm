@@ -71,13 +71,16 @@ export async function errorCode(promise: Promise<unknown>): Promise<string | und
   }
 }
 
-export async function stageId(db: Db, productLine: string, code: string): Promise<string> {
+/** One of the user's own stages (Phase 25): the stage copied from a built-in one, in the pipeline the line routes to. */
+export async function stageId(db: Db, productLine: string, code: string, userId: string): Promise<string> {
   const { rows } = await db.query<{ id: string }>(
-    "select id from public.pipeline_stages where product_line = $1 and code = $2",
-    [productLine, code],
+    `select s.id from public.stages s
+     join public.pipeline_routes r on r.pipeline_id = s.pipeline_id
+     where r.owner_id = $3 and r.product_line = $1 and s.template_code = $2 and s.archived_at is null`,
+    [productLine, code, userId],
   );
   const id = rows[0]?.id;
-  if (!id) throw new Error(`No stage ${productLine}/${code}`);
+  if (!id) throw new Error(`No stage ${productLine}/${code} for ${userId}`);
   return id;
 }
 
@@ -103,7 +106,7 @@ export async function insertOpportunity(
   stageCode = "new_lead",
   overrides: Record<string, unknown> = {},
 ): Promise<string> {
-  const sid = await stageId(db, productLine, stageCode);
+  const sid = await stageId(db, productLine, stageCode, userId);
   const values = { contact_id: contactId, product_line: productLine, stage_id: sid, ...overrides };
   const cols = Object.keys(values);
   const params = cols.map((_, i) => `$${i + 1}`);
