@@ -1043,6 +1043,11 @@ changes.
 **Approved by the owner 2026-10-19** ("Phase 24 approved"). Merged with `main` (Excel import and
 existing-policy fixes) before merging; checks re-run on the combined code (see below).
 
+**Production deploy (2026-10-19, commit 50bf76c):** CI on `main` 39289115376 passed (all 4 jobs,
+on the code merged with the Excel import and existing-policy fixes); no migrations; Deploy app
+39291260016 succeeded, smoke test 18/18. ⏳ Owner: iPhone check (Contacts → Leads / Clients tabs;
+search a client from the top bar).
+
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
 2. No migrations. Deploy app (Cloudflare).
