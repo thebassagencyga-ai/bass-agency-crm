@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 25 — Your own pipelines (2026-10-19, ready for review)
+## Phase 25 — Your own pipelines (2026-10-19, approved)
 ### Added
 - **Settings → Pipelines:** create, rename and archive pipelines; give each its own stages
   (rename, reorder, add, remove empty ones) and choose which lines send their new leads there.

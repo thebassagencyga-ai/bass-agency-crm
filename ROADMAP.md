@@ -34,7 +34,7 @@ inherits the standard exit criteria at the bottom of this file.
 | fix | Import reads Excel (.xlsx) files directly (owner report, 2026-10-19) | 15 | APPROVED, DEPLOYED (2026-10-19) |
 | fix | Add existing policy: enter a client's current policy without new-sale tasks (owner report, 2026-10-19) | 23 | APPROVED, DEPLOYED (2026-10-19) |
 | 24 | Leads and Clients tabs, book of business view | 23 | APPROVED, DEPLOYED (2026-10-19) |
-| 25 | Your own pipelines (custom stages, routing by line) | 24 | READY FOR REVIEW |
+| 25 | Your own pipelines (custom stages, routing by line) | 24 | APPROVED (2026-10-19) |
 
 ---
 
@@ -640,6 +640,6 @@ pipeline may take any mix of lines; every agent starts with today's four pipelin
   deploy verification updated (23 tables, 25 functions).
 - ⏳ Owner: iPhone check after deploy.
 
-**Status:** READY FOR REVIEW (2026-10-19); see PROGRESS.md.
+**Status:** APPROVED (owner, 2026-10-19); see PROGRESS.md.
 
 ---

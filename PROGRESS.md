@@ -1087,6 +1087,8 @@ Started 2026-10-19 after the owner approved the design ("Yes, any mix", "Keep to
 | CI run 39298530042 (commit 5e0ac7e): all 4 jobs | pass — migrations on the Supabase image, schema/RLS, full browser suite incl. phone widths and Lighthouse |
 | Production | not deployed |
 
+**Approved by the owner 2026-10-19** ("Approved").
+
 **Owner actions after approval**
 1. Merge to `main` (Claude).
 2. Run **Nightly backup** by hand first (this migration touches every deal).

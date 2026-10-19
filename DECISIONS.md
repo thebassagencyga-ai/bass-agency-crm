@@ -1098,8 +1098,7 @@ started in the past, so these tasks did not apply.
 before; changes are in the audit log.
 
 ## ADR-043 — Your own pipelines (Phase 25)
-**Date:** 2026-10-19. **Status:** proposed (design approved by the owner 2026-10-19; build
-awaiting approval). Supersedes the fixed per-line pipelines of ADR-006 (stage kinds and the
+**Date:** 2026-10-19. **Status:** accepted (design and build approved by the owner 2026-10-19). Supersedes the fixed per-line pipelines of ADR-006 (stage kinds and the
 separate outcome column stay).
 
 **Owner choices.** Each pipeline has its own stages; new leads are routed by line, set per
