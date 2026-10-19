@@ -1106,3 +1106,26 @@ pipeline in Settings → Pipelines).
 4. Deploy app (Cloudflare).
 5. On the iPhone: Pipeline page shows Auto / Home / Commercial / Life with every deal where it
    was; Settings → Pipelines → Add a pipeline (e.g. P&C for Auto and Home); add a test lead.
+
+## Fix — Pipeline board on a computer (branch `fix-board-layout`, 2026-10-19)
+**Owner report (screenshots):** the Bound and Lost columns sit far to the right and the board's
+sideways scrollbar is only reachable after scrolling to the bottom. **Cause:** the Bound column
+listed every policy imported or added as existing in the last 30 days, making the board very tall.
+**Owner choices:** "Cap columns + scroll"; "Leave them off the board".
+- Migration `20261103120000_board_excludes_existing.sql`: `search_opportunities` (same signature)
+  — the board's "won or lost in the last 30 days" leaves out imported and existing policies.
+- Board: fits the window on wider screens (each stage scrolls on its own); Won/Lost show the 5
+  most recent with a link to the table filtered to that outcome. Phones unchanged.
+
+**Tests (2026-10-19)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, unit | pass (489) |
+| Local: database | 472 passed (1 new: board leaves out imported and existing policies; table keeps them) |
+| Local: browser tests against the Cloudflare build | new `board-layout.spec.ts` (1280×720: board ends inside the window; Won shows 5 of 7 with "See all 7"; existing policy not on the board) plus opportunities, pipelines, phone widths: 4 passed |
+| CI | see report |
+| Production | not deployed |
+
+**Owner actions after approval:** Deploy database migrations (dry run lists only
+`20261103120000_board_excludes_existing.sql`; then apply; verify unchanged: 23 tables, 25
+functions), then Deploy app (Cloudflare).

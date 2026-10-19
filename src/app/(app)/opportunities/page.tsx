@@ -36,6 +36,9 @@ function tableHref(p: OpportunityListParams, page: number): string {
 
 const rowName = (r: OpportunityListRow) => contactDisplayName(r);
 
+/** Cards shown in the Won and Lost columns (most recent first). */
+const CLOSED_SHOWN = 5;
+
 export default async function OpportunitiesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const raw = await searchParams;
   const params = parseOpportunityListParams(raw);
@@ -120,16 +123,24 @@ function Board({ pipeline, pipelines, q, rows, clients }: { pipeline: Pipeline; 
       {rows.truncated ? (
         <p className="text-sm">Showing the 200 most recently updated. <Link href={`/opportunities?view=table&pipeline=${pipeline.id}`} className="underline text-link">See all in the table</Link>.</p>
       ) : null}
-      {/* Phones: one stage after another. Wider screens: stages side by side, scrolling sideways. */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:overflow-x-auto md:pb-2">
+      {/* Phones: one stage after another. Wider screens: stages side by side; the board fits the
+          window so its sideways scrollbar stays in view, and each stage scrolls on its own. */}
+      <div className="flex flex-col gap-4 md:max-h-[calc(100dvh-19rem)] md:min-h-80 md:flex-row md:items-start md:overflow-x-auto md:pb-2">
         {stages.map((stage) => {
-          const cards = rows.rows.filter((r) => r.stage_id === stage.id);
+          const all = rows.rows.filter((r) => r.stage_id === stage.id);
+          // Won and Lost: the most recent few; the rest are in the table.
+          const cards = stage.kind === "active" ? all : all.slice(0, CLOSED_SHOWN);
           const headingId = `stage-${stage.id}`;
           return (
-            <section key={stage.id} aria-labelledby={headingId} className="flex flex-col gap-2 rounded-md bg-subtle p-2 md:w-72 md:shrink-0">
+            <section key={stage.id} aria-labelledby={headingId} className="flex flex-col gap-2 rounded-md bg-subtle p-2 md:max-h-full md:w-72 md:shrink-0 md:overflow-y-auto">
               <h2 id={headingId} className="px-1 text-sm font-semibold">
-                {stage.name} <span className="font-normal text-muted">({cards.length})</span>
+                {stage.name} <span className="font-normal text-muted">({all.length})</span>
               </h2>
+              {all.length > cards.length ? (
+                <Link href={`/opportunities?view=table&pipeline=${pipeline.id}&outcome=${stage.kind === "won" ? "won" : "lost"}`} className="flex min-h-11 items-center px-1 text-sm underline text-link">
+                  See all {all.length} in the table
+                </Link>
+              ) : null}
               {cards.length === 0 ? (
                 <p className="px-1 text-sm text-muted">None</p>
               ) : (

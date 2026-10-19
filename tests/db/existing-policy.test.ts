@@ -94,3 +94,21 @@ describe("existing policies (ADR-042)", () => {
     expect(report.asks.referrals_received).toBe(0);
   });
 });
+
+describe("the board (fix after Phase 25)", () => {
+  it("leaves imported and existing policies out of 'won in the last 30 days'; the table still has them", async () => {
+    const u = await createUser(db, "board-existing");
+    const c = await insertContact(db, u);
+    const sale = await insertOpportunity(db, u, c, "auto", "bound", { outcome: "won" });
+    const held = await insertOpportunity(db, u, c, "auto", "bound", { outcome: "won", existing_policy: true });
+    const imported = await asUser(db, u, async (q) =>
+      (await q.query("select public.import_book('book.csv', $1) as r", [JSON.stringify([{ existing_contact_id: c, contact: {}, policies: [{ line: "auto" }] }])])).rows[0].r,
+    );
+    const importedId = (await db.query("select id from public.opportunities where import_batch_id = $1", [imported.batch_id])).rows[0].id;
+    const search = (closed: string) => asUser(db, u, async (q) =>
+      (await q.query<{ id: string }>("select id from public.search_opportunities(p_closed := $1, p_limit := 50)", [closed])).rows.map((r) => r.id).sort(),
+    );
+    expect(await search("recent")).toEqual([sale]);
+    expect(await search("all")).toEqual([sale, held, importedId].sort());
+  });
+});

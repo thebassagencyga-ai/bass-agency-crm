@@ -2,6 +2,14 @@
 
 All meaningful changes, grouped by milestone.
 
+## Fix — Pipeline board on a computer (2026-10-19, ready for review)
+### Changed
+- The board fits the window, so its sideways scrollbar is always in view; each stage scrolls on
+  its own.
+- Won and Lost show the 5 most recent, with "See all … in the table".
+- Imported clients and policies added with "Add existing policy" no longer fill the Won column
+  (they are not sales); they are still in the table and in Contacts → Clients.
+
 ## Phase 25 — Your own pipelines (2026-10-19, approved)
 ### Added
 - **Settings → Pipelines:** create, rename and archive pipelines; give each its own stages
