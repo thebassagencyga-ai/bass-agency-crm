@@ -961,6 +961,18 @@ changes.
   recorded), next renewal, cross-sell gaps (`src/lib/contacts/summaries.ts`,
   `src/lib/contacts/list-extras.ts`).
 - Pipeline board and table: "Client" tag on open deals for existing clients.
+- Polish: the in-page search box no longer overflows on phones (pre-existing); the status badge
+  is hidden inside the Leads and Clients tabs (it repeats the tab).
+
+**Tests (2026-10-19)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck | pass |
+| Local: unit | 460 passed (7 new: tabs, default/search rules, lead and book summaries; 2 params tests updated for "opens on Leads") |
+| Local: database | not re-run (no database changes) |
+| Local: browser tests against the Cloudflare build | new leads/clients test plus contacts, tags/merge, phone polish, errors, sign-in, phone widths, quote/client: all passed |
+| CI run 39264227897 (commit bbb1029): all 4 jobs | pass — full browser suite incl. phone widths and Lighthouse |
+| Production | not deployed yet |
 
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
