@@ -221,7 +221,8 @@ describe("won and lost", () => {
 
   it("no prospecting reminders after a win or loss: a later quote date or requested follow-up creates nothing", async () => {
     const c = await insertContact(db, agent);
-    const opp = await insertOpportunity(db, agent, c, "home", "quoted");
+    // Starts at Contacted: since Phase 23 a Quoted start would record a quote date (and its follow-up) up front.
+    const opp = await insertOpportunity(db, agent, c, "home", "contacted");
     await update("opportunities", opp, "stage_id = $2, outcome = 'lost', loss_reason = 'timing'", [await stageId(db, "home", "lost")]);
     await update("opportunities", opp, "quote_sent_on = $2", [today]);
     await logActivity(c, { opportunity_id: opp, outcome: "requested_follow_up", requested_follow_up_on: addDays(today, 7) });

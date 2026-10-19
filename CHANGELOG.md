@@ -2,6 +2,14 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 23 — Quote dates and client status (2026-10-19, ready for review)
+### Changed
+- Moving an opportunity to **Quoted** (commercial: **Proposal Presented**) now records the quote
+  date (today, or the date you choose), so the "Follow up on quote" task is always scheduled,
+  and only once.
+- Binding a policy now marks the contact as a **client**. Existing contacts with an active
+  policy were corrected once.
+
 ## Phase 22 — Producr CRM (2026-10-19, approved)
 ### Changed
 - The app is now **Producr CRM**, with a new look: Midnight Ink menu, Electric Blue buttons and

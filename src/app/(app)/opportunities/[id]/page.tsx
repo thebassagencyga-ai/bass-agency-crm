@@ -6,7 +6,7 @@ import { MarkLostForm, MoveStageForm } from "@/components/opportunities/stage-fo
 import { requireFullSession } from "@/lib/auth/require";
 import { getContact } from "@/lib/contacts/data";
 import { contactDisplayName } from "@/lib/contacts/format";
-import { formatDateOnly, formatInstantDate } from "@/lib/dates";
+import { formatDateOnly, formatInstantDate, todayInZone } from "@/lib/dates";
 import { getOpportunity, getStages, stagesFor } from "@/lib/opportunities/data";
 import { formatMoney } from "@/lib/opportunities/format";
 import { canToggleNurture } from "@/lib/opportunities/transitions";
@@ -15,7 +15,7 @@ import { PRODUCT_LINE_NAMES } from "@/lib/pipelines";
 import { RenewalHistory } from "@/components/renewals/history";
 import { termLabel } from "@/lib/renewals";
 import { outcomesFor } from "@/lib/renewals/data";
-import { tasksForOpportunity } from "@/lib/tasks/data";
+import { getProfile, tasksForOpportunity } from "@/lib/tasks/data";
 import { CATEGORY_LABELS } from "@/lib/tasks/types";
 import { setNurture } from "../actions";
 import { templateForOpportunity } from "@/lib/messages/templates";
@@ -25,7 +25,7 @@ export const metadata: Metadata = { title: "Opportunity · Producr CRM" };
 const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   saved: { text: "Opportunity saved.", tone: "ok" },
   moved: { text: "Stage updated.", tone: "ok" },
-  won: { text: "Marked as won. Prospecting tasks were closed and onboarding, review and referral tasks added (per your Settings).", tone: "ok" },
+  won: { text: "Marked as won. Prospecting tasks were closed and onboarding, review and referral tasks added (per your Settings). The contact is now a client.", tone: "ok" },
   lost: { text: "Marked as lost. Its prospecting tasks were closed. The record is kept and can be reopened later.", tone: "ok" },
   reopened: { text: "Opportunity reopened. Its history is kept and a new follow-up task was added.", tone: "ok" },
   nurture: { text: "Moved to nurture.", tone: "ok" },
@@ -38,12 +38,14 @@ export default async function OpportunityPage({
 }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
   const { id } = await params;
   const query = await searchParams;
-  const { supabase } = await requireFullSession();
+  const { supabase, userId } = await requireFullSession();
   const opp = await getOpportunity(supabase, id);
   if (!opp) notFound();
-  const [contact, allStages, tasks, renewals] = await Promise.all([
+  const [contact, allStages, tasks, renewals, profile] = await Promise.all([
     getContact(supabase, opp.contact_id), getStages(supabase), tasksForOpportunity(supabase, opp.id), outcomesFor(supabase, opp.id),
+    getProfile(supabase, userId),
   ]);
+  const today = todayInZone(profile.time_zone);
   const activePolicy = opp.outcome === "won" && opp.policy_ended_on === null;
   const stages = stagesFor(allStages, opp.product_line);
   const stage = stages.find((s) => s.id === opp.stage_id);
@@ -150,7 +152,7 @@ export default async function OpportunityPage({
 
       <section aria-labelledby="stage-heading" className="flex flex-col gap-3 rounded-md border border-line p-3 bg-card">
         <h2 id="stage-heading" className="text-lg font-semibold">{opp.outcome === "won" || opp.outcome === "lost" ? "Reopen" : "Change stage"}</h2>
-        <MoveStageForm id={opp.id} stages={stages} currentStageId={opp.stage_id} outcome={opp.outcome} />
+        <MoveStageForm id={opp.id} stages={stages} currentStageId={opp.stage_id} outcome={opp.outcome} quoteSentOn={opp.quote_sent_on} today={today} />
       </section>
 
       {opp.outcome !== "lost" && lostStage ? (

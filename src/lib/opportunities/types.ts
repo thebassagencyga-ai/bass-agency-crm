@@ -33,6 +33,8 @@ export interface Stage {
   name: string;
   position: number;
   kind: StageKind;
+  /** Phase 23: entering this stage means the quote was delivered (quote date recorded). */
+  is_quote_stage: boolean;
 }
 
 export interface Opportunity {

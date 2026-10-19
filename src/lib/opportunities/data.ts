@@ -11,7 +11,7 @@ import type { Opportunity, OpportunityListRow, Stage } from "./types";
 export async function getStages(supabase: SupabaseClient): Promise<Stage[]> {
   const { data, error } = await supabase
     .from("pipeline_stages")
-    .select("id, product_line, code, name, position, kind")
+    .select("id, product_line, code, name, position, kind, is_quote_stage")
     .order("product_line")
     .order("position");
   if (error) throw new Error(`Could not load pipeline stages (${error.code ?? "unknown"}).`);

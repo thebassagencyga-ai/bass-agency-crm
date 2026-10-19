@@ -890,3 +890,38 @@ space); fixed by putting a real space between "producr" and "CRM".
    and "Producr" name (you'll sign in once more there). Your authenticator entry keeps working.
 4. Optional: Supabase dashboard → Authentication → Emails: change "Bass Agency CRM" in the
    password-reset email subject to "Producr CRM".
+
+**Production deploy (2026-10-19, commit f272117):** CI on `main` 39240340295 passed; Deploy app
+39241995644 succeeded with production smoke test 18/18 (sign-in page is the CRM, manifest, icons).
+No migrations. Owner: "Phase 22 is deployed already. Looks great." (An earlier CI run on the docs
+commit bc6aadd failed only because the runner's port 54322 was already in use — infrastructure, not
+code; the same content passed on `main`.)
+
+## Workflow audit (2026-10-19, docs only)
+`docs/workflow-audit-2026-10.md`: read-only audit of the app against an insurance sales workflow,
+gap register, ProducrIQ assessment, roadmap. Owner decisions recorded in ADR-039.
+
+## Phase 23 — Quote dates and client status (branch `phase-23-quote-client-status`)
+Workflow audit Step 1 (ADR-039). Step 0 first: Phase 22 deploy verified from the workflow logs
+(above); the live site could not be fetched from the build environment, so verification relies on
+the deploy run's own smoke test.
+
+**Completed**
+- Migration `20261031120000_quote_dates_client_status.sql`:
+  - `pipeline_stages.is_quote_stage` (auto/home Quoted, commercial Proposal Presented)
+  - trigger recording today's quote date when an opportunity enters a quote stage without one
+  - trigger making the contact a client on bind (from prospect / former client only)
+  - one-time correction `crm_private.correct_client_statuses()` (contacts with an active bound
+    policy); the apply log prints how many contacts it changed
+- Opportunity page: choosing a quote stage shows "Quote sent on" (today, or the date already
+  recorded this round), editable, not in the future (`src/lib/opportunities/quote-date.ts`).
+- "Marked as won" notice now says the contact is a client.
+
+**Owner actions after approval**
+1. Merge to `main` (done by Claude).
+2. Deploy database migrations: dry run lists only `20261031120000_quote_dates_client_status.sql`;
+   then apply. The apply log line "Phase 23: N contact(s) … marked as client" is the correction's
+   count. Verify expects 20 tables, 24 functions, 2 anonymous functions (unchanged).
+3. Deploy app (Cloudflare).
+4. On the iPhone: move a test opportunity to Quoted (check the date, the follow-up task), bind it
+   (check the contact shows Client).

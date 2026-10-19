@@ -78,13 +78,15 @@ describe("import_book", () => {
     expect(reviews.every((t) => t.due >= today)).toBe(true);
   });
 
-  it("adds policies to a matched contact and leaves that contact as it is", async () => {
+  it("adds policies to a matched contact and leaves that contact as it is (except: now a client)", async () => {
     const existing = await insertContact(db, alice, { first_name: "Drew", last_name: "Example", email: "drew@example.com", notes: "Met at church." });
     const before = (await db.query("select * from public.contacts where id = $1", [existing])).rows[0];
     const r = await importBook(alice, [{ existing_contact_id: existing, contact: { first_name: "Ignored", email: "other@example.com" }, policies: [{ line: "life", carrier: "Example Life", premium: 400 }] }]);
     expect(r).toMatchObject({ contacts_created: 0, contacts_matched: 1, policies_created: 1 });
     const after = (await db.query("select * from public.contacts where id = $1", [existing])).rows[0];
-    expect(after).toEqual(before);
+    // Phase 23 (ADR-039): a bound policy makes a prospect a client; nothing else on the contact changes.
+    expect(before.relationship_status).toBe("prospect");
+    expect(after).toEqual({ ...before, relationship_status: "client", updated_at: after.updated_at });
     expect((await db.query("select product_line from public.opportunities where contact_id = $1", [existing])).rows).toEqual([{ product_line: "life" }]);
   });
 

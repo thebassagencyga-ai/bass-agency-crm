@@ -30,6 +30,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 20 | Tag list (pick tags from options) — owner request after go-live | 19 | APPROVED (2026-10-17) |
 | 21 | Phone polish (bottom bar, search anywhere, contact quick actions) | 20 | APPROVED (2026-10-19) |
 | 22 | Producr CRM: new name and brand design | 21 | APPROVED (2026-10-19) |
+| 23 | Workflow audit Step 1: quote dates and client status | 22 | READY FOR REVIEW |
 
 ---
 
@@ -571,7 +572,24 @@ Owner choices: light and dark with a switch; keep the current menu labels; new P
 - No changes to routes, data, sign-in, database or menu labels; no new pages or metrics.
 - All tests green; phone widths and Lighthouse clean.
 
-**Status 2026-10-19:** built and APPROVED by the owner; deploy pending (app only, no migrations). See PROGRESS.md.
+**Status 2026-10-19:** built, APPROVED and deployed (Deploy app run 39241995644, smoke 18/18); owner: "Looks great". See PROGRESS.md.
+
+---
+
+## Phase 23 — Quote dates and client status (workflow audit Step 1)
+**Objective.** Quotes never miss their follow-up, and bound contacts are clients (owner decisions
+2 and 4 of 2026-10-19 on `docs/workflow-audit-2026-10.md`; ADR-039).
+
+**Acceptance criteria**
+- Moving into a quote stage (auto/home Quoted, commercial Proposal Presented) saves the quote date:
+  editable on the opportunity page (today by default), today from the board or when created at a
+  quote stage; an existing date for the round is kept.
+- Each quote gets exactly one "Follow up on quote" task; correcting the date re-dates it.
+- Binding makes a prospect or former client a client; losing or reopening never downgrades.
+- One-time correction for contacts with an active bound policy, audited and tested.
+- Security (RLS, two-step policy, audit log) unchanged; all tests green.
+
+**Status 2026-10-19:** READY FOR REVIEW; see PROGRESS.md.
 
 ---
 

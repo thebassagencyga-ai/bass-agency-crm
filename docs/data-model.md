@@ -45,7 +45,10 @@ session (ADR-016).
 ### product_lines / pipeline_stages (reference data)
 Four product lines: auto, home, commercial, life. Stages per line with `position` and
 `kind` (`active` | `won` | `lost`), seeded exactly as spec §9 and mirrored in
-`src/lib/pipelines.ts`. Read-only for users; changed only by migrations.
+`src/lib/pipelines.ts`. Read-only for users; changed only by migrations. `is_quote_stage`
+(Phase 23) marks auto/home "Quoted" and commercial "Proposal Presented": entering one records the
+opportunity's quote date if missing (trigger `opportunities_default_quote_date`). Binding an
+opportunity makes a prospect or former client a client (trigger `opportunities_promote_contact`).
 
 ### contacts
 Individuals and businesses. Name rule: an individual needs a first or last name; a business

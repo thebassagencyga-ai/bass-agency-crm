@@ -5,6 +5,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "@/components/form";
 import { requireFullSession } from "@/lib/auth/require";
+import { todayInZone } from "@/lib/dates";
+import { resolveQuoteDate, suggestedQuoteDate } from "@/lib/opportunities/quote-date";
+import { getProfile } from "@/lib/tasks/data";
 import { isUuid } from "@/lib/contacts/data";
 import {
   NEW_OPPORTUNITY_FIELDS,
@@ -46,7 +49,7 @@ function friendlyDbError(code: string | undefined): FormState {
 
 async function getStage(supabase: SupabaseClient, id: string): Promise<Stage | null> {
   if (!isUuid(id)) return null;
-  const { data } = await supabase.from("pipeline_stages").select("id, product_line, code, name, position, kind").eq("id", id).maybeSingle();
+  const { data } = await supabase.from("pipeline_stages").select("id, product_line, code, name, position, kind, is_quote_stage").eq("id", id).maybeSingle();
   return (data as Stage | null) ?? null;
 }
 
@@ -105,17 +108,20 @@ export async function updateOpportunity(_prev: FormState, formData: FormData): P
 
 /** Stage change from the detail page (including won, lost with a reason, and reopen). */
 export async function changeStage(_prev: FormState, formData: FormData): Promise<FormState> {
-  const { supabase } = await requireFullSession();
+  const { supabase, userId } = await requireFullSession();
   const values = echoValues(formData);
   const parsed = stageChangeSchema.safeParse({
     id: formData.get("id"),
     stage_id: formData.get("stage_id"),
     loss_reason: formData.get("loss_reason"),
     loss_reason_detail: formData.get("loss_reason_detail"),
+    quote_sent_on: formData.get("quote_sent_on"),
   });
   if (!parsed.success) return { fieldErrors: fieldErrorsOf(parsed.error.issues), values };
 
-  const [opp, stage] = await Promise.all([loadOpportunity(supabase, parsed.data.id), getStage(supabase, parsed.data.stage_id)]);
+  const [opp, stage, profile] = await Promise.all([
+    loadOpportunity(supabase, parsed.data.id), getStage(supabase, parsed.data.stage_id), getProfile(supabase, userId),
+  ]);
   if (!opp) return { error: "This opportunity could not be found.", values };
   if (!stage) return { fieldErrors: { stage_id: "Choose a stage." }, values };
 
@@ -127,7 +133,18 @@ export async function changeStage(_prev: FormState, formData: FormData): Promise
   });
   if (!plan.ok) return { fieldErrors: { [plan.field]: plan.message }, values };
 
-  const { data: rows, error } = await supabase.from("opportunities").update(plan.update).eq("id", opp.id).select("id");
+  // Into a quote stage (Phase 23): save the quote date, today unless the agent changed it.
+  // Saving it (or changing it) is what schedules the quote follow-up.
+  let update: typeof plan.update & { quote_sent_on?: string } = plan.update;
+  if (stage.is_quote_stage && (plan.update.outcome === "open" || plan.update.outcome === "nurture")) {
+    const today = todayInZone(profile.time_zone);
+    const suggestion = suggestedQuoteDate({ existing: opp.quote_sent_on, reopening: plan.reopened, today });
+    const quote = resolveQuoteDate(parsed.data.quote_sent_on, suggestion, today);
+    if (!quote.ok) return { fieldErrors: { quote_sent_on: quote.message }, values };
+    update = { ...plan.update, quote_sent_on: quote.date };
+  }
+
+  const { data: rows, error } = await supabase.from("opportunities").update(update).eq("id", opp.id).select("id");
   if (error) return { ...friendlyDbError(error.code), values };
   if (!rows || rows.length === 0) return { error: "This opportunity could not be found.", values };
   revalidate(opp.contact_id);

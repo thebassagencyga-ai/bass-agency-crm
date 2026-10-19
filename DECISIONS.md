@@ -957,6 +957,56 @@ label, and the existing authenticator entry, keep their old look until re-added 
 
 ---
 
+## ADR-039 — Workflow audit decisions and Step 1 design
+
+**Status:** Accepted — owner decisions of 2026-10-19 on `docs/workflow-audit-2026-10.md`. Step 1
+built in Phase 23 (awaiting approval); later steps not started. **Sequence (owner):** Step 0
+verify the Phase 22 deploy; Step 1 quote dates + client status; Step 2 Web Push; Step 3
+ProducrIQ Focus; documentation refresh as a separate docs-only task. Stop after each step.
+
+**Owner decisions**
+1. New-lead alert: Web Push to the owner's installed iPhone app when a public quote request is
+   submitted; no customer details in the text; a Settings switch; not complete until the iPhone
+   test passes; a failed push never fails the submission.
+2. Bind → client: an eligible prospect or former client becomes a client when an opportunity is
+   bound; one-time, tested correction for existing contacts; never downgrade a client because an
+   unrelated opportunity is lost.
+3. Stalled opportunities: quoted after 3 days without meaningful activity, other open after 7;
+   nurtured opportunities get a check-back task from an explicit date (30-day default only when
+   none is given and appropriate). No duplicate tasks; completing or dismissing a task must not
+   hide an opportunity that still needs attention.
+4. Quote date: default today when moving into a quote stage, editable; keep existing dates when
+   appropriate; no duplicate quote follow-ups.
+5. Prospect renewal: editable current carrier and renewal (X-)date on opportunities; re-quote task
+   45 days before, never dated in the past.
+6. Referrer thank-you: a task to thank the referrer by personal call or note; no gifts,
+   incentives or rewards.
+7. AI stays disconnected; ProducrIQ Focus v1 uses deterministic queries only. Any later AI
+   briefing starts with aggregates and minimal non-sensitive fields; contact notes are never
+   sent without a separate privacy review and owner approval.
+8. Documentation refresh approved as a separate docs-only task.
+
+**Step 1 design (Phase 23).**
+- `pipeline_stages.is_quote_stage` marks where the quote has been delivered: auto and home
+  "Quoted", commercial "Proposal Presented". "Marketing or Quoting" is still preparing the quote.
+  Life has none: its pipeline is appointment → application, with no quote hand-off stage.
+- A BEFORE trigger records today (the agent's time zone) when an opportunity enters a quote stage
+  with no quote date: board moves, new opportunities, any future path. It never overwrites a
+  date.
+- The opportunity page asks for the date (today, or the date already recorded this round; a
+  reopened opportunity starts from today) and saves the agent's choice.
+- The existing `quote_sent_follow_up` rule does the rest. Its task is keyed per opportunity
+  cycle, so moving back and forth or correcting the date re-dates one task, never duplicates it.
+- An AFTER trigger makes the contact a client when an opportunity's outcome becomes won (insert or
+  update), only from prospect or former client. The change is the agent's own audited edit.
+- `crm_private.correct_client_statuses()` (not callable by the app) runs once in the migration:
+  unmerged contacts with an **active** bound policy become clients. Contacts whose policies have
+  all ended are left alone.
+- Behaviour change: a policy imported onto an existing prospect now makes them a client (was:
+  contact left untouched). Consistent with decision 2.
+
+---
+
 ## Open questions for the owner (do not block Phase 1 start)
 
 - **Tabled (owner, 2026-10-16): collecting dates of birth and driver's license numbers on the

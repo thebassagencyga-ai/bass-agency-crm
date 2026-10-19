@@ -72,6 +72,8 @@ export const stageChangeSchema = z.object({
   stage_id: z.uuid("Choose a stage."),
   loss_reason: z.preprocess(blankToNull, z.enum(LOSS_REASONS, { message: "Choose why it was lost." }).nullable()),
   loss_reason_detail: optionalText(1000, "Loss details"),
+  /** Only used when the target is a quote stage (Phase 23); checked by resolveQuoteDate. */
+  quote_sent_on: z.preprocess(blankToNull, z.string().max(20).nullable()),
 });
 
 export type OpportunityDetails = z.infer<typeof opportunityDetailsSchema>;
