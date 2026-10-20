@@ -1245,6 +1245,8 @@ is thanked when the referred person arrives).
 | CI run 39361683569 (commit df6c95b): all 4 jobs | pass — incl. migrations on Supabase's real image (the separate enum migration applies cleanly), RLS smoke test, full browser suite and Lighthouse |
 | Production | not deployed |
 
+**Approved by the owner 2026-10-20** ("Approved").
+
 **Owner actions after approval**
 1. Merge to `main` (Claude).
 2. Deploy database migrations: dry run lists exactly `20261105120000_focus_events.sql` and

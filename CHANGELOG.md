@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 27 — ProducrIQ Focus (2026-10-20, ready for review)
+## Phase 27 — ProducrIQ Focus (2026-10-20, approved)
 ### Added
 - **Focus** at the top of the Today page: the deals that need you and why. Quotes with nothing
   logged for 3 days, other open deals after 7, nurture deals on their check-back date, re-quotes
