@@ -1364,6 +1364,12 @@ approved ("Approved, build it"). ADR-046.
 
 **Approved by the owner 2026-10-20** ("Approved").
 
+**Production deploy (2026-10-20, commit 87f8573):** CI on `main` 39469686317 passed; migrations
+dry run 39472163323 listed only `20261106120000_production.sql`; apply run 39473603308 applied it
+and verification passed (26 tables, 26 two-step policies, 28 Data API functions incl.
+`production_report`, exactly 3 anonymous functions, automation engine safe); Deploy app
+39473999987 succeeded after the migration (bundle check clean, smoke test passed).
+
 **Owner actions after approval**
 1. Merge to `main` (Claude).
 2. Deploy database migrations: dry run lists only `20261106120000_production.sql`; then apply.

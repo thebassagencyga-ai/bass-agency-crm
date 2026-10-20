@@ -5,8 +5,8 @@ Agency (Carrollton, GA): contacts,
 home/auto/commercial/life opportunity pipelines, follow-up tasks, renewals, cross-sell
 prompts and basic reports.
 
-> **Status: live in production** since the owner's go-live sign-off (2026-10-16); 27 phases
-> approved and deployed (latest: ProducrIQ Focus, 2026-10-20). See `ROADMAP.md` and
+> **Status: live in production** since the owner's go-live sign-off (2026-10-16); 28 phases
+> approved and deployed (latest: Production and commission, 2026-10-20). See `ROADMAP.md` and
 > `PROGRESS.md`.
 
 ## Architecture
