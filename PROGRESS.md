@@ -1362,6 +1362,8 @@ approved ("Approved, build it"). ADR-046.
 | CI run 39462821084 (commit 3142cfe): all 4 jobs | pass — incl. migrations on Supabase's real image, full browser suite and Lighthouse |
 | Production | not deployed |
 
+**Approved by the owner 2026-10-20** ("Approved").
+
 **Owner actions after approval**
 1. Merge to `main` (Claude).
 2. Deploy database migrations: dry run lists only `20261106120000_production.sql`; then apply.

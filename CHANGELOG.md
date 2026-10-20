@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 28 — Production and commission (2026-10-20, ready for review)
+## Phase 28 — Production and commission (2026-10-20, approved)
 ### Added
 - **Reports → Production:** premium and policies written this month against your goals,
   expected commission (new business and renewals) by line, year to date with your year-end pace,
