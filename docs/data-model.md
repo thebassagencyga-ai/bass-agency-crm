@@ -113,6 +113,7 @@ Many per contact, in any mix of product lines.
 | `stage_changed_at` | Phase 27: when the stage or outcome last changed; set by trigger only (before Phase 27: the last update). Used by Focus "gone quiet". |
 | `nurture_check_back_on` | Phase 27: nurture only, the date to check back; cleared when the deal leaves nurture. Drives the check-back task. |
 | `focus_snoozed_until` | Phase 27: open only, hidden from Focus "gone quiet" until this date; cleared when the deal is no longer open. |
+| `life_policy_type`, `premium_mode`, `first_payout_on`, `commission_rate_override` | Phase 28, life deals only (checked): policy type, how often premium is paid (monthly / quarterly / semiannual / annual; monthly when not set), first commission payout (else the effective date), and a first-year rate for this policy overriding Settings. Used by `production_report`. |
 
 Lifecycle rules (trigger `opportunities_b_lifecycle`, Phase 4): the product line cannot change
 after creation; `cycle` is set by the database only (1 on insert, +1 when a won or lost
@@ -248,6 +249,16 @@ has been changed or used since; the audit log keeps the deletions (ADR-031). Imp
 not new business: they are left out of new-lead, conversion and referral reports, the board and
 Focus.
 
+### commission_rates (Phase 28, ADR-046)
+The agent's own commission rates (percent, 0–100, up to two decimals): one row per line for auto,
+home and commercial (`new_rate` new business, `renewal_rate` renewal) and one per life policy type
+for life (`life_policy_type` term / whole / universal / indexed_universal / final_expense;
+`new_rate` first year, `renewal_rate` renewal years). Empty until entered. The app may insert rows
+and change only the two rates.
+
+### production_goals (Phase 28, ADR-046)
+One row per agent: `premium_per_month`, `policies_per_month`, `premium_per_year` (all optional).
+
 ### audit_log
 Append-only, written by trigger on contacts, opportunities, tasks, activities and
 automation_rules: actor, table, record, action, and for updates only the changed columns.
@@ -280,6 +291,7 @@ granted to `authenticated` only.
 | `import_book(file_name, contacts)` | Phase 15 (ADR-031): imports a book of business in one transaction: each row either creates a contact or adds policies to an existing contact the user matched in the preview (left as it is), their policies as won opportunities in the routed pipeline (renewal dates rolled forward), one import batch. Returns the counts. |
 | `save_pipeline(id, name, lines, stages)` | Phase 25 (ADR-043): creates or updates one of the agent's pipelines, its stages (3–12, Won and Lost last) and the lines whose new leads it receives, in one transaction. |
 | `claim_push_alerts(proof)` | Phase 26 (ADR-044), **anonymous callers only**, SECURITY DEFINER: for the holder of the push key's proof, hands out the devices owed a new-request alert, once each; alerts over a day old are dropped. Returns device push addresses and keys only, no customer details. |
+| `production_report(month)` | Phase 28 (ADR-046), one JSON object: written premium and policies for the month (and year to date), goals, by line (policies, premium, rates, new-business and renewal commission), the next 12 months (renewals, life instalments, the month's new business), active policies, ended this month, life policies without a type or rate. Estimates from the agent's rates; read-only, SECURITY INVOKER. |
 | `dashboard_summary(today)` | One JSON object for the dashboard: open task counts (overdue, due today, next 7 days), open/nurture opportunities and estimated premium by product line, renewals in the next 60 days (count + soonest 5, lost and ended policies excluded), 8 most recent activities. |
 | `confirm_no_response_follow_up(activity_id)` | Creates the "no response" follow-up for one of the caller's activities after the owner confirms; returns 1 if a task was created, else 0. |
 

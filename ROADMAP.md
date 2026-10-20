@@ -39,6 +39,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 26 | Workflow audit Step 2: new-lead alerts on your phone (Web Push) | 25 | APPROVED, DEPLOYED, iPhone test passed (2026-10-20) |
 | fix | Alerts: "Turn on alerts on this device" failed to save the device (owner report, 2026-10-19) | 26 | APPROVED, DEPLOYED (2026-10-20) |
 | fix | Board toolbar: one compact row, board fills the window (owner request, 2026-10-20) | 25 | APPROVED, DEPLOYED (2026-10-20) |
+| 28 | Production and commission (Reports → Production, rates and goals, life details; estimates only) | 27 | READY FOR REVIEW (2026-10-20) |
 | docs | Documentation refresh (workflow audit, owner decision 8) | 27 | APPROVED, MERGED (2026-10-20) — no deploy needed |
 | 27 | Workflow audit Step 3: ProducrIQ Focus (quiet deals, nurture check-backs, re-quotes, referrer thank-you; no AI) | 26 | APPROVED, DEPLOYED, iPhone check passed (2026-10-20) |
 
@@ -704,4 +705,29 @@ lost deals are re-quoted too; the referrer is thanked when the referred person a
   semantic colours only.
 
 **Status:** COMPLETE — approved and deployed 2026-10-20 (migrations applied, verify passed, smoke test passed); owner iPhone check passed 2026-10-20. See PROGRESS.md.
+
+---
+
+## Phase 28 — Production and commission
+**Objective.** Production tracking the owner asked for (2026-10-20, from their life commission
+tracker): premium and policies written against goals, expected commission (estimates from the
+agent's own rates, all lines) and the next 12 months, from the policies already in Producr. No
+statement actuals yet; no AI (ADR-046). Mockup and design approved 2026-10-20.
+
+**Acceptance**
+- ✅ Written premium and policies per month match the fixture deals; existing and imported policies
+  are not sales.
+- ✅ Auto/home/commercial: new business in the bound month; renewals in their renewal month
+  (recorded premium when renewed, nothing when lost; 6-month terms repeat).
+- ✅ Life: instalments by premium mode from the first payout date, first-year rate for 12 months
+  then the renewal rate, a policy rate overrides Settings, none after the policy ends; the owner's
+  tracker example ($3,200 Term, monthly, 45%) = $120 a month.
+- ✅ No rates entered: no commission shown; the page asks for rates.
+- ✅ Goals and year-end pace; CSV of the caller's figures (formula-safe).
+- ✅ New tables `commission_rates`, `production_goals`: RLS, two-step policy, no DELETE, owner-only,
+  in the catalog and RLS regression tests; `production_report` read-only, SECURITY INVOKER,
+  refused to anonymous callers; deploy verification 26 tables, 28 functions, 3 anonymous.
+- ✅ iPhone width without sideways scroll; semantic colours (light and dark).
+
+**Status:** READY FOR REVIEW (2026-10-20). See PROGRESS.md.
 

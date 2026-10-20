@@ -7,6 +7,7 @@ import type { FormState } from "@/components/form";
 import { requireFullSession } from "@/lib/auth/require";
 import { todayInZone } from "@/lib/dates";
 import { DEFAULT_CHECK_BACK, checkBackDate, coverageSchema } from "@/lib/focus";
+import { lifeDetailsSchema } from "@/lib/production";
 import { EXISTING_POLICY_FIELDS, existingPolicyRow, existingPolicySchema } from "@/lib/opportunities/existing-policy";
 import { resolveQuoteDate, suggestedQuoteDate } from "@/lib/opportunities/quote-date";
 import { getProfile } from "@/lib/tasks/data";
@@ -287,4 +288,28 @@ export async function saveCoverage(_prev: FormState, formData: FormData): Promis
   revalidatePath("/dashboard");
   revalidatePath("/renewals");
   redirect(`/opportunities/${opp.id}?coverage=1#coverage`);
+}
+
+/**
+ * Life deals: policy type, premium mode, first payout date and an optional rate for this policy
+ * (Phase 28, ADR-046). Used only by Reports → Production; nothing else changes.
+ */
+export async function saveLifeDetails(_prev: FormState, formData: FormData): Promise<FormState> {
+  const { supabase } = await requireFullSession();
+  const values: Record<string, string> = {};
+  for (const name of ["life_policy_type", "premium_mode", "first_payout_on", "commission_rate_override"]) {
+    const v = formData.get(name);
+    if (typeof v === "string") values[name] = v.slice(0, 30);
+  }
+  const parsed = lifeDetailsSchema.safeParse({ id: formData.get("id"), ...values });
+  if (!parsed.success) return { fieldErrors: fieldErrorsOf(parsed.error.issues), values };
+  const opp = await loadOpportunity(supabase, parsed.data.id);
+  if (!opp) return { error: "This opportunity could not be found.", values };
+  if (opp.product_line !== "life") return { error: "Commission details are for life policies only.", values };
+  const { id, ...update } = parsed.data;
+  const { error } = await supabase.from("opportunities").update(update).eq("id", id);
+  if (error) return { ...friendlyDbError(error.code), values };
+  revalidate(opp.contact_id);
+  revalidatePath("/reports/production");
+  redirect(`/opportunities/${opp.id}?lifesaved=1#life-details`);
 }

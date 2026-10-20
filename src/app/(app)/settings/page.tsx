@@ -111,6 +111,11 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         <p className="text-sm text-muted">Your pipelines, their stages, and which lines send new leads to each.</p>
         <Link href="/settings/pipelines" className="flex min-h-11 w-fit items-center rounded-md border border-line-strong bg-card px-4 font-medium hover:bg-subtle">Edit pipelines</Link>
       </section>
+      <section id="production" aria-labelledby="production-heading" className="flex flex-col gap-2">
+        <h2 id="production-heading" className="text-lg font-semibold">Commission and goals</h2>
+        <p className="text-sm text-muted">Your commission rates and production goals, for Reports → Production.</p>
+        <Link href="/settings/production" className="flex min-h-11 w-fit items-center rounded-md border border-line-strong bg-card px-4 font-medium hover:bg-subtle">Edit commission and goals</Link>
+      </section>
       <section aria-labelledby="data-heading" className="flex flex-col gap-2">
         <h2 id="data-heading" className="text-lg font-semibold">Your data</h2>
         <p className="text-sm text-muted">

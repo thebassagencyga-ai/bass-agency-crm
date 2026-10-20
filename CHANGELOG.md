@@ -2,6 +2,18 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 28 — Production and commission (2026-10-20, ready for review)
+### Added
+- **Reports → Production:** premium and policies written this month against your goals,
+  expected commission (new business and renewals) by line, year to date with your year-end pace,
+  and expected commission for the next 12 months from the policies you already have. Download as
+  CSV. Estimates from your own rates; carrier statements are the final word.
+- **Settings → Commission and goals:** your rates for auto, home and commercial (new business and
+  renewal) and for each life policy type (first year and renewal years), plus monthly and yearly
+  goals.
+- **Life deals → Commission details:** policy type, premium mode, first payout date and an
+  optional rate for that policy, with a preview such as "About $120.00 a month".
+
 ## Fix — Board toolbar (2026-10-20, approved)
 ### Changed
 - On a computer the board's title, pipelines, search and Board/Table switch share one toolbar,

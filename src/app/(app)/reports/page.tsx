@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ReportTabs } from "@/components/reports/tabs";
 import { requireFullSession } from "@/lib/auth/require";
 import { contactDisplayName } from "@/lib/contacts/format";
 import { formatDateOnly, todayInZone } from "@/lib/dates";
@@ -37,10 +38,11 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
     <section className="flex max-w-4xl flex-col gap-8">
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight">Reports</h1>
-        <p className="text-sm text-muted">
-          {formatDateOnly(period.start)} – {formatDateOnly(period.end)} · New York time. Premiums are estimates you recorded; no commission figures.
-        </p>
       </div>
+      <ReportTabs current="overview" />
+      <p className="text-sm text-muted">
+        {formatDateOnly(period.start)} – {formatDateOnly(period.end)} · New York time. Premiums are estimates you recorded; commission estimates are on the Production tab.
+      </p>
 
       <nav aria-label="Report period" className="flex flex-wrap gap-2">
         {PERIODS.map((p) => (

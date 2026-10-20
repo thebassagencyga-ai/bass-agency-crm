@@ -33,6 +33,9 @@ const insertable = (ids: Record<string, string>): Record<string, Record<string, 
   stages: { pipeline_id: ids.homePipeline, name: "Spoof stage", position: 50, kind: "active" },
   // Phase 26: a device for new-lead alerts.
   push_subscriptions: { endpoint: "https://push.example.com/spoof", p256dh: "B".repeat(87), auth: "A".repeat(22), dispatch_hash: "\\x" + "cd".repeat(32) },
+  // Phase 28: commission rates and goals.
+  commission_rates: { product_line: "auto", new_rate: 15, renewal_rate: 10 },
+  production_goals: { premium_per_month: 20000 },
   calendar_feeds: { token_hash: "\\x" + "ab".repeat(32), enabled: false, disabled_at: "2026-10-16T12:00:00Z" },
 });
 let ids: Record<string, string>;
@@ -90,6 +93,11 @@ beforeAll(async () => {
   await asUser(db, alice, (q) => q.query("select public.rotate_calendar_link()"));
   // Phase 26: a device with alerts on.
   await asUser(db, alice, (q) => q.query("insert into public.push_subscriptions (endpoint, p256dh, auth, dispatch_hash) values ('https://push.example.com/alice', $1, $2, $3)", ["B".repeat(87), "A".repeat(22), Buffer.alloc(32, 1)]));
+  // Phase 28: commission rates and goals.
+  await asUser(db, alice, async (q) => {
+    await q.query("insert into public.commission_rates (product_line, new_rate, renewal_rate) values ('home', 15, 10)");
+    await q.query("insert into public.production_goals (premium_per_month) values (1000)");
+  });
   ids = { contact, policy, homeStage, homePipeline, rule: rule.r, rule2: rule.r2 };
 });
 afterAll(async () => {
@@ -199,7 +207,9 @@ describe("every owner table", () => {
           throw Object.assign(new Error("rollback"), { code: "ok" }); // undo: keep fixtures unchanged
         }),
       );
-      if (code !== "ok") failed.push(`${t}: ${code}`);
+      // production_goals holds one row per agent and alice already has hers: reaching the unique
+      // key (23505) means row level security accepted the insert.
+      if (code !== "ok" && !(t === "production_goals" && code === "23505")) failed.push(`${t}: ${code}`);
     }
     expect(failed).toEqual([]);
   });

@@ -137,6 +137,12 @@ there is nothing to set up and nothing runs in the background.
   Focus still lists quiet deals and undated nurture deals.
 - **A deal you don't want listed:** snooze it, log what happened, move it on, or close it.
 
+## 4g. Production and commission (Phase 28)
+Settings → **Commission and goals**: enter your rates (from your agency agreement) and goals once.
+Reports → **Production** then shows written premium against goals and expected commission. On each
+life policy, open the deal → **Commission details** (type, premium mode, first payout date).
+Figures are estimates; check them against carrier statements. Leave a rate empty to leave it out.
+
 ## 5. Access problems
 - **Lost phone / authenticator:** Supabase → Authentication → Users → your user → remove the
   MFA factor. Sign in with your password; the app asks you to set up a new authenticator.

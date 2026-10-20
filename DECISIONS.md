@@ -1205,3 +1205,40 @@ Implements owner decision 1 of ADR-039.
 policies; `stage_changed_at` cannot be written by the app (the trigger keeps it). Quiet counts for
 deals created before Phase 27 are approximate until their next stage change or activity.
 
+---
+
+## ADR-046 — Production and commission estimates (Phase 28)
+**Date:** 2026-10-20. **Status:** accepted (owner: production + commission first, all lines,
+estimates only, mockup first; mockup "Approved"; design "Approved, build it").
+
+**Context.** The owner tracks life commission in a spreadsheet they built (policy ledger, rates by
+life type, 36-month payout schedule by premium mode) and asked for production tracking in the
+CRM. The CRM already holds every bound policy (won opportunities) with line, premium, dates and
+renewals.
+
+**Decision.**
+- **Reports → Production** (a tab; the main menu is unchanged): written premium and policies for a
+  month against goals, expected commission (new business, renewals), by line, year to date with
+  year-end pace, the next 12 months, active policies, commission per active policy, ended this
+  month, CSV.
+- **Rates are the agent's own** (`commission_rates`): new-business and renewal percent for auto,
+  home and commercial; first-year and renewal-year percent per life type (Term, Whole, Universal,
+  Indexed Universal, Final Expense). Empty until entered: no sample rates, so no made-up
+  commission. **Goals** (`production_goals`): premium and policies per month, premium per year.
+- **Life deals** carry policy type, premium mode, first payout date and an optional rate override
+  (columns allowed on life deals only).
+- **Rules, in `production_report(month)`** (one SECURITY INVOKER call; all maths in the database,
+  which keeps Worker CPU low):
+  written = won that month (agent's time zone), not an existing or imported policy; P&C new
+  business = premium × new rate in the bound month; P&C renewals = premium × renewal rate in the
+  renewal month (recorded premium if renewed or re-marketed, else the premium on file of an
+  active policy; 6-month terms repeat; lost earns nothing; the whole book counts); life =
+  premium ÷ payments per year × rate in the months the mode pays from the first payout date
+  (else effective, else bound), first-year rate for 12 months then renewal rate, none after the
+  policy ends; mode not set = monthly. The 12-month view adds no new sales beyond the month's own.
+- **Estimates only.** No statement actuals, chargebacks, advances or splits; the page says
+  carrier statements are the final word. No link to ProducerIQ (ADR-001) or Alfa.
+
+**Consequences.** 26 tables, 28 Data API functions. A policy with no premium counts as a policy
+and $0; a life policy with no type or rate shows $0 and is counted on the page.
+

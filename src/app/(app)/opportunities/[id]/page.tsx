@@ -3,12 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OutcomeBadge } from "@/components/opportunities/badges";
 import { CoverageForm, NurtureForm } from "@/components/opportunities/focus-forms";
+import { LifeDetailsForm } from "@/components/production/life-details-form";
 import { MarkLostForm, MoveStageForm } from "@/components/opportunities/stage-forms";
 import { requireFullSession } from "@/lib/auth/require";
 import { getContact } from "@/lib/contacts/data";
 import { contactDisplayName } from "@/lib/contacts/format";
 import { formatDateOnly, formatInstantDate, todayInZone } from "@/lib/dates";
 import { requoteRuleDays } from "@/lib/focus/data";
+import type { LifePolicyType } from "@/lib/production";
 import { getOpportunity, getPipelines, getStages, stagesFor } from "@/lib/opportunities/data";
 import { formatMoney } from "@/lib/opportunities/format";
 import { canToggleNurture } from "@/lib/opportunities/transitions";
@@ -34,6 +36,7 @@ const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   nurture: { text: "Moved to nurture. A check-back task was added for the date you chose.", tone: "ok" },
   checkback: { text: "Check-back date saved.", tone: "ok" },
   coverage: { text: "Current coverage saved.", tone: "ok" },
+  lifesaved: { text: "Commission details saved.", tone: "ok" },
   unnurture: { text: "Back to open.", tone: "ok" },
   error: { text: "That didn't work. Please try again.", tone: "error" },
 };
@@ -53,6 +56,14 @@ export default async function OpportunityPage({
     supabase.from("pipelines").select("name, archived_at").eq("id", opp.pipeline_id).maybeSingle(),
     requoteRuleDays(supabase),
   ]);
+  // Phase 28: life rates from Settings, for the commission preview.
+  const lifeRates: Partial<Record<LifePolicyType, number>> = {};
+  if (opp.product_line === "life") {
+    const { data } = await supabase.from("commission_rates").select("life_policy_type, new_rate").eq("product_line", "life");
+    for (const r of (data ?? []) as { life_policy_type: LifePolicyType; new_rate: number | string | null }[]) {
+      if (r.new_rate !== null) lifeRates[r.life_policy_type] = Number(r.new_rate);
+    }
+  }
   const pipelineName = (pipelineRow.data?.name as string | undefined) ?? "Pipeline";
   const pipelineArchived = Boolean(pipelineRow.data?.archived_at);
   const today = todayInZone(profile.time_zone);
@@ -147,6 +158,26 @@ export default async function OpportunityPage({
           <summary className="min-h-11 cursor-pointer py-2 text-lg font-semibold">{opp.outcome === "nurture" ? "Check-back date" : "Move to nurture…"}</summary>
           <NurtureForm id={opp.id} nurtured={opp.outcome === "nurture"} />
         </details>
+      ) : null}
+
+      {opp.product_line === "life" ? (
+        <section id="life-details" aria-labelledby="life-details-heading" className="flex scroll-mt-4 flex-col gap-3 rounded-md border border-line p-3 bg-card">
+          <div className="flex flex-col gap-1">
+            <h2 id="life-details-heading" className="text-lg font-semibold">Commission details</h2>
+            <p className="text-sm text-muted">Used for the estimates in Reports → Production; nothing else changes.</p>
+          </div>
+          <LifeDetailsForm
+            id={opp.id}
+            initial={{
+              life_policy_type: opp.life_policy_type ?? "", premium_mode: opp.premium_mode ?? "",
+              first_payout_on: opp.first_payout_on ?? "",
+              commission_rate_override: opp.commission_rate_override === null ? "" : String(Number(opp.commission_rate_override)),
+            }}
+            premium={opp.estimated_annual_premium === null ? null : Number(opp.estimated_annual_premium)}
+            effectiveDate={opp.effective_date}
+            settingsRates={lifeRates}
+          />
+        </section>
       ) : null}
 
       {coverageCard ? (
