@@ -1302,3 +1302,6 @@ the docs refresh"). No code, migration, configuration or data change.
 - Every statement checked against the migrations or the recorded history (e.g. import undo
   deletes the batch's records within 7 days; it does not archive them).
 
+**Approved by the owner 2026-10-20** ("Approved"); merged to `main`. Documentation only, so no
+deploy.
+

@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Docs refresh (2026-10-20, documentation only)
+## Docs refresh (2026-10-20, documentation only, approved)
 ### Changed
 - Brought the documentation up to date with what is live: current status in PROGRESS, README
   and SECURITY; Supabase **Free** plan (not Pro) in CLAUDE.md, README and ADR-002; old ADRs
