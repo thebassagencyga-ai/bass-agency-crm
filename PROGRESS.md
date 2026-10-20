@@ -1403,7 +1403,7 @@ existing-policy and remove, close the win's tasks. Design approved ("Approve"). 
 | Local: database (PostgreSQL 16) | 512 passed (3 new in `fix-mistakes.test.ts`: line change keeps stage/tasks, resets term and life details, audited; existing-policy marking closes the win's tasks, keeps renewal reviews, leaves the board and Production, once/won/own only; removal closes tasks, hidden from lists, dashboard and Production, nothing deleted, audited, not editable or re-removable). Two tests updated for the new rules (line change, existing-policy later) |
 | Local: integration (real Supabase stack) | 52 passed — one test updated: a line change through the Data API now succeeds (and back), life details still refused on a non-life deal |
 | Local: browser tests against the Cloudflare build | 35 of 35 incl. new `fix-mistakes.spec.ts` (header colours differ, line chip, Auto tag colour, change line, mark existing → off the board, remove needs the tick → gone) |
-| CI | first run 39486281132 failed on that integration test (old rule), fixed above; see below |
+| CI | first run 39486281132 failed on that integration test (old rule); after the fix, run 39488030680 (commit 75a2864): all 4 jobs pass, incl. migrations on Supabase's real image, full browser suite and Lighthouse |
 | Production | not deployed |
 
 **Owner actions after approval**
