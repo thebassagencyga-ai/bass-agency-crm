@@ -37,7 +37,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 25 | Your own pipelines (custom stages, routing by line) | 24 | APPROVED, DEPLOYED (2026-10-19) |
 | fix | Board fits the window; Won/Lost capped; imported and existing policies off the board (owner report, 2026-10-19) | 25 | APPROVED, DEPLOYED (2026-10-19) |
 | 26 | Workflow audit Step 2: new-lead alerts on your phone (Web Push) | 25 | APPROVED, DEPLOYED (2026-10-19) — iPhone test pending |
-| fix | Alerts: "Turn on alerts on this device" failed to save the device (owner report, 2026-10-19) | 26 | READY FOR REVIEW |
+| fix | Alerts: "Turn on alerts on this device" failed to save the device (owner report, 2026-10-19) | 26 | APPROVED (2026-10-20) |
 
 ---
 

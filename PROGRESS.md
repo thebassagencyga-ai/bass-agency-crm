@@ -1201,8 +1201,10 @@ No database change.
 |---|---|
 | Local: lint, typecheck, unit | pass |
 | Local: browser tests against the Cloudflare build | new test drives the real Turn on / Turn off buttons with the browser's push system simulated: **reproduced the owner's message without the fix**, passes with it (device saved, off, on again re-uses the same device); both alert tests pass |
-| CI | see report |
+| CI run 39344329682 (commit e414d36): all 4 jobs | pass |
 | Production | not deployed |
+
+**Approved by the owner 2026-10-20** ("Approved").
 
 **Owner actions after approval:** Deploy app (Cloudflare) only — no migrations. Then on the iPhone
 (Home Screen app): Settings → Alerts → Turn on → Send a test alert; then a test quote request.
