@@ -40,7 +40,7 @@ inherits the standard exit criteria at the bottom of this file.
 | fix | Alerts: "Turn on alerts on this device" failed to save the device (owner report, 2026-10-19) | 26 | APPROVED, DEPLOYED (2026-10-20) |
 | fix | Board toolbar: one compact row, board fills the window (owner request, 2026-10-20) | 25 | APPROVED, DEPLOYED (2026-10-20) |
 | 28 | Production and commission (Reports → Production, rates and goals, life details; estimates only) | 27 | APPROVED, DEPLOYED (2026-10-20) — owner check pending |
-| 29 | Colour on the board and tags; fix mistakes (change line, existing policy, remove) | 28 | READY FOR REVIEW (2026-10-20) |
+| 29 | Colour on the board and tags; fix mistakes (change line, existing policy, remove) | 28 | APPROVED (2026-10-20) — deploy pending |
 | docs | Documentation refresh (workflow audit, owner decision 8) | 27 | APPROVED, MERGED (2026-10-20) — no deploy needed |
 | 27 | Workflow audit Step 3: ProducrIQ Focus (quiet deals, nurture check-backs, re-quotes, referrer thank-you; no AI) | 26 | APPROVED, DEPLOYED, iPhone check passed (2026-10-20) |
 
@@ -754,5 +754,5 @@ the board and out of the figures. Choices: colour by stage type; any deal's line
   (audit log keeps it).
 - ✅ Two new SECURITY INVOKER functions; deploy verification 26 tables, 30 functions, 3 anonymous.
 
-**Status:** READY FOR REVIEW (2026-10-20). See PROGRESS.md.
+**Status:** APPROVED by the owner 2026-10-20; deploy pending. See PROGRESS.md.
 

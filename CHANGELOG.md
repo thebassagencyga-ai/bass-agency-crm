@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 29 — Colour and fixing mistakes (2026-10-20, ready for review)
+## Phase 29 — Colour and fixing mistakes (2026-10-20, approved)
 ### Added
 - **Colour:** board stage headers are tinted (working stages blue, your quote stage amber, Won
   green, Lost red); every card shows a coloured line chip; tags named Auto, Home, Commercial or

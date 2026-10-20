@@ -1406,6 +1406,8 @@ existing-policy and remove, close the win's tasks. Design approved ("Approve"). 
 | CI | first run 39486281132 failed on that integration test (old rule); after the fix, run 39488030680 (commit 75a2864): all 4 jobs pass, incl. migrations on Supabase's real image, full browser suite and Lighthouse |
 | Production | not deployed |
 
+**Approved by the owner 2026-10-20** ("Approved").
+
 **Owner actions after approval**
 1. Merge to `main` (Claude).
 2. Deploy database migrations: dry run lists only `20261107120000_fix_mistakes.sql`; then apply.
