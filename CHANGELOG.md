@@ -2,6 +2,20 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 27 — ProducrIQ Focus (2026-10-20, ready for review)
+### Added
+- **Focus** at the top of the Today page: the deals that need you and why. Quotes with nothing
+  logged for 3 days, other open deals after 7, nurture deals on their check-back date, re-quotes
+  before a prospect's current policy renews, and referrers to thank. Call, Text, Log activity,
+  Snooze (3 days or a week) and Done right on each card. Fixed rules, no AI.
+- **Move to nurture** asks when to check back (30 days unless you choose) and adds a "Check back"
+  task for that day.
+- **Current coverage elsewhere** on every deal that isn't won: the carrier and renewal date, with
+  a re-quote task 45 days before (lost deals too).
+- A "Thank … for referring …" task when someone is added with a "Referred by" link: a call or a
+  note, never a gift.
+- Three new rules in Settings → Automation for these tasks.
+
 ## Fix — Turning alerts on (2026-10-19, approved)
 ### Fixed
 - "Turn on alerts on this device" showed "Could not turn alerts on" and saved nothing. It now

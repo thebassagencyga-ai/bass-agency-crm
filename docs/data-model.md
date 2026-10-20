@@ -100,6 +100,10 @@ Many per contact, in any mix of product lines.
 | `existing_policy` | True when entered with "Add existing policy" (a policy the client already had, ADR-042). Only settable when created as won; never changes afterwards. Not counted as a sale in Reports. |
 | `cycle` | Starts at 1; incremented on reopen so a new follow-up sequence gets new task keys. |
 | `quote_sent_on`, `estimated_annual_premium`, `quoted_carrier`, `next_action`, `effective_date`, `renewal_date` | Quote tracking and dates. Renewal must be after effective. Carrier is free text (≤ 100). |
+| `current_carrier`, `current_policy_renews_on` | A prospect's current insurer and when that policy renews (intake, Phase 13; editable on any deal not won, Phase 27). Drives the re-quote task. |
+| `stage_changed_at` | Phase 27: when the stage or outcome last changed; set by trigger only (before Phase 27: the last update). Used by Focus "gone quiet". |
+| `nurture_check_back_on` | Phase 27: nurture only, the date to check back; cleared when the deal leaves nurture. Drives the check-back task. |
+| `focus_snoozed_until` | Phase 27: open only, hidden from Focus "gone quiet" until this date; cleared when the deal is no longer open. |
 
 Lifecycle rules (trigger `opportunities_b_lifecycle`, Phase 4): the product line cannot change
 after creation; `cycle` is set by the database only (1 on insert, +1 when a won or lost
@@ -163,6 +167,12 @@ or `act:<id>:rule:requested_follow_up`; a repeat of the same event updates that 
 (only while it is open and its date was not changed by the owner). Prospecting rules never
 create tasks for a won or lost opportunity. Dates are never scheduled before today.
 
+
+Phase 27 adds three rules per agent (ADR-045): `nurture_check_back` (event `nurture_started`, on the
+chosen check-back date, prospecting), `prospect_requote` (event `current_policy_renewal_known`, 45
+days before the prospect's current renewal, category `other`, lost deals included) and
+`referrer_thank_you` (event `referral_received`, on the referrer, title placeholders
+`{referrer_name}` and `{referred_name}`, category `other`).
 ### renewal_outcomes (Phase 8)
 Retention history, one row per policy per renewal date (unique), written by
 `record_renewal_outcome`. `outcome` renewed / remarketed / lost; `loss_reason` (price,
@@ -221,6 +231,7 @@ granted to `authenticated` only.
 | `contact_lead_sources()` | Lead sources already used, one per case-insensitive spelling (the first one used). |
 | `search_tasks(view, today, product_line, priority, category, contact_id, limit, offset)` | Task tabs: `overdue` / `today` / `upcoming` (open tasks by due date vs. the `today` the app passes, computed in the user's zone) and `done` (completed or cancelled, newest first); with contact name/phone and the linked opportunity's product line; limit capped at 200. |
 | `task_counts(today)` | Open task counts for overdue, due today and upcoming. |
+| `focus_list(today)` | Phase 27 ProducrIQ Focus (ADR-045), one JSON object: `quiet_quotes` (open, quote stage, no meaningful activity for 3+ days), `quiet_open` (other open deals, 7+ days), `nurture` (check-back date reached, or none), `requote` and `thanks` (due tasks of those rules); contact name and phone, deal line, stage and dates; no notes. Up to 100 per group. Read-only, SECURITY INVOKER. |
 | `dashboard_summary(today)` | One JSON object for the dashboard: open task counts (overdue, due today, next 7 days), open/nurture opportunities and estimated premium by product line, renewals in the next 60 days (count + soonest 5, lost and ended policies excluded), 8 most recent activities. |
 | `confirm_no_response_follow_up(activity_id)` | Creates the "no response" follow-up for one of the caller's activities after the owner confirms; returns 1 if a task was created, else 0. |
 

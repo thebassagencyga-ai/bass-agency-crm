@@ -75,13 +75,19 @@ export interface Opportunity {
   closed_at: string | null;
   /** Entered as a policy the client already had, not a sale made in the CRM (ADR-042). */
   existing_policy: boolean;
+  /** Phase 27: when the stage or outcome last changed (set by the database). */
+  stage_changed_at: string;
+  /** Phase 27: nurture only, the date to check back. */
+  nurture_check_back_on: string | null;
+  /** Phase 27: open only, hidden from Focus "gone quiet" until this date. */
+  focus_snoozed_until: string | null;
   cycle: number;
   created_at: string;
   updated_at: string;
 }
 
 /** Row returned by search_opportunities: the opportunity plus stage and contact names. */
-export interface OpportunityListRow extends Omit<Opportunity, "existing_policy" | "loss_reason" | "loss_reason_detail" | "policy_term_months" | "policy_ended_on" | "current_carrier" | "current_policy_renews_on"> {
+export interface OpportunityListRow extends Omit<Opportunity, "existing_policy" | "stage_changed_at" | "nurture_check_back_on" | "focus_snoozed_until" | "loss_reason" | "loss_reason_detail" | "policy_term_months" | "policy_ended_on" | "current_carrier" | "current_policy_renews_on"> {
   stage_name: string;
   stage_position: number;
   contact_type: ContactType;

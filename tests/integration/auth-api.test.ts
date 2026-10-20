@@ -35,12 +35,12 @@ describe("sign-up", () => {
 });
 
 describe("new users", () => {
-  it("get a profile and the 12 default rules automatically", async () => {
+  it("get a profile and the 15 default rules automatically (12 + 3 Focus rules, Phase 27)", async () => {
     const admin = adminClient();
     const { data: profile } = await admin.from("profiles").select("display_name").eq("id", alice.id).single();
     expect(profile?.display_name).toBe("Test alice");
     const { count } = await admin.from("automation_rules").select("*", { count: "exact", head: true }).eq("owner_id", alice.id);
-    expect(count).toBe(12);
+    expect(count).toBe(15);
   });
 });
 

@@ -47,7 +47,7 @@ test("automatic tasks: new lead, quote, win; rule settings; no-response follow-u
   // Settings: change a rule's timing, refuse an incentive in a message, turn a rule off.
   await page.goto("/settings");
   const rules = page.getByRole("list", { name: "Automation rules" });
-  await expect(rules.getByRole("listitem")).toHaveCount(12);
+  await expect(rules.getByRole("listitem")).toHaveCount(15);
   expect(await noSidewaysScroll(page)).toBe(true);
   // Every field id is unique, so each label points at its own field (screen readers, taps).
   expect(await page.evaluate(() => {

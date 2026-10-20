@@ -47,8 +47,10 @@ test("add opportunities, move through the pipeline, lose, reopen, win and search
   await page.getByRole("link", { name: "Add opportunity" }).click();
   await page.getByRole("button", { name: "Add opportunity" }).click(); // Auto / New Lead defaults
   await expect(page.getByText("Opportunity saved.")).toBeVisible();
+  // Phase 27: nurture asks when to check back (30 days unless chosen).
+  await page.getByText("Move to nurture…").click();
   await page.getByRole("button", { name: "Move to nurture" }).click();
-  await expect(page.getByText("Moved to nurture.")).toBeVisible();
+  await expect(page.getByText("Moved to nurture.", { exact: false })).toBeVisible();
   await page.goto(contactUrl);
   const list = page.getByRole("list", { name: "Opportunities for this contact" });
   await expect(list.getByRole("listitem")).toHaveCount(2);

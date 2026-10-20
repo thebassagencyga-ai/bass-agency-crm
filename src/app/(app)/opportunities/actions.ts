@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import type { FormState } from "@/components/form";
 import { requireFullSession } from "@/lib/auth/require";
 import { todayInZone } from "@/lib/dates";
+import { DEFAULT_CHECK_BACK, checkBackDate, coverageSchema } from "@/lib/focus";
 import { EXISTING_POLICY_FIELDS, existingPolicyRow, existingPolicySchema } from "@/lib/opportunities/existing-policy";
 import { resolveQuoteDate, suggestedQuoteDate } from "@/lib/opportunities/quote-date";
 import { getProfile } from "@/lib/tasks/data";
@@ -214,15 +215,76 @@ export async function moveFromBoard(formData: FormData): Promise<void> {
   redirect(back(plan.update.outcome === "won" ? "won" : "moved"));
 }
 
+/**
+ * Back to open (nurture=0), or into nurture with the default check-back date (nurture=1, the
+ * form used before JavaScript loads). The check-back form below lets the agent choose the date.
+ */
 export async function setNurture(formData: FormData): Promise<void> {
-  const { supabase } = await requireFullSession();
+  const { supabase, userId } = await requireFullSession();
   const id = String(formData.get("id") ?? "");
   const on = formData.get("nurture") === "1";
   const opp = await loadOpportunity(supabase, id);
   if (!opp) redirect("/opportunities");
   if (!canToggleNurture(opp.outcome, opp.stage_kind)) redirect(`/opportunities/${opp.id}?error=1`);
-  const { error } = await supabase.from("opportunities").update({ outcome: on ? "nurture" : "open" }).eq("id", opp.id);
+  const update: Record<string, unknown> = { outcome: on ? "nurture" : "open" };
+  if (on) {
+    const date = checkBackDate(todayInZone((await getProfile(supabase, userId)).time_zone), DEFAULT_CHECK_BACK, null);
+    if (date.ok) update.nurture_check_back_on = date.date;
+  }
+  const { error } = await supabase.from("opportunities").update(update).eq("id", opp.id);
   if (error) redirect(`/opportunities/${opp.id}?error=1`);
   revalidate(opp.contact_id);
   redirect(`/opportunities/${opp.id}?${on ? "nurture" : "unnurture"}=1`);
+}
+
+/**
+ * Move to nurture, or change the check-back date of a nurtured deal (Phase 27, owner decision 3).
+ * Saving the date is what schedules the "Check back" task (one per nurture period).
+ */
+export async function nurtureWithCheckBack(_prev: FormState, formData: FormData): Promise<FormState> {
+  const { supabase, userId } = await requireFullSession();
+  const values: Record<string, string> = {};
+  for (const name of ["check_back", "check_back_on"]) {
+    const v = formData.get(name);
+    if (typeof v === "string") values[name] = v.slice(0, 20);
+  }
+  const opp = await loadOpportunity(supabase, String(formData.get("id") ?? ""));
+  if (!opp) return { error: "This opportunity could not be found.", values };
+  if (!canToggleNurture(opp.outcome, opp.stage_kind)) return { error: "Only an open deal can be moved to nurture.", values };
+  const today = todayInZone((await getProfile(supabase, userId)).time_zone);
+  const date = checkBackDate(today, values.check_back ?? "", values.check_back_on ?? null);
+  if (!date.ok) return { fieldErrors: { [values.check_back === "date" ? "check_back_on" : "check_back"]: date.message }, values };
+  const { error } = await supabase.from("opportunities").update({ outcome: "nurture", nurture_check_back_on: date.date }).eq("id", opp.id);
+  if (error) return { ...friendlyDbError(error.code), values };
+  revalidate(opp.contact_id);
+  revalidatePath("/dashboard");
+  redirect(`/opportunities/${opp.id}?${opp.outcome === "nurture" ? "checkback" : "nurture"}=1`);
+}
+
+/**
+ * The prospect's current carrier and when that policy renews (Phase 27, owner decision 5). Any
+ * deal that is not won; the database schedules (or moves, or cancels) the re-quote task.
+ */
+export async function saveCoverage(_prev: FormState, formData: FormData): Promise<FormState> {
+  const { supabase } = await requireFullSession();
+  const values: Record<string, string> = {};
+  for (const name of ["current_carrier", "current_policy_renews_on"]) {
+    const v = formData.get(name);
+    if (typeof v === "string") values[name] = v.slice(0, 200);
+  }
+  const parsed = coverageSchema.safeParse({
+    id: formData.get("id"), current_carrier: formData.get("current_carrier"), current_policy_renews_on: formData.get("current_policy_renews_on"),
+  });
+  if (!parsed.success) return { fieldErrors: fieldErrorsOf(parsed.error.issues), values };
+  const opp = await loadOpportunity(supabase, parsed.data.id);
+  if (!opp) return { error: "This opportunity could not be found.", values };
+  if (opp.outcome === "won") return { error: "This is a client's policy: use its renewal date instead.", values };
+  const { error } = await supabase.from("opportunities")
+    .update({ current_carrier: parsed.data.current_carrier, current_policy_renews_on: parsed.data.current_policy_renews_on })
+    .eq("id", opp.id);
+  if (error) return { ...friendlyDbError(error.code), values };
+  revalidate(opp.contact_id);
+  revalidatePath("/dashboard");
+  revalidatePath("/renewals");
+  redirect(`/opportunities/${opp.id}?coverage=1#coverage`);
 }

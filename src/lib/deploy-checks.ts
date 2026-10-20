@@ -85,6 +85,7 @@ export const PUBLIC_FUNCTIONS = [
   "discard_intake",
   "dismiss_cross_sell",
   "find_possible_duplicates",
+  "focus_list",
   "import_book",
   "merge_contacts",
   "quick_intake",

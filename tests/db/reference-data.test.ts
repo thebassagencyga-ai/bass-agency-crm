@@ -39,7 +39,7 @@ describe("default automation rules", () => {
       return Object.fromEntries(rows.map((r) => [r.rule_key, r]));
     });
 
-    expect(Object.keys(rules)).toHaveLength(12);
+    expect(Object.keys(rules)).toHaveLength(15);
     expect(Object.values(rules).every((r) => r.enabled)).toBe(true);
     expect(rules.new_lead_initial_contact).toMatchObject({ trigger_event: "opportunity_created", offset_days: 0 });
     expect(rules.contacted_no_quote_follow_up).toMatchObject({ offset_days: 2, day_count: "business" });
@@ -51,6 +51,10 @@ describe("default automation rules", () => {
     expect(rules.lost_close_prospecting).toMatchObject({ trigger_event: "opportunity_lost", action: "close_prospecting_tasks" });
     expect(rules.renewal_review).toMatchObject({ anchor: "renewal_date", offset_days: -60 });
     expect(rules.reopened_restart).toMatchObject({ trigger_event: "opportunity_reopened" });
+    // Phase 27 (ADR-045): Focus rules.
+    expect(rules.nurture_check_back).toMatchObject({ trigger_event: "nurture_started", anchor: "requested_date", offset_days: 0 });
+    expect(rules.prospect_requote).toMatchObject({ trigger_event: "current_policy_renewal_known", anchor: "renewal_date", offset_days: -45 });
+    expect(rules.referrer_thank_you).toMatchObject({ trigger_event: "referral_received", anchor: "event_date", offset_days: 0 });
   });
 
   it("do not leak to other users", async () => {

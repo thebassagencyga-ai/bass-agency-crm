@@ -64,7 +64,9 @@ test("add, validate, de-duplicate, refer, search, edit, archive and restore cont
   await expect(page.getByRole("link", { name: "Avery Example" })).toBeVisible(); // "Referred by"
 
   await page.goto(averyUrl);
-  await expect(page.getByRole("link", { name: "Example Hardware LLC" })).toBeVisible(); // referrals list
+  await expect(page.getByRole("link", { name: "Example Hardware LLC", exact: true })).toBeVisible(); // referrals list
+  // Phase 27: the referrer gets a thank-you task (a call or note).
+  await expect(page.getByRole("link", { name: "Thank Avery Example for referring Example Hardware LLC" })).toBeVisible();
 
   // Search and filter.
   await page.goto("/contacts?q=hardware");

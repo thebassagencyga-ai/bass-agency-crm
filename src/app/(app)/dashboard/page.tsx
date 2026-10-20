@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { FocusSection } from "@/components/focus/focus-section";
 import { TaskStatusButtons } from "@/components/tasks/status-buttons";
 import { ACTIVITY_OUTCOME_LABELS, ACTIVITY_TYPE_LABELS } from "@/lib/activities/types";
 import { requireFullSession } from "@/lib/auth/require";
 import { contactDisplayName } from "@/lib/contacts/format";
 import { getDashboard } from "@/lib/dashboard";
+import { getFocus } from "@/lib/focus/data";
 import { countNewSubmissions } from "@/lib/intake/data";
 import { formatDateOnly, formatInstantDateTime, todayInZone } from "@/lib/dates";
 import { formatMoney } from "@/lib/opportunities/format";
@@ -16,7 +18,12 @@ import { aiEnabled } from "@/lib/ai/config";
 
 export const metadata: Metadata = { title: "Dashboard · Producr CRM" };
 
-const NOTICES: Record<string, string> = { completed: "Task completed.", reopened: "Task reopened." };
+const NOTICES: Record<string, string> = {
+  completed: "Task completed.",
+  reopened: "Task reopened.",
+  cancelled: "Task closed.",
+  snoozed: "Snoozed. It comes back if it is still quiet then.",
+};
 const ACTION = "flex min-h-11 items-center justify-center rounded-md px-3 text-center font-medium";
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
@@ -25,8 +32,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const profile = await getProfile(supabase, userId);
   const today = todayInZone(profile.time_zone);
   const base = { line: null, priority: null, category: null, page: 1 } as const;
-  const [summary, overdue, dueToday, newIntake] = await Promise.all([
+  const [summary, focus, overdue, dueToday, newIntake] = await Promise.all([
     getDashboard(supabase, today),
+    getFocus(supabase, today),
     listTasks(supabase, { ...base, view: "overdue" }, today),
     listTasks(supabase, { ...base, view: "today" }, today),
     countNewSubmissions(supabase),
@@ -38,6 +46,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   return (
     <section className="flex max-w-4xl flex-col gap-6">
       {notice ? <p role="status" className="rounded-md bg-good-soft p-3 text-sm text-good">{NOTICES[notice]}</p> : null}
+      {query.focus === "error" ? <p role="alert" className="rounded-md bg-bad-soft p-3 text-sm text-bad">That didn&apos;t work. Please try again.</p> : null}
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight">{firstName ? `Good to see you, ${firstName}` : "Today"}</h1>
         <p className="text-sm text-muted">{formatDateOnly(today)} · New York time</p>
@@ -49,6 +58,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <span aria-hidden="true">→</span>
         </Link>
       ) : null}
+
+      <FocusSection focus={focus} />
 
       <nav aria-label="Quick actions" className="grid grid-cols-3 gap-2">
         <Link href="/contacts/new" className={`${ACTION} bg-brand text-on-brand hover:bg-brand-hover`}>Add contact</Link>

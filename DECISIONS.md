@@ -960,7 +960,8 @@ label, and the existing authenticator entry, keep their old look until re-added 
 ## ADR-039 — Workflow audit decisions and Step 1 design
 
 **Status:** Accepted — owner decisions of 2026-10-19 on `docs/workflow-audit-2026-10.md`. Step 1
-built in Phase 23, approved by the owner 2026-10-19; later steps not started. **Sequence (owner):** Step 0
+built in Phase 23, approved by the owner 2026-10-19; Step 2 is Phase 26 (ADR-044); Step 3 is
+Phase 27 (ADR-045). **Sequence (owner):** Step 0
 verify the Phase 22 deploy; Step 1 quote dates + client status; Step 2 Web Push; Step 3
 ProducrIQ Focus; documentation refresh as a separate docs-only task. Stop after each step.
 
@@ -1155,4 +1156,48 @@ Implements owner decision 1 of ADR-039.
   turned off when the agent sends a test alert.
 - Deploy verification: 24 tables, 26 Data API functions, 3 anonymous functions (the new one
   listed with the intake form and calendar feed).
+
+---
+
+## ADR-045 — ProducrIQ Focus (Phase 27, workflow audit Step 3)
+**Date:** 2026-10-20. **Status:** accepted (mockup and design approved by the owner 2026-10-20:
+"Approved - use your recommendations"). Implements owner decisions 3, 5, 6 and 7 of ADR-039.
+
+**Decision.**
+- **Focus is computed, not stored.** `focus_list(today)` (SECURITY INVOKER, one call, RLS and the
+  two-step policy apply) lists: open deals in a quote stage quiet for 3+ days; other open deals
+  quiet for 7+; nurture deals whose check-back date has come, or that have none; due re-quote
+  tasks; due referrer thank-you tasks. Up to 100 per group. Being computed from the records is
+  what keeps a deal listed while it still needs attention whatever happens to its tasks.
+- **Meaningful activity** = the deal being added, a stage or outcome change
+  (`opportunities.stage_changed_at`, set by trigger only; existing deals start from their last
+  update), a quote date, or any activity logged with the contact except review and referral asks.
+- **Snooze** (`focus_snoozed_until`): 3 days or a week, open deals only; cleared by the database
+  when a deal stops being open.
+- **Tasks by three new per-agent rules** (Settings → Automation; new enum events in their own
+  migration because a new enum value cannot be used in the transaction that adds it):
+  - `nurture_check_back` (prospecting): on `nurture_check_back_on`, the date chosen when moving to
+    nurture (30 days by default, 3 or 6 months, or a date within two years). One task per nurture
+    period; a new date moves it; leaving nurture cancels it. Existing nurture deals get no
+    invented date: Focus asks for one.
+  - `prospect_requote` (category `other`): 45 days before `current_policy_renews_on`, today if
+    closer, none once passed; any deal not won, **lost ones included** (owner's choice: an
+    exception to the Phase 6 "no reminders after a loss", which covers prospecting tasks only);
+    never for imported or existing policies; keyed per renewal year; a corrected date moves it,
+    a win or cleared date cancels it. Category `other` keeps it out of the policy renewal-review
+    counts and away from the win/loss clean-up. One-time catch-up for deals that already had a
+    future date (`crm_private.create_missing_requote_tasks`).
+  - `referrer_thank_you` (category `other`): when a contact first gets a "Referred by" link
+    (**when the referred person arrives**, owner's choice), one task on the referrer, titled with
+    both names, due today; a personal call or note only (ADR-013: nothing of value). Checked at
+    commit (deferred trigger) so a merge filling the kept contact's blank referrer from an
+    already-thanked duplicate adds none; imported, merged and archived contacts get none.
+- **Deal page:** a "Current coverage elsewhere" card (carrier, renewal date, preview of the
+  re-quote date) on every deal not won; "Move to nurture…" asks when to check back.
+- **No AI** (decision 7). The page says so. Call and Text open the phone's own apps.
+- Deploy verification: 24 tables, 27 Data API functions, 3 anonymous functions (unchanged).
+
+**Consequences.** New opportunity columns are plain columns under the existing grants and
+policies; `stage_changed_at` cannot be written by the app (the trigger keeps it). Quiet counts for
+deals created before Phase 27 are approximate until their next stage change or activity.
 

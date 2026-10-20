@@ -129,6 +129,14 @@ A notification on your devices when someone sends the quote form; it never shows
 - No alert? Check the device is in the list, notifications are allowed for Producr in the
   phone's settings, and Focus / Do Not Disturb. The quote request is in the inbox either way.
 
+## 4f. Focus (Phase 27)
+The Focus list on the Today page is worked out from your records each time you open it (ADR-045);
+there is nothing to set up and nothing runs in the background.
+- **Fewer or no automatic tasks:** Settings → Automation → "Nurture: check back…", "Re-quote
+  before…" or "Referral received: thank the referrer" → untick **Turned on** (or change the days).
+  Focus still lists quiet deals and undated nurture deals.
+- **A deal you don't want listed:** snooze it, log what happened, move it on, or close it.
+
 ## 5. Access problems
 - **Lost phone / authenticator:** Supabase → Authentication → Users → your user → remove the
   MFA factor. Sign in with your password; the app asks you to set up a new authenticator.

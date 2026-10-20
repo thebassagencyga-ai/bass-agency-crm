@@ -23,11 +23,15 @@ export interface Rule {
   config: { items?: string[]; message_template?: string; confirm_before_creating?: boolean; [key: string]: unknown };
 }
 
-/** Display order on the Settings page: the sales sequence first, then win/loss, then renewal. */
+/**
+ * Display order on the Settings page: the sales sequence first, then win/loss, then renewal,
+ * then the Focus rules (Phase 27).
+ */
 export const RULE_ORDER = [
   "new_lead_initial_contact", "contacted_no_quote_follow_up", "quote_sent_follow_up", "requested_follow_up",
   "no_response_follow_up", "won_close_prospecting", "won_onboarding_checklist", "review_request", "referral_request",
   "lost_close_prospecting", "renewal_review", "reopened_restart",
+  "nurture_check_back", "prospect_requote", "referrer_thank_you",
 ] as const;
 
 const WHEN: Record<string, string> = {
@@ -40,6 +44,9 @@ const WHEN: Record<string, string> = {
   opportunity_lost: "an opportunity is lost",
   renewal_date_known: "a renewal date is entered",
   opportunity_reopened: "a won or lost opportunity is reopened",
+  nurture_started: "an opportunity is moved to nurture with a check-back date",
+  current_policy_renewal_known: "a prospect's current policy renewal date is entered (any deal not won)",
+  referral_received: "a contact is linked to the person who referred them",
 };
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
@@ -50,7 +57,7 @@ export function describeRule(rule: Pick<Rule, "trigger_event" | "action" | "anch
   if (rule.action === "close_prospecting_tasks") return `${when}: its open prospecting tasks are closed.`;
   const unit = rule.day_count === "business" ? "business day" : "day";
   let timing: string;
-  if (rule.anchor === "requested_date") timing = "due on the date they asked for";
+  if (rule.anchor === "requested_date") timing = rule.trigger_event === "nurture_started" ? "due on the check-back date" : "due on the date they asked for";
   else if (rule.anchor === "renewal_date") timing = `due ${plural(Math.abs(rule.offset_days), unit)} before the renewal date`;
   else if (rule.offset_days === 0) timing = "due the same day";
   else timing = `${rule.completion_window_days > 0 ? "starts" : "due"} ${plural(rule.offset_days, unit)} later`;

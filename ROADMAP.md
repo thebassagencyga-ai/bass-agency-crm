@@ -38,6 +38,7 @@ inherits the standard exit criteria at the bottom of this file.
 | fix | Board fits the window; Won/Lost capped; imported and existing policies off the board (owner report, 2026-10-19) | 25 | APPROVED, DEPLOYED (2026-10-19) |
 | 26 | Workflow audit Step 2: new-lead alerts on your phone (Web Push) | 25 | APPROVED, DEPLOYED, iPhone test passed (2026-10-20) |
 | fix | Alerts: "Turn on alerts on this device" failed to save the device (owner report, 2026-10-19) | 26 | APPROVED, DEPLOYED (2026-10-20) |
+| 27 | Workflow audit Step 3: ProducrIQ Focus (quiet deals, nurture check-backs, re-quotes, referrer thank-you; no AI) | 26 | READY FOR REVIEW |
 
 ---
 
@@ -670,4 +671,34 @@ request".
   submission arrived (2026-10-20, after the turn-on fix).
 
 **Status:** COMPLETE (approved 2026-10-19; iPhone test passed 2026-10-20). See PROGRESS.md.
+
+---
+
+## Phase 27 — ProducrIQ Focus (workflow audit Step 3)
+**Objective.** One list at the top of the Today page showing which deals need the agent and why,
+from fixed rules and the agent's own records, no AI (owner decisions 3, 5, 6 and 7 of
+2026-10-19; ADR-045). Mockup reviewed and design approved 2026-10-20 with the owner's choices:
+lost deals are re-quoted too; the referrer is thanked when the referred person arrives.
+
+**Acceptance**
+- ✅ Quotes with no meaningful activity for 3+ days and other open deals for 7+ days are listed
+  with the reason; a logged activity (not a review or referral ask), a stage change or a new quote
+  date takes them off; snooze (3 days or a week) hides them until then.
+- ✅ Completing or cancelling a task never hides a deal that still needs attention; won, lost,
+  imported, existing-policy and archived contacts' deals are never shown as quiet.
+- ✅ Nurture asks for a check-back date (30 days unless chosen): one "Check back" task per nurture
+  period, moved by a new date, cancelled on leaving nurture; undated nurture deals are listed to
+  get a date.
+- ✅ Current carrier and renewal date editable on every deal not won, with a preview; one re-quote
+  task 45 days before (today if closer, none once passed), per renewal year; a corrected date moves
+  it; a win or a cleared date cancels it; lost deals included; one-time catch-up for existing deals.
+- ✅ One thank-you task (call or note, nothing of value) per referred person, on the referrer;
+  merges, imports and referrer changes add none; wins and losses never close it.
+- ✅ Three new rules in Settings → Automation (turn off, change timing and title).
+- ✅ `focus_list` is read-only, SECURITY INVOKER (RLS, two-step), refused to anonymous callers,
+  returns no notes; Data API functions now 27 (deploy verification updated); no new tables.
+- ✅ Phone width: no sideways scroll; buttons at least 44px; light and dark themes use the
+  semantic colours only.
+
+**Status:** READY FOR REVIEW (2026-10-20). See PROGRESS.md.
 

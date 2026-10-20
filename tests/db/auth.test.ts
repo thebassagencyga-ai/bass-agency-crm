@@ -22,7 +22,7 @@ const TABLES = [
 ];
 
 describe("profile creation", () => {
-  it("creates a profile and the 12 default rules when Supabase Auth adds a user", async () => {
+  it("creates a profile and the 15 default rules (12 + 3 Focus rules, Phase 27) when Supabase Auth adds a user", async () => {
     const id = randomUUID();
     await db.query("insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3)", [
       id, `new-${id.slice(0, 8)}@example.com`, JSON.stringify({ display_name: "Jordan Example" }),
@@ -30,7 +30,7 @@ describe("profile creation", () => {
     const profile = await db.query("select display_name, time_zone from public.profiles where id = $1", [id]);
     expect(profile.rows[0]).toEqual({ display_name: "Jordan Example", time_zone: "America/New_York" });
     const rules = await db.query("select count(*)::int as n from public.automation_rules where owner_id = $1", [id]);
-    expect(rules.rows[0].n).toBe(12);
+    expect(rules.rows[0].n).toBe(15);
   });
 
   it("falls back to the part of the email before @ when no display name is given", async () => {

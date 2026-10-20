@@ -12,7 +12,7 @@ export function RuleForm({ rule }: { rule: Rule }) {
   const err = state.fieldErrors ?? {};
   const v = (name: string, fallback: string) => state.values?.[name] ?? fallback;
   const isTask = rule.action === "create_task";
-  // Twelve of these forms share the page, so every field needs its own id.
+  // Fifteen of these forms share the page, so every field needs its own id.
   const fid = (name: string) => `${rule.rule_key}-${name}`;
   return (
     <form action={formAction} onSubmit={onSubmit} className="flex flex-col gap-3" noValidate>
@@ -25,7 +25,10 @@ export function RuleForm({ rule }: { rule: Rule }) {
 
       {isTask ? (
         <>
-          <Field label="Task title" name="task_title_template" id={fid("task_title_template")} defaultValue={v("task_title_template", rule.task_title_template ?? "")} error={err.task_title_template} maxLength={200} />
+          <Field
+            label="Task title" name="task_title_template" id={fid("task_title_template")} defaultValue={v("task_title_template", rule.task_title_template ?? "")} error={err.task_title_template} maxLength={200}
+            hint={rule.rule_key === "referrer_thank_you" ? "Use {referrer_name} and {referred_name}. A personal call or note only: never offer anything of value." : undefined}
+          />
           {rule.anchor !== "requested_date" ? (
             <div className="grid grid-cols-2 gap-2">
               <Field
