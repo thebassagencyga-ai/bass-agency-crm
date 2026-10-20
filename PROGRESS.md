@@ -1322,7 +1322,7 @@ Measured on the Cloudflare build (board top / height): 1440×900 92 px / 776 px 
 |---|---|
 | Local: lint, typecheck, unit | pass |
 | Local: browser tests against the Cloudflare build | 8 of 8 affected (board layout — now also checks the board starts within 160 px and is at least 500 px tall at 1280×720, which the earlier layout fails — opportunities, pipelines, responsive, phone polish, leads/clients, existing policy, journey) |
-| CI | see below |
+| CI run 39416859973 (commit a0e210b): all 4 jobs | pass — incl. full browser suite and Lighthouse |
 | Production | not deployed |
 
 **Owner actions after approval:** Deploy app (Cloudflare) only — no migrations.
