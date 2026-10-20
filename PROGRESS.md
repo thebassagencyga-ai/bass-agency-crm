@@ -1332,3 +1332,40 @@ migrations; Deploy app 39421905137 succeeded (bundle check clean, smoke test pas
 
 **Owner actions after approval:** Deploy app (Cloudflare) only — no migrations.
 
+
+## Phase 28 — Production and commission (branch `phase-28-production`)
+Owner request 2026-10-20 (with their life commission tracker spreadsheet): production tracking.
+Choices: production + commission first, all lines, estimates only, mockup first. Mockup and design
+approved ("Approved, build it"). ADR-046.
+
+**Built**
+- **Reports → Production** (new tab; Overview unchanged): month picker; premium and policies
+  written against goals; expected commission (new business, renewals); year to date with pace;
+  by line; next 12 months; active policies, commission per active policy, ended this month; CSV.
+- **Settings → Commission and goals:** rates per line (new business, renewal) and per life type
+  (first year, renewal years); goals. Empty until entered: the report asks for rates and shows
+  no made-up commission.
+- **Life deals → Commission details:** policy type, premium mode, first payout date, optional
+  rate, with a live preview (same rule as the database).
+- **Migration `20261106120000_production.sql`:** tables `commission_rates`, `production_goals`
+  (RLS, two-step policy, owner-only, no DELETE, audit); four life-only columns on opportunities;
+  `production_report(month)` (SECURITY INVOKER, all maths in the database).
+
+**Tests (2026-10-20)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck | pass |
+| Local: unit | 537 passed (12 new: life instalment preview incl. the tracker's $3,200 Term → $120/month, goals and pace, month choice, rate/goal/life-detail validation, totals, CSV rows; deploy-check counts 26/28) |
+| Local: database (PostgreSQL 16) | 509 passed (9 new in `production.test.ts`: written vs existing/imported, goals, no rates → no commission, P&C new business, renewals recorded/projected/lost, 6-month terms twice, no new sales guessed, life monthly first year then renewal rate, quarterly + override + ended, life-only columns and rate checks, access). Catalog/RLS suites updated for the two tables |
+| Local: integration (real Supabase stack) | 52 passed |
+| Local: browser tests against the Cloudflare build | 34 of 34 incl. new `production.spec.ts` (no-rates notice, rate validation and save, goals, life details preview "$120.00 a month", report figures, 12-month view, CSV); Lighthouse cannot start locally |
+| CI run 39462821084 (commit 3142cfe): all 4 jobs | pass — incl. migrations on Supabase's real image, full browser suite and Lighthouse |
+| Production | not deployed |
+
+**Owner actions after approval**
+1. Merge to `main` (Claude).
+2. Deploy database migrations: dry run lists only `20261106120000_production.sql`; then apply.
+   Verify expects 26 tables, 28 Data API functions, 3 anonymous functions.
+3. Deploy app (Cloudflare).
+4. Settings → Commission and goals: enter your real rates and goals. Open a life policy →
+   Commission details. Then Reports → Production. ⏳ Manual check.
