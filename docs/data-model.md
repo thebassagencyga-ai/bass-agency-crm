@@ -29,6 +29,15 @@ erDiagram
     PROFILES ||--o{ CROSS_SELL_RULES : owns
     CONTACTS ||--o{ CROSS_SELL_DISMISSALS : "prompt hidden"
     CROSS_SELL_RULES ||--o{ CROSS_SELL_DISMISSALS : "for rule"
+    PROFILES ||--o{ INTAKE_LINKS : owns
+    INTAKE_LINKS ||--o{ INTAKE_SUBMISSIONS : "received through"
+    INTAKE_SUBMISSIONS }o--o| CONTACTS : "accepted as"
+    CONTACTS ||--o{ HOUSEHOLD_MEMBERS : has
+    CONTACTS ||--o{ VEHICLES : has
+    PROFILES ||--o{ IMPORT_BATCHES : owns
+    IMPORT_BATCHES ||--o{ CONTACTS : "imported"
+    IMPORT_BATCHES ||--o{ OPPORTUNITIES : "imported"
+    PROFILES ||--o{ PUSH_SUBSCRIPTIONS : "devices"
 ```
 
 Every business table carries `owner_id`. Foreign keys between business tables include
@@ -208,6 +217,37 @@ Each agent's tag list: `name` (1–40 characters, trimmed, no commas; unique per
 case among active rows), `archived_at` (removed). Contacts can only gain tags on this list
 (trigger). New agents start with a starter list.
 
+### intake_links (Phase 13, ADR-028)
+The agent's public quote-form link. `token`: 32 random hex characters, unguessable; `enabled` /
+`disabled_at` (turning a link off, or replacing it, stops the old address at once). The app may
+read and add links and change only `enabled` / `disabled_at`.
+
+### intake_submissions (Phases 13–14, ADR-028, ADR-029)
+The review inbox for the public form. Written only by `submit_intake` (anonymous, SECURITY
+DEFINER; validated; 10 per hour and 50 per day per link). `status` new / accepted / discarded.
+While new it holds the prospect's details: name, email and/or phone, ZIP, preferred contact
+method, best time, lines wanted (1–4), current coverage per line (carrier, renewal month),
+how they heard / referred-by name, address, household (up to 6 names and relationships) and
+vehicles (up to 4: year, make, model). **Once accepted or discarded all of those are erased**
+(a check constraint enforces it); kept: consent time and wording version, submitted/reviewed
+times, and the contact it became. No DOB, licence number or VIN, ever.
+
+### household_members (Phase 14, ADR-029)
+People in a contact's household: first name, optional last name, relationship (spouse, child,
+parent, other). Archived, never deleted.
+
+### vehicles (Phase 14, ADR-029)
+A contact's vehicles: year, make, optional model. No VIN. Archived, never deleted.
+
+### import_batches (Phase 15, ADR-031)
+One row per book-of-business import: file name, contacts created / matched, policies created,
+`status` done / undone. Imported contacts and opportunities carry `import_batch_id`. **Undo**
+(within 7 days, all or nothing) is the one place records are deleted: a private trigger removes
+the batch's contacts, opportunities and their automatic tasks, only while nothing from the import
+has been changed or used since; the audit log keeps the deletions (ADR-031). Imported records are history,
+not new business: they are left out of new-lead, conversion and referral reports, the board and
+Focus.
+
 ### audit_log
 Append-only, written by trigger on contacts, opportunities, tasks, activities and
 automation_rules: actor, table, record, action, and for updates only the changed columns.
@@ -215,7 +255,7 @@ Readable by the record's owner; nobody can write to it through the API.
 
 ## Database functions (Data API)
 
-Called by signed-in users through RPC. All are SECURITY INVOKER with an empty `search_path`,
+Called by signed-in users through RPC. All are SECURITY INVOKER with an empty `search_path` (except the three marked **anonymous callers only**: `submit_intake`, `calendar_feed`, `claim_push_alerts`),
 so row level security (including the two-step requirement) filters every row; EXECUTE is
 granted to `authenticated` only.
 
@@ -232,6 +272,14 @@ granted to `authenticated` only.
 | `search_tasks(view, today, product_line, priority, category, contact_id, limit, offset)` | Task tabs: `overdue` / `today` / `upcoming` (open tasks by due date vs. the `today` the app passes, computed in the user's zone) and `done` (completed or cancelled, newest first); with contact name/phone and the linked opportunity's product line; limit capped at 200. |
 | `task_counts(today)` | Open task counts for overdue, due today and upcoming. |
 | `focus_list(today)` | Phase 27 ProducrIQ Focus (ADR-045), one JSON object: `quiet_quotes` (open, quote stage, no meaningful activity for 3+ days), `quiet_open` (other open deals, 7+ days), `nurture` (check-back date reached, or none), `requote` and `thanks` (due tasks of those rules); contact name and phone, deal line, stage and dates; no notes. Up to 100 per group. Read-only, SECURITY INVOKER. |
+| `submit_intake(token, form, consent)` | Phase 13, **anonymous callers only**, SECURITY DEFINER: the public quote form. Validates every field, needs an enabled link and consent, limits each link to 10 per hour and 50 per day, adds one row to the owner's inbox and returns nothing. Phase 26: also owes one new-request alert when a device has alerts on. |
+| `accept_intake(id, contact_id, referred_by)` | Phase 13: accepts an inbox request into a new or existing contact (blanks filled, never overwritten), with a New lead opportunity per line (current carrier and renewal date) and household and vehicles; then erases the request's personal details. Returns the contact. |
+| `discard_intake(id)` | Phase 13: discards an inbox request and erases its personal details. |
+| `quick_intake(form, contact_id, referred_by)` | Phase 13: the agent's own intake (on a call), same rules as accepting, straight into the CRM. Returns the contact. |
+| `rotate_intake_link()` | Phase 13: replaces the agent's form link (the old one stops at once); returns the new token. |
+| `import_book(file_name, contacts)` | Phase 15 (ADR-031): imports a book of business in one transaction: each row either creates a contact or adds policies to an existing contact the user matched in the preview (left as it is), their policies as won opportunities in the routed pipeline (renewal dates rolled forward), one import batch. Returns the counts. |
+| `save_pipeline(id, name, lines, stages)` | Phase 25 (ADR-043): creates or updates one of the agent's pipelines, its stages (3–12, Won and Lost last) and the lines whose new leads it receives, in one transaction. |
+| `claim_push_alerts(proof)` | Phase 26 (ADR-044), **anonymous callers only**, SECURITY DEFINER: for the holder of the push key's proof, hands out the devices owed a new-request alert, once each; alerts over a day old are dropped. Returns device push addresses and keys only, no customer details. |
 | `dashboard_summary(today)` | One JSON object for the dashboard: open task counts (overdue, due today, next 7 days), open/nurture opportunities and estimated premium by product line, renewals in the next 60 days (count + soonest 5, lost and ended policies excluded), 8 most recent activities. |
 | `confirm_no_response_follow_up(activity_id)` | Creates the "no response" follow-up for one of the caller's activities after the owner confirms; returns 1 if a task was created, else 0. |
 

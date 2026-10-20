@@ -97,7 +97,7 @@ Settings → *Tags*: add a tag, rename it (renaming to an existing tag combines 
 - **Set up:** Settings → *Calendar* → *Create calendar link* → *Add to iPhone Calendar* (or copy
   the link into Google Calendar: Other calendars → + → From URL). The link is shown only once.
 - **Lost the link / new phone / link may have leaked:** *Replace link* (the old one stops at once),
-  remove the old "CRM tasks" calendar from the phone, subscribe again.
+  remove the old "Producr tasks" calendar from the phone (older subscriptions may still show "CRM tasks"), subscribe again.
 - **Stop:** *Turn off*. Tasks disappear from the calendar at its next refresh.
 
 ## 4d. AI helpers (off — connect only when you decide to)

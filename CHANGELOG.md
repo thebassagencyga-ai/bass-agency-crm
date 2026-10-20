@@ -2,6 +2,15 @@
 
 All meaningful changes, grouped by milestone.
 
+## Docs refresh (2026-10-20, documentation only)
+### Changed
+- Brought the documentation up to date with what is live: current status in PROGRESS, README
+  and SECURITY; Supabase **Free** plan (not Pro) in CLAUDE.md, README and ADR-002; old ADRs
+  marked accepted; settled the referral thank-you question; data model now covers the intake,
+  household, vehicle and import tables and every database function; pending markers from
+  before go-live cleared; calendar name "Producr tasks" in the runbook. No app or database
+  change.
+
 ## Phase 27 — ProducrIQ Focus (2026-10-20, approved)
 ### Added
 - **Focus** at the top of the Today page: the deals that need you and why. Quotes with nothing

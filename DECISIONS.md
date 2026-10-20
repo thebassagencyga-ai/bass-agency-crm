@@ -22,7 +22,9 @@ risk to a live product). Both rejected.
 ---
 
 ## ADR-002 — Dedicated Supabase project in the existing Pro organization
-**Status:** Accepted (owner, 2026-10-14)
+**Status:** Accepted (owner, 2026-10-14). *Superseded in part by ADR-027: the dedicated CRM
+project runs on the **Free** plan, not in the Pro organization; the separation from ProducerIQ
+stands.*
 
 **Context.** ProducerIQ's Supabase project uses Clerk as a third-party auth provider and its
 server routes hold a service-role key, which bypasses RLS across all schemas.
@@ -48,7 +50,7 @@ unnecessary cost); Supabase Free (rejected by spec).
 ---
 
 ## ADR-003 — Development and test databases are local
-**Status:** Proposed — implemented in Phase 1 (pending owner review)
+**Status:** Accepted — implemented in Phase 1 (approved with the phase, 2026-10-14)
 
 **Decision.** Development and automated integration/RLS tests run against a local Supabase
 stack (`supabase start`, requires Docker) or, where Docker is unavailable (e.g. cloud agent
@@ -72,7 +74,7 @@ the real `auth.uid()`.
 ---
 
 ## ADR-004 — Hosting: Cloudflare Workers via OpenNext
-**Status:** Proposed — local spike passed in Phase 1; deploy and final verification in Phase 12
+**Status:** Accepted — local spike in Phase 1; deployed and verified in Phase 12 (approved 2026-10-16)
 
 **Context.** The owner has Vercel **Hobby**, which Vercel's fair-use guidelines restrict to
 non-commercial personal use; an agency's sales CRM is commercial use. Cloudflare Pages does
@@ -105,7 +107,7 @@ Fly.io (not yet evaluated; considered only if the Workers spike fails).
 ---
 
 ## ADR-005 — Data access: Supabase client + Postgres functions, no ORM
-**Status:** Proposed — schema side implemented in Phase 1 (pending owner review)
+**Status:** Accepted — schema in Phase 1, automation in Phase 6 (both approved)
 
 **Decision.** Use `@supabase/ssr` with the signed-in user's session for all reads/writes so
 RLS is always enforced. Multi-step operations (stage change + task generation, win/loss
@@ -118,7 +120,7 @@ configured; adds a second data layer) — rejected per spec.
 ---
 
 ## ADR-006 — Pipeline stages as configurable data; outcome as a separate column
-**Status:** Proposed — implemented in Phase 1 (pending owner review)
+**Status:** Accepted — implemented in Phase 1 (approved with the phase, 2026-10-14)
 
 **Decision.** `pipeline_stages` table keyed by product line (auto, home, commercial, life)
 seeded with the spec's stages, each flagged with a `kind` (`active`, `won`, `lost`).
@@ -135,7 +137,7 @@ in scope.
 ---
 
 ## ADR-007 — Dates and time zone
-**Status:** Proposed — column types implemented in Phase 1; date logic arrives in Phases 5–6
+**Status:** Accepted — column types in Phase 1, date logic in Phases 5–6 (approved)
 
 **Decision.** User-facing zone `America/New_York` (stored on the profile for future agents).
 Instants → `timestamptz` (UTC). Calendar values (task due date, quote date, effective date,
@@ -146,7 +148,7 @@ request a holiday list).
 ---
 
 ## ADR-008 — Duplicate-safe task automation
-**Status:** Proposed — constraint implemented in Phase 1 (pending owner review)
+**Status:** Accepted — constraint implemented in Phase 1 (approved with the phase, 2026-10-14)
 
 **Decision.** Automation-created tasks carry a deterministic `dedupe_key`
 (e.g. `opp:<id>:rule:<rule_key>:cycle:<n>`) with a unique index on `(owner_id, dedupe_key)`
@@ -160,7 +162,7 @@ existing task rather than creating a duplicate. Owner-edited dates are preserved
 ---
 
 ## ADR-009 — Audit trail
-**Status:** Proposed — implemented in Phase 1 (pending owner review)
+**Status:** Accepted — implemented in Phase 1 (approved with the phase, 2026-10-14)
 
 **Decision.** An `audit_log` table populated by Postgres triggers on contacts, opportunities,
 tasks and automation rules (actor, table, record id, action, changed fields as JSONB
@@ -187,7 +189,7 @@ scoped, audited delete function.
 ---
 
 ## ADR-011 — Toolchain versions (Phase 1)
-**Status:** Proposed (pending owner review)
+**Status:** Accepted — approved with Phase 1 (2026-10-14); versions since then are in PROGRESS.md
 
 Pinned exact versions (`--save-exact`): Next.js **16.3.8** (see ADR-004), React 19.3,
 TypeScript **5.9.3** (TypeScript 7.0 is the new native compiler; typescript-eslint supports
@@ -277,7 +279,7 @@ from GitHub after each deploy and re-added when the next phase has migrations.
 ---
 
 ## ADR-015 — Request gate: `middleware.ts` (Edge) plus server-side checks
-**Status:** Proposed — implemented in Phase 2 (pending owner review)
+**Status:** Accepted — implemented in Phase 2 (approved with the phase, 2026-10-15)
 
 **Context.** Next.js 16 renamed `middleware.ts` to `proxy.ts`. A Phase 2 spike showed that
 `@opennextjs/cloudflare` 1.20.11 builds `proxy.ts` as Node.js middleware and warns it is
@@ -292,7 +294,7 @@ not depend on the middleware alone. Revisit when OpenNext officially supports `p
 ---
 
 ## ADR-016 — Authentication design
-**Status:** Proposed — implemented in Phase 2 (owner decisions 2026-10-15; pending review)
+**Status:** Accepted — implemented in Phase 2 (owner decisions 2026-10-15; approved with the phase). Idle sign-out: see the note below
 
 - **Invite-only:** public sign-up disabled (Supabase setting); the owner creates users in the
   dashboard. Profiles (and default rules) are created by a trigger on `auth.users`.
@@ -303,7 +305,9 @@ not depend on the middleware alone. Revisit when OpenNext officially supports `p
 - **Sessions:** `@supabase/ssr` cookies set **HttpOnly**, Secure (production), SameSite=Lax;
   no browser Supabase client (CSP `connect-src 'self'`). Identity comes from `getClaims()`
   (verified JWT), never from unverified cookie contents. Auth responses carry no-store cache
-  headers. Owner decision: **sign out after 7 days of inactivity** (Supabase Pro setting).
+  headers. Owner decision: **sign out after 7 days of inactivity**. *(Later: Supabase's own
+  inactivity timeout is a Pro feature and production runs on Free (ADR-027); the app enforces
+  inactivity sign-out itself, ADR-032.)*
 - **Passwords:** ≥ 12 characters with lower, upper case and a digit (Supabase setting and app
   validation); "secure password change" on. Generic sign-in error (no account discovery).
 - **Password reset:** Supabase's built-in email with a `token_hash` link to `/auth/confirm`;
@@ -1010,7 +1014,7 @@ ProducrIQ Focus; documentation refresh as a separate docs-only task. Stop after 
 
 ## ADR-040 — Leads and Clients; your own pipelines next
 
-**Status:** Accepted (owner, 2026-10-19). Phase 24 approved 2026-10-19; Phase 25 not started.
+**Status:** Accepted (owner, 2026-10-19). Phase 24 approved 2026-10-19; Phase 25 built as ADR-043.
 **Owner:** "Shouldn't the CRM separate the clients from prospects? … I'd prefer to have a pipeline
 of leads separated from the book of clients." Choices: tabs inside Contacts (menu labels
 unchanged); open on Leads; the book shows lines held, total premium, next renewal and cross-sell
@@ -1049,7 +1053,7 @@ presented for approval before building.
 4. ~~Tasks without a contact (ADR-012)?~~ Answered: no.
 5. ~~No deleting from the app (ADR-010)?~~ Answered: acceptable.
 6. ~~Referral and Google review automation design~~ — answered, see ADR-013.
-7. Confirm with Alfa/compliance whether any referral thank-you of value is permitted (ADR-013).
+7. ~~Referral thank-you of value (ADR-013)~~ — settled: thank-yous are a personal call or note only, nothing of value (owner decision 6, ADR-039; built in ADR-045).
 
 ## ADR-041 — Import reads Excel (.xlsx) on the device
 **Date:** 2026-10-19. **Status:** accepted (owner approved 2026-10-19).

@@ -5,9 +5,9 @@ Agency (Carrollton, GA): contacts,
 home/auto/commercial/life opportunity pipelines, follow-up tasks, renewals, cross-sell
 prompts and basic reports.
 
-> **Status: Phase 1 (database foundation).** The app is a placeholder page; the database
-> schema, security policies and their tests exist. Sections marked *(planned)* arrive in the
-> phase noted. See `ROADMAP.md` and `PROGRESS.md`.
+> **Status: live in production** since the owner's go-live sign-off (2026-10-16); 27 phases
+> approved and deployed (latest: ProducrIQ Focus, 2026-10-20). See `ROADMAP.md` and
+> `PROGRESS.md`.
 
 ## Architecture
 | Layer | Choice | Notes |
@@ -23,12 +23,12 @@ prompts and basic reports.
 ## Cost assumptions
 | Item | Expected monthly cost | Status |
 |------|----------------------|--------|
-| Supabase Free plan (CRM project) | $0 | backups in GitHub Actions, $0 |
-| Additional Supabase project (Micro compute) | ≈ $10 (third-party sources; confirm on billing page) | needs owner confirmation |
-| Cloudflare Workers free plan | $0 | to be verified in Phase 1 spike |
+| Supabase Free plan (CRM project) | $0 | backups in GitHub Actions, $0 (ADR-027) |
+| Cloudflare Workers free plan | $0 | in production since Phase 12 |
+| AI helpers (built, not connected) | $0 now; capped at $10 if connected | owner decision (ADR-035) |
 | GitHub private repo + Actions (free minutes) | $0 | |
 | Domain | $0 (`*.workers.dev`) — purchase only with approval | |
-| **Total added** | **≈ $10/month** (guardrail: < $25) | |
+| **Total added** | **$0/month** (guardrail: < $25) | |
 
 ## Prerequisites
 - Node.js 22 LTS (≥ 22.12) and npm
@@ -45,13 +45,15 @@ real values. **None are `NEXT_PUBLIC_`**: the browser never talks to Supabase di
 | `SUPABASE_PUBLISHABLE_KEY` | Publishable (anon) key. Not secret — RLS protects the data — but kept server-side |
 | `SITE_URL` | Public URL of the app, used in password-reset links |
 | `INSECURE_COOKIES_FOR_LOCAL_TESTS` | Local http testing only; never in production |
+| `PUSH_KEY` | New-lead alerts (Phase 26): the app's push key, a Cloudflare **secret** made in Settings → Alerts (runbook §4e). Optional: without it alerts are off |
+| `ANTHROPIC_API_KEY`, `AI_MONTHLY_BUDGET_USD` | AI helpers (Phase 19), **not connected** by owner decision; a Cloudflare secret and an optional cap ≤ 10 (runbook §4d) |
 
 No secret/service-role key is used by the app (Phase 2).
 
 ## Local development
 ```bash
 npm install
-npm run dev                 # http://localhost:3000 (placeholder page in Phase 1)
+npm run dev                 # http://localhost:3000
 npm run cf:preview          # build for Cloudflare and serve locally in workerd (:8787)
 ```
 With Docker available, `npx supabase start` runs the full local Supabase stack (Postgres,
@@ -107,13 +109,14 @@ is approved (they mirror `supabase/config.toml`):
    - Password requirements: minimum **12** characters, "lowercase, uppercase letters and digits".
    - Secure password change: **ON**.
 2. **Authentication → Multi-Factor**: TOTP (authenticator app) **enabled**.
-3. **Authentication → Sessions**: inactivity timeout **7 days** (168 hours).
+3. **Authentication → Sessions**: a Pro-only setting; on Free the app signs out after inactivity
+   itself (ADR-032), so nothing to set here.
 4. **Authentication → Emails → Reset password**: replace the link with
    `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password`
    (template text in `supabase/templates/recovery.html`).
 5. **Authentication → URL Configuration**: Site URL = the app's address (set in Phase 12).
 6. **Create your user:** Authentication → Users → Add user → *Create new user* → your email
-   and a strong password, tick **Auto Confirm User**. Your profile and the 12 default rules are
+   and a strong password, tick **Auto Confirm User**. Your profile, default pipelines and the 15 default rules are
    created automatically. On first sign-in the app asks you to set up your authenticator.
 7. **Lost authenticator:** Authentication → Users → your user → remove the MFA factor; sign in
    again and set up a new one.
@@ -132,7 +135,8 @@ GitHub → Actions:
 
 Needs repository secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
 `CRM_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`,
-`SUPABASE_DB_PASSWORD`, `BACKUP_PASSPHRASE`. The Worker itself holds no secrets.
+`SUPABASE_DB_PASSWORD`, `BACKUP_PASSPHRASE`. The Worker's only secret is `PUSH_KEY` (alerts),
+set in Cloudflare, never in GitHub; `ANTHROPIC_API_KEY` would be another if AI is ever connected.
 
 Day-to-day operation, restore, access problems, secret rotation and costs:
 **[docs/runbook.md](docs/runbook.md)**. Before any real client data:

@@ -1,8 +1,13 @@
 # Progress
 
-**Current phase:** 15 — Import and export — **APPROVED by owner 2026-10-16**; deployed 2026-10-16 (migration run #34, app run #17). Phase 14 approved and deployed 2026-10-16.
-**Last updated:** 2026-10-16
-**Branch:** `phase-12-production`, merged to `main` on approval
+**Current phase:** none in progress. Phase 27 (ProducrIQ Focus, workflow audit Step 3) is
+complete: approved, deployed and checked on the owner's iPhone 2026-10-20. The workflow audit's
+three steps and the docs-only refresh are done.
+**Last updated:** 2026-10-20
+**Branch:** work happens on a branch per phase; `main` is what is deployed.
+
+Sections below are in the order the work happened; each phase's own section has its tests,
+approval and deploy record.
 
 ## Phase 0 — APPROVED 2026-10-14
 Governance files created. ProducerIQ untouched (owner reconfirmed: it must not be modified).
@@ -1095,8 +1100,8 @@ listed only `20261102120000_custom_pipelines.sql`; apply run 39304190847 applied
 migration's own check that every deal was moved passed, or it would have rolled back) and
 verification passed (30 template stages, 23 tables, 23 two-step policies, 25 Data API functions
 incl. `save_pipeline`, exactly 2 anonymous functions, automation engine safe); Deploy app
-39304344818 succeeded, smoke test passed. ⏳ Owner: iPhone check (every deal where it was; add a
-pipeline in Settings → Pipelines).
+39304344818 succeeded, smoke test passed. In use since: the owner sent board screenshots on
+2026-10-19 (led to the board-layout fix); no separate iPhone check was reported.
 
 **Owner actions after approval**
 1. Merge to `main` (Claude).
@@ -1132,7 +1137,7 @@ listed every policy imported or added as existing in the last 30 days, making th
 dry run 39319147879 listed only `20261103120000_board_excludes_existing.sql`; apply run
 39319448155 applied it and verification passed (23 tables, 23 two-step policies, 25 Data API
 functions, exactly 2 anonymous functions); Deploy app 39319801784 succeeded, smoke test passed.
-⏳ Owner: check the board on the computer.
+Owner moved on to Step 2 after this deploy; a separate check on the computer was not reported.
 
 **Owner actions after approval:** Deploy database migrations (dry run lists only
 `20261103120000_board_excludes_existing.sql`; then apply; verify unchanged: 23 tables, 25
@@ -1186,7 +1191,7 @@ Owner created the alert key, added `PUSH_KEY` in Cloudflare and passed the iPhon
 4. Settings → Alerts → Create alert key → add it in Cloudflare as the secret `PUSH_KEY` (runbook
    §4e) → reload Settings.
 5. iPhone: Home Screen app → Settings → Alerts → Turn on → Allow → Send a test alert; then send
-   yourself a test quote request from the public form. ⏳ This iPhone test completes Phase 26.
+   yourself a test quote request from the public form. ✅ Passed 2026-10-20 (after the turn-on fix).
 
 ## Fix — Turning alerts on (branch `fix-alerts-turn-on`, 2026-10-19)
 **Owner report (iPhone screenshot):** "Could not turn alerts on. Please try again." after tapping
@@ -1274,6 +1279,26 @@ The owner reported these earlier open checks as done ("all complete"):
 - Dashboard on the iPhone (Phase 7).
 - Phase 23 iPhone checks: moving to Quoted asks for the date and adds one follow-up; Bound makes
   the contact a client.
-Older ⏳ markers in ROADMAP/PROGRESS that refer to deploys long since done are left for the
-docs-only refresh (owner decision 8).
+Older ⏳ markers in ROADMAP/PROGRESS were cleared in the docs-only refresh the same day.
+
+## Docs refresh (branch `docs-refresh`, 2026-10-20)
+Documentation only (owner decision 8 of the workflow audit; started on the owner's "Yes, start
+the docs refresh"). No code, migration, configuration or data change.
+- **Everything in the audit's section 7:** PROGRESS header; SECURITY status, go-live sign-off and
+  known risks; data model gains `intake_links`, `intake_submissions`, `household_members`,
+  `vehicles`, `import_batches` (diagram and sections); CLAUDE.md and ADR-002 now say Supabase
+  **Free** (ADR-027); ADR-016 idle sign-out note (ADR-032); ADRs 003–009, 011, 015, 016 marked
+  accepted; runbook calendar name; open question 7 settled (ADR-039 decision 6, ADR-045).
+- **Also found and fixed:** 8 database functions missing from the data model (the intake ones,
+  `import_book`, `save_pipeline`, `claim_push_alerts`) and its claim that all functions are
+  SECURITY INVOKER (three anonymous ones are not); README status, costs ($0, not ≈ $10),
+  environment variables (`PUSH_KEY`, AI), the Sessions setting (Pro-only), 15 default rules;
+  SECURITY threat model and verification rows for alerts and Focus; ADR-040 status; the
+  workflow audit now opens with a status note.
+- **Pending markers:** pre-go-live ⏳ items in ROADMAP marked done with their evidence (deploys,
+  go-live sign-off, restore drill #3, home-screen app). Two checks the owner never reported are
+  worded as such, not marked done: a separate iPhone check of Phase 25 and a computer check of
+  the board fix.
+- Every statement checked against the migrations or the recorded history (e.g. import undo
+  deletes the batch's records within 7 days; it does not archive them).
 

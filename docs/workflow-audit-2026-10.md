@@ -1,5 +1,11 @@
 # Producr CRM — Workflow Audit and ProducrIQ Opportunity Assessment
 
+> **Status (2026-10-20):** all decided work is done. Step 1 → Phase 23, Step 2 → Phase 26
+> (alerts), Step 3 → Phase 27 (ProducrIQ Focus); the documentation refresh (section 7) is done.
+> The gap register below is kept as written on 2026-10-19 for the record; G4, G6 and G11 are now
+> built (ADR-045), G1 is built (ADR-044). Password-reset delivery and a real import were checked
+> by the owner on 2026-10-20.
+
 **Date:** 2026-10-19 · **Scope:** read-only audit of `main` at `f272117` (Phase 22 approved; its
 app deploy is still pending). No application code, schema, configuration, dependencies or data
 were changed. Evidence is cited as `file:line` (migrations shortened, e.g. `automation_engine:107`

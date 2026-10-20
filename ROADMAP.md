@@ -38,6 +38,7 @@ inherits the standard exit criteria at the bottom of this file.
 | fix | Board fits the window; Won/Lost capped; imported and existing policies off the board (owner report, 2026-10-19) | 25 | APPROVED, DEPLOYED (2026-10-19) |
 | 26 | Workflow audit Step 2: new-lead alerts on your phone (Web Push) | 25 | APPROVED, DEPLOYED, iPhone test passed (2026-10-20) |
 | fix | Alerts: "Turn on alerts on this device" failed to save the device (owner report, 2026-10-19) | 26 | APPROVED, DEPLOYED (2026-10-20) |
+| docs | Documentation refresh (workflow audit, owner decision 8) | 27 | READY FOR REVIEW (2026-10-20) |
 | 27 | Workflow audit Step 3: ProducrIQ Focus (quiet deals, nurture check-backs, re-quotes, referrer thank-you; no AI) | 26 | APPROVED, DEPLOYED, iPhone check passed (2026-10-20) |
 
 ---
@@ -114,7 +115,7 @@ built-in auth email (Supabase-sent, not an app email feature).
 
 **Status 2026-10-15** (✅ verified by automated check; ⏳ owner action):
 - ✅ Signed-out page requests redirect to login (query string kept); server actions return 401 — unit, workerd, CI HTTP tests.
-- ✅ Public sign-up refused — CI against Supabase Auth with the project's config. ⏳ Hosted dashboard setting (owner).
+- ✅ Public sign-up refused — CI against Supabase Auth with the project's config. ✅ Hosted dashboard setting (owner, before go-live 2026-10-16).
 - ✅ Logout clears the session; refresh token unusable afterwards — CI API + browser tests.
 - ✅ Expired session refreshes automatically with a new HttpOnly cookie — CI HTTP test.
 - ✅ Anonymous and cross-account access denied through the real Data API — CI API tests (9).
@@ -123,7 +124,7 @@ built-in auth email (Supabase-sent, not an app email feature).
 - ✅ Security headers and per-request CSP nonce; no CSP violations in Chromium — unit, workerd, CI.
 - ✅ Profiles + default rules created for new users — DB + CI API tests.
 - ✅ Full browser journey on an iPhone-sized screen — CI Playwright.
-- ✅ Phase 2 migration applied to production 2026-10-14 (deploy run #6; dry run #5 listed only this migration). ⏳ Dashboard settings + owner user — owner.
+- ✅ Phase 2 migration applied to production 2026-10-14 (deploy run #6; dry run #5 listed only this migration). ✅ Dashboard settings + owner user — done by the owner before go-live.
 - ✅ Owner approved Phase 2 (2026-10-15).
 
 **Acceptance criteria**
@@ -163,7 +164,7 @@ built-in auth email (Supabase-sent, not an app email feature).
 - ✅ Ownership and IDOR: another account sees no results and "Contact not found" when visiting the contact's URL — DB, API and browser tests; search function mutation-checked (SECURITY DEFINER → 7 failures).
 - ✅ Loading, empty, error and success states; browser journey on an iPhone 13-sized screen (390px) — CI Playwright.
 - ✅ Owner approved Phase 3 (2026-10-14); merged to `main`.
-- ⏳ Owner: deploy migration `20261016120000_contact_search.sql`, redeploy preview, click through on iPhone.
+- ✅ Deployed (in production; covered by the go-live sign-off 2026-10-16).
 
 ---
 
@@ -192,7 +193,7 @@ built-in auth email (Supabase-sent, not an app email feature).
 - ✅ Board on mobile: stages stacked, labelled "Move to…" control, no sideways scrolling — browser test (iPhone 13 size).
 - ✅ Ownership: other accounts see nothing and cannot open by URL — DB (mutation-checked), API, browser tests.
 - ✅ Owner approved Phase 4 (2026-10-15); merged to `main`.
-- ⏳ Owner: deploy migration `20261017120000_opportunity_lifecycle.sql`, redeploy preview, try on iPhone.
+- ✅ Deployed (in production; covered by the go-live sign-off 2026-10-16).
 
 ---
 
@@ -221,7 +222,7 @@ built-in auth email (Supabase-sent, not an app email feature).
 - ✅ Completed tasks and activities stay on the contact's history; nothing can be deleted — DB + browser tests.
 - ✅ Ownership: other accounts see and change nothing; task URL shows "not found" — DB (mutation-checked), API, browser tests.
 - ✅ Owner approved and merged Phase 5 (2026-10-15).
-- ⏳ Owner: deploy migration `20261018120000_task_views.sql`, redeploy preview, set name and review link in Settings, try on iPhone.
+- ✅ Deployed (in production; covered by the go-live sign-off 2026-10-16).
 
 ---
 
@@ -259,7 +260,7 @@ database test in `tests/db/automation.test.ts`; API and browser tests cover the 
 - ✅ Settings: turn rules off; edit timing/title/priority/windows/checklist/messages (incentives refused).
 - ✅ No prospecting tasks for won/lost opportunities (quote date or requested follow-up afterwards creates nothing).
 - ✅ Owner approved Phase 6 (2026-10-15); merged to `main`.
-- ⏳ Owner: deploy migration `20261019120000_automation_engine.sql`, redeploy preview, try on iPhone.
+- ✅ Deployed (in production; covered by the go-live sign-off 2026-10-16).
 
 ---
 
@@ -307,7 +308,7 @@ former client if no other active policy; dismissed prompts hidden 12 months (ADR
   back) on Renewals, the renewal page and the contact page.
 - ✅ New tables have RLS, two-step policies, owner-only grants (no delete); functions are
   SECURITY INVOKER and refused to anonymous callers — DB + API tests, deploy verification.
-- ⏳ Owner: deploy the migration and preview, then try a renewal and a cross-sell prompt on the iPhone.
+- ✅ Deployed (in production; covered by the go-live sign-off 2026-10-16).
 
 ---
 
@@ -331,7 +332,7 @@ and a fixture-based test. Premiums shown only where recorded; no commission figu
 - ✅ Premiums only where recorded (with "n of m have a premium"); no commission data exists.
 - ✅ Owner-only: another agent, password-only sessions and anonymous callers get nothing
   (DB + API tests).
-- ⏳ Owner: deploy, then open Reports on the iPhone and check the figures look right.
+- ✅ Deployed (in production; covered by the go-live sign-off 2026-10-16).
 
 ---
 
@@ -344,7 +345,7 @@ Lighthouse accessibility ≥ 90 on key pages.
 **Status 2026-10-15** (✅ verified by automated check; ⏳ owner action). Design: ADR-025.
 - ✅ Web app manifest and icons (192, 512, maskable 512, Apple 180); iPhone home-screen tags —
   browser test `tests/e2e/pwa.spec.ts`.
-- ⏳ Installable on the iPhone home screen — Safari Share → Add to Home Screen; needs the owner.
+- ✅ Installed on the owner's iPhone home screen (used for the Phase 26 alerts, 2026-10-20).
 - ✅ Service worker caches only hashed static files, icons and the offline notice; never pages,
   server actions, page data or other origins — unit tests run `public/sw.js` (6 mutations
   caught); browser test lists the real cache and shows the offline notice when offline.
@@ -383,8 +384,7 @@ database; findings fixed or documented with risk rating.
   policy, function, trigger and grant restored; access rules and automation still work
   (`tests/db/backup-restore.test.ts`).
 - ✅ Findings fixed or documented with a risk rating (11 findings: 6 fixed, 5 accepted/info).
-- ⏳ Owner: read `docs/security-review.md`; Phase 12 covers the production backup restore and
-  Supabase settings check.
+- ✅ Owner: security review read and signed off with the go-live checklist (2026-10-16).
 
 ---
 
@@ -400,16 +400,18 @@ signed-out automated smoke test + owner's iPhone check; restore drill now (ficti
 **Status 2026-10-16** (✅ verified by automated check; ⏳ owner action). Design: ADR-026.
 - ✅ Hosting and terms re-verified: Workers Free limits (100,000 requests/day, 10 ms CPU) and
   Supabase Pro ($25/org, $10 compute credit, daily backups 7 days); app builds and runs on
-  the Cloudflare runtime in CI on every push; added cost ≈ $10/month.
+  the Cloudflare runtime in CI on every push. *(Later: production went on Supabase Free instead,
+  added cost $0, ADR-027.)*
 - ✅ No secrets in Git or in the Worker (vars only: database address, publishable key, site
-  address); secret scan of full history in CI. ⏳ Owner keeps GitHub secrets current (runbook §6).
-- ⏳ Deployed: run **Deploy app (Cloudflare)** from `main` after this phase merges.
+  address); secret scan of full history in CI. Ongoing: owner keeps GitHub secrets current (runbook §6).
+- ✅ Deployed to Cloudflare Workers (2026-10-16).
 - ✅ Smoke test script (16 signed-out checks) passes against the Cloudflare build in CI and a
-  local production build; runs after every deploy and on demand. ⏳ Passes on production.
-- ⏳ Supabase backups confirmed in the dashboard; ✅ restoration procedure written (runbook §4)
-  and the **Backup restore drill** rehearsed locally end to end; ⏳ drill run on production.
+  local production build; runs after every deploy and on demand. ✅ Passes on production (every deploy since).
+- ✅ Backups: the Free plan has none in the dashboard, so nightly encrypted backups run in GitHub
+  Actions instead (ADR-027); ✅ restoration procedure written (runbook §4); ✅ **Backup restore
+  drill** run on production (drill #3 passed, PROGRESS.md).
 - ✅ Maintenance runbook: `docs/runbook.md`.
-- ⏳ Owner sign-off before real client data: `docs/go-live-checklist.md`.
+- ✅ Owner sign-off before real client data: "I approve entering real client data" (2026-10-16).
 
 ---
 
@@ -430,7 +432,7 @@ fields: contact details, lines wanted, current carrier + renewal month, referral
 - Deploy verification, RLS catalog tests and backups cover the two new tables.
 - All existing tests stay green; docs updated.
 
-**Status 2026-10-16:** built and APPROVED by the owner; see PROGRESS.md for test results. ⏳ Deploy.
+**Status 2026-10-16:** built, APPROVED and deployed; see PROGRESS.md for test results.
 
 ---
 
@@ -447,7 +449,7 @@ page shows and edits them. No dates of birth, license numbers or VINs (ADR-029).
   such as a birth date are dropped; details erased from the inbox after review.
 - Backups and deploy verification include the new tables; all tests green.
 
-**Status 2026-10-16:** built and APPROVED by the owner; see PROGRESS.md. ⏳ Deploy.
+**Status 2026-10-16:** built, APPROVED and deployed; see PROGRESS.md.
 
 ---
 
@@ -463,7 +465,7 @@ all data (ADR-031).
 - Downloads open in Excel/Numbers; formulas neutralised; owner's rows only.
 - All tests green.
 
-**Status 2026-10-16:** built and APPROVED by the owner; see PROGRESS.md. ⏳ Deploy.
+**Status 2026-10-16:** built, APPROVED and deployed; see PROGRESS.md.
 
 ---
 
@@ -642,7 +644,7 @@ pipeline may take any mix of lines; every agent starts with today's four pipelin
   archiving a pipeline with lines or open deals, at most 10 pipelines.
 - ✅ New tables: RLS, two-step policy, no DELETE, owner-only, in the catalog and RLS tests;
   deploy verification updated (23 tables, 25 functions).
-- ⏳ Owner: iPhone check after deploy.
+- ✅ In use: the owner worked with the new pipelines after deploy (board screenshots, 2026-10-19), which led to the board-layout fix. No separate iPhone check was reported.
 
 **Status:** APPROVED (owner, 2026-10-19); see PROGRESS.md.
 

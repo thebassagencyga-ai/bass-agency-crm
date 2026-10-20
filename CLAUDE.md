@@ -55,8 +55,8 @@ Next phase proposed
 ## Architecture rules
 
 - Next.js App Router, TypeScript `strict: true` (plus `noUncheckedIndexedAccess`), Tailwind CSS.
-- Supabase PostgreSQL + Supabase Auth in a **dedicated CRM project** in the owner's existing
-  Supabase Pro organization. Postgres row level security on every exposed table.
+- Supabase PostgreSQL + Supabase Auth in a **dedicated CRM project** on the Supabase **Free**
+  plan (ADR-027; ADR-002 originally said Pro). Postgres row level security on every exposed table.
 - No ORM and no second backend. Data access via `@supabase/ssr` / `@supabase/supabase-js`
   using the signed-in user's session so RLS always applies. Multi-step business operations
   (stage change + task creation, etc.) are Postgres functions called via RPC so they are

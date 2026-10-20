@@ -1,8 +1,8 @@
 # Security — Producr CRM
 
-Status: **Phase 2 — authentication implemented; database authorization live in production
-(Phase 1 schema).** Items move to "Verified" only with test evidence or a recorded manual
-check. The Phase 2 migration and dashboard settings are applied only after owner approval.
+Status: **live in production with real client data** since the owner's go-live sign-off
+(2026-10-16); updated through Phase 27 (2026-10-20). Items move to "Verified" only with test
+evidence or a recorded manual check.
 
 ## 1. Assets
 - Contact records (names, phones, emails, addresses, business details) of prospects and clients.
@@ -13,7 +13,8 @@ check. The Phase 2 migration and dashboard settings are applied only after owner
 ## 2. Threat model (summary)
 | Threat | Example | Primary control |
 |--------|---------|-----------------|
-| Unauthenticated access | Direct API calls with the publishable key | RLS denies `anon`; protected routes; the one public function (`submit_intake`, ADR-028) only adds a validated, rate-limited submission to an inbox and reads nothing |
+| Unauthenticated access | Direct API calls with the publishable key | RLS denies `anon`; protected routes; exactly three anonymous functions, each SECURITY DEFINER with a pinned search_path: `submit_intake` (ADR-028) only adds a validated, rate-limited submission to an inbox and reads nothing; `calendar_feed` (ADR-034) returns only open tasks (title, due date, contact name) for an enabled link's token; `claim_push_alerts` (ADR-044) hands out device push addresses only to the holder of the push key's proof, once per owed alert |
+| Alert content leaking client data | A lock-screen notification read by someone else | New-lead alerts carry no customer details ("New quote request", ADR-044); the push key is a Cloudflare secret, never in the browser bundle (CI check) or the database (only a hash of a derived proof) |
 | Intake form abuse | Spam or junk sent to `/quote/<token>` or straight to the API | Unguessable per-agent token, turn off / replace in Settings; DB validation and 10/hour, 50/day per link; review inbox (nothing reaches contacts until accepted); bot-trap field |
 | Cross-account access / IDOR | Agent B opens `/contacts/<A's id>` | RLS `owner_id = auth.uid()` on every table; tests |
 | Privilege escalation | Browser code using a secret key | Secret key server-only; bundle scan in CI |
@@ -159,9 +160,11 @@ underwriting answers, detailed health information, policy documents. No file upl
 | Service worker caches no record data | 10 | Verified: unit test runs `public/sw.js` against a fake browser (pages, server actions, RSC data, other origins never cached); browser test lists the real cache (only `/_next/static/`, icons, offline page) |
 | `npm audit` / secret scan clean or triaged | 11 | Done: production dependencies 0 findings (CI gate); dev-only `braces` accepted Low, `glob` fixed (docs/security-review.md F-05/F-06); secret scan of files + full history in CI, clean |
 | Backup restore rehearsed | 11–12 | Phase 11: full dump restored into a fresh local database and verified in CI. Phase 12: **Backup restore drill** restored production data into a throwaway database (passed 2026-10-16); since ADR-027 it restores the latest nightly backup, and `tests/db/backup-tool.test.ts` covers the backup → restore scripts in CI |
-| Owner security review before real client data | 12 | Pending: `docs/go-live-checklist.md` (owner sign-off) |
+| Owner security review before real client data | 12 | Done: owner signed `docs/go-live-checklist.md` off 2026-10-16 (go-live) |
 
 | Public intake: only `submit_intake` callable anonymously; links, rate limits, validation, erasure | 13 | DB tests (`tests/db/intake.test.ts`), real Data API test (`tests/integration/intake-api.test.ts`), browser test, deploy verification |
+| New-lead alerts: no customer details; claimed once; only with the key's proof; key never in the bundle | 26 | DB tests (`tests/db/push-alerts.test.ts`), encryption checked against an independent implementation, browser test, CI bundle check, deploy verification (3 anonymous functions) |
+| Focus list: caller's own records only, read-only, no notes; anonymous refused; nothing for password-only sessions | 27 | DB tests (`tests/db/focus.test.ts`), browser test, deploy verification (27 functions) |
 
 ## 9. Known risks (open)
 - **AI helpers (ADR-035), if connected:** the listed fields (first names, task titles, notes the
@@ -174,17 +177,18 @@ underwriting answers, detailed health information, policy documents. No file upl
 - **Public intake form (ADR-028):** a determined spammer can fill a link's 50/day inbox
   quota with junk (nothing reaches contacts; turn the link off or replace it). Free-text
   fields could carry sensitive data despite the on-form warning; it is erased on review.
-- **Preview on the public internet (ADR-017):** the app is reachable at a workers.dev address
-  from Phase 2 onward. Protection: invite-only sign-in, mandatory two-step login, RLS. Rule:
-  fictional data only until the Phase 11 review and Phase 12 sign-off.
+- **Public address (ADR-017, ADR-026):** the app is reachable at a workers.dev address and has
+  held real client data since the owner's go-live sign-off on 2026-10-16. Protection:
+  invite-only sign-in, mandatory two-step login, RLS on every table, inactivity sign-out.
 - Single owner account with no second admin: losing access to the email and Supabase org
   login could lock the owner out. Mitigation: MFA + recovery codes stored offline.
 - Business-day math ignores US holidays (ADR-007).
-- Hosting adapter verified only locally in workerd, not deployed (ADR-004). Next.js 16.4.0
-  breaks the adapter at runtime; Next is pinned to 16.3.8.
-- The full test suite uses a stand-in for Supabase's `auth` schema; on Supabase's real image
-  only the smaller smoke test runs (RLS on, anon blocked, cross-user isolation). API-level
-  tests through the real Data API arrive in Phase 2.
-- Dev-only dependency advisories (ADR-011) accepted until Phase 11 review.
+- Next.js 16.4.0 breaks the Cloudflare adapter at runtime (ADR-004); Next is pinned to 16.3.8.
+  Re-run `npm run cf:preview` and check pages load before any upgrade.
+- The database test suite uses a stand-in for Supabase's `auth` schema; Supabase's real image
+  runs the smaller smoke test, and the integration and browser tests in CI go through the real
+  Auth and Data API of a local Supabase stack.
+- Dev-only dependency advisories (ADR-011) triaged in the Phase 11 review
+  (`docs/security-review.md` F-05/F-06); production dependencies are a CI gate.
 - Migrations applied to production 2026-10-14 (ADR-014). The Supabase access token in GitHub
   secrets is account-wide; keep its expiry short and revoke it when not deploying.
