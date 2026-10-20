@@ -808,7 +808,7 @@ tables, 20 two-step policies, 24 Data API functions, exactly 2 anonymous functio
 anonymous access); Deploy app 39063787483 followed. Later repeat runs were no-ops or redeploys of
 the same commit: migrations 39063733100 / 39091471296 ("Remote database is up to date") /
 39098393485 (verification passed again), Deploy app 39098478260 (smoke test 18/18).
-⏳ Owner: Settings → Tags (prune or rename the starter list), tick tags on a contact.
+✅ Owner: Settings → Tags (prune or rename the starter list), tick tags on a contact — done 2026-10-20.
 
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
@@ -937,7 +937,7 @@ dry run 39254595630 listed only `20261031120000_quote_dates_client_status.sql`; 
 functions, exactly 2 anonymous functions); Deploy app 39255433194 succeeded, smoke test 18/18.
 `supabase db push` does not print database notices, so the correction's count is not in the log:
 it can be read from the audit log (correction rows have no actor), see the query in the Phase 23
-report. ⏳ Owner: iPhone check (Quoted → date + one follow-up; Bound → Client).
+report. ✅ Owner: iPhone check (Quoted → date + one follow-up; Bound → Client) — done 2026-10-20.
 
 **Owner actions after approval**
 1. Merge to `main` (done by Claude).
@@ -1264,3 +1264,16 @@ is thanked when the referred person arrives).
 3. Deploy app (Cloudflare).
 4. iPhone: open Today and look at Focus; open a deal and try "Move to nurture…" and "Current
    coverage elsewhere". ✅ Done by the owner 2026-10-20.
+
+## Owner checks completed (2026-10-20)
+The owner reported these earlier open checks as done ("all complete"):
+- Password-reset email received and the reset worked on production (closes the "email delivery
+  not tested end to end" note in Phase 2).
+- A real import of the Alfa book of business (Phase 15 and the Excel fix).
+- Settings → Tags: starter list reviewed, tags ticked on a contact (Phase 20).
+- Dashboard on the iPhone (Phase 7).
+- Phase 23 iPhone checks: moving to Quoted asks for the date and adds one follow-up; Bound makes
+  the contact a client.
+Older ⏳ markers in ROADMAP/PROGRESS that refer to deploys long since done are left for the
+docs-only refresh (owner decision 8).
+

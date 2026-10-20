@@ -279,7 +279,7 @@ counts validated by tests against fixture data; fast on mobile.
   password-only sessions, refused to anonymous callers (DB + API tests).
 - ✅ Mobile: one database call for the summary plus two task lists; no sideways scroll at
   iPhone 13 width (browser test).
-- ⏳ Owner: open the dashboard on the iPhone after the preview deploy.
+- ✅ Owner: dashboard checked on the iPhone (2026-10-20).
 
 ---
 
