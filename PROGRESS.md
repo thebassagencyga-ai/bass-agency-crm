@@ -1327,5 +1327,8 @@ Measured on the Cloudflare build (board top / height): 1440×900 92 px / 776 px 
 
 **Approved by the owner 2026-10-20** ("Approved").
 
+**Production deploy (2026-10-20, commit c656dd4):** CI on `main` 39419661545 passed; no
+migrations; Deploy app 39421905137 succeeded (bundle check clean, smoke test passed).
+
 **Owner actions after approval:** Deploy app (Cloudflare) only — no migrations.
 
