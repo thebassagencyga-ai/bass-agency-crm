@@ -38,7 +38,7 @@ inherits the standard exit criteria at the bottom of this file.
 | fix | Board fits the window; Won/Lost capped; imported and existing policies off the board (owner report, 2026-10-19) | 25 | APPROVED, DEPLOYED (2026-10-19) |
 | 26 | Workflow audit Step 2: new-lead alerts on your phone (Web Push) | 25 | APPROVED, DEPLOYED, iPhone test passed (2026-10-20) |
 | fix | Alerts: "Turn on alerts on this device" failed to save the device (owner report, 2026-10-19) | 26 | APPROVED, DEPLOYED (2026-10-20) |
-| 27 | Workflow audit Step 3: ProducrIQ Focus (quiet deals, nurture check-backs, re-quotes, referrer thank-you; no AI) | 26 | APPROVED, DEPLOYED (2026-10-20) — iPhone check pending |
+| 27 | Workflow audit Step 3: ProducrIQ Focus (quiet deals, nurture check-backs, re-quotes, referrer thank-you; no AI) | 26 | APPROVED, DEPLOYED, iPhone check passed (2026-10-20) |
 
 ---
 
@@ -700,5 +700,5 @@ lost deals are re-quoted too; the referrer is thanked when the referred person a
 - ✅ Phone width: no sideways scroll; buttons at least 44px; light and dark themes use the
   semantic colours only.
 
-**Status:** APPROVED and DEPLOYED 2026-10-20 (migrations applied, verify passed, smoke test passed). ⏳ Owner iPhone check. See PROGRESS.md.
+**Status:** COMPLETE — approved and deployed 2026-10-20 (migrations applied, verify passed, smoke test passed); owner iPhone check passed 2026-10-20. See PROGRESS.md.
 

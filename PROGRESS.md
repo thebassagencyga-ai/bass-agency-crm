@@ -1213,7 +1213,7 @@ API functions incl. `focus_list`, exactly 3 anonymous functions, automation engi
 app 39366313265 succeeded, smoke test passed. (An earlier app deploy, 39365620870, ran before the
 migrations, so for about five minutes the Today page could not load Focus; the migrations fixed
 it, no data affected.) The re-quote catch-up count is a database notice the deploy log does not
-show. ⏳ Owner's iPhone check.
+show. Owner's iPhone check passed 2026-10-20 ("iPhone check complete"). **Phase 27 complete.**
 
 **Production deploy (2026-10-20, commit 0866c9e):** CI on `main` 39345973433 passed; no
 migrations; Deploy app 39348749100 succeeded, smoke test passed. Owner reported the iPhone test passed 2026-10-20 ("Perfect! It works"): alerts turned on, test
@@ -1263,4 +1263,4 @@ is thanked when the referred person arrives).
    3 anonymous functions. The apply log notes how many re-quote tasks the catch-up created.
 3. Deploy app (Cloudflare).
 4. iPhone: open Today and look at Focus; open a deal and try "Move to nurture…" and "Current
-   coverage elsewhere". ⏳ Manual check, not done yet.
+   coverage elsewhere". ✅ Done by the owner 2026-10-20.
