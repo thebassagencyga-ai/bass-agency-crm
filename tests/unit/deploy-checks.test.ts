@@ -44,7 +44,7 @@ describe("checkTargetProject", () => {
 describe("checkVerification", () => {
   const good = {
     stages: 30, product_lines: 4, tables_without_rls: 0, anon_grants: 0, crm_tables: 26,
-    mfa_policies: 26, profile_trigger: 1, public_functions: 28, definer_or_anon_functions: 0,
+    mfa_policies: 26, profile_trigger: 1, public_functions: 30, definer_or_anon_functions: 0,
     public_anon_functions: 3, unexpected_trigger_functions: 0, engine_unsafe: 0,
   };
 
@@ -56,7 +56,7 @@ describe("checkVerification", () => {
     expect(
       checkVerification({
         stages: "30", product_lines: "4", tables_without_rls: "0", anon_grants: "0", crm_tables: "26",
-        mfa_policies: "26", profile_trigger: "1", public_functions: "28", definer_or_anon_functions: "0",
+        mfa_policies: "26", profile_trigger: "1", public_functions: "30", definer_or_anon_functions: "0",
         public_anon_functions: "3", unexpected_trigger_functions: "0", engine_unsafe: "0",
       }),
     ).toEqual([]);

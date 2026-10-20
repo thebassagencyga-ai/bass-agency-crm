@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { lineClassForName } from "@/components/line-chip";
 import { RELATIONSHIP_LABELS, type RelationshipStatus } from "@/lib/contacts/types";
 
 const STATUS_STYLES: Record<RelationshipStatus, string> = {
@@ -15,7 +16,9 @@ export function ArchivedBadge() {
   return <span className="rounded bg-caution-soft px-2 py-0.5 text-xs font-medium text-caution">Archived</span>;
 }
 
-const TAG = "rounded-full bg-brand-soft px-2 py-0.5 text-xs font-medium text-fg";
+const TAG_BASE = "rounded-full px-2 py-0.5 text-xs font-medium";
+/** Tags named after a line (Auto, Home, Commercial, Life) take that line's colour (Phase 29). */
+const tagClass = (t: string) => `${TAG_BASE} ${lineClassForName(t) ?? "bg-brand-soft text-fg"}`;
 
 /** A contact's tags (Phase 17). `linked`: each opens the contact list filtered by that tag. */
 export function TagList({ tags, linked = false }: { tags: readonly string[]; linked?: boolean }) {
@@ -24,9 +27,9 @@ export function TagList({ tags, linked = false }: { tags: readonly string[]; lin
       {tags.map((t) => (
         <li key={t}>
           {linked ? (
-            <Link href={`/contacts?tag=${encodeURIComponent(t)}`} className={`inline-flex min-h-11 min-w-11 items-center justify-center ${TAG} underline-offset-2 hover:underline`}>{t}</Link>
+            <Link href={`/contacts?tag=${encodeURIComponent(t)}`} className={`inline-flex min-h-11 min-w-11 items-center justify-center ${tagClass(t)} underline-offset-2 hover:underline`}>{t}</Link>
           ) : (
-            <span className={TAG}>{t}</span>
+            <span className={tagClass(t)}>{t}</span>
           )}
         </li>
       ))}

@@ -8,6 +8,7 @@ import { requireFullSession } from "@/lib/auth/require";
 import { todayInZone } from "@/lib/dates";
 import { DEFAULT_CHECK_BACK, checkBackDate, coverageSchema } from "@/lib/focus";
 import { lifeDetailsSchema } from "@/lib/production";
+import { changeLineSchema } from "@/lib/opportunities/schema";
 import { EXISTING_POLICY_FIELDS, existingPolicyRow, existingPolicySchema } from "@/lib/opportunities/existing-policy";
 import { resolveQuoteDate, suggestedQuoteDate } from "@/lib/opportunities/quote-date";
 import { getProfile } from "@/lib/tasks/data";
@@ -312,4 +313,51 @@ export async function saveLifeDetails(_prev: FormState, formData: FormData): Pro
   revalidate(opp.contact_id);
   revalidatePath("/reports/production");
   redirect(`/opportunities/${opp.id}?lifesaved=1#life-details`);
+}
+
+// ---------------------------------------------------------------------------
+// Phase 29 (ADR-047): fixing mistakes
+// ---------------------------------------------------------------------------
+
+/** Correct a deal's line. Stage, tasks and dates stay; the database resets what no longer applies. */
+export async function changeLine(_prev: FormState, formData: FormData): Promise<FormState> {
+  const { supabase } = await requireFullSession();
+  const values = { product_line: String(formData.get("product_line") ?? "").slice(0, 20) };
+  const parsed = changeLineSchema.safeParse({ id: formData.get("id"), product_line: values.product_line });
+  if (!parsed.success) return { fieldErrors: fieldErrorsOf(parsed.error.issues), values };
+  const opp = await loadOpportunity(supabase, parsed.data.id);
+  if (!opp) return { error: "This opportunity could not be found.", values };
+  if (opp.product_line === parsed.data.product_line) return { fieldErrors: { product_line: "It is already on that line." }, values };
+  const { error } = await supabase.from("opportunities").update({ product_line: parsed.data.product_line }).eq("id", opp.id);
+  if (error) return { ...friendlyDbError(error.code), values };
+  revalidate(opp.contact_id);
+  revalidatePath("/reports/production");
+  redirect(`/opportunities/${opp.id}?linechanged=1`);
+}
+
+/** A won deal entered as a new sale was really a policy the client already had. */
+export async function markExistingPolicy(formData: FormData): Promise<void> {
+  const { supabase } = await requireFullSession();
+  const opp = await loadOpportunity(supabase, String(formData.get("id") ?? ""));
+  if (!opp) redirect("/opportunities");
+  const { error } = await supabase.rpc("mark_existing_policy", { p_id: opp.id });
+  if (error) redirect(`/opportunities/${opp.id}?error=1`);
+  revalidate(opp.contact_id);
+  revalidatePath("/reports/production");
+  revalidatePath("/dashboard");
+  redirect(`/opportunities/${opp.id}?markedexisting=1`);
+}
+
+/** Remove a deal entered by mistake (asks for confirmation). Nothing is deleted. */
+export async function removeOpportunity(formData: FormData): Promise<void> {
+  const { supabase } = await requireFullSession();
+  const opp = await loadOpportunity(supabase, String(formData.get("id") ?? ""));
+  if (!opp) redirect("/opportunities");
+  if (formData.get("confirm") !== "yes") redirect(`/opportunities/${opp.id}?confirmremove=1#fix`);
+  const { error } = await supabase.rpc("remove_opportunity", { p_id: opp.id });
+  if (error) redirect(`/opportunities/${opp.id}?error=1`);
+  revalidate(opp.contact_id);
+  revalidatePath("/reports/production");
+  revalidatePath("/dashboard");
+  redirect(`/contacts/${opp.contact_id}?removed=1`);
 }

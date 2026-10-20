@@ -164,6 +164,7 @@ underwriting answers, detailed health information, policy documents. No file upl
 
 | Public intake: only `submit_intake` callable anonymously; links, rate limits, validation, erasure | 13 | DB tests (`tests/db/intake.test.ts`), real Data API test (`tests/integration/intake-api.test.ts`), browser test, deploy verification |
 | New-lead alerts: no customer details; claimed once; only with the key's proof; key never in the bundle | 26 | DB tests (`tests/db/push-alerts.test.ts`), encryption checked against an independent implementation, browser test, CI bundle check, deploy verification (3 anonymous functions) |
+| Fixing mistakes: line change audited; existing-policy marking one-way and own deals only; removed deals hidden from every API read and read-only (restrictive policies), nothing deleted | 29 | DB tests (`tests/db/fix-mistakes.test.ts`), browser test, deploy verification (30 functions) |
 | Production report and commission settings: caller's own records only, read-only report, owner-only rate and goal tables (no DELETE), CSV formula-safe; anonymous refused; nothing for password-only sessions | 28 | DB tests (`tests/db/production.test.ts`, catalog and RLS regression suites cover the new tables), browser test, deploy verification (26 tables, 28 functions) |
 | Focus list: caller's own records only, read-only, no notes; anonymous refused; nothing for password-only sessions | 27 | DB tests (`tests/db/focus.test.ts`), browser test, deploy verification (27 functions) |
 

@@ -58,7 +58,7 @@ describe("existing policies (ADR-042)", () => {
     expect(await existingOf(o)).toBe(false);
   });
 
-  it("can only be created as won, and the marker never changes afterwards", async () => {
+  it("can only be created as won; once set it never turns off (Phase 29: a won sale may be marked later)", async () => {
     const c = await insertContact(db, agent);
     expect(await errorCode(insertOpportunity(db, agent, c, "auto", "contacted", { existing_policy: true }))).toBe("23514");
 
@@ -71,9 +71,13 @@ describe("existing policies (ADR-042)", () => {
     );
     expect(await existingOf(o)).toBe(true);
 
+    // Phase 29 (ADR-047): a won deal entered as a sale can be marked later; an open one cannot.
     const sale = await insertOpportunity(db, agent, c, "auto", "bound", { outcome: "won" });
     await asUser(db, agent, (q) => q.query("update public.opportunities set existing_policy = true where id = $1", [sale]));
-    expect(await existingOf(sale)).toBe(false);
+    expect(await existingOf(sale)).toBe(true);
+    const open = await insertOpportunity(db, agent, c, "home", "contacted");
+    await asUser(db, agent, (q) => q.query("update public.opportunities set existing_policy = true where id = $1", [open]));
+    expect(await existingOf(open)).toBe(false);
   });
 
   it("are not sales, new leads or new referrals in the reports", async () => {

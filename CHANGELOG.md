@@ -2,6 +2,16 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 29 — Colour and fixing mistakes (2026-10-20, ready for review)
+### Added
+- **Colour:** board stage headers are tinted (working stages blue, your quote stage amber, Won
+  green, Lost red); every card shows a coloured line chip; tags named Auto, Home, Commercial or
+  Life take that line's colour. Light and dark.
+- **Fix a mistake…** on every deal: **Change line** (keeps stage, tasks and dates), **This was a
+  policy they already had** (takes an old client's policy off the board and out of sales figures,
+  closes its onboarding/review/referral tasks), and **Remove (entered by mistake)** (asks to
+  confirm; hidden everywhere, nothing deleted).
+
 ## Phase 28 — Production and commission (2026-10-20, approved)
 ### Added
 - **Reports → Production:** premium and policies written this month against your goals,

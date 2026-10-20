@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LineChip } from "@/components/line-chip";
 import { OutcomeBadge } from "@/components/opportunities/badges";
 import { requireFullSession } from "@/lib/auth/require";
 import { contactDisplayName } from "@/lib/contacts/format";
@@ -35,6 +36,13 @@ function tableHref(p: OpportunityListParams, page: number): string {
 }
 
 const rowName = (r: OpportunityListRow) => contactDisplayName(r);
+
+/** Phase 29 (ADR-047): stage headers tinted by kind: working, quote stage, won, lost. */
+function stageHeaderClass(stage: { kind: string; is_quote_stage: boolean }): string {
+  if (stage.kind === "won") return "bg-good-soft";
+  if (stage.kind === "lost") return "bg-bad-soft";
+  return stage.is_quote_stage ? "bg-caution-soft" : "bg-brand-soft";
+}
 
 /** Cards shown in the Won and Lost columns (most recent first). */
 const CLOSED_SHOWN = 5;
@@ -115,7 +123,6 @@ function Board({ pipeline, pipelines, q, rows, clients, viewSwitch }: {
   const stages = pipeline.stages;
   // A deal can be moved into another pipeline's working stages (Phase 25).
   const elsewhere = pipelines.filter((p) => p.id !== pipeline.id);
-  const showLine = new Set(rows.rows.map((r) => r.product_line)).size > 1 || pipeline.lines.length !== 1;
   return (
     <>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -154,7 +161,7 @@ function Board({ pipeline, pipelines, q, rows, clients, viewSwitch }: {
           const headingId = `stage-${stage.id}`;
           return (
             <section key={stage.id} aria-labelledby={headingId} className="flex flex-col gap-2 rounded-md bg-subtle p-2 md:max-h-full md:w-72 md:shrink-0 md:overflow-y-auto">
-              <h2 id={headingId} className="px-1 text-sm font-semibold">
+              <h2 id={headingId} className={`rounded px-2 py-1 text-sm font-semibold ${stageHeaderClass(stage)}`}>
                 {stage.name} <span className="font-normal text-muted">({all.length})</span>
               </h2>
               {all.length > cards.length ? (
@@ -171,7 +178,7 @@ function Board({ pipeline, pipelines, q, rows, clients, viewSwitch }: {
                       <Link href={`/opportunities/${r.id}`} className="flex min-h-11 items-center font-medium underline-offset-2 hover:underline">{rowName(r)}</Link>
                       {r.description ? <p className="text-sm break-words text-muted">{r.description}</p> : null}
                       <div className="flex flex-wrap items-center gap-2 text-sm">
-                        {showLine ? <span className="rounded bg-subtle px-2 py-0.5 text-xs font-medium">{PRODUCT_LINE_NAMES[r.product_line]}</span> : null}
+                        <LineChip line={r.product_line} />
                         <ClientTag row={r} clients={clients} />
                         {r.outcome !== "open" ? <OutcomeBadge outcome={r.outcome} /> : null}
                         {r.estimated_annual_premium !== null ? <span>{formatMoney(r.estimated_annual_premium, { whole: true })}/yr</span> : null}

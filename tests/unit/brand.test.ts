@@ -53,6 +53,11 @@ const PAIRS: [string, string, number][] = [
   // Archive button: card-coloured text on the warning colour.
   ["--color-surface", "--color-warning", 4.5],
   ["--ui-shell-text", "--ui-shell", 4.5], ["--ui-shell-muted", "--ui-shell", 4.5],
+  // Phase 29: line chips and tags; stage headers on the soft status colours.
+  ["--ui-lob-auto-text", "--ui-lob-auto", 4.5], ["--ui-lob-home-text", "--ui-lob-home", 4.5],
+  ["--ui-lob-commercial-text", "--ui-lob-commercial", 4.5], ["--ui-lob-life-text", "--ui-lob-life", 4.5],
+  ["--color-text-primary", "--ui-success-soft", 4.5], ["--color-text-primary", "--ui-warning-soft", 4.5], ["--color-text-primary", "--ui-danger-soft", 4.5],
+  ["--color-text-secondary", "--ui-success-soft", 4.5], ["--color-text-secondary", "--ui-warning-soft", 4.5], ["--color-text-secondary", "--ui-danger-soft", 4.5],
   ["--color-brand-primary", "--ui-shell", 3], ["--ui-link", "--ui-canvas", 3],
 ];
 

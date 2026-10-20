@@ -1242,3 +1242,33 @@ renewals.
 **Consequences.** 26 tables, 28 Data API functions. A policy with no premium counts as a policy
 and $0; a life policy with no type or rate shows $0 and is counted on the page.
 
+---
+
+## ADR-047 — Colour and fixing mistakes on deals (Phase 29)
+**Date:** 2026-10-20. **Status:** accepted (owner choices and "Approve", 2026-10-20).
+
+**Context.** A deal's line was locked once saved (Phase 4), so a deal saved under the wrong line
+could not be corrected. Clients entered as new sales before "Add existing policy" existed
+(ADR-042) count as sales on the board and in the figures; a test deal could not be taken out.
+
+**Decision.**
+- **Colour.** Stage headers use the soft status colours by kind (working: brand, quote stage:
+  caution, won: good, lost: bad). Four line colours (`lob-auto`, `lob-home`, `lob-commercial`,
+  `lob-life`, soft background + text, light and dark) in `globals.css`; a line chip on every board
+  card; contact tags named after a line take its colour. Contrast pairs added to the brand test.
+- **Change line** (any deal). The lifecycle trigger no longer refuses a line change; it resets a
+  6-month term to 12 unless the new line is auto, and clears the life commission details unless
+  it is life. Stage, tasks, activities and dates stay; the audit log records the change.
+- **Existing policy later.** The existing-policy guard now allows false → true for a won deal that
+  is not imported (never back). `mark_existing_policy(id)` does it and closes the deal's open
+  onboarding, review-request and referral-request tasks (renewal reviews stay).
+- **Remove (entered by mistake).** `opportunities.removed_at`; `remove_opportunity(id)` closes the
+  deal's open tasks and sets it. A restrictive select policy hides removed deals from every API
+  read (lists, reports, Focus, Production, the deal page); because Postgres checks the updated row
+  against select policies, the row stays visible only within the transaction that removes it
+  (`removed_at = now()`). A restrictive update policy makes removed deals read-only. No undo in the
+  app; the audit log keeps the full record for a manual restore.
+
+**Consequences.** 30 Data API functions. Tasks and activities of a removed deal stay on the
+contact's history (closed). A contact's client status is not changed by a removal.
+

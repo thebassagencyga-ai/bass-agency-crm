@@ -106,7 +106,7 @@ Many per contact, in any mix of product lines.
 | `outcome` | `open` / `nurture` on active stages; `won` only on the won stage (Bound, or Placed for life); `lost` only on Lost. |
 | `loss_reason`, `loss_reason_detail` | Reason required exactly when the outcome is `lost`. |
 | `closed_at` | Set automatically when won or lost; cleared on reopen. |
-| `existing_policy` | True when entered with "Add existing policy" (a policy the client already had, ADR-042). Only settable when created as won; never changes afterwards. Not counted as a sale in Reports. |
+| `existing_policy` | True when entered with "Add existing policy" (a policy the client already had, ADR-042), or set later for a won sale with `mark_existing_policy` (Phase 29). Never turns off. Not counted as a sale in Reports. |
 | `cycle` | Starts at 1; incremented on reopen so a new follow-up sequence gets new task keys. |
 | `quote_sent_on`, `estimated_annual_premium`, `quoted_carrier`, `next_action`, `effective_date`, `renewal_date` | Quote tracking and dates. Renewal must be after effective. Carrier is free text (≤ 100). |
 | `current_carrier`, `current_policy_renews_on` | A prospect's current insurer and when that policy renews (intake, Phase 13; editable on any deal not won, Phase 27). Drives the re-quote task. |
@@ -114,9 +114,11 @@ Many per contact, in any mix of product lines.
 | `nurture_check_back_on` | Phase 27: nurture only, the date to check back; cleared when the deal leaves nurture. Drives the check-back task. |
 | `focus_snoozed_until` | Phase 27: open only, hidden from Focus "gone quiet" until this date; cleared when the deal is no longer open. |
 | `life_policy_type`, `premium_mode`, `first_payout_on`, `commission_rate_override` | Phase 28, life deals only (checked): policy type, how often premium is paid (monthly / quarterly / semiannual / annual; monthly when not set), first commission payout (else the effective date), and a first-year rate for this policy overriding Settings. Used by `production_report`. |
+| `removed_at` | Phase 29: set by `remove_opportunity` when the deal was entered by mistake. A restrictive policy hides such deals from every API read (visible only within the removing transaction) and makes them read-only; the audit log keeps them. |
 
-Lifecycle rules (trigger `opportunities_b_lifecycle`, Phase 4): the product line cannot change
-after creation; `cycle` is set by the database only (1 on insert, +1 when a won or lost
+Lifecycle rules (trigger `opportunities_b_lifecycle`, Phase 4): the product line can be corrected
+(Phase 29: a 6-month term becomes 12 unless the new line is auto, life details clear unless it is
+life); `cycle` is set by the database only (1 on insert, +1 when a won or lost
 opportunity is reopened, otherwise unchanged); reopening a lost opportunity clears its loss
 reason and detail (the audit log keeps them).
 
@@ -292,6 +294,8 @@ granted to `authenticated` only.
 | `save_pipeline(id, name, lines, stages)` | Phase 25 (ADR-043): creates or updates one of the agent's pipelines, its stages (3–12, Won and Lost last) and the lines whose new leads it receives, in one transaction. |
 | `claim_push_alerts(proof)` | Phase 26 (ADR-044), **anonymous callers only**, SECURITY DEFINER: for the holder of the push key's proof, hands out the devices owed a new-request alert, once each; alerts over a day old are dropped. Returns device push addresses and keys only, no customer details. |
 | `production_report(month)` | Phase 28 (ADR-046), one JSON object: written premium and policies for the month (and year to date), goals, by line (policies, premium, rates, new-business and renewal commission), the next 12 months (renewals, life instalments, the month's new business), active policies, ended this month, life policies without a type or rate. Estimates from the agent's rates; read-only, SECURITY INVOKER. |
+| `mark_existing_policy(id)` | Phase 29 (ADR-047): a won deal entered as a sale (not imported, not already marked) becomes an existing policy; closes its open onboarding, review-request and referral-request tasks; returns how many. |
+| `remove_opportunity(id)` | Phase 29 (ADR-047): closes the deal's open tasks and sets `removed_at` (hidden from then on); returns how many tasks closed. |
 | `dashboard_summary(today)` | One JSON object for the dashboard: open task counts (overdue, due today, next 7 days), open/nurture opportunities and estimated premium by product line, renewals in the next 60 days (count + soonest 5, lost and ended policies excluded), 8 most recent activities. |
 | `confirm_no_response_follow_up(activity_id)` | Creates the "no response" follow-up for one of the caller's activities after the owner confirms; returns 1 if a task was created, else 0. |
 

@@ -40,6 +40,7 @@ inherits the standard exit criteria at the bottom of this file.
 | fix | Alerts: "Turn on alerts on this device" failed to save the device (owner report, 2026-10-19) | 26 | APPROVED, DEPLOYED (2026-10-20) |
 | fix | Board toolbar: one compact row, board fills the window (owner request, 2026-10-20) | 25 | APPROVED, DEPLOYED (2026-10-20) |
 | 28 | Production and commission (Reports → Production, rates and goals, life details; estimates only) | 27 | APPROVED, DEPLOYED (2026-10-20) — owner check pending |
+| 29 | Colour on the board and tags; fix mistakes (change line, existing policy, remove) | 28 | READY FOR REVIEW (2026-10-20) |
 | docs | Documentation refresh (workflow audit, owner decision 8) | 27 | APPROVED, MERGED (2026-10-20) — no deploy needed |
 | 27 | Workflow audit Step 3: ProducrIQ Focus (quiet deals, nurture check-backs, re-quotes, referrer thank-you; no AI) | 26 | APPROVED, DEPLOYED, iPhone check passed (2026-10-20) |
 
@@ -730,4 +731,28 @@ statement actuals yet; no AI (ADR-046). Mockup and design approved 2026-10-20.
 - ✅ iPhone width without sideways scroll; semantic colours (light and dark).
 
 **Status:** APPROVED and DEPLOYED 2026-10-20 (migration applied, verify passed, smoke test passed). ⏳ Owner: enter real rates and goals, check the report. See PROGRESS.md.
+
+---
+
+## Phase 29 — Colour and fixing mistakes
+**Objective.** Owner requests 2026-10-20 (photos of the board and Clients list): light colour on the
+board's stage headers and on cards and tags; a way to correct a deal saved under the wrong line;
+and a way to take deals that are not sales (two old clients entered as new sales, one test) off
+the board and out of the figures. Choices: colour by stage type; any deal's line can change; both
+"existing policy" and "remove"; close the win's tasks. Design approved ("Approve"). ADR-047.
+
+**Acceptance**
+- ✅ Stage headers tinted by kind (working, quote stage, won, lost); a coloured line chip on every
+  card; tags named after a line take its colour; all pairs ≥ 4.5:1 in both themes (contrast test).
+- ✅ Change line on any deal: stage, tasks, dates kept; 6-month term and life details reset when
+  they no longer apply; the audit log records it.
+- ✅ "This was a policy they already had" on won sales: existing policy (never back), off the board
+  and out of sales and Production; the win's onboarding, review and referral tasks closed;
+  renewal reviews kept; only once, only won sales, only the caller's own.
+- ✅ "Remove (entered by mistake)" with a confirmation tick: open tasks closed; hidden from every
+  list, report, Focus, Production and the deal page; not editable afterwards; nothing deleted
+  (audit log keeps it).
+- ✅ Two new SECURITY INVOKER functions; deploy verification 26 tables, 30 functions, 3 anonymous.
+
+**Status:** READY FOR REVIEW (2026-10-20). See PROGRESS.md.
 

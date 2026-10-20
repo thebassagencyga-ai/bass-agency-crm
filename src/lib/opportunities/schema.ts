@@ -84,3 +84,9 @@ export const OPPORTUNITY_DETAIL_FIELDS = [
   "policy_term_months",
 ] as const;
 export const NEW_OPPORTUNITY_FIELDS = ["contact_id", "product_line", "stage_id", ...OPPORTUNITY_DETAIL_FIELDS] as const;
+
+/** Phase 29 (ADR-047): correcting a deal's line. */
+export const changeLineSchema = z.object({
+  id: z.uuid(),
+  product_line: z.enum(PRODUCT_LINES, { message: "Choose a line." }),
+});

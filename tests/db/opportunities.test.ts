@@ -65,13 +65,13 @@ describe("opportunity lifecycle", () => {
     expect(await errorCode(update(agent, opp, "quoted_carrier = $2", ["x".repeat(101)]))).toBe(CHECK);
   });
 
-  it("never lets the product line change, even when the deal moves to another pipeline", async () => {
+  it("keeps the line when the deal moves to another pipeline", async () => {
     const opp = await insertOpportunity(db, agent, contact, "auto");
     const homeLead = await stageId(db, "home", "new_lead", agent);
-    expect(await errorCode(update(agent, opp, "product_line = 'home', stage_id = $2", [homeLead]))).toBe(CHECK);
     // Phase 25: moving to a stage of another pipeline is allowed; the line stays auto.
     await update(agent, opp, "stage_id = $2", [homeLead]);
     expect((await row(opp)).product_line).toBe("auto");
+    // Phase 29 (ADR-047): the line itself can be corrected on purpose (tests/db/fix-mistakes.test.ts).
   });
 
   it("ignores a cycle supplied by the client", async () => {

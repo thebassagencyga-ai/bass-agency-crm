@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OutcomeBadge } from "@/components/opportunities/badges";
+import { ChangeLineForm } from "@/components/opportunities/fix-forms";
 import { CoverageForm, NurtureForm } from "@/components/opportunities/focus-forms";
 import { LifeDetailsForm } from "@/components/production/life-details-form";
 import { MarkLostForm, MoveStageForm } from "@/components/opportunities/stage-forms";
@@ -21,7 +22,7 @@ import { termLabel } from "@/lib/renewals";
 import { outcomesFor } from "@/lib/renewals/data";
 import { getProfile, tasksForOpportunity } from "@/lib/tasks/data";
 import { CATEGORY_LABELS } from "@/lib/tasks/types";
-import { setNurture } from "../actions";
+import { markExistingPolicy, removeOpportunity, setNurture } from "../actions";
 import { templateForOpportunity } from "@/lib/messages/templates";
 
 export const metadata: Metadata = { title: "Opportunity · Producr CRM" };
@@ -37,6 +38,9 @@ const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   checkback: { text: "Check-back date saved.", tone: "ok" },
   coverage: { text: "Current coverage saved.", tone: "ok" },
   lifesaved: { text: "Commission details saved.", tone: "ok" },
+  linechanged: { text: "Line changed. The history records the correction.", tone: "ok" },
+  markedexisting: { text: "Marked as a policy they already had: off the board and out of sales figures. Its onboarding, review and referral tasks were closed; renewal reviews stay.", tone: "ok" },
+  confirmremove: { text: "Tick the box to confirm, then press Remove.", tone: "error" },
   unnurture: { text: "Back to open.", tone: "ok" },
   error: { text: "That didn't work. Please try again.", tone: "error" },
 };
@@ -222,6 +226,35 @@ export default async function OpportunityPage({
         <h2 id="stage-heading" className="text-lg font-semibold">{opp.outcome === "won" || opp.outcome === "lost" ? "Reopen" : "Change stage"}</h2>
         <MoveStageForm id={opp.id} stages={stages} otherPipelines={otherPipelines} currentStageId={opp.stage_id} outcome={opp.outcome} quoteSentOn={opp.quote_sent_on} today={today} />
       </section>
+
+      <details id="fix" open={query.confirmremove !== undefined} className="scroll-mt-4 rounded-md border border-line p-3 bg-card">
+        <summary className="min-h-11 cursor-pointer py-2 text-lg font-semibold">Fix a mistake…</summary>
+        <div className="flex flex-col gap-5 pt-2">
+          <ChangeLineForm id={opp.id} line={opp.product_line} />
+          {opp.outcome === "won" && !opp.existing_policy && !opp.import_batch_id ? (
+            <form action={markExistingPolicy} className="flex flex-col gap-2 border-t border-line pt-4">
+              <input type="hidden" name="id" value={opp.id} />
+              <p className="text-sm">
+                <span className="font-medium">Not a new sale?</span> If this is a policy the client already had, mark it so it leaves the board and the sales figures.
+                Its onboarding, review and referral tasks are closed; renewal reviews stay. This can&apos;t be undone.
+              </p>
+              <button type="submit" className="min-h-11 w-fit rounded-md border border-line-strong bg-card px-4 font-medium hover:bg-subtle">This was a policy they already had</button>
+            </form>
+          ) : null}
+          <form action={removeOpportunity} className="flex flex-col gap-2 border-t border-line pt-4">
+            <input type="hidden" name="id" value={opp.id} />
+            <p className="text-sm">
+              <span className="font-medium">Entered by mistake?</span> Remove it from Producr: its open tasks are closed and it no longer shows anywhere.
+              Nothing is deleted (the history keeps it), but there is no undo button.
+            </p>
+            <label className="flex min-h-11 items-center gap-3">
+              <input type="checkbox" name="confirm" value="yes" className="h-5 w-5" />
+              Yes, remove this deal
+            </label>
+            <button type="submit" className="min-h-11 w-fit rounded-md bg-bad-soft px-4 font-medium text-bad hover:bg-subtle">Remove (entered by mistake)</button>
+          </form>
+        </div>
+      </details>
 
       {opp.outcome !== "lost" && lostStage ? (
         <details id="mark-lost" open={query.mark === "lost"} className="rounded-md border border-line p-3 bg-card">

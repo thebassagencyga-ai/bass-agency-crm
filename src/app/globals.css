@@ -51,6 +51,15 @@
   --ui-shell: var(--color-brand-ink);
   --ui-shell-text: #e8eef5;
   --ui-shell-muted: #9aa8ba;
+  /* Phase 29: soft colours per line of business (chips and tags). */
+  --ui-lob-auto: #e0efff;
+  --ui-lob-auto-text: #0b4a8f;
+  --ui-lob-home: #e3f6e8;
+  --ui-lob-home-text: #1f6b35;
+  --ui-lob-commercial: #f3e8ff;
+  --ui-lob-commercial-text: #5b2a86;
+  --ui-lob-life: #fff1e0;
+  --ui-lob-life-text: #8a4a00;
 }
 
 /* Dark theme. Kept identical in both blocks (checked by the unit test). */
@@ -73,6 +82,14 @@
   --ui-warning-soft: #2d1f08;
   --ui-danger-soft: #2e1212;
   --ui-shell: #070b10;
+  --ui-lob-auto: #13304f;
+  --ui-lob-auto-text: #9ccbff;
+  --ui-lob-home: #10301c;
+  --ui-lob-home-text: #8fe0a8;
+  --ui-lob-commercial: #2b1840;
+  --ui-lob-commercial-text: #d7b8ff;
+  --ui-lob-life: #3a2508;
+  --ui-lob-life-text: #ffc27a;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
@@ -94,6 +111,14 @@
     --ui-warning-soft: #2d1f08;
     --ui-danger-soft: #2e1212;
     --ui-shell: #070b10;
+    --ui-lob-auto: #13304f;
+    --ui-lob-auto-text: #9ccbff;
+    --ui-lob-home: #10301c;
+    --ui-lob-home-text: #8fe0a8;
+    --ui-lob-commercial: #2b1840;
+    --ui-lob-commercial-text: #d7b8ff;
+    --ui-lob-life: #3a2508;
+    --ui-lob-life-text: #ffc27a;
   }
 }
 
@@ -122,4 +147,12 @@
   --color-shell: var(--ui-shell); /* navigation shell */
   --color-shell-fg: var(--ui-shell-text);
   --color-shell-muted: var(--ui-shell-muted);
+  --color-lob-auto: var(--ui-lob-auto);
+  --color-lob-auto-fg: var(--ui-lob-auto-text);
+  --color-lob-home: var(--ui-lob-home);
+  --color-lob-home-fg: var(--ui-lob-home-text);
+  --color-lob-commercial: var(--ui-lob-commercial);
+  --color-lob-commercial-fg: var(--ui-lob-commercial-text);
+  --color-lob-life: var(--ui-lob-life);
+  --color-lob-life-fg: var(--ui-lob-life-text);
 }

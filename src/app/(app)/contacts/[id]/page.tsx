@@ -44,6 +44,7 @@ const NOTICES: Record<string, { text: string; tone: "ok" | "error" }> = {
   restored: { text: "Contact restored.", tone: "ok" },
   detailsaved: { text: "Saved.", tone: "ok" },
   detailremoved: { text: "Removed. It is kept in the history, not deleted.", tone: "ok" },
+  removed: { text: "Deal removed. It no longer shows anywhere in Producr; nothing was deleted (it is kept in the history).", tone: "ok" },
   merged: { text: "Contacts merged. Everything from the duplicate is now here; the duplicate is archived.", tone: "ok" },
   error: { text: "That didn't work. Please try again.", tone: "error" },
 };
