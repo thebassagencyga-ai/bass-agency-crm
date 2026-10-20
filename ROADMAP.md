@@ -36,7 +36,7 @@ inherits the standard exit criteria at the bottom of this file.
 | 24 | Leads and Clients tabs, book of business view | 23 | APPROVED, DEPLOYED (2026-10-19) |
 | 25 | Your own pipelines (custom stages, routing by line) | 24 | APPROVED, DEPLOYED (2026-10-19) |
 | fix | Board fits the window; Won/Lost capped; imported and existing policies off the board (owner report, 2026-10-19) | 25 | APPROVED, DEPLOYED (2026-10-19) |
-| 26 | Workflow audit Step 2: new-lead alerts on your phone (Web Push) | 25 | APPROVED, DEPLOYED (2026-10-19) — iPhone test pending |
+| 26 | Workflow audit Step 2: new-lead alerts on your phone (Web Push) | 25 | APPROVED, DEPLOYED, iPhone test passed (2026-10-20) |
 | fix | Alerts: "Turn on alerts on this device" failed to save the device (owner report, 2026-10-19) | 26 | APPROVED, DEPLOYED (2026-10-20) |
 
 ---
@@ -666,8 +666,8 @@ request".
   proof derived from it).
 - ✅ New table and function: RLS, two-step policy, no DELETE, owner-only; anonymous functions now 3
   (deploy verification updated).
-- ⏳ Owner: create the key, add it in Cloudflare, turn alerts on on the iPhone, test alert and a
-  real form submission (the iPhone test completes this phase).
+- ✅ Owner: key created and added in Cloudflare; alerts on the iPhone; test alert and a real form
+  submission arrived (2026-10-20, after the turn-on fix).
 
-**Status:** APPROVED (owner, 2026-10-19); the owner's iPhone test completes it. See PROGRESS.md.
+**Status:** COMPLETE (approved 2026-10-19; iPhone test passed 2026-10-20). See PROGRESS.md.
 

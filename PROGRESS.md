@@ -1176,7 +1176,7 @@ dry run 39341963634 listed only `20261104120000_push_alerts.sql`; apply run 3934
 and verification passed (24 tables, 24 two-step policies, 26 Data API functions, exactly 3
 anonymous functions — calendar_feed, claim_push_alerts, submit_intake — each SECURITY DEFINER with
 a pinned search_path; automation engine safe); Deploy app 39342456997 succeeded, smoke test passed.
-⏳ Owner: create the alert key, add `PUSH_KEY` in Cloudflare, iPhone test (completes Phase 26).
+Owner created the alert key, added `PUSH_KEY` in Cloudflare and passed the iPhone test 2026-10-20 (after the turn-on fix).
 
 **Owner actions after approval**
 1. Merge to `main` (Claude).
@@ -1207,8 +1207,8 @@ No database change.
 **Approved by the owner 2026-10-20** ("Approved").
 
 **Production deploy (2026-10-20, commit 0866c9e):** CI on `main` 39345973433 passed; no
-migrations; Deploy app 39348749100 succeeded, smoke test passed. ⏳ Owner: iPhone test (Turn on →
-test alert → test quote request), which also completes Phase 26.
+migrations; Deploy app 39348749100 succeeded, smoke test passed. Owner reported the iPhone test passed 2026-10-20 ("Perfect! It works"): alerts turned on, test
+alert and a test quote request arrived. **Phase 26 complete.**
 
 **Owner actions after approval:** Deploy app (Cloudflare) only — no migrations. Then on the iPhone
 (Home Screen app): Settings → Alerts → Turn on → Send a test alert; then a test quote request.
