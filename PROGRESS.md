@@ -1206,6 +1206,15 @@ No database change.
 
 **Approved by the owner 2026-10-20** ("Approved").
 
+**Production deploy (2026-10-20, commit ea638c0):** CI on `main` 39363513067 passed; migrations
+dry run 39365873061 listed only `20261105120000_focus_events.sql` and `20261105120100_focus.sql`;
+apply run 39366071892 applied both and verification passed (24 tables, 24 two-step policies, 27 Data
+API functions incl. `focus_list`, exactly 3 anonymous functions, automation engine safe); Deploy
+app 39366313265 succeeded, smoke test passed. (An earlier app deploy, 39365620870, ran before the
+migrations, so for about five minutes the Today page could not load Focus; the migrations fixed
+it, no data affected.) The re-quote catch-up count is a database notice the deploy log does not
+show. ⏳ Owner's iPhone check.
+
 **Production deploy (2026-10-20, commit 0866c9e):** CI on `main` 39345973433 passed; no
 migrations; Deploy app 39348749100 succeeded, smoke test passed. Owner reported the iPhone test passed 2026-10-20 ("Perfect! It works"): alerts turned on, test
 alert and a test quote request arrived. **Phase 26 complete.**
