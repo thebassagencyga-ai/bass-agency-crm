@@ -1421,4 +1421,7 @@ safe); Deploy app 39498481275 succeeded after the migration (bundle check clean,
 3. Deploy app (Cloudflare) — after step 2.
 4. Fix the three deals: Kerry L Bass and Kerry Jonathan Bass → open the deal → Fix a mistake… →
    This was a policy they already had; Test → Remove. Correct the auto-saved-as-home deal with
-   Change line. ⏳ Manual check.
+   Change line. ✅ Owner 2026-10-20: existing-policy marking and Remove work. Change line not
+   used yet: the deal needs a line the CRM does not have (owner asked for more lines, Phase 30).
+   Board colours: owner asked why the working stages share one colour (intentional: colour by
+   stage type, ADR-047); keeps it as is.
