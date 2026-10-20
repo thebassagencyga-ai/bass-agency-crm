@@ -1100,8 +1100,7 @@ listed only `20261102120000_custom_pipelines.sql`; apply run 39304190847 applied
 migration's own check that every deal was moved passed, or it would have rolled back) and
 verification passed (30 template stages, 23 tables, 23 two-step policies, 25 Data API functions
 incl. `save_pipeline`, exactly 2 anonymous functions, automation engine safe); Deploy app
-39304344818 succeeded, smoke test passed. In use since: the owner sent board screenshots on
-2026-10-19 (led to the board-layout fix); no separate iPhone check was reported.
+39304344818 succeeded, smoke test passed. Owner reported the Phase 25 check complete 2026-10-20.
 
 **Owner actions after approval**
 1. Merge to `main` (Claude).
@@ -1137,7 +1136,7 @@ listed every policy imported or added as existing in the last 30 days, making th
 dry run 39319147879 listed only `20261103120000_board_excludes_existing.sql`; apply run
 39319448155 applied it and verification passed (23 tables, 23 two-step policies, 25 Data API
 functions, exactly 2 anonymous functions); Deploy app 39319801784 succeeded, smoke test passed.
-Owner moved on to Step 2 after this deploy; a separate check on the computer was not reported.
+Owner checked it on the computer 2026-10-20: "looks good and functions good" (asked for less header, see the board toolbar fix).
 
 **Owner actions after approval:** Deploy database migrations (dry run lists only
 `20261103120000_board_excludes_existing.sql`; then apply; verify unchanged: 23 tables, 25
@@ -1304,4 +1303,27 @@ the docs refresh"). No code, migration, configuration or data change.
 
 **Approved by the owner 2026-10-20** ("Approved"); merged to `main`. Documentation only, so no
 deploy.
+
+## Fix — Board toolbar (branch `fix-board-header`, 2026-10-20)
+**Owner report (photo of the board on a computer):** "Pipeline board fix looks good and functions
+good, I just think more of the page should be the pipeline and less of the header/search bar."
+**Change (no database change):** on the board, the title, pipeline tabs, "Edit pipelines", a
+narrower search and the Board/Table switch are one toolbar (it wraps once on narrower windows);
+the explanation line shows only on the table view; the page is the window's height and the board
+fills what the toolbar leaves (instead of a fixed allowance), still ending inside the window so
+its sideways scrollbar stays in view. Phones unchanged (stacked).
+
+Measured on the Cloudflare build (board top / height): 1440×900 92 px / 776 px (was 596);
+1280×720 144 / 544 (was 416; Board/Table wraps to a second row at this width); 1024×768
+144 / 592; 800×1000 236 / 732.
+
+**Tests (2026-10-20)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck, unit | pass |
+| Local: browser tests against the Cloudflare build | 8 of 8 affected (board layout — now also checks the board starts within 160 px and is at least 500 px tall at 1280×720, which the earlier layout fails — opportunities, pipelines, responsive, phone polish, leads/clients, existing policy, journey) |
+| CI | see below |
+| Production | not deployed |
+
+**Owner actions after approval:** Deploy app (Cloudflare) only — no migrations.
 

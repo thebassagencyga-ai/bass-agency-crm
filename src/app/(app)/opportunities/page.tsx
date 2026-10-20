@@ -54,37 +54,52 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
   const noticeKey = Object.keys(NOTICES).find((k) => raw[k]);
   const notice = noticeKey ? NOTICES[noticeKey] : undefined;
 
+  // Board on a computer: the page is exactly the window's height (less the main area's padding)
+  // and the board takes whatever the toolbar leaves, however the toolbar wraps.
+  const fill = params.view === "board" && shown;
   return (
-    <section className="flex flex-col gap-4">
+    <section className={`flex flex-col gap-4 ${fill ? "md:h-[calc(100dvh-4rem)]" : ""}`}>
       {notice ? (
         <p role={notice.tone === "error" ? "alert" : "status"} className={`max-w-4xl rounded-md p-3 text-sm ${notice.tone === "error" ? "bg-bad-soft text-bad" : "bg-good-soft text-good"}`}>
           {notice.text}
         </p>
       ) : null}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold tracking-tight">Opportunities</h1>
-        <nav aria-label="View" className="flex gap-1">
-          {(["board", "table"] as const).map((v) => (
-            <Link
-              key={v}
-              href={v === "board" ? (shown ? `/opportunities?pipeline=${shown.id}` : "/opportunities") : "/opportunities?view=table"}
-              aria-current={params.view === v ? "page" : undefined}
-              className="flex min-h-11 items-center rounded-md border border-line-strong px-4 text-sm font-medium aria-[current=page]:border-brand aria-[current=page]:bg-brand aria-[current=page]:text-on-brand"
-            >
-              {v === "board" ? "Board" : "Table"}
-            </Link>
-          ))}
-        </nav>
-      </div>
-      <p className="max-w-4xl text-sm text-muted">
-        Add an opportunity from a contact&apos;s page. {params.view === "board" ? "The board shows open and nurture opportunities plus anything won or lost in the last 30 days." : null}
-      </p>
-      {params.view === "board" ? (
-        shown ? <Board pipeline={shown} pipelines={pipelines} q={params.q} rows={board!} clients={clients} /> : <p className="text-muted">No pipelines yet. Add one in Settings → Pipelines.</p>
+      {params.view === "board" && shown ? (
+        // Board (owner, 2026-10-20): title, pipelines, search and the view switch share one
+        // toolbar, so most of the window is the board itself.
+        <Board pipeline={shown} pipelines={pipelines} q={params.q} rows={board!} clients={clients} viewSwitch={<ViewSwitch view="board" boardHref={`/opportunities?pipeline=${shown.id}`} />} />
       ) : (
-        <Table params={params} pipelines={pipelines} result={table!} clients={clients} />
+        <>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h1 className="text-2xl font-bold tracking-tight">Opportunities</h1>
+            <ViewSwitch view={params.view} boardHref={shown ? `/opportunities?pipeline=${shown.id}` : "/opportunities"} />
+          </div>
+          <p className="max-w-4xl text-sm text-muted">Add an opportunity from a contact&apos;s page.</p>
+          {params.view === "board" ? (
+            <p className="text-muted">No pipelines yet. Add one in Settings → Pipelines.</p>
+          ) : (
+            <Table params={params} pipelines={pipelines} result={table!} clients={clients} />
+          )}
+        </>
       )}
     </section>
+  );
+}
+
+function ViewSwitch({ view, boardHref }: { view: "board" | "table"; boardHref: string }) {
+  return (
+    <nav aria-label="View" className="flex gap-1">
+      {(["board", "table"] as const).map((v) => (
+        <Link
+          key={v}
+          href={v === "board" ? boardHref : "/opportunities?view=table"}
+          aria-current={view === v ? "page" : undefined}
+          className="flex min-h-11 items-center rounded-md border border-line-strong px-4 text-sm font-medium aria-[current=page]:border-brand aria-[current=page]:bg-brand aria-[current=page]:text-on-brand"
+        >
+          {v === "board" ? "Board" : "Table"}
+        </Link>
+      ))}
+    </nav>
   );
 }
 
@@ -94,13 +109,17 @@ function ClientTag({ row, clients }: { row: OpportunityListRow; clients: Set<str
   return <span className="rounded bg-good-soft px-2 py-0.5 text-xs font-medium text-good">Client</span>;
 }
 
-function Board({ pipeline, pipelines, q, rows, clients }: { pipeline: Pipeline; pipelines: Pipeline[]; q: string; rows: { rows: OpportunityListRow[]; truncated: boolean }; clients: Set<string> }) {
+function Board({ pipeline, pipelines, q, rows, clients, viewSwitch }: {
+  pipeline: Pipeline; pipelines: Pipeline[]; q: string; rows: { rows: OpportunityListRow[]; truncated: boolean }; clients: Set<string>; viewSwitch: React.ReactNode;
+}) {
   const stages = pipeline.stages;
   // A deal can be moved into another pipeline's working stages (Phase 25).
   const elsewhere = pipelines.filter((p) => p.id !== pipeline.id);
   const showLine = new Set(rows.rows.map((r) => r.product_line)).size > 1 || pipeline.lines.length !== 1;
   return (
     <>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+      <h1 className="text-2xl font-bold tracking-tight">Opportunities</h1>
       <nav aria-label="Pipelines" className="flex flex-wrap items-center gap-1">
         {pipelines.map((p) => (
           <Link
@@ -114,18 +133,20 @@ function Board({ pipeline, pipelines, q, rows, clients }: { pipeline: Pipeline; 
         ))}
         <Link href="/settings/pipelines" className="flex min-h-11 items-center px-3 text-sm underline text-link">Edit pipelines</Link>
       </nav>
-      <form method="get" action="/opportunities" role="search" className="flex max-w-xl gap-2">
+      <form method="get" action="/opportunities" role="search" className="flex w-full gap-2 lg:ml-auto lg:w-80">
         <input type="hidden" name="pipeline" value={pipeline.id} />
         <label htmlFor="board-q" className="sr-only">Search this pipeline</label>
         <input id="board-q" name="q" type="search" defaultValue={q} placeholder="Search name, description or carrier" maxLength={100} className={`${CONTROL} flex-1`} />
         <button type="submit" className="min-h-11 rounded-md border border-line-strong bg-card hover:bg-subtle px-4 font-medium">Search</button>
       </form>
+      {viewSwitch}
+      </div>
       {rows.truncated ? (
         <p className="text-sm">Showing the 200 most recently updated. <Link href={`/opportunities?view=table&pipeline=${pipeline.id}`} className="underline text-link">See all in the table</Link>.</p>
       ) : null}
-      {/* Phones: one stage after another. Wider screens: stages side by side; the board fits the
-          window so its sideways scrollbar stays in view, and each stage scrolls on its own. */}
-      <div className="flex flex-col gap-4 md:max-h-[calc(100dvh-19rem)] md:min-h-80 md:flex-row md:items-start md:overflow-x-auto md:pb-2">
+      {/* Phones: one stage after another. Wider screens: stages side by side; the board fills the
+          rest of the window so its sideways scrollbar stays in view, and each stage scrolls on its own. */}
+      <div className="flex flex-col gap-4 md:min-h-80 md:flex-1 md:flex-row md:items-start md:overflow-x-auto md:pb-2">
         {stages.map((stage) => {
           const all = rows.rows.filter((r) => r.stage_id === stage.id);
           // Won and Lost: the most recent few; the rest are in the table.

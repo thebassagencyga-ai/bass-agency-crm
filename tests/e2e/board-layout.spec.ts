@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { createTestUser, fullSessionClient, fullSessionCookies, ownStage } from "../support/supabase";
 
-// Board fix after Phase 25 (owner, 2026-10-19): on a computer the board fits the window, so its
+// Board fix after Phase 25 (owner, 2026-10-19; toolbar 2026-10-20): on a computer the board fits the window, so its
 // sideways scrollbar is in view; Won shows the 5 most recent with a link to the rest; existing
 // policies are not on the board. Fictional data only.
 const APP_URL = process.env.APP_URL ?? "http://127.0.0.1:8787";
@@ -28,4 +28,9 @@ test("board fits a desktop window, caps the Won column and leaves existing polic
   // The board ends inside the window, so its horizontal scrollbar is visible without scrolling down.
   const box = await page.locator("section[aria-labelledby^=stage-]").first().locator("..").boundingBox();
   expect(box!.y + box!.height).toBeLessThanOrEqual(720);
+  // Owner, 2026-10-20: most of the window is the board. One compact toolbar above it (it may wrap
+  // once at this width), and the board fills the rest down to the page's bottom margin.
+  expect(box!.y).toBeLessThanOrEqual(160);
+  expect(box!.height).toBeGreaterThanOrEqual(500);
+  await expect(page.getByText("The board shows open and nurture")).toHaveCount(0);
 });

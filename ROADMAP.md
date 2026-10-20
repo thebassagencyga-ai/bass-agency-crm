@@ -38,6 +38,7 @@ inherits the standard exit criteria at the bottom of this file.
 | fix | Board fits the window; Won/Lost capped; imported and existing policies off the board (owner report, 2026-10-19) | 25 | APPROVED, DEPLOYED (2026-10-19) |
 | 26 | Workflow audit Step 2: new-lead alerts on your phone (Web Push) | 25 | APPROVED, DEPLOYED, iPhone test passed (2026-10-20) |
 | fix | Alerts: "Turn on alerts on this device" failed to save the device (owner report, 2026-10-19) | 26 | APPROVED, DEPLOYED (2026-10-20) |
+| fix | Board toolbar: one compact row, board fills the window (owner request, 2026-10-20) | fix | READY FOR REVIEW (2026-10-20) |
 | docs | Documentation refresh (workflow audit, owner decision 8) | 27 | APPROVED, MERGED (2026-10-20) — no deploy needed |
 | 27 | Workflow audit Step 3: ProducrIQ Focus (quiet deals, nurture check-backs, re-quotes, referrer thank-you; no AI) | 26 | APPROVED, DEPLOYED, iPhone check passed (2026-10-20) |
 
@@ -644,7 +645,7 @@ pipeline may take any mix of lines; every agent starts with today's four pipelin
   archiving a pipeline with lines or open deals, at most 10 pipelines.
 - ✅ New tables: RLS, two-step policy, no DELETE, owner-only, in the catalog and RLS tests;
   deploy verification updated (23 tables, 25 functions).
-- ✅ In use: the owner worked with the new pipelines after deploy (board screenshots, 2026-10-19), which led to the board-layout fix. No separate iPhone check was reported.
+- ✅ Owner: Phase 25 check complete (2026-10-20).
 
 **Status:** APPROVED (owner, 2026-10-19); see PROGRESS.md.
 

@@ -2,6 +2,12 @@
 
 All meaningful changes, grouped by milestone.
 
+## Fix — Board toolbar (2026-10-20, ready for review)
+### Changed
+- On a computer the board's title, pipelines, search and Board/Table switch share one toolbar,
+  and the board fills the rest of the window (e.g. 776 px tall instead of 596 px on a 1440×900
+  screen). The explanation line is now only on the table view. Phones unchanged.
+
 ## Docs refresh (2026-10-20, documentation only, approved)
 ### Changed
 - Brought the documentation up to date with what is live: current status in PROGRESS, README
