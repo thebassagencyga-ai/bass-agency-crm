@@ -1325,5 +1325,7 @@ Measured on the Cloudflare build (board top / height): 1440×900 92 px / 776 px 
 | CI run 39416859973 (commit a0e210b): all 4 jobs | pass — incl. full browser suite and Lighthouse |
 | Production | not deployed |
 
+**Approved by the owner 2026-10-20** ("Approved").
+
 **Owner actions after approval:** Deploy app (Cloudflare) only — no migrations.
 

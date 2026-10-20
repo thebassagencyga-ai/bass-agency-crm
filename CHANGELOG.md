@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Fix — Board toolbar (2026-10-20, ready for review)
+## Fix — Board toolbar (2026-10-20, approved)
 ### Changed
 - On a computer the board's title, pipelines, search and Board/Table switch share one toolbar,
   and the board fills the rest of the window (e.g. 776 px tall instead of 596 px on a 1440×900

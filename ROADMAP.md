@@ -38,7 +38,7 @@ inherits the standard exit criteria at the bottom of this file.
 | fix | Board fits the window; Won/Lost capped; imported and existing policies off the board (owner report, 2026-10-19) | 25 | APPROVED, DEPLOYED (2026-10-19) |
 | 26 | Workflow audit Step 2: new-lead alerts on your phone (Web Push) | 25 | APPROVED, DEPLOYED, iPhone test passed (2026-10-20) |
 | fix | Alerts: "Turn on alerts on this device" failed to save the device (owner report, 2026-10-19) | 26 | APPROVED, DEPLOYED (2026-10-20) |
-| fix | Board toolbar: one compact row, board fills the window (owner request, 2026-10-20) | fix | READY FOR REVIEW (2026-10-20) |
+| fix | Board toolbar: one compact row, board fills the window (owner request, 2026-10-20) | 25 | APPROVED (2026-10-20) — app deploy pending |
 | docs | Documentation refresh (workflow audit, owner decision 8) | 27 | APPROVED, MERGED (2026-10-20) — no deploy needed |
 | 27 | Workflow audit Step 3: ProducrIQ Focus (quiet deals, nurture check-backs, re-quotes, referrer thank-you; no AI) | 26 | APPROVED, DEPLOYED, iPhone check passed (2026-10-20) |
 
