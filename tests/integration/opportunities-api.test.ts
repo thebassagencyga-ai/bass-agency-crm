@@ -37,13 +37,18 @@ describe("opportunities via the Data API", () => {
     expect(data).toEqual([expect.objectContaining({ id: oppId, stage_name: "Quoted", first_name: "Quinn", quoted_carrier: "Example Mutual" })]);
   });
 
-  it("refuses a stage that is not the agent's own and a product line change", async () => {
+  it("refuses a stage that is not the agent's own; a line can be corrected (Phase 29), life details stay life-only", async () => {
     const client = await fullSessionClient(ownerEmail);
     // Phase 25: deals may move between the agent's own pipelines; any other stage is refused.
     const wrongStage = await client.from("opportunities").update({ stage_id: "0f8fad5b-d9cb-469f-a165-70867728950e" }).eq("id", oppId);
     expect(wrongStage.error?.code).toBe("23503");
-    const wrongLine = await client.from("opportunities").update({ product_line: "auto", stage_id: stage["auto/quoted"] }).eq("id", oppId);
-    expect(wrongLine.error?.code).toBe("23514");
+    // Phase 29 (ADR-047): correcting the line works, and back again.
+    const toAuto = await client.from("opportunities").update({ product_line: "auto" }).eq("id", oppId).select("product_line").single();
+    expect(toAuto.data).toEqual({ product_line: "auto" });
+    const back = await client.from("opportunities").update({ product_line: "home" }).eq("id", oppId).select("product_line").single();
+    expect(back.data).toEqual({ product_line: "home" });
+    const lifeOnly = await client.from("opportunities").update({ premium_mode: "monthly" }).eq("id", oppId);
+    expect(lifeOnly.error?.code).toBe("23514");
   });
 
   it("lost then reopened: new cycle, loss reason cleared", async () => {

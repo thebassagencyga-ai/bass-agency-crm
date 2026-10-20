@@ -1377,3 +1377,40 @@ and verification passed (26 tables, 26 two-step policies, 28 Data API functions 
 3. Deploy app (Cloudflare).
 4. Settings → Commission and goals: enter your real rates and goals. Open a life policy →
    Commission details. Then Reports → Production. ⏳ Manual check.
+
+## Phase 29 — Colour and fixing mistakes (branch `phase-29-colour-fixes`)
+Owner requests 2026-10-20 (board and Clients photos): light colour on stage headers, cards and
+tags; correcting a deal saved under the wrong line; taking non-sales off the board (two old
+clients entered as new sales, one test). Choices: colour by stage type, any deal's line, both
+existing-policy and remove, close the win's tasks. Design approved ("Approve"). ADR-047.
+
+**Built**
+- Colour: stage headers tinted (working blue, quote stage amber, Won green, Lost red); a line chip
+  on every card; tags named Auto/Home/Commercial/Life in that line's colour; light and dark;
+  contrast test extended (all pairs ≥ 4.5:1).
+- Deal page → **Fix a mistake…**: Change line; This was a policy they already had (won sales);
+  Remove (entered by mistake), with a confirmation tick.
+- Migration `20261107120000_fix_mistakes.sql`: line lock replaced by resets (term, life details);
+  existing-policy guard allows false → true for won, non-imported deals; `removed_at` with
+  restrictive policies (hidden from every API read except within the removing transaction;
+  read-only afterwards); `mark_existing_policy`, `remove_opportunity` (SECURITY INVOKER).
+
+**Tests (2026-10-20)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck | pass |
+| Local: unit | 540 passed (3 new: line colours, line-named tags, change-line form; contrast pairs for the new colours; deploy count 30) |
+| Local: database (PostgreSQL 16) | 512 passed (3 new in `fix-mistakes.test.ts`: line change keeps stage/tasks, resets term and life details, audited; existing-policy marking closes the win's tasks, keeps renewal reviews, leaves the board and Production, once/won/own only; removal closes tasks, hidden from lists, dashboard and Production, nothing deleted, audited, not editable or re-removable). Two tests updated for the new rules (line change, existing-policy later) |
+| Local: integration (real Supabase stack) | 52 passed — one test updated: a line change through the Data API now succeeds (and back), life details still refused on a non-life deal |
+| Local: browser tests against the Cloudflare build | 35 of 35 incl. new `fix-mistakes.spec.ts` (header colours differ, line chip, Auto tag colour, change line, mark existing → off the board, remove needs the tick → gone) |
+| CI | first run 39486281132 failed on that integration test (old rule), fixed above; see below |
+| Production | not deployed |
+
+**Owner actions after approval**
+1. Merge to `main` (Claude).
+2. Deploy database migrations: dry run lists only `20261107120000_fix_mistakes.sql`; then apply.
+   Verify expects 26 tables, 30 Data API functions, 3 anonymous functions.
+3. Deploy app (Cloudflare) — after step 2.
+4. Fix the three deals: Kerry L Bass and Kerry Jonathan Bass → open the deal → Fix a mistake… →
+   This was a policy they already had; Test → Remove. Correct the auto-saved-as-home deal with
+   Change line. ⏳ Manual check.
