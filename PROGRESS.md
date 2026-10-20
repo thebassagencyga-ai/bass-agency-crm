@@ -1213,3 +1213,43 @@ alert and a test quote request arrived. **Phase 26 complete.**
 **Owner actions after approval:** Deploy app (Cloudflare) only — no migrations. Then on the iPhone
 (Home Screen app): Settings → Alerts → Turn on → Send a test alert; then a test quote request.
 
+
+## Phase 27 — ProducrIQ Focus (branch `phase-27-focus`)
+Workflow audit Step 3 (owner decisions 3, 5, 6, 7; ADR-045). Mockup shown and design approved by
+the owner 2026-10-20 ("Approved - use your recommendations": lost deals are re-quoted; the referrer
+is thanked when the referred person arrives).
+
+**Built**
+- **Focus** at the top of the Today page (`focus_list`, one call, read-only, SECURITY INVOKER):
+  quotes quiet 3+ days, other open deals quiet 7+ days, nurture check-backs due or undated,
+  re-quotes due, referrers to thank. Each card: reason line, Call / Text (phone's own apps),
+  Log activity, Snooze 3 days or 1 week, Done / Not this year / Mark thanked. "No AI" stated.
+- **Deal page:** "Move to nurture…" asks when to check back (30 days, 3 or 6 months, or a date);
+  "Current coverage elsewhere" card on every deal not won, with a re-quote date preview.
+- **Rules** (Settings → Automation, 15 rules now): nurture check-back, re-quote 45 days before the
+  current renewal (lost deals too), thank the referrer (call or note only).
+- **Migrations:** `20261105120000_focus_events.sql` (three enum values, own transaction),
+  `20261105120100_focus.sql` (three opportunity columns; stage time backfilled from the last
+  update with "last updated" kept; rules for every agent; triggers; one-time re-quote catch-up;
+  `focus_list`). No new tables; no deletes; anonymous functions unchanged (3).
+
+**Tests (2026-10-20)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck | pass |
+| Local: unit | 525 passed (11 new: reasons, re-quote preview, snooze, check-back choices, coverage validation, rule descriptions; deploy-check count 27) |
+| Local: database (PostgreSQL 16) | 500 passed (22 new in `focus.test.ts`: quiet thresholds, what counts as activity, stage time database-only, snooze, closed/archived excluded, nurture task once / moved / cancelled / renewed, never in the past, completing a task does not hide the deal, re-quote 45 days / moved / past / cleared / lost included / won cancels / existing policy / rule off / catch-up once, thank-you once / names / later link / not closed by win or loss / merge adds none / rule off, access: own records only, anonymous refused, password-only empty, no notes). Rule and function counts updated in 3 existing tests |
+| Local: integration (real Supabase stack) | 52 passed (default-rule count now 15) |
+| Local: Supabase smoke SQL on the real image | pass (rule count now 15) |
+| Local: browser tests against the Cloudflare build | 33 of 33 (Lighthouse cannot start locally, runs in CI): new `focus.spec.ts` (quiet deals with reasons, call/text links, snooze, activity clears; referrer thanked; coverage card preview, re-quote listed and "Not this year"; nurture date validation, check-back task, listed on its day). Updated: opportunities (nurture asks for a date), automation (15 rules), contacts (referrer now also shows the thank-you task) |
+| CI | see below |
+| Production | not deployed |
+
+**Owner actions after approval**
+1. Merge to `main` (Claude).
+2. Deploy database migrations: dry run lists exactly `20261105120000_focus_events.sql` and
+   `20261105120100_focus.sql`; then apply. Verify expects 24 tables, 27 Data API functions,
+   3 anonymous functions. The apply log notes how many re-quote tasks the catch-up created.
+3. Deploy app (Cloudflare).
+4. iPhone: open Today and look at Focus; open a deal and try "Move to nurture…" and "Current
+   coverage elsewhere". ⏳ Manual check, not done yet.
