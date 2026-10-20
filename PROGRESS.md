@@ -1206,6 +1206,10 @@ No database change.
 
 **Approved by the owner 2026-10-20** ("Approved").
 
+**Production deploy (2026-10-20, commit 0866c9e):** CI on `main` 39345973433 passed; no
+migrations; Deploy app 39348749100 succeeded, smoke test passed. ⏳ Owner: iPhone test (Turn on →
+test alert → test quote request), which also completes Phase 26.
+
 **Owner actions after approval:** Deploy app (Cloudflare) only — no migrations. Then on the iPhone
 (Home Screen app): Settings → Alerts → Turn on → Send a test alert; then a test quote request.
 
