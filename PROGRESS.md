@@ -1242,7 +1242,7 @@ is thanked when the referred person arrives).
 | Local: integration (real Supabase stack) | 52 passed (default-rule count now 15) |
 | Local: Supabase smoke SQL on the real image | pass (rule count now 15) |
 | Local: browser tests against the Cloudflare build | 33 of 33 (Lighthouse cannot start locally, runs in CI): new `focus.spec.ts` (quiet deals with reasons, call/text links, snooze, activity clears; referrer thanked; coverage card preview, re-quote listed and "Not this year"; nurture date validation, check-back task, listed on its day). Updated: opportunities (nurture asks for a date), automation (15 rules), contacts (referrer now also shows the thank-you task) |
-| CI | see below |
+| CI run 39361683569 (commit df6c95b): all 4 jobs | pass — incl. migrations on Supabase's real image (the separate enum migration applies cleanly), RLS smoke test, full browser suite and Lighthouse |
 | Production | not deployed |
 
 **Owner actions after approval**
