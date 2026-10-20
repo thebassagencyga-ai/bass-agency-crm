@@ -1404,9 +1404,15 @@ existing-policy and remove, close the win's tasks. Design approved ("Approve"). 
 | Local: integration (real Supabase stack) | 52 passed — one test updated: a line change through the Data API now succeeds (and back), life details still refused on a non-life deal |
 | Local: browser tests against the Cloudflare build | 35 of 35 incl. new `fix-mistakes.spec.ts` (header colours differ, line chip, Auto tag colour, change line, mark existing → off the board, remove needs the tick → gone) |
 | CI | first run 39486281132 failed on that integration test (old rule); after the fix, run 39488030680 (commit 75a2864): all 4 jobs pass, incl. migrations on Supabase's real image, full browser suite and Lighthouse |
-| Production | not deployed |
+| Production | deployed 2026-10-20 (see below) |
 
 **Approved by the owner 2026-10-20** ("Approved").
+
+**Production deploy (2026-10-20, commit 6ada0a7):** CI on `main` 39493473902 passed; migrations
+dry run 39496637168 listed only `20261107120000_fix_mistakes.sql`; apply run 39498314429 applied it
+and verification passed (26 tables, 26 two-step policies, 30 Data API functions incl.
+`mark_existing_policy` and `remove_opportunity`, exactly 3 anonymous functions, automation engine
+safe); Deploy app 39498481275 succeeded after the migration (bundle check clean, smoke test passed).
 
 **Owner actions after approval**
 1. Merge to `main` (Claude).
