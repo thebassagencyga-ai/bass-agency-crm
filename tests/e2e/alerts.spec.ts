@@ -65,6 +65,9 @@ test("a quote request hands out its alert in the background; the request never d
   await page.reload();
   await expect(page.getByRole("list", { name: "Devices with alerts on" })).toContainText("last alert");
   await page.getByRole("button", { name: "Turn off alerts for iPhone" }).click();
+  // Wait for the save before reloading (the reload could otherwise cancel it).
+  await expect.poll(async () => (await api.from("push_subscriptions").select("disabled_at").eq("id", device!.id).single()).data?.disabled_at ?? null, { timeout: 20_000 })
+    .not.toBeNull();
   await page.reload();
   await expect(page.getByText("None yet.")).toBeVisible();
 });
