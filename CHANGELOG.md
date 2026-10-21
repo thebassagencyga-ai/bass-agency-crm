@@ -2,7 +2,7 @@
 
 All meaningful changes, grouped by milestone.
 
-## Phase 30 — More lines (2026-10-21, in review)
+## Phase 30 — More lines (2026-10-21, approved)
 ### Added
 - Nine lines: **Motorcycle, Boat, RV** (on the Auto board), **Renters, Condo, Mobile Home,
   Umbrella** (on the Home board), **Commercial Auto, Farm** (on the Commercial board). Each card's

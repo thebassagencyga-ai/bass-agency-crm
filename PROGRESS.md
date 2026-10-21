@@ -1458,3 +1458,14 @@ by stage type. Design approved ("Approved", 2026-10-21). ADR-048.
 | Local: browser tests against the Cloudflare build | 36 of 37: new `more-lines.spec.ts` passes; nine specs updated because "Auto" now also matches "Commercial Auto" and "Home" matches "Mobile Home" (exact names), the P&C pipeline test also moves Motorcycle, Boat and RV, and the import test's unknown type is "Pet". Lighthouse cannot run in this container (CI runs it) |
 | CI | first run 39530114217 failed on one browser test outside this phase (alerts: the page reloaded before turning a device off had saved); the test now waits for the save. Run 39531885106 (commit after the fix): all 4 jobs pass, incl. migrations on Supabase's real image, the full browser suite and Lighthouse |
 | Production | not deployed |
+
+**Approved by the owner 2026-10-21** ("Approved").
+
+**Owner actions after approval**
+1. Merge to `main` (Claude).
+2. Deploy database migrations: dry run lists only `20261108120000_more_lines.sql`; then apply.
+   Verify expects 13 product lines, 26 tables, 30 Data API functions, 3 anonymous functions.
+3. Deploy app (Cloudflare) — after step 2.
+4. Change line on the auto-saved-as-home deal; add a Renters or Umbrella deal and check it sits on
+   the Home board with its chip; optionally enter rates for the new lines. ⏳ Manual check.
+
