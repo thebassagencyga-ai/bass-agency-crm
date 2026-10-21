@@ -2,7 +2,7 @@
 // imported policy, so no new-sale tasks are created and reports do not count it as a sale.
 import { z } from "zod";
 import { addMonths, isIsoDate } from "@/lib/dates";
-import { PRODUCT_LINES } from "@/lib/pipelines";
+import { PRODUCT_LINES, SIX_MONTH_LINES } from "@/lib/pipelines";
 import { parseMoney } from "./format";
 
 const blankToNull = (v: unknown) => {
@@ -66,7 +66,7 @@ export function nextRenewal(effective: string | null, renewal: string | null, te
 
 /** The row to insert: won at the line's Bound stage, marked as an existing policy. */
 export function existingPolicyRow(data: ExistingPolicy, wonStageId: string, today: string) {
-  const term = data.product_line === "auto" ? data.policy_term_months : 12;
+  const term = (SIX_MONTH_LINES as readonly string[]).includes(data.product_line) ? data.policy_term_months : 12;
   return {
     contact_id: data.contact_id,
     product_line: data.product_line,

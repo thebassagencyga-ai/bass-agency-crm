@@ -35,7 +35,7 @@ describe("parsePipelineForm", () => {
   it("refuses a blank or long pipeline name, an unknown line and broken stage data", () => {
     expect(errorOf(form(NEW_PIPELINE_STAGES, { name: " " }))).toContain("Enter a name for the pipeline");
     expect(errorOf(form(NEW_PIPELINE_STAGES, { name: "x".repeat(41) }))).toContain("40 characters");
-    expect(form(NEW_PIPELINE_STAGES, { lines: ["boat"] }).success).toBe(false);
+    expect(form(NEW_PIPELINE_STAGES, { lines: ["aircraft"] }).success).toBe(false);
     expect(parsePipelineForm({ id: "", name: "P&C", lines: [], stages: "{not json" }).success).toBe(false);
   });
 });

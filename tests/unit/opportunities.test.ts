@@ -67,7 +67,7 @@ describe("opportunity details validation", () => {
   });
 
   it("new opportunity needs a contact, product line and stage", () => {
-    const r = newOpportunitySchema.safeParse({ ...ok, contact_id: "nope", product_line: "boat", stage_id: "" });
+    const r = newOpportunitySchema.safeParse({ ...ok, contact_id: "nope", product_line: "aircraft", stage_id: "" });
     expect(r.success).toBe(false);
     if (!r.success) expect(r.error.issues.map((i) => i.path[0]).sort()).toEqual(["contact_id", "product_line", "stage_id"]);
     expect(newOpportunitySchema.safeParse({ ...ok, contact_id: UUID, product_line: "life", stage_id: UUID2 }).success).toBe(true);
@@ -149,7 +149,7 @@ describe("parseOpportunityListParams", () => {
   });
 
   it("table may show all product lines; bad values fall back", () => {
-    expect(parseOpportunityListParams({ view: "table", line: "boat", outcome: "maybe", sort: "x", page: "-3" })).toMatchObject({
+    expect(parseOpportunityListParams({ view: "table", line: "aircraft", outcome: "maybe", sort: "x", page: "-3" })).toMatchObject({
       view: "table", line: null, outcome: null, sort: "updated", page: 1,
     });
     expect(parseOpportunityListParams({ view: "table", line: "life", outcome: "won", sort: "premium", page: "2", q: "  ann " })).toMatchObject({

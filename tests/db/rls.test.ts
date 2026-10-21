@@ -236,7 +236,7 @@ describe("reference tables are read-only for users", () => {
   it.each([
     "insert into public.pipeline_stages (product_line, code, name, position, kind) values ('auto', 'x_stage', 'X', 99, 'active')",
     "update public.pipeline_stages set name = 'Renamed'",
-    "insert into public.product_lines (code, name, sort_order) values ('boat', 'Boat', 9)",
+    "insert into public.product_lines (code, name, sort_order) values ('aircraft', 'Aircraft', 99)",
   ])("rejects: %s", async (sql) => {
     expect(await errorCode(asUser(db, alice, (q) => q.query(sql)))).toBe("42501");
   });

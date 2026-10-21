@@ -42,7 +42,7 @@ describe("planUserRemap", () => {
 
 describe("checkRestoreTarget", () => {
   it("accepts a migrated project with only sign-up defaults", () => {
-    expect(checkRestoreTarget({ ...emptyCrm, profiles: 1, automation_rules: 12, cross_sell_rules: 4, pipeline_stages: 30, product_lines: 4, audit_log: 5 })).toEqual([]);
+    expect(checkRestoreTarget({ ...emptyCrm, profiles: 1, automation_rules: 12, cross_sell_rules: 4, pipeline_stages: 30, product_lines: 13, audit_log: 5 })).toEqual([]);
   });
 
   it("refuses a project holding client work", () => {

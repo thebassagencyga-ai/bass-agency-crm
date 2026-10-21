@@ -62,7 +62,7 @@ export function RatesForm({ initial }: { initial: Record<string, string> }) {
     <form action={formAction} onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
       <FormAlert state={state} />
       <section aria-labelledby="pc-rates" className="flex flex-col gap-2">
-        <h3 id="pc-rates" className="font-semibold">Auto, home and commercial</h3>
+        <h3 id="pc-rates" className="font-semibold">Property, casualty and commercial lines</h3>
         {table(RATE_ROWS.filter((r) => r.line !== "life"), false)}
       </section>
       <section aria-labelledby="life-rates" className="flex flex-col gap-2">

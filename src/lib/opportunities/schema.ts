@@ -2,7 +2,7 @@
 // (supabase/migrations) so users see field errors before the database would reject a row.
 import { z } from "zod";
 import { isIsoDate, todayInZone } from "@/lib/dates";
-import { PRODUCT_LINES } from "@/lib/pipelines";
+import { PRODUCT_LINES, SIX_MONTH_LINES } from "@/lib/pipelines";
 import { parseMoney } from "./format";
 import { LOSS_REASONS } from "./types";
 
@@ -55,7 +55,7 @@ export const opportunityDetailsSchema = z.object(detailFields).superRefine(renew
 
 /** 6-month terms exist for auto only; other lines are always yearly. */
 export function termForLine<T extends { policy_term_months: 6 | 12 }>(data: T, line: string): T {
-  return line === "auto" ? data : { ...data, policy_term_months: 12 };
+  return (SIX_MONTH_LINES as readonly string[]).includes(line) ? data : { ...data, policy_term_months: 12 };
 }
 
 export const newOpportunitySchema = z

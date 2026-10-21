@@ -75,9 +75,20 @@ export function guessMapping(headers: readonly string[]): Mapping {
 export function guessLine(raw: string): ProductLine | null {
   const s = norm(raw);
   if (s === "") return null;
-  if (/\b(commercial|business|bop|businessowners?|general liability|gl|workers comp|workers compensation|wc|commercial auto|farm|farmowners|inland marine|umbrella commercial)\b/.test(s)) return "commercial";
+  // Phase 30 (ADR-048): the specific lines first, then the families they used to fold into.
+  if (/\b(commercial auto|business auto|commercial vehicle|truck fleet|fleet)\b/.test(s)) return "commercial_auto";
+  if (/\b(farm|farmowners?|farm owners|ranch|agri\w*)\b/.test(s)) return "farm";
+  if (/\b(commercial umbrella|umbrella commercial|business umbrella)\b/.test(s)) return "commercial";
+  if (/\b(umbrella|pup|personal umbrella|excess liability)\b/.test(s)) return "umbrella";
+  if (/\b(commercial|business|bop|businessowners?|general liability|gl|workers comp|workers compensation|wc|inland marine)\b/.test(s)) return "commercial";
   if (/\b(life|term|whole|universal|ul|wl|final expense|annuity)\b/.test(s)) return "life";
-  if (/\b(home|homeowners?|ho ?\d|dwelling|dp ?\d|condo|renters?|tenant|property|mobile home|manufactured)\b/.test(s)) return "home";
-  if (/\b(auto|car|vehicle|pap|motorcycle|motor|private passenger|personal auto)\b/.test(s)) return "auto";
+  if (/\b(rv|motorhome|motor home|camper|travel trailer|recreational vehicle)\b/.test(s)) return "rv";
+  if (/\b(renters?|tenants?|ho ?4)\b/.test(s)) return "renters";
+  if (/\b(condo|condominium|ho ?6)\b/.test(s)) return "condo";
+  if (/\b(mobile home|manufactured|mobilehome)\b/.test(s)) return "mobile_home";
+  if (/\b(home|homeowners?|ho ?\d|dwelling|dp ?\d|property)\b/.test(s)) return "home";
+  if (/\b(motorcycle|motorbike|cycle|scooter)\b/.test(s)) return "motorcycle";
+  if (/\b(boat|watercraft|personal watercraft|pwc|jet ski|yacht)\b/.test(s)) return "boat";
+  if (/\b(auto|car|vehicle|pap|motor|private passenger|personal auto)\b/.test(s)) return "auto";
   return null;
 }

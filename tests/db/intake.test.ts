@@ -50,6 +50,14 @@ afterAll(async () => {
 });
 
 describe("public submission (anonymous)", () => {
+  it("Phase 30: a request may ask for any of the thirteen lines, with current coverage for each", async () => {
+    const lines = ["auto", "motorcycle", "boat", "rv", "home", "renters", "condo", "mobile_home", "umbrella", "commercial", "commercial_auto", "farm", "life"];
+    await submit(token, form({ lines, current_coverage: lines.map((line) => ({ line, carrier: "Example Mutual", renews_month: 5 })) }));
+    const s = await newestSubmission(alice);
+    expect([...s.lines].sort()).toEqual([...lines].sort());
+    expect(s.current_coverage).toHaveLength(13);
+  });
+
   it("lands in the link owner's inbox, cleaned", async () => {
     await submit(token, form());
     const s = await newestSubmission(alice);
@@ -93,7 +101,7 @@ describe("public submission (anonymous)", () => {
     ["a bad email", form({ email: "not-an-email" }), true, "email"],
     ["a short phone number", form({ phone: "555-0123" }), true, "phone"],
     ["a bad ZIP", form({ postal_code: "301" }), true, "postal_code"],
-    ["an unknown line", form({ lines: ["boat"] }), true, "lines"],
+    ["an unknown line", form({ lines: ["aircraft"] }), true, "lines"],
     ["no lines", form({ lines: [] }), true, "lines"],
     ["coverage for a line not chosen", form({ lines: ["auto"], current_coverage: [{ line: "life", carrier: "X", renews_month: 1 }] }), true, "current_coverage"],
     ["a month out of range", form({ current_coverage: [{ line: "auto", renews_month: 13 }] }), true, "current_coverage"],

@@ -41,6 +41,7 @@ inherits the standard exit criteria at the bottom of this file.
 | fix | Board toolbar: one compact row, board fills the window (owner request, 2026-10-20) | 25 | APPROVED, DEPLOYED (2026-10-20) |
 | 28 | Production and commission (Reports → Production, rates and goals, life details; estimates only) | 27 | APPROVED, DEPLOYED (2026-10-20) — owner check pending |
 | 29 | Colour on the board and tags; fix mistakes (change line, existing policy, remove) | 28 | APPROVED, DEPLOYED (2026-10-20) — owner check pending |
+| 30 | More lines (Motorcycle, Boat, RV, Renters, Condo, Mobile Home, Umbrella, Commercial Auto, Farm) | 29 | IN REVIEW (2026-10-21) |
 | docs | Documentation refresh (workflow audit, owner decision 8) | 27 | APPROVED, MERGED (2026-10-20) — no deploy needed |
 | 27 | Workflow audit Step 3: ProducrIQ Focus (quiet deals, nurture check-backs, re-quotes, referrer thank-you; no AI) | 26 | APPROVED, DEPLOYED, iPhone check passed (2026-10-20) |
 
@@ -755,4 +756,21 @@ the board and out of the figures. Choices: colour by stage type; any deal's line
 - ✅ Two new SECURITY INVOKER functions; deploy verification 26 tables, 30 functions, 3 anonymous.
 
 **Status:** APPROVED and DEPLOYED 2026-10-20 (migration applied, verify passed, smoke test passed). ⏳ Owner: fix the three deals and the auto-saved-as-home deal, check the colours. See PROGRESS.md.
+
+## Phase 30 — More lines
+**Objective.** Owner request 2026-10-20: lines beyond Auto, Home, Commercial and Life. Choices:
+nine new lines, each joins the pipeline of a related line, the quote form offers them, board
+header colours unchanged. Design approved ("Approved", 2026-10-21). ADR-048.
+
+**Acceptance**
+- ✅ Thirteen lines everywhere a line is chosen (new deal, existing policy, Change line, filters,
+  cross-sell rules, quote form, import, commission rates).
+- ✅ A new line's deals land on its related line's board (Renters → Home) with a chip naming the
+  line in the family colour; for existing and new agents; re-routable in Settings → Pipelines.
+- ✅ 6-month term on Auto and Motorcycle only (form, database, import).
+- ✅ Quote requests may ask for any of the lines; import maps the new policy types.
+- ✅ Production: a rate pair per line; the report and dashboard add a line once it has something.
+- ✅ Deploy verification: 13 product lines; tables, functions and anonymous functions unchanged.
+
+**Status:** IN REVIEW (2026-10-21). See PROGRESS.md.
 

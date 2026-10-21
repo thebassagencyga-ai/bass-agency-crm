@@ -4,7 +4,7 @@ import { ReportTabs } from "@/components/reports/tabs";
 import { requireFullSession } from "@/lib/auth/require";
 import { todayInZone } from "@/lib/dates";
 import { formatMoney } from "@/lib/opportunities/format";
-import { PRODUCT_LINE_NAMES } from "@/lib/pipelines";
+import { PRODUCT_LINE_NAMES, linesToShow } from "@/lib/pipelines";
 import {
   forecastTotal, goalPercent, monthChoices, monthCommission, monthLabel, monthShort, n, parseMonth, yearPace,
 } from "@/lib/production";
@@ -54,6 +54,11 @@ export default async function ProductionPage({ searchParams }: { searchParams: P
   const ytd = n(r.ytd.premium);
   const goals = r.goals;
   const commission = monthCommission(r);
+  // Phase 30: a line other than the four main ones gets a row once it has a sale, renewal or rate.
+  const shownLines = linesToShow((line) => {
+    const l = r.by_line.find((x) => x.product_line === line);
+    return !!l && (l.policies > 0 || (l.renewals ?? 0) > 0 || l.new_rate !== null || l.renewal_rate !== null);
+  });
   const premiumPct = goalPercent(premium, goals?.premium_per_month);
   const policiesPct = goalPercent(r.written.policies, goals?.policies_per_month);
   const yearPct = goalPercent(ytd, goals?.premium_per_year);
@@ -122,7 +127,7 @@ export default async function ProductionPage({ searchParams }: { searchParams: P
               </tr>
             </thead>
             <tbody>
-              {r.by_line.map((l) => (
+              {r.by_line.filter((l) => shownLines.includes(l.product_line)).map((l) => (
                 <tr key={l.product_line}>
                   <th scope="row" className={`${TD} font-medium`}>{PRODUCT_LINE_NAMES[l.product_line]}</th>
                   <td className={TDN}>{l.policies}</td>
@@ -146,7 +151,7 @@ export default async function ProductionPage({ searchParams }: { searchParams: P
           </table>
         </div>
         <p className="text-sm text-muted">
-          Auto, home and commercial: new business in the month bound, renewals in their renewal month. Life is paid in step with the premium mode: the
+          Every line except life: new business in the month bound, renewals in their renewal month. Life is paid in step with the premium mode: the
           first-year rate for 12 months, then the renewal rate.
           {r.life_without_type > 0 ? ` ${r.life_without_type} life ${r.life_without_type === 1 ? "policy has" : "policies have"} no policy type or rate yet, so ${r.life_without_type === 1 ? "it shows" : "they show"} $0.` : ""}
         </p>

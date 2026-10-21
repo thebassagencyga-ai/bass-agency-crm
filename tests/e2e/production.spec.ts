@@ -24,8 +24,8 @@ test("set rates and goals, add life details, see production and expected commiss
   // Settings → Commission and goals.
   await page.goto("/settings");
   await page.getByRole("link", { name: "Edit commission and goals" }).click();
-  await page.getByLabel("Auto new-business rate, percent").fill("15");
-  await page.getByLabel("Auto renewal rate, percent").fill("10");
+  await page.getByLabel("Auto new-business rate, percent", { exact: true }).fill("15");
+  await page.getByLabel("Auto renewal rate, percent", { exact: true }).fill("10");
   await page.getByLabel("Term Life first-year rate, percent").fill("450");
   await page.getByRole("button", { name: "Save rates" }).click();
   await expect(page.getByText("Use 0 to 100.")).toBeVisible();

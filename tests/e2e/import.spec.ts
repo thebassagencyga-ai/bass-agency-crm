@@ -15,7 +15,7 @@ function report(): string {
   const lines = ["Insured Name,Policy Type,Writing Company,Annual Premium,Eff Date,Exp Date,Phone Number,E-Mail,Zip Code"];
   lines.push(`"Example, Robin",Personal Auto,Example Mutual,"$1,200.00",${inDays(-150)},${inDays(30)},(404) 555-0101,,30117`);
   lines.push(`Example Bakery LLC,BOP,Sample Ins,3000,,,404-555-0102,,30117`);
-  lines.push(`Sam Example,Boat,,,,,,sam@example.com,`);
+  lines.push(`Sam Example,Pet,,,,,,sam@example.com,`);
   lines.push(`,Personal Auto,,,,,,,`);
   for (let i = 0; i < 497; i++) lines.push(`"Person${i}, Example",HO3,Example Mutual,${800 + i},,${inDays(40 + i)},,person${i}@example.com,30117`);
   return lines.join("\r\n");
@@ -36,11 +36,11 @@ test("import a 500-client report, undo it, download data", async ({ page, contex
   await page.locator("#import-file").setInputFiles({ name: "clients.csv", mimeType: "text/csv", buffer: Buffer.from(report()) });
   await expect(page.getByText("clients.csv: 501 rows, 9 columns.")).toBeVisible();
 
-  // Columns were guessed; the unknown "Boat" type must be decided before checking.
+  // Columns were guessed; the unknown "Pet" type must be decided before checking.
   await expect(page.locator("#map-full_name")).toHaveValue("0");
   await expect(page.locator("#map-renewal_date")).toHaveValue("5");
   await expect(page.getByRole("button", { name: "Check the file" })).toBeDisabled();
-  await page.locator("#line-boat").selectOption("skip");
+  await page.locator("#line-pet").selectOption("skip");
   await page.getByRole("button", { name: "Check the file" }).click();
 
   const summary = page.getByRole("list", { name: "Import summary" });

@@ -10,7 +10,7 @@ import { getFocus } from "@/lib/focus/data";
 import { countNewSubmissions } from "@/lib/intake/data";
 import { formatDateOnly, formatInstantDateTime, todayInZone } from "@/lib/dates";
 import { formatMoney } from "@/lib/opportunities/format";
-import { PRODUCT_LINES, PRODUCT_LINE_NAMES } from "@/lib/pipelines";
+import { PRODUCT_LINE_NAMES, linesToShow } from "@/lib/pipelines";
 import { getProfile, listTasks } from "@/lib/tasks/data";
 import type { TaskListRow } from "@/lib/tasks/types";
 import { BriefingPanel } from "@/components/ai/briefing";
@@ -97,7 +97,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <Link href="/opportunities?view=table&closed=none" className="flex min-h-11 min-w-11 items-center text-sm underline text-link">See all</Link>
         </div>
         <ul aria-label="Open opportunities by product line" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {PRODUCT_LINES.map((line) => {
+          {linesToShow((l) => { const r = byLine.get(l); return (r?.open_count ?? 0) + (r?.nurture_count ?? 0) > 0; }).map((line) => {
             const row = byLine.get(line);
             const open = row?.open_count ?? 0;
             const nurture = row?.nurture_count ?? 0;

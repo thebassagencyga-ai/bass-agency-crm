@@ -16,9 +16,9 @@ describe("crossSellRuleSchema", () => {
   });
   it.each([
     [{ has_any_lines: [] }, "has_any_lines"],
-    [{ has_any_lines: ["boat"] }, "has_any_lines"],
+    [{ has_any_lines: ["aircraft"] }, "has_any_lines"],
     [{ lacks_line: "auto" }, "lacks_line"],
-    [{ lacks_line: "boat" }, "lacks_line"],
+    [{ lacks_line: "aircraft" }, "lacks_line"],
     [{ name: "  " }, "name"],
     [{ reason: "" }, "reason"],
     [{ reason: "x".repeat(301) }, "reason"],

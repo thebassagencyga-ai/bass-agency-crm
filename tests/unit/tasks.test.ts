@@ -112,7 +112,7 @@ describe("activity validation", () => {
 
 describe("parseTaskListParams", () => {
   it("defaults to today and ignores bad values", () => {
-    expect(parseTaskListParams({ view: "someday", line: "boat", priority: "urgent", page: "0" })).toEqual({
+    expect(parseTaskListParams({ view: "someday", line: "aircraft", priority: "urgent", page: "0" })).toEqual({
       view: "today", line: null, priority: null, category: null, page: 1,
     });
     expect(parseTaskListParams({ view: "overdue", line: "life", priority: "high", category: "renewal", page: "2" })).toEqual({

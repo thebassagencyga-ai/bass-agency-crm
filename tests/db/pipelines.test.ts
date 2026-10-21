@@ -52,12 +52,12 @@ afterAll(async () => {
 });
 
 describe("starting pipelines (Phase 25)", () => {
-  it("every new agent starts with today's four pipelines, each line routed to its own", async () => {
+  it("every new agent starts with four pipelines; each new line joins its related line's (Phase 30)", async () => {
     const user = await createUser(db, "fresh");
     expect(await pipelinesOf(user)).toEqual([
-      { id: expect.any(String), name: "Auto", lines: ["auto"], stages: ["New Lead:active", "Contacted:active", "Info Needed:active", "Quoted:active:quote", "Follow Up:active", "Bound:won", "Lost:lost"] },
-      { id: expect.any(String), name: "Home", lines: ["home"], stages: ["New Lead:active", "Contacted:active", "Property Info Needed:active", "Quoted:active:quote", "Follow Up:active", "Bound:won", "Lost:lost"] },
-      { id: expect.any(String), name: "Commercial", lines: ["commercial"], stages: ["New Lead:active", "Discovery:active", "Info Needed:active", "Marketing or Quoting:active", "Proposal Presented:active:quote", "Follow Up:active", "Bound:won", "Lost:lost"] },
+      { id: expect.any(String), name: "Auto", lines: ["auto", "boat", "motorcycle", "rv"], stages: ["New Lead:active", "Contacted:active", "Info Needed:active", "Quoted:active:quote", "Follow Up:active", "Bound:won", "Lost:lost"] },
+      { id: expect.any(String), name: "Home", lines: ["condo", "home", "mobile_home", "renters", "umbrella"], stages: ["New Lead:active", "Contacted:active", "Property Info Needed:active", "Quoted:active:quote", "Follow Up:active", "Bound:won", "Lost:lost"] },
+      { id: expect.any(String), name: "Commercial", lines: ["commercial", "commercial_auto", "farm"], stages: ["New Lead:active", "Discovery:active", "Info Needed:active", "Marketing or Quoting:active", "Proposal Presented:active:quote", "Follow Up:active", "Bound:won", "Lost:lost"] },
       { id: expect.any(String), name: "Life", lines: ["life"], stages: ["New Lead:active", "Contacted:active", "Appointment Set:active", "Needs Review:active", "Application Process:active", "Decision Pending:active", "Placed:won", "Lost:lost"] },
     ]);
   });
@@ -70,7 +70,7 @@ describe("your own pipeline (Phase 25)", () => {
     pnc = await save(agent, null, "P&C", ["auto", "home"], PNC);
     const mine = await pipelinesOf(agent);
     expect(mine.map((p) => [p.name, p.lines])).toEqual([
-      ["Auto", null], ["Home", null], ["Commercial", ["commercial"]], ["Life", ["life"]], ["P&C", ["auto", "home"]],
+      ["Auto", ["boat", "motorcycle", "rv"]], ["Home", ["condo", "mobile_home", "renters", "umbrella"]], ["Commercial", ["commercial", "commercial_auto", "farm"]], ["Life", ["life"]], ["P&C", ["auto", "home"]],
     ]);
     expect(mine.at(-1)!.stages).toEqual(["New Lead:active", "Gathering Info:active", "Quoted:active:quote", "Bound:won", "Lost:lost"]);
 
@@ -161,7 +161,7 @@ describe("your own pipeline (Phase 25)", () => {
     const stages = (await stagesOf(agent, pnc)).map((s) => ({ id: s.id, name: s.name }));
     await save(agent, pnc, "Personal Lines", [], stages);
     expect(await lines()).toEqual(["auto", "home"]);
-    expect(await errorCode(save(agent, pnc, "Personal Lines", ["boat"], stages))).toBe("22023");
+    expect(await errorCode(save(agent, pnc, "Personal Lines", ["aircraft"], stages))).toBe("22023");
   });
 });
 
@@ -172,7 +172,7 @@ describe("archiving a pipeline (Phase 25)", () => {
     const auto = (await pipelinesOf(user))[0]!;
     expect(await errorCode(archive(auto.id))).toBe("23514"); // still receives auto leads
 
-    const pnc = await save(user, null, "P&C", ["auto"], PNC);
+    const pnc = await save(user, null, "P&C", ["auto", "boat", "motorcycle", "rv"], PNC);
     const c = await insertContact(db, user);
     const autoStages = await stagesOf(user, auto.id); // deals still in the old Auto pipeline
     const insertAt = (stage: string, outcome: string) => asUser(db, user, async (q) =>

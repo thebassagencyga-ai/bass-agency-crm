@@ -56,7 +56,9 @@ describe("forms", () => {
   });
   it("one rate pair per line and per life type", () => {
     expect(RATE_ROWS.map((r) => rateKey(r.line, r.type, "new"))).toEqual([
-      "rate_auto_new", "rate_home_new", "rate_commercial_new", "rate_life_term_new", "rate_life_whole_new",
+      "rate_auto_new", "rate_motorcycle_new", "rate_boat_new", "rate_rv_new",
+      "rate_home_new", "rate_renters_new", "rate_condo_new", "rate_mobile_home_new", "rate_umbrella_new",
+      "rate_commercial_new", "rate_commercial_auto_new", "rate_farm_new", "rate_life_term_new", "rate_life_whole_new",
       "rate_life_universal_new", "rate_life_indexed_universal_new", "rate_life_final_expense_new",
     ]);
   });

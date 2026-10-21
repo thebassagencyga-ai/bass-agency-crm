@@ -48,9 +48,14 @@ describe("guessMapping / guessLine", () => {
   });
 
   it.each([
-    ["Personal Auto", "auto"], ["PAP", "auto"], ["HO3", "home"], ["Homeowners", "home"], ["DP-3", "home"], ["Renters", "home"],
-    ["Term Life", "life"], ["Whole Life", "life"], ["BOP", "commercial"], ["Commercial Auto", "commercial"], ["Farmowners", "commercial"],
-    ["Boat", null], ["", null],
+    ["Personal Auto", "auto"], ["PAP", "auto"], ["HO3", "home"], ["Homeowners", "home"], ["DP-3", "home"],
+    ["Term Life", "life"], ["Whole Life", "life"], ["BOP", "commercial"],
+    // Phase 30 (ADR-048): the new lines, no longer folded into Auto, Home or Commercial.
+    ["Renters", "renters"], ["HO4", "renters"], ["Condo", "condo"], ["HO-6", "condo"], ["Mobile Home", "mobile_home"],
+    ["Manufactured Home", "mobile_home"], ["Personal Umbrella", "umbrella"], ["PUP", "umbrella"], ["Commercial Umbrella", "commercial"],
+    ["Commercial Auto", "commercial_auto"], ["Farmowners", "farm"], ["Motorcycle", "motorcycle"], ["Boat", "boat"],
+    ["Watercraft", "boat"], ["Motor Home", "rv"], ["Travel Trailer", "rv"], ["RV", "rv"],
+    ["Pet", null], ["", null],
   ])("%s → %s", (raw, line) => {
     expect(guessLine(raw)).toBe(line);
   });
@@ -120,14 +125,14 @@ describe("buildImport", () => {
   });
 
   it("refuses a policy type nobody matched", () => {
-    const { clients, issues } = buildImport([["Sam Example", "Boat", "", "", "", "", "", "", "", ""]], mapping, {});
+    const { clients, issues } = buildImport([["Sam Example", "Pet", "", "", "", "", "", "", "", ""]], mapping, {});
     expect(clients).toEqual([]);
-    expect(issues).toEqual([{ row: 2, message: 'Policy type "Boat" is not matched to a line.', skipped: true }]);
+    expect(issues).toEqual([{ row: 2, message: 'Policy type "Pet" is not matched to a line.', skipped: true }]);
   });
 
   it("lists the report's policy types with guesses and counts", () => {
     expect(distinctLineValues(rows, mapping).map((v) => [v.value, v.guess, v.count])).toEqual([
-      ["Auto", "auto", 3], ["Boat", null, 1], ["BOP", "commercial", 1], ["HO3", "home", 1], ["Personal Auto", "auto", 1],
+      ["Auto", "auto", 3], ["Boat", "boat", 1], ["BOP", "commercial", 1], ["HO3", "home", 1], ["Personal Auto", "auto", 1],
     ]);
   });
 

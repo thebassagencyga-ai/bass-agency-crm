@@ -51,6 +51,21 @@ describe("opportunities via the Data API", () => {
     expect(lifeOnly.error?.code).toBe("23514");
   });
 
+  it("Phase 30: an Umbrella deal goes to the Home pipeline; the line list has thirteen lines", async () => {
+    const client = await fullSessionClient(ownerEmail);
+    const { data: lines } = await client.from("product_lines").select("code, pipeline_line").order("sort_order");
+    expect(lines).toHaveLength(13);
+    expect(lines).toContainEqual({ code: "umbrella", pipeline_line: "home" });
+    const { data: route } = await client.from("pipeline_routes").select("pipeline_id").eq("product_line", "umbrella").single();
+    const { data: homeRoute } = await client.from("pipeline_routes").select("pipeline_id").eq("product_line", "home").single();
+    expect(route!.pipeline_id).toBe(homeRoute!.pipeline_id);
+    const { data: c } = await client.from("contacts").insert({ contact_type: "individual", first_name: "Avery", last_name: "Example" }).select("id").single();
+    const { data: opp, error } = await client.from("opportunities")
+      .insert({ contact_id: c!.id, product_line: "umbrella", stage_id: stage["home/new_lead"] }).select("pipeline_id").single();
+    expect(error).toBeNull();
+    expect(opp!.pipeline_id).toBe(homeRoute!.pipeline_id);
+  });
+
   it("lost then reopened: new cycle, loss reason cleared", async () => {
     const client = await fullSessionClient(ownerEmail);
     const lost = await client.from("opportunities").update({ stage_id: stage["home/lost"], outcome: "lost", loss_reason: "price" }).eq("id", oppId);

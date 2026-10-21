@@ -111,4 +111,9 @@ export function valuesFor(
   };
 }
 
-const LINE_WORDS: Record<string, string> = { auto: "auto", home: "home", life: "life", commercial: "business" };
+const LINE_WORDS: Record<string, string> = {
+  auto: "auto", motorcycle: "motorcycle", boat: "boat", rv: "RV",
+  home: "home", renters: "renters", condo: "condo", mobile_home: "mobile home", umbrella: "umbrella",
+  commercial: "business", commercial_auto: "commercial auto", farm: "farm",
+  life: "life",
+};

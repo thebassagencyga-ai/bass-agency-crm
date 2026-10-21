@@ -56,8 +56,11 @@ automation rules. Every table also has a restrictive policy requiring a two-step
 session (ADR-016).
 
 ### product_lines / pipeline_stages (reference data)
-Four product lines: auto, home, commercial, life. `pipeline_stages` holds the built-in stages
-per line (spec §9, mirrored in `src/lib/pipelines.ts`), read-only, changed only by migrations.
+Thirteen product lines (Phase 30, ADR-048): auto, motorcycle, boat, rv; home, renters, condo,
+mobile_home, umbrella; commercial, commercial_auto, farm; life. `pipeline_line` names the starting
+pipeline each joins (its own code for auto, home, commercial and life). A 6-month term is allowed
+on auto and motorcycle only. `pipeline_stages` holds the built-in stages for the four starting
+lines (spec §9, mirrored in `src/lib/pipelines.ts`), read-only, changed only by migrations.
 Since Phase 25 they are only the **templates** each agent's starting pipelines are copied from;
 opportunities use the agent's own `stages`.
 

@@ -95,8 +95,8 @@ describe("import_book", () => {
     const n = await count();
     const bad = [person("Good1"), { ...person("Bad"), contact: { contact_type: "individual", first_name: "Bad", email: "not-an-email" } }];
     expect(await errorCode(importBook(alice, bad))).toBe("23514");
-    const badLine = [{ ...person("Line"), policies: [{ line: "boat" }] }];
-    expect(await errorMessage(importBook(alice, badLine))).toBe("Unknown line: boat");
+    const badLine = [{ ...person("Line"), policies: [{ line: "aircraft" }] }];
+    expect(await errorMessage(importBook(alice, badLine))).toBe("Unknown line: aircraft");
     expect(await count()).toBe(n);
     expect(Number((await db.query("select count(*) from public.import_batches where owner_id = $1 and contacts_created = 0 and contacts_matched = 0", [alice])).rows[0].count)).toBe(0);
   });

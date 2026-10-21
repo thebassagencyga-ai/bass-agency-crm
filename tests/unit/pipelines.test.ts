@@ -1,17 +1,40 @@
 import { describe, expect, it } from "vitest";
 import {
+  BASE_LINES,
+  LINE_FAMILY,
   PIPELINES,
+  PRODUCT_LINE_NAMES,
   PRODUCT_LINES,
+  SIX_MONTH_LINES,
+  isProductLine,
+  linesToShow,
   isOutcomeAllowedForStage,
   type StageKind,
 } from "@/lib/pipelines";
 
 describe("pipeline definitions", () => {
-  it("defines exactly the four product lines", () => {
-    expect(Object.keys(PIPELINES).sort()).toEqual([...PRODUCT_LINES].sort());
+  it("defines stage templates for the four starting lines", () => {
+    expect(Object.keys(PIPELINES).sort()).toEqual([...BASE_LINES].sort());
   });
 
-  it.each(PRODUCT_LINES)("%s starts at New Lead and has exactly one won and one lost stage", (line) => {
+  it("Phase 30: thirteen lines, each with a name and a starting line it joins", () => {
+    expect(PRODUCT_LINES).toHaveLength(13);
+    expect(Object.keys(PRODUCT_LINE_NAMES).sort()).toEqual([...PRODUCT_LINES].sort());
+    for (const b of BASE_LINES) expect(LINE_FAMILY[b]).toBe(b);
+    expect(PRODUCT_LINES.filter((l) => LINE_FAMILY[l] === "auto")).toEqual(["auto", "motorcycle", "boat", "rv"]);
+    expect(PRODUCT_LINES.filter((l) => LINE_FAMILY[l] === "home")).toEqual(["home", "renters", "condo", "mobile_home", "umbrella"]);
+    expect(PRODUCT_LINES.filter((l) => LINE_FAMILY[l] === "commercial")).toEqual(["commercial", "commercial_auto", "farm"]);
+    expect(SIX_MONTH_LINES).toEqual(["auto", "motorcycle"]);
+    expect(isProductLine("umbrella")).toBe(true);
+    expect(isProductLine("aircraft")).toBe(false);
+  });
+
+  it("shows the four main lines always and another line only when it has something", () => {
+    expect(linesToShow(() => false)).toEqual(["auto", "home", "commercial", "life"]);
+    expect(linesToShow((l) => l === "umbrella" || l === "boat")).toEqual(["auto", "boat", "home", "umbrella", "commercial", "life"]);
+  });
+
+  it.each(BASE_LINES)("%s starts at New Lead and has exactly one won and one lost stage", (line) => {
     const stages = PIPELINES[line];
     expect(stages[0]?.name).toBe("New Lead");
     expect(stages.filter((s) => s.kind === "won")).toHaveLength(1);
@@ -19,7 +42,7 @@ describe("pipeline definitions", () => {
     expect(stages.at(-1)?.kind).toBe("lost");
   });
 
-  it.each(PRODUCT_LINES)("%s has unique stage codes", (line) => {
+  it.each(BASE_LINES)("%s has unique stage codes", (line) => {
     const codes = PIPELINES[line].map((s) => s.code);
     expect(new Set(codes).size).toBe(codes.length);
   });

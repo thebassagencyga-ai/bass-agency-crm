@@ -38,7 +38,7 @@ test("login → contact → opportunity → quote → automated tasks → win �
 
   // New auto lead → automatic "Make initial contact" due today.
   await page.getByRole("link", { name: "Add opportunity" }).click();
-  await page.getByRole("radio", { name: "Auto" }).check();
+  await page.getByRole("radio", { name: "Auto", exact: true }).check();
   await page.getByRole("button", { name: "Add opportunity" }).click();
   await expect(page.getByText("Opportunity saved.")).toBeVisible();
   const oppUrl = page.url().split("?")[0]!;

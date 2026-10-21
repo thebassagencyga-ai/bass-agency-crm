@@ -24,8 +24,8 @@ test("create a P&C pipeline for auto and home, route leads there, move a deal, a
   // A P&C pipeline: tick Auto and Home, rename and add stages; a broken list is refused first.
   await page.getByRole("link", { name: "Add a pipeline" }).click();
   await page.getByLabel("Pipeline name").fill("P&C");
-  await page.getByRole("checkbox", { name: /Auto/ }).check();
-  await page.getByRole("checkbox", { name: /Home/ }).check();
+  // Phase 30: Motorcycle, Boat and RV ride with Auto, so they move too.
+  for (const line of ["auto", "motorcycle", "boat", "rv", "home"]) await page.locator(`input[name=lines][value=${line}]`).check();
   await page.getByLabel("Stage 2").fill("New Lead");
   await page.getByRole("button", { name: "Save pipeline" }).click();
   await expect(page.getByRole("alert").filter({ hasText: "Give each stage a different name." })).toBeVisible();
@@ -37,7 +37,7 @@ test("create a P&C pipeline for auto and home, route leads there, move a deal, a
   await page.getByRole("button", { name: "Save pipeline" }).click();
   await expect(page.getByText("Pipeline saved.")).toBeVisible();
   await expect(list.getByRole("listitem")).toHaveCount(5);
-  await expect(list.getByRole("listitem").filter({ hasText: "P&C" })).toContainText("New leads: Auto, Home");
+  await expect(list.getByRole("listitem").filter({ hasText: "P&C" })).toContainText("New leads: Auto, Motorcycle, Boat, RV, Home");
   await expect(list.getByRole("listitem").filter({ hasText: "P&C" })).toContainText("New Lead → Gathering Info → Quoted → Underwriting → Follow Up → Bound → Lost");
 
   // A new auto deal goes to P&C by default; the board shows it there with its line.
@@ -71,7 +71,7 @@ test("create a P&C pipeline for auto and home, route leads there, move a deal, a
   // The old Auto pipeline no longer receives leads and holds no deals: archive it.
   await page.goto("/settings/pipelines");
   await page.getByRole("link", { name: "Edit Auto" }).click();
-  await expect(page.getByRole("checkbox", { name: /Auto/ })).not.toBeChecked();
+  await expect(page.locator("input[name=lines][value=auto]")).not.toBeChecked();
   await page.getByText("Archive this pipeline…").click();
   await page.getByRole("button", { name: "Archive pipeline" }).click();
   await expect(page.getByText("Pipeline archived.")).toBeVisible();

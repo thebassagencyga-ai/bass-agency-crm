@@ -23,7 +23,7 @@ test("reports: a won quote shows in leads, quotes and conversion; periods; every
   await page.getByRole("button", { name: "Save contact" }).click();
   await expect(page.getByText("Contact saved.")).toBeVisible();
   await page.getByRole("link", { name: "Add opportunity" }).click();
-  await page.getByRole("radio", { name: "Home" }).check();
+  await page.getByRole("radio", { name: "Home", exact: true }).check();
   await page.getByText("Quote and policy dates").click();
   await page.getByLabel("Quote sent on", { exact: false }).fill(today);
   await page.getByLabel("Estimated annual premium", { exact: false }).fill("1,500");

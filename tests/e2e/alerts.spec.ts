@@ -48,7 +48,7 @@ test("a quote request hands out its alert in the background; the request never d
   await form.getByLabel("First name").fill("Jordan");
   await form.getByLabel("Last name").fill("Example");
   await form.getByRole("textbox", { name: /^Phone/ }).fill("404 555 0177");
-  await form.getByRole("checkbox", { name: "Auto" }).check();
+  await form.getByRole("checkbox", { name: "Auto", exact: true }).check();
   await form.getByRole("checkbox", { name: /I agree that The Bass Agency may contact me/ }).check();
   await form.getByRole("button", { name: "Send my request" }).click();
   await expect(form.getByText("Thank you — we have your request.")).toBeVisible();

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { createOpportunity, updateOpportunity } from "@/app/(app)/opportunities/actions";
 import { Field, FormAlert, SelectField, SubmitButton, useActionForm } from "@/components/form";
 import type { Opportunity, Pipeline } from "@/lib/opportunities/types";
-import { PRODUCT_LINES, PRODUCT_LINE_NAMES, type ProductLine } from "@/lib/pipelines";
+import { PRODUCT_LINES, PRODUCT_LINE_NAMES, SIX_MONTH_LINES, type ProductLine } from "@/lib/pipelines";
 
 type Props =
   | { mode: "create"; contactId: string; contactName: string; pipelines: Pipeline[]; defaultLine?: ProductLine; opportunity?: undefined }
@@ -27,7 +27,7 @@ export function OpportunityForm(props: Props) {
   };
   const [line, setLine] = useState<ProductLine>((v("product_line") as ProductLine | undefined) ?? props.defaultLine ?? "auto");
   const err = state.fieldErrors ?? {};
-  const isAuto = (props.mode === "create" ? line : existing!.product_line) === "auto";
+  const sixMonth = (SIX_MONTH_LINES as readonly string[]).includes(props.mode === "create" ? line : existing!.product_line);
   const pipelines = props.mode === "create" ? props.pipelines : [];
   const submittedStage = v("stage_id");
   const [pipelineId, setPipelineId] = useState(
@@ -94,7 +94,7 @@ export function OpportunityForm(props: Props) {
           <Field label="Estimated annual premium" name="estimated_annual_premium" inputMode="decimal" required={false} defaultValue={v("estimated_annual_premium")} error={err.estimated_annual_premium} hint={PREMIUM_HINT} maxLength={20} />
           <Field label="Effective date" name="effective_date" type="date" required={false} defaultValue={v("effective_date")} error={err.effective_date} />
           <Field label="Renewal date" name="renewal_date" type="date" required={false} defaultValue={v("renewal_date")} error={err.renewal_date} />
-          {isAuto ? (
+          {sixMonth ? (
             <SelectField
               label="Policy term" name="policy_term_months" required
               options={[{ value: "12", label: "12 months" }, { value: "6", label: "6 months" }]}

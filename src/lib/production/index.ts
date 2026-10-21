@@ -3,7 +3,7 @@
 // commission rules themselves are worked out in the database (…_production.sql).
 import { z } from "zod";
 import { addMonths, isIsoDate } from "@/lib/dates";
-import type { ProductLine } from "@/lib/pipelines";
+import { PRODUCT_LINES, type ProductLine } from "@/lib/pipelines";
 
 export const LIFE_POLICY_TYPES = ["term", "whole", "universal", "indexed_universal", "final_expense"] as const;
 export type LifePolicyType = (typeof LIFE_POLICY_TYPES)[number];
@@ -25,8 +25,8 @@ export const PREMIUM_MODE_LABELS: Readonly<Record<PremiumMode, string>> = {
 };
 export const PAYMENTS_PER_YEAR: Readonly<Record<PremiumMode, number>> = { monthly: 12, quarterly: 4, semiannual: 2, annual: 1 };
 
-/** Lines with one rate pair each (life has one per policy type). */
-export const PC_LINES = ["auto", "home", "commercial"] as const;
+/** Lines with one rate pair each (life has one per policy type). Phase 30: every line but life. */
+export const PC_LINES = PRODUCT_LINES.filter((l): l is Exclude<ProductLine, "life"> => l !== "life");
 
 export interface ProductionLine {
   product_line: ProductLine;

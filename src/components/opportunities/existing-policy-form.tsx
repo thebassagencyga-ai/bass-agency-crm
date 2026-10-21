@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { createExistingPolicy } from "@/app/(app)/opportunities/actions";
 import { Field, FormAlert, SelectField, SubmitButton, useActionForm } from "@/components/form";
-import { PRODUCT_LINES, PRODUCT_LINE_NAMES, type ProductLine } from "@/lib/pipelines";
+import { PRODUCT_LINES, PRODUCT_LINE_NAMES, SIX_MONTH_LINES, type ProductLine } from "@/lib/pipelines";
 
 /** A policy the client already has (ADR-042): saved as bound, with no new-sale tasks. */
 export function ExistingPolicyForm({ contactId, contactName, defaultLine }: { contactId: string; contactName: string; defaultLine?: ProductLine }) {
@@ -38,7 +38,7 @@ export function ExistingPolicyForm({ contactId, contactName, defaultLine }: { co
       <Field label="Annual premium" name="estimated_annual_premium" inputMode="decimal" required={false} defaultValue={v("estimated_annual_premium")} error={err.estimated_annual_premium} hint="Yearly premium in dollars, e.g. 1,250." maxLength={20} />
       <Field label="Effective date" name="effective_date" type="date" required={false} defaultValue={v("effective_date")} error={err.effective_date} hint="When the policy started. Past dates are fine." />
       <Field label="Renewal date" name="renewal_date" type="date" required={false} defaultValue={v("renewal_date")} error={err.renewal_date} hint="Leave blank to use the effective date plus the term. A date already passed moves to the next renewal." />
-      {line === "auto" ? (
+      {SIX_MONTH_LINES.includes(line) ? (
         <SelectField
           label="Policy term" name="policy_term_months" required
           options={[{ value: "12", label: "12 months" }, { value: "6", label: "6 months" }]}

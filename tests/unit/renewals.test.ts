@@ -30,7 +30,7 @@ describe("parseRenewalParams", () => {
     expect(parseRenewalParams({ days: "30" })).toEqual({ days: 30, line: null });
   });
   it("ignores anything else", () => {
-    expect(parseRenewalParams({ days: "45", line: "boat" })).toEqual({ days: 60, line: null });
+    expect(parseRenewalParams({ days: "45", line: "aircraft" })).toEqual({ days: 60, line: null });
     expect(parseRenewalParams({ days: ["90", "30"], line: ["auto"] })).toEqual({ days: 90, line: "auto" });
   });
   it("builds links that keep the other filter", () => {

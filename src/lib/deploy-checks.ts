@@ -193,7 +193,7 @@ order by table_name
 export function checkVerification(row: VerificationRow): string[] {
   const expectations: [keyof VerificationRow, number, string][] = [
     ["stages", 30, "pipeline stages"],
-    ["product_lines", 4, "product lines"],
+    ["product_lines", 13, "product lines"],
     ["tables_without_rls", 0, "tables without row level security"],
     ["anon_grants", 0, "privileges granted to anon"],
     ["crm_tables", CRM_TABLES.length, "CRM tables"],

@@ -1425,3 +1425,36 @@ safe); Deploy app 39498481275 succeeded after the migration (bundle check clean,
    used yet: the deal needs a line the CRM does not have (owner asked for more lines, Phase 30).
    Board colours: owner asked why the working stages share one colour (intentional: colour by
    stage type, ADR-047); keeps it as is.
+
+## Phase 30 — More lines (branch `phase-30-more-lines`)
+Owner request 2026-10-20 (after the Phase 29 check): more lines than Auto, Home, Commercial and
+Life. Choices: Renters, Condo, Umbrella, Commercial Auto, Motorcycle, Boat, RV, Farm, Mobile Home;
+each joins the pipeline of a related line; the quote form offers them; board header colours stay
+by stage type. Design approved ("Approved", 2026-10-21). ADR-048.
+
+**Built**
+- Nine lines in `product_lines`, with `pipeline_line` (the starting pipeline each joins):
+  Motorcycle, Boat, RV → Auto; Renters, Condo, Mobile Home, Umbrella → Home; Commercial Auto,
+  Farm → Commercial. Grouped display order.
+- Routes: each new line goes to the pipeline its related line goes to today (existing agents in
+  the migration; new agents via `insert_default_pipelines`). Re-routable in Settings → Pipelines.
+- Chips in the family colour, text naming the line; line-named tags likewise (e.g. "Mobile Home").
+- 6-month term on Auto and Motorcycle (constraint, lifecycle trigger, import, forms).
+- Quote form and quick intake list every line; a request may ask for 1–13 lines (was 1–4).
+- Cross-sell rules may name any line as held. Import maps renters/HO4, condo/HO6, mobile and
+  manufactured homes, umbrella/PUP, motorcycle, boat/watercraft, RV/motor home/travel trailer,
+  commercial auto, farm to the new lines (commercial umbrella stays Commercial).
+- Settings → Commission: a rate pair per line. Reports → Production and the dashboard show the
+  four main lines always and another line once it has a deal, sale, renewal or rate.
+- Migration `20261108120000_more_lines.sql`; deploy verification expects 13 product lines.
+
+**Tests (2026-10-21)**
+| Where | Result |
+|---|---|
+| Local: lint, typecheck | pass |
+| Local: unit | 556 passed (new: thirteen lines and families, `linesToShow`, family chip colours, line-named tags, import guesses for the new types, rate rows; tests that used "boat" as an unknown line now use "aircraft") |
+| Local: database (PostgreSQL 16) | 520 passed (new `more-lines.test.ts`: routes for a new agent, a Renters deal in the Home pipeline, 6-month term per line and on a line change, import terms, cross-sell lines, a rate row per line; a 13-line quote request; reference data matches `src/lib/pipelines.ts`; pipelines tests updated for the new routes) |
+| Local: integration (real Supabase stack) | 53 passed (new: an Umbrella deal goes to the Home pipeline through the Data API) |
+| Local: browser tests against the Cloudflare build | 36 of 37: new `more-lines.spec.ts` passes; nine specs updated because "Auto" now also matches "Commercial Auto" and "Home" matches "Mobile Home" (exact names), the P&C pipeline test also moves Motorcycle, Boat and RV, and the import test's unknown type is "Pet". Lighthouse cannot run in this container (CI runs it) |
+| CI | pending |
+| Production | not deployed |

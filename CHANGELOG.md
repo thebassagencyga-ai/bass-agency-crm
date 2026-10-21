@@ -2,6 +2,19 @@
 
 All meaningful changes, grouped by milestone.
 
+## Phase 30 — More lines (2026-10-21, in review)
+### Added
+- Nine lines: **Motorcycle, Boat, RV** (on the Auto board), **Renters, Condo, Mobile Home,
+  Umbrella** (on the Home board), **Commercial Auto, Farm** (on the Commercial board). Each card's
+  chip names the line in its board's colour. Any line can be moved to another board in
+  Settings → Pipelines.
+- The quote form, import, Change line, filters, cross-sell rules and Settings → Commission offer
+  every line. A 6-month term is available on Motorcycle as well as Auto.
+### Changed
+- Import no longer folds renters, condo, umbrella, motorcycle, commercial auto, farm and similar
+  policy types into Home, Auto or Commercial.
+- A quote request may ask for any number of lines (was at most 4).
+
 ## Phase 29 — Colour and fixing mistakes (2026-10-20, approved)
 ### Added
 - **Colour:** board stage headers are tinted (working stages blue, your quote stage amber, Won

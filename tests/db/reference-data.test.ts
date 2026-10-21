@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { PIPELINES, PRODUCT_LINES } from "@/lib/pipelines";
+import { BASE_LINES, LINE_FAMILY, PIPELINES, PRODUCT_LINE_NAMES, PRODUCT_LINES } from "@/lib/pipelines";
 import { asUser, connect, createUser, type Db } from "./helpers";
 
 let db: Db;
@@ -11,12 +11,19 @@ afterAll(async () => {
 });
 
 describe("reference data", () => {
-  it("seeds exactly the four product lines", async () => {
-    const { rows } = await db.query<{ code: string }>("select code from public.product_lines order by sort_order");
-    expect(rows.map((r) => r.code)).toEqual([...PRODUCT_LINES]);
+  it("seeds exactly the product lines in src/lib/pipelines.ts, with names and starting pipelines", async () => {
+    const { rows } = await db.query<{ code: string; name: string; pipeline_line: string }>(
+      "select code, name, pipeline_line from public.product_lines order by sort_order",
+    );
+    expect(rows).toEqual(PRODUCT_LINES.map((code) => ({ code, name: PRODUCT_LINE_NAMES[code], pipeline_line: LINE_FAMILY[code] })));
   });
 
-  it.each(PRODUCT_LINES)("seeds the %s pipeline exactly as defined in src/lib/pipelines.ts", async (line) => {
+  it("stage templates exist for the four starting lines only", async () => {
+    const { rows } = await db.query<{ product_line: string }>("select distinct product_line from public.pipeline_stages order by product_line");
+    expect(rows.map((r) => r.product_line)).toEqual([...BASE_LINES].sort());
+  });
+
+  it.each(BASE_LINES)("seeds the %s pipeline exactly as defined in src/lib/pipelines.ts", async (line) => {
     const { rows } = await db.query<{ code: string; name: string; kind: string }>(
       "select code, name, kind::text from public.pipeline_stages where product_line = $1 order by position",
       [line],

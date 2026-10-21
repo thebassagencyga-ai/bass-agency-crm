@@ -1272,3 +1272,33 @@ could not be corrected. Clients entered as new sales before "Add existing policy
 **Consequences.** 30 Data API functions. Tasks and activities of a removed deal stay on the
 contact's history (closed). A contact's client status is not changed by a removal.
 
+## ADR-048 — More lines of business (Phase 30)
+**Date:** 2026-10-21. **Status:** accepted (owner choices 2026-10-20, design "Approved" 2026-10-21).
+
+**Context.** The CRM had four lines (Auto, Home, Commercial, Life). The owner needs Renters,
+Condo, Umbrella, Commercial Auto and others; imports folded them into the four (a renters
+policy became Home), and a deal could not be corrected to a line that did not exist.
+
+**Decision.**
+- Nine more lines in `product_lines`: Motorcycle, Boat, RV; Renters, Condo, Mobile Home,
+  Umbrella; Commercial Auto, Farm. New column `product_lines.pipeline_line` names the starting
+  pipeline each joins (Auto, Home and Commercial respectively). No new stage templates.
+- **Board:** each new line's route points at the pipeline its related line routes to (for every
+  existing agent in the migration, and in `insert_default_pipelines` for new agents). No extra
+  boards; the agent can re-route any line in Settings → Pipelines. Chips use the family's colour
+  (no new colour tokens); the chip text names the exact line.
+- **6-month term:** Auto and Motorcycle (constraint, lifecycle trigger, `import_book`;
+  `SIX_MONTH_LINES` in `src/lib/pipelines.ts`).
+- **Quote form:** offers every line; a request may ask for 1–13 lines (was 1–4). Vehicle
+  questions stay Auto only.
+- **Cross-sell:** rules may name any of the 13 lines as held (constraint list updated).
+- **Import:** policy-type words map to the new lines (renters/HO4, condo/HO6, mobile/manufactured
+  home, umbrella/PUP, motorcycle, boat/watercraft, RV/motor home/travel trailer, commercial auto,
+  farm). Deals already in the CRM keep their line.
+- **Production:** one rate pair per line (life still per policy type). Reports → Production and
+  the dashboard show the four main lines always and another line once it has something.
+
+**Consequences.** Deploy verification expects 13 product lines (tables 26, functions 30,
+anonymous 3, template stages 30 unchanged). Adding a line later is a migration plus
+`src/lib/pipelines.ts` (the reference-data test fails if they differ).
+

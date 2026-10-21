@@ -160,8 +160,8 @@ describe("configurable", () => {
         ),
       ));
     expect(await insert("{auto,home}", "home")).toBe("23514");
-    expect(await insert("{boat}", "home")).toBe("23514");
-    expect(await insert("{auto}", "boat")).toBe("23503");
+    expect(await insert("{aircraft}", "home")).toBe("23514");
+    expect(await insert("{auto}", "aircraft")).toBe("23503");
   });
 });
 

@@ -16,7 +16,7 @@ import { getOpportunity, getPipelines, getStages, stagesFor } from "@/lib/opport
 import { formatMoney } from "@/lib/opportunities/format";
 import { canToggleNurture } from "@/lib/opportunities/transitions";
 import { LOSS_REASON_LABELS } from "@/lib/opportunities/types";
-import { PRODUCT_LINE_NAMES } from "@/lib/pipelines";
+import { PRODUCT_LINE_NAMES, SIX_MONTH_LINES } from "@/lib/pipelines";
 import { RenewalHistory } from "@/components/renewals/history";
 import { termLabel } from "@/lib/renewals";
 import { outcomesFor } from "@/lib/renewals/data";
@@ -101,7 +101,7 @@ export default async function OpportunityPage({
     ...(!coverageCard && (opp.current_carrier || opp.current_policy_renews_on)
       ? [["Current coverage", [opp.current_carrier, opp.current_policy_renews_on ? `renews ${formatDateOnly(opp.current_policy_renews_on)}` : null].filter(Boolean).join(", ")] as [string, React.ReactNode]]
       : []),
-    ...(opp.product_line === "auto" ? [["Policy term", termLabel(opp.policy_term_months)] as [string, React.ReactNode]] : []),
+    ...((SIX_MONTH_LINES as readonly string[]).includes(opp.product_line) ? [["Policy term", termLabel(opp.policy_term_months)] as [string, React.ReactNode]] : []),
     ...(opp.policy_ended_on ? [["Policy ended", formatDateOnly(opp.policy_ended_on)] as [string, React.ReactNode]] : []),
     ...(opp.outcome === "lost" && opp.loss_reason
       ? [["Loss reason", [LOSS_REASON_LABELS[opp.loss_reason], opp.loss_reason_detail].filter(Boolean).join(" — ")] as [string, React.ReactNode]]

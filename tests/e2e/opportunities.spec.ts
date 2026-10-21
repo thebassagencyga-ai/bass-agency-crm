@@ -23,7 +23,7 @@ test("add opportunities, move through the pipeline, lose, reopen, win and search
 
   // Home opportunity with quote details; renewal before effective is refused.
   await page.getByRole("link", { name: "Add opportunity" }).click();
-  await page.getByRole("radio", { name: "Home" }).check();
+  await page.getByRole("radio", { name: "Home", exact: true }).check();
   await page.getByLabel("Starting stage").selectOption({ label: "Contacted" });
   await page.getByLabel("Description", { exact: false }).fill("Lake house");
   await page.getByText("Quote and policy dates").click();
@@ -34,7 +34,7 @@ test("add opportunities, move through the pipeline, lose, reopen, win and search
   expect(await noSidewaysScroll(page)).toBe(true);
   await page.getByRole("button", { name: "Add opportunity" }).click();
   await expect(page.getByText("The renewal date must be after the effective date.")).toBeVisible();
-  await expect(page.getByRole("radio", { name: "Home" })).toBeChecked(); // choice survives the form reset
+  await expect(page.getByRole("radio", { name: "Home", exact: true })).toBeChecked(); // choice survives the form reset
   await page.getByLabel("Renewal date", { exact: false }).fill("2027-11-01");
   await page.getByRole("button", { name: "Add opportunity" }).click();
   await expect(page.getByText("Opportunity saved.")).toBeVisible();

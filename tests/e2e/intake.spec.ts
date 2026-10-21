@@ -40,8 +40,8 @@ test("public intake link → review inbox → accept; quick intake; link off and
   await form.getByLabel("City", { exact: false }).fill("Carrollton");
   await expect(form.getByLabel("State", { exact: false })).toHaveValue("GA");
   await form.getByLabel("ZIP", { exact: false }).fill("30117");
-  await form.getByRole("checkbox", { name: "Auto" }).check();
-  await form.getByRole("checkbox", { name: "Home" }).check();
+  await form.getByRole("checkbox", { name: "Auto", exact: true }).check();
+  await form.getByRole("checkbox", { name: "Home", exact: true }).check();
   await form.getByLabel("Auto: current company", { exact: false }).fill("Example Mutual");
   await form.locator("#renews_auto").selectOption({ label: "March" });
   // Vehicles appear because Auto is ticked; one bad year is explained, then fixed.

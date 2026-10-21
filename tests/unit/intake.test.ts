@@ -101,7 +101,7 @@ describe("parseIntakeForm", () => {
   });
 
   it("needs at least one known line", () => {
-    const entries: [string, string][] = [...good.filter(([k]) => k !== "lines"), ["lines", "boat"]];
+    const entries: [string, string][] = [...good.filter(([k]) => k !== "lines"), ["lines", "aircraft"]];
     expect(parseIntakeForm(fd(entries), { requireConsent: true })).toMatchObject({ ok: false, fieldErrors: { lines: expect.any(String) } });
   });
 
