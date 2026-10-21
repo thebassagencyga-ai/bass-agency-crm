@@ -1376,7 +1376,7 @@ and verification passed (26 tables, 26 two-step policies, 28 Data API functions 
    Verify expects 26 tables, 28 Data API functions, 3 anonymous functions.
 3. Deploy app (Cloudflare).
 4. Settings → Commission and goals: enter your real rates and goals. Open a life policy →
-   Commission details. Then Reports → Production. ⏳ Manual check.
+   Commission details. Then Reports → Production. ✅ Owner 2026-10-21: complete.
 
 ## Phase 29 — Colour and fixing mistakes (branch `phase-29-colour-fixes`)
 Owner requests 2026-10-20 (board and Clients photos): light colour on stage headers, cards and
@@ -1473,5 +1473,6 @@ and verification passed (13 product lines, 30 template stages, 26 tables, 26 two
    Verify expects 13 product lines, 26 tables, 30 Data API functions, 3 anonymous functions.
 3. Deploy app (Cloudflare) — after step 2.
 4. Change line on the auto-saved-as-home deal; add a Renters or Umbrella deal and check it sits on
-   the Home board with its chip; optionally enter rates for the new lines. ⏳ Manual check.
+   the Home board with its chip; optionally enter rates for the new lines. ✅ Owner 2026-10-21:
+   all three complete (this also finishes the Phase 29 Change line check).
 
