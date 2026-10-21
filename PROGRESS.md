@@ -1476,3 +1476,9 @@ and verification passed (13 product lines, 30 template stages, 26 tables, 26 two
    the Home board with its chip; optionally enter rates for the new lines. ✅ Owner 2026-10-21:
    all three complete (this also finishes the Phase 29 Change line check).
 
+## Hosting — Cloudflare Workers Paid (2026-10-21)
+The owner upgraded the Cloudflare account to Workers Paid ($5/month), the fix for the
+intermittent error 1102 (CPU limit on Workers Free) reported 2026-10-20. Owner action in
+Cloudflare; nothing changed in the app or deploys. Recorded in ADR-049, README costs and runbook
+§9–§10. Added monthly cost now $5 (guardrail < $25).
+

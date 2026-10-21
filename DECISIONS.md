@@ -1302,3 +1302,19 @@ policy became Home), and a deal could not be corrected to a line that did not ex
 anonymous 3, template stages 30 unchanged). Adding a line later is a migration plus
 `src/lib/pipelines.ts` (the reference-data test fails if they differ).
 
+## ADR-049 — Cloudflare Workers Paid ($5/month)
+**Date:** 2026-10-21. **Status:** accepted (owner upgraded the Cloudflare account, 2026-10-21).
+
+**Context.** Production ran on Workers Free (ADR-004, ADR-017), which stops a request after 10 ms
+of CPU. Busier pages (the Opportunities board, Focus, reports) intermittently showed Cloudflare
+error 1102 (owner screenshots, 2026-10-20). ADR-017 named Workers Paid as the fix, pending the
+owner's approval; the owner chose to do it later and confirmed the upgrade on 2026-10-21.
+
+**Decision.** Workers Paid on the owner's Cloudflare account, $5/month. No code or configuration
+change: the same Worker, address and deploy workflow. Heavy calculations stay in the database
+(Production, Focus) to keep CPU use low.
+
+**Consequences.** Added infrastructure cost $5/month (total $5 of the $25 guardrail; AI still
+$0, capped at $10 if connected). Error 1102 should no longer occur; if it does, check the plan
+first (runbook §9). Owner action, not verified from this repository (no Cloudflare access here).
+

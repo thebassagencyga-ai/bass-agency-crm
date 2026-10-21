@@ -189,22 +189,22 @@ feature.)
 | Symptom | Likely cause | What to do |
 |---|---|---|
 | Page shows "Sign-in is unavailable right now" | Supabase outage | Check status.supabase.com; wait. |
-| Cloudflare error **1102** | A page exceeded the free plan's 10 ms CPU limit | Tell the developer; the fix may be Workers Paid ($5/month) — needs your approval. |
+| Cloudflare error **1102** | A page exceeded the Worker's CPU limit (should not happen since Workers Paid, 2026-10-21) | Check Cloudflare → Workers & Pages → Plans still shows Workers Paid; then tell the developer with the time and page. |
 | "Something went wrong" page | App or database error | Retry; check Cloudflare → Workers → Logs (Observability) for the time; tell the developer with the time and the reference shown. |
 | Data looks wrong after a change | Bug | Don't edit data in Supabase directly; tell the developer. If needed, restore (section 4). |
 | "Sign-in is unavailable" after a quiet week or more | Supabase Free paused the project (it emails you first) | Supabase → the CRM project → **Restore project**; data is kept. Wait a few minutes. |
 | Phone shows "You're offline" | No signal | Nothing is stored on the phone; reconnect and tap Try again. |
 
-## 10. Costs (re-checked 2026-10-16; Supabase Free)
+## 10. Costs (updated 2026-10-21: Workers Paid; Supabase Free)
 | Item | Monthly |
 |---|---|
 | Supabase Free plan (CRM project) | $0 |
 | Backups in GitHub Actions (a few KB per night, 30 days) | $0 |
-| Cloudflare Workers Free (100,000 requests/day, 10 ms CPU per request) | $0 |
+| Cloudflare Workers Paid (owner upgraded 2026-10-21, ADR-049; ends the free plan's 10 ms CPU limit behind error 1102) | $5 |
 | GitHub private repo + Actions (free minutes) | $0 |
 | Address `*.workers.dev` | $0 |
 | AI helpers (Phase 19) | $0 while not connected; at most $10 if connected (app cap + Anthropic console limit) |
-| **Added total** | **$0** (guardrail: under $25). Supabase Pro ($25/month) would add daily backups, no pausing, leaked-password protection and inactivity sign-out — needs your approval. |
+| **Added total** | **$5** (guardrail: under $25). Supabase Pro ($25/month) would add daily backups, no pausing, leaked-password protection and inactivity sign-out — needs your approval. |
 
 No purchase, plan change or paid add-on without the owner's explicit approval.
 

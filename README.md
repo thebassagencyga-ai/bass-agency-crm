@@ -17,18 +17,18 @@ prompts and basic reports.
 | Auth | Supabase Auth (email + password, invite only) | `@supabase/ssr` cookie sessions |
 | Validation | zod on the server | |
 | Tests | Vitest (unit + database), Playwright (E2E, Phase 11) | Database tests run SQL as Supabase's API roles |
-| Hosting | Cloudflare Workers via `@opennextjs/cloudflare` | Free plan; Vercel Pro fallback needs approval |
+| Hosting | Cloudflare Workers via `@opennextjs/cloudflare` | Workers Paid, $5/month (ADR-049); Vercel Pro fallback needs approval |
 | CI | GitHub Actions | lint, typecheck, tests, build |
 
 ## Cost assumptions
 | Item | Expected monthly cost | Status |
 |------|----------------------|--------|
 | Supabase Free plan (CRM project) | $0 | backups in GitHub Actions, $0 (ADR-027) |
-| Cloudflare Workers free plan | $0 | in production since Phase 12 |
+| Cloudflare Workers Paid | $5 | owner upgraded 2026-10-21 to end error 1102 (ADR-049) |
 | AI helpers (built, not connected) | $0 now; capped at $10 if connected | owner decision (ADR-035) |
 | GitHub private repo + Actions (free minutes) | $0 | |
 | Domain | $0 (`*.workers.dev`) — purchase only with approval | |
-| **Total added** | **$0/month** (guardrail: < $25) | |
+| **Total added** | **$5/month** (guardrail: < $25) | |
 
 ## Prerequisites
 - Node.js 22 LTS (≥ 22.12) and npm
@@ -122,7 +122,7 @@ is approved (they mirror `supabase/config.toml`):
    again and set up a new one.
 
 ## Deployment (Phase 12, ADR-026)
-Production runs on Cloudflare Workers (free plan) at
+Production runs on Cloudflare Workers (Workers Paid since 2026-10-21) at
 `https://bass-agency-crm.<subdomain>.workers.dev` against the CRM Supabase project.
 GitHub → Actions:
 - **Deploy database migrations** — dry run, then apply; ends with a schema verification.
