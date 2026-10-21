@@ -1456,5 +1456,5 @@ by stage type. Design approved ("Approved", 2026-10-21). ADR-048.
 | Local: database (PostgreSQL 16) | 520 passed (new `more-lines.test.ts`: routes for a new agent, a Renters deal in the Home pipeline, 6-month term per line and on a line change, import terms, cross-sell lines, a rate row per line; a 13-line quote request; reference data matches `src/lib/pipelines.ts`; pipelines tests updated for the new routes) |
 | Local: integration (real Supabase stack) | 53 passed (new: an Umbrella deal goes to the Home pipeline through the Data API) |
 | Local: browser tests against the Cloudflare build | 36 of 37: new `more-lines.spec.ts` passes; nine specs updated because "Auto" now also matches "Commercial Auto" and "Home" matches "Mobile Home" (exact names), the P&C pipeline test also moves Motorcycle, Boat and RV, and the import test's unknown type is "Pet". Lighthouse cannot run in this container (CI runs it) |
-| CI | pending |
+| CI | first run 39530114217 failed on one browser test outside this phase (alerts: the page reloaded before turning a device off had saved); the test now waits for the save. Run 39531885106 (commit after the fix): all 4 jobs pass, incl. migrations on Supabase's real image, the full browser suite and Lighthouse |
 | Production | not deployed |
