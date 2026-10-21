@@ -41,7 +41,7 @@ inherits the standard exit criteria at the bottom of this file.
 | fix | Board toolbar: one compact row, board fills the window (owner request, 2026-10-20) | 25 | APPROVED, DEPLOYED (2026-10-20) |
 | 28 | Production and commission (Reports → Production, rates and goals, life details; estimates only) | 27 | APPROVED, DEPLOYED (2026-10-20) — owner check pending |
 | 29 | Colour on the board and tags; fix mistakes (change line, existing policy, remove) | 28 | APPROVED, DEPLOYED (2026-10-20) — owner check pending |
-| 30 | More lines (Motorcycle, Boat, RV, Renters, Condo, Mobile Home, Umbrella, Commercial Auto, Farm) | 29 | APPROVED (2026-10-21) — deploy pending |
+| 30 | More lines (Motorcycle, Boat, RV, Renters, Condo, Mobile Home, Umbrella, Commercial Auto, Farm) | 29 | APPROVED, DEPLOYED (2026-10-21) — owner check pending |
 | docs | Documentation refresh (workflow audit, owner decision 8) | 27 | APPROVED, MERGED (2026-10-20) — no deploy needed |
 | 27 | Workflow audit Step 3: ProducrIQ Focus (quiet deals, nurture check-backs, re-quotes, referrer thank-you; no AI) | 26 | APPROVED, DEPLOYED, iPhone check passed (2026-10-20) |
 
@@ -772,5 +772,5 @@ header colours unchanged. Design approved ("Approved", 2026-10-21). ADR-048.
 - ✅ Production: a rate pair per line; the report and dashboard add a line once it has something.
 - ✅ Deploy verification: 13 product lines; tables, functions and anonymous functions unchanged.
 
-**Status:** APPROVED by the owner 2026-10-21; deploy pending. See PROGRESS.md.
+**Status:** APPROVED and DEPLOYED 2026-10-21 (migration applied, verify passed, smoke test passed). ⏳ Owner: Change line on the auto-saved-as-home deal; check a Renters/Umbrella deal on the Home board. See PROGRESS.md.
 

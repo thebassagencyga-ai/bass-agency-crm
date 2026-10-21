@@ -1457,9 +1457,15 @@ by stage type. Design approved ("Approved", 2026-10-21). ADR-048.
 | Local: integration (real Supabase stack) | 53 passed (new: an Umbrella deal goes to the Home pipeline through the Data API) |
 | Local: browser tests against the Cloudflare build | 36 of 37: new `more-lines.spec.ts` passes; nine specs updated because "Auto" now also matches "Commercial Auto" and "Home" matches "Mobile Home" (exact names), the P&C pipeline test also moves Motorcycle, Boat and RV, and the import test's unknown type is "Pet". Lighthouse cannot run in this container (CI runs it) |
 | CI | first run 39530114217 failed on one browser test outside this phase (alerts: the page reloaded before turning a device off had saved); the test now waits for the save. Run 39531885106 (commit after the fix): all 4 jobs pass, incl. migrations on Supabase's real image, the full browser suite and Lighthouse |
-| Production | not deployed |
+| Production | deployed 2026-10-21 (see below) |
 
 **Approved by the owner 2026-10-21** ("Approved").
+
+**Production deploy (2026-10-21, commit 5922914):** CI on `main` 39534538980 passed; migrations
+dry run 39540230878 listed only `20261108120000_more_lines.sql`; apply run 39540788354 applied it
+and verification passed (13 product lines, 30 template stages, 26 tables, 26 two-step policies,
+30 Data API functions, exactly 3 anonymous functions, automation engine safe); Deploy app
+39540876723 succeeded after the migration (bundle check clean, smoke test passed).
 
 **Owner actions after approval**
 1. Merge to `main` (Claude).
